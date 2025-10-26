@@ -320,6 +320,7 @@ jobs:
         run: npm ci
       
       - name: Semantic Release
+        id: semantic
         uses: cycjimmy/semantic-release-action@v4
         with:
           semantic_version: 24
@@ -329,6 +330,15 @@ jobs:
             conventional-changelog-conventionalcommits@8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Trigger platform builds if new release
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          echo "New release: ${{ steps.semantic.outputs.new_release_version }}"
+          echo "Starting platform builds for v${{ steps.semantic.outputs.new_release_version }}"
+          gh workflow run ci-cd.yml --ref "v${{ steps.semantic.outputs.new_release_version }}" || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # ============================================================================
   # PLATFORM BUILDS - Build Android and Desktop on tags or manual trigger
