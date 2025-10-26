@@ -1,9 +1,9 @@
 name: Build Mobile (Android)
 
+# This workflow is deprecated. Use release.yml instead.
+# Kept for manual workflow dispatch only.
+
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: '20'
           cache: 'npm'
       
       - name: Install dependencies
@@ -27,9 +27,8 @@ jobs:
       - name: Build web app
         run: npm run build
       
-      - name: Setup Capacitor
-        run: |
-          npx cap sync android
+      - name: Sync Capacitor
+        run: npx cap sync android
       
       - name: Setup JDK 17
         uses: actions/setup-java@v4
@@ -44,17 +43,8 @@ jobs:
           ./gradlew assembleRelease
       
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: app-release-unsigned
           path: android/app/build/outputs/apk/release/app-release-unsigned.apk
-      
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: android/app/build/outputs/apk/release/app-release-unsigned.apk
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          retention-days: 7

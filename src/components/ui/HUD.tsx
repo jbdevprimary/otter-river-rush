@@ -1,13 +1,21 @@
 import React from 'react';
 import { useGameStore } from '../../hooks/useGameStore';
+import { VirtualJoystick } from './VirtualJoystick';
 
 /**
  * HUD Component - Heads-up display during gameplay
- * Shows score, distance, coins, gems, combo
+ * Shows score, distance, coins, gems, combo, and virtual joystick
  */
 
 export function HUD(): React.JSX.Element {
   const { score, distance, coins, gems, combo, lives } = useGameStore();
+
+  // Simple lane switching via joystick
+  const handleJoystickMove = (direction: 'left' | 'right'): void => {
+    // Dispatch custom event for the Otter component to listen to
+    const event = new CustomEvent('joystick-move', { detail: { direction } });
+    window.dispatchEvent(event);
+  };
 
   return (
     <div className="absolute inset-0 pointer-events-none">
@@ -34,14 +42,17 @@ export function HUD(): React.JSX.Element {
         </div>
       )}
 
-      {/* Lives */}
-      <div className="absolute bottom-4 left-4 flex gap-2">
+      {/* Lives - moved to top-right to avoid joystick overlap */}
+      <div className="absolute top-4 right-4 flex gap-2 mt-12">
         {Array.from({ length: lives }).map((_, i) => (
           <span key={i} className="text-3xl drop-shadow-lg">
             ❤️
           </span>
         ))}
       </div>
+
+      {/* Virtual Joystick for mobile */}
+      <VirtualJoystick onMove={handleJoystickMove} enabled={true} />
     </div>
   );
 }

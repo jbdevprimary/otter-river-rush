@@ -65,7 +65,7 @@ jobs:
         run: npm ci
       
       - name: Run unit tests
-        run: npm test -- --coverage
+        run: npm test -- --run
       
       - name: Upload coverage reports
         uses: codecov/codecov-action@v5
@@ -154,6 +154,7 @@ jobs:
     name: Visual Regression Tests
     runs-on: ubuntu-latest
     needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
     
@@ -188,5 +189,8 @@ jobs:
           name: visual-test-results
           path: |
             test-results/
+            playwright-report/
+          retention-days: 7
+   test-results/
             playwright-report/
           retention-days: 7

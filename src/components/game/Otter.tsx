@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import { Mesh } from 'three';
@@ -8,6 +8,7 @@ import { useInput, useTouchInput } from '../../hooks/useInput';
 /**
  * Enhanced Otter Component with Movement
  * Now responds to input and moves between lanes
+ * Supports keyboard, mouse, touch swipes, and virtual joystick
  */
 
 const LANES = [-2, 0, 2]; // Three lanes: left, center, right
@@ -34,8 +35,27 @@ export function Otter(): React.JSX.Element {
     }
   };
 
+  // Handle input from keyboard/mouse
   useInput({ onMove: handleMove, enabled: status === 'playing' });
+
+  // Handle input from touch swipes
   useTouchInput(handleMove);
+
+  // Handle input from virtual joystick
+  useEffect(() => {
+    if (status !== 'playing') return;
+
+    const handleJoystickMove = (event: Event): void => {
+      const customEvent = event as CustomEvent<{ direction: 'left' | 'right' }>;
+      handleMove(customEvent.detail.direction);
+    };
+
+    window.addEventListener('joystick-move', handleJoystickMove);
+
+    return () => {
+      window.removeEventListener('joystick-move', handleJoystickMove);
+    };
+  }, [status, handleMove]);
 
   // Animation loop
   useFrame((state, delta) => {

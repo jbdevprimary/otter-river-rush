@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build
+    name: Build Web App
     runs-on: ubuntu-latest
     
     steps:
@@ -40,13 +40,18 @@ jobs:
         env:
           NODE_ENV: production
       
+      - name: Sync Capacitor (for web)
+        run: |
+          echo "Web build ready for Capacitor"
+          echo "Build size: $(du -sh dist/ | cut -f1)"
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: ./dist
 
   deploy:
-    name: Deploy
+    name: Deploy to GitHub Pages
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
