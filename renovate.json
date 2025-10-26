@@ -20,8 +20,6 @@
       "groupSlug": "major",
       "automerge": false
     },
-
-
     {
       "description": "Group GitHub Actions updates",
       "matchManagers": ["github-actions"],
@@ -31,6 +29,13 @@
   ],
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "🤖 Dependency Updates Dashboard",
+  "dependencyDashboardAutoclose": true,
+  "dependencyDashboardHeader": "This issue lists Renovate updates and detected dependencies. Read the [Dependency Dashboard](https://docs.renovatebot.com/key-concepts/dashboard/) docs to learn more.",
+  "dependencyDashboardFooter": "---\n\n- [ ] Check this box to trigger a request for Renovate to run again on this repository",
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "assignees": []
+  },
   "prConcurrentLimit": 3,
   "prHourlyLimit": 2,
   "semanticCommits": "enabled",
