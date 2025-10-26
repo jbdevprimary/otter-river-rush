@@ -1,5 +1,29 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## 1.0.0 (2025-10-26)
+
+### ✨ Features
+
+* Add GitHub Actions CI/CD and virtual joystick for mobile ([63b1a01](https://github.com/jbcom/otter-river-rush/commit/63b1a01487e8c2882463f2c7e500b8cee2edd49f))
+* **ci:** add automated semantic versioning and consolidate workflows ([a6918eb](https://github.com/jbcom/otter-river-rush/commit/a6918eba7a41bb03d80415245dc5a65adbe3f935))
+* Complete multi-platform game implementation ([d9887c3](https://github.com/jbcom/otter-river-rush/commit/d9887c32afe842030ae3f1563e84d1b5fcc3495a))
+
+### 🐛 Bug Fixes
+
+* **ci:** add timeouts and make E2E tests non-blocking for deployment ([765c1d7](https://github.com/jbcom/otter-river-rush/commit/765c1d7610212bb5a8e961be0c0b2d26984506e4))
+* Remove duplicate lines in ci.yml workflow ([51485cd](https://github.com/jbcom/otter-river-rush/commit/51485cda249594b959269b1c6e32d1692fbef363))
+
+### ♻️ Refactoring
+
+* Merge CI and Deploy into unified CI/CD workflow ([37987b9](https://github.com/jbcom/otter-river-rush/commit/37987b90e57916f985d82b76ea3b6197c910f7c0))
+
+# Changelog
+
 All notable changes to Otter River Rush will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
