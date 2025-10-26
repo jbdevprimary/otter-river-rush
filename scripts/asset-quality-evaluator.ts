@@ -61,24 +61,10 @@ async function detectWhiteBackground(buffer: Buffer): Promise<boolean> {
  * Check if image has any transparency
  */
 async function hasTransparency(buffer: Buffer): Promise<boolean> {
-  const { data, info } = await sharp(buffer)
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-
-  if (!info.channels || info.channels < 4) {
-    return false; // No alpha channel
-  }
-
-  const channels = info.channels;
-
-  // Check if any pixel has alpha < 255
-  for (let i = 3; i < data.length; i += channels) {
-    if (data[i] < 255) {
-      return true;
-    }
-  }
-
-  return false;
+  const stats = await sharp(buffer).stats();
+  // The alpha channel is the 4th channel (index 3).
+  // If it exists and its minimum value is less than 255, the image has transparency.
+  return stats.channels.length > 3 && stats.channels[3].min < 255;
 }
 
 /**
