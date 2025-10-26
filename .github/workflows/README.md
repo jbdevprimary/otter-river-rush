@@ -1,33 +1,30 @@
 # GitHub Actions Workflows
 
-This directory contains automated workflows for CI/CD, deployments, and releases.
+This directory contains automated workflows for CI/CD and releases.
 
 ## 🔄 Active Workflows
 
-### CI (`.github/workflows/ci.yml`)
+### CI/CD (`.github/workflows/ci-cd.yml`)
 **Triggers**: Push to `main`/`develop`, Pull Requests
 
 **Jobs**:
 - **Lint**: ESLint + Prettier checks
 - **Type Check**: TypeScript compilation
 - **Test**: Unit tests with Vitest (70 tests)
-- **Build**: Production build + bundle size check
-- **E2E**: Playwright end-to-end tests (main branch only)
+- **Build**: Production build + bundle size check (max 5MB)
+- **E2E**: Playwright end-to-end tests
 - **Visual Tests**: Visual regression testing (main branch only)
+- **Deploy**: Auto-deploy to GitHub Pages (main branch only, after tests pass)
 
-**Status**: [![CI](https://github.com/jbcom/otter-river-rush/actions/workflows/ci.yml/badge.svg)](https://github.com/jbcom/otter-river-rush/actions/workflows/ci.yml)
+**Deploy URL**: https://jbcom.github.io/otter-river-rush/
 
----
+**Status**: [![CI/CD](https://github.com/jbcom/otter-river-rush/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/jbcom/otter-river-rush/actions/workflows/ci-cd.yml)
 
-### Deploy (`.github/workflows/deploy.yml`)
-**Triggers**: Push to `main`, Manual dispatch
-
-**What it does**:
-- Builds the web app (Capacitor-ready)
-- Deploys to GitHub Pages
-- Accessible at: https://jbcom.github.io/otter-river-rush/
-
-**Status**: [![Deploy](https://github.com/jbcom/otter-river-rush/actions/workflows/deploy.yml/badge.svg)](https://github.com/jbcom/otter-river-rush/actions/workflows/deploy.yml)
+**Key Features**:
+- ✅ PRs run validation only (no deploy)
+- ✅ Main branch: validate + auto-deploy
+- ✅ Single build, no redundancy
+- ✅ Fast feedback (~5 minutes)
 
 ---
 
@@ -39,7 +36,7 @@ This directory contains automated workflows for CI/CD, deployments, and releases
 2. **Android APK** - Unsigned release APK
 3. **Desktop Apps**:
    - macOS: `.dmg` and `.zip`
-   - Windows: `.exe` installer and portable
+   - Windows: `.exe` installer
    - Linux: `.AppImage` and `.deb` package
 
 **Artifacts**: Uploaded to GitHub Releases automatically
