@@ -191,6 +191,3 @@ jobs:
             test-results/
             playwright-report/
           retention-days: 7
-   test-results/
-            playwright-report/
-          retention-days: 7
