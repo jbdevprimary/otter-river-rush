@@ -1,36 +1,135 @@
 # Active Context - Otter River Rush
 
-**Last Updated**: 2025-10-25  
-**Current Branch**: main  
-**Session Status**: ✅ MAJOR PRODUCTION MILESTONE COMPLETE
+**Last Updated**: 2025-10-26  
+**Current Branch**: copilot/fix-bundle-size-exceeding  
+**Session Status**: ✅ CI/CD WORKFLOW UNIFICATION + AUTOMATED RELEASES
 
 ## Current Work Focus
 
-### Primary Task: Production Migration Phase 1 ✅
+### Primary Task: CI/CD Consolidation + Semantic Release Automation ✅
 **Status**: ✅ Complete  
-**Completed**: 2025-10-25
+**Completed**: 2025-10-26
 
 **Objectives Accomplished**:
-1. ✅ Resolved merge conflicts and merged refactor branch
-2. ✅ Fixed ALL TypeScript build errors (6 errors)
-3. ✅ Implemented responsive design foundation (Tailwind CSS + DaisyUI)
-4. ✅ Created comprehensive production migration plan (10-week roadmap)
-5. ✅ Setup complete cross-platform build workflows (7 platforms)
-6. ✅ Configured Capacitor for mobile (Android/iOS)
-7. ✅ Configured Electron for desktop (Windows/Mac/Linux)
-8. ✅ Created automated GitHub Actions workflows
-9. ✅ Updated memory bank documentation
+1. ✅ Fixed bundle size issue (7.1MB → 4.2MB, 41% reduction)
+   - Implemented adaptive PNG compression in process-icons.ts
+   - Optimized 37 PNG assets across sprites/icons/hud
+2. ✅ Consolidated 4 separate workflows into unified ci-cd.yml
+   - Removed release.yml, desktop-build.yml, mobile-build.yml
+   - Single workflow with intelligent gating logic
+3. ✅ Implemented automated semantic versioning
+   - Added semantic-release to auto-release job
+   - Configures .releaserc.json for version bumping
+   - Automatic changelog generation
+   - Tags created and pushed automatically
+4. ✅ Fixed conditional dependency bug in create-release job
+   - Added always() condition to handle skipped platform builds
+   - Release job runs even if Android/Desktop builds are disabled
+   - Graceful artifact handling with continue-on-error
 
 **Rationale**: 
-- Game needed modern responsive design
-- Build errors were blocking progress
-- Cross-platform deployment requires proper infrastructure
-- Memory bank needed updating after major changes
+- Bundle size was blocking CI/CD (exceeded 5MB limit)
+- Multiple workflows created maintenance burden
+- Manual version tagging is error-prone and slow
+- Need full automation for semantic versioning and releases
 
 ## Recent Changes
 
-### Production Migration & Cross-Platform Setup (2025-10-25) ✅
-**Completed**: Full production infrastructure and build system overhaul
+### CI/CD Unification + Automated Releases (2025-10-26) ✅
+**Completed**: Unified CI/CD workflow with semantic versioning automation
+
+**What Was Done**:
+
+#### 1. Bundle Size Optimization
+- **Modified `scripts/process-icons.ts`**:
+  - Adaptive PNG compression based on file size
+  - >300KB: 60% quality, >200KB: 70% quality, ≤200KB: 85% quality
+  - Added effort: 10 for maximum compression
+  - Extracted constants for maintainability
+- **Result**: 7.1MB → 4.2MB (41% reduction, 1MB margin under 5MB limit)
+
+#### 2. Workflow Consolidation
+- **Unified `.github/workflows/ci-cd.yml`**:
+  - Consolidated 4 workflows into 1 with gating logic
+  - PR: Fast validation only (lint, type-check, test, build) ~3 min
+  - Push to main: Full CI + E2E + auto-deploy to Pages + semantic-release ~9 min
+  - Version tags: Everything (CI + Android + Desktop + GitHub Release) ~25 min
+  - Manual dispatch: Configurable options for selective builds
+- **Removed workflows**: release.yml, desktop-build.yml, mobile-build.yml
+- **Single source of truth**: All CI/CD/deployment in one file
+
+#### 3. Automated Semantic Releases
+- **Added `auto-release` job** to ci-cd.yml:
+  - Runs after successful main pushes (after deploy-web)
+  - Uses semantic-release with cycjimmy/semantic-release-action@v4
+  - Analyzes commits using conventional commit format
+  - Automatically calculates next version (MAJOR.MINOR.PATCH)
+  - Generates CHANGELOG.md entries
+  - Creates and pushes git tags
+  - Comments on included PRs/issues
+  
+- **Created `.releaserc.json`**:
+  - Conventional commits preset configuration
+  - Release rules: feat→MINOR, fix→PATCH, BREAKING→MAJOR
+  - Changelog generation with emoji sections
+  - NPM publish disabled (not a library)
+  - Git plugin for committing CHANGELOG.md
+  - GitHub plugin for release creation
+  
+- **Created `.github/COMMIT_CONVENTION.md`**:
+  - Comprehensive guide for conventional commits
+  - Examples for each commit type
+  - Explanation of version bumping logic
+  - Best practices and tools
+
+#### 4. Fixed Conditional Dependency Bug
+- **Fixed `create-release` job** in ci-cd.yml:
+  - Added `always()` condition to run even if deps skipped
+  - Check `needs.build-web.result == 'success'` to ensure web build passed
+  - Added `continue-on-error: true` to artifact download
+  - Now handles missing Android/Desktop artifacts gracefully
+  - Manual dispatch with selective platform builds works correctly
+
+## How Automated Releases Work
+
+### Flow on Push to Main
+1. **CI/CD Pipeline Runs** (~9 min total)
+   - Lint, type-check, test, build-web
+   - E2E tests
+   - Deploy to GitHub Pages
+   - **Semantic Release Analysis**:
+     - Analyzes commits since last release
+     - Determines version bump (feat→MINOR, fix→PATCH, BREAKING→MAJOR)
+     - Generates changelog
+     - Updates package.json version
+     - Creates git tag (e.g., v1.2.0)
+     - Pushes tag to GitHub
+     - Commits CHANGELOG.md back to main [skip ci]
+
+2. **Tag Triggers Platform Builds** (~15-20 min)
+   - Android APK build
+   - Desktop builds (Windows, macOS, Linux)
+   - Create GitHub Release with all artifacts
+   - Attach generated CHANGELOG to release notes
+
+### Conventional Commit Examples
+```bash
+# MINOR version bump (1.0.0 → 1.1.0)
+git commit -m "feat(game): add power-up system"
+
+# PATCH version bump (1.0.0 → 1.0.1)
+git commit -m "fix(collision): prevent fall-through"
+
+# MAJOR version bump (1.0.0 → 2.0.0)
+git commit -m "feat(api)!: change config format
+
+BREAKING CHANGE: Configuration now uses YAML"
+
+# No release (chore commits don't trigger releases)
+git commit -m "docs: update readme [skip ci]"
+```
+
+### Previous Production Migration (2025-10-25) ✅
 
 **What Was Done**:
 

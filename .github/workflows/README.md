@@ -1,113 +1,150 @@
 # GitHub Actions Workflows
 
-This directory contains automated workflows for CI/CD and releases.
+This directory contains a unified CI/CD workflow for all automation needs.
 
-## 🔄 Active Workflows
+## 🔄 Unified CI/CD Workflow
 
 ### CI/CD (`.github/workflows/ci-cd.yml`)
-**Triggers**: Push to `main`/`develop`, Pull Requests
+**Single workflow handling all CI/CD, releases, and platform builds with gating logic**
 
-**Jobs**:
-- **Lint**: ESLint + Prettier checks
-- **Type Check**: TypeScript compilation
-- **Test**: Unit tests with Vitest (70 tests)
-- **Build**: Production build + bundle size check (max 5MB)
-- **E2E**: Playwright end-to-end tests
-- **Visual Tests**: Visual regression testing (main branch only)
-- **Deploy**: Auto-deploy to GitHub Pages (main branch only, after tests pass)
-
-**Deploy URL**: https://jbcom.github.io/otter-river-rush/
-
-**Status**: [![CI/CD](https://github.com/jbcom/otter-river-rush/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/jbcom/otter-river-rush/actions/workflows/ci-cd.yml)
-
-**Key Features**:
-- ✅ PRs run validation only (no deploy)
-- ✅ Main branch: validate + auto-deploy
-- ✅ Single build, no redundancy
-- ✅ Fast feedback (~5 minutes)
+**Triggers:**
+- **Pull Requests** → Fast validation (lint, type-check, test, build) - ~3 min
+- **Push to main** → Full CI + auto-deploy to GitHub Pages - ~6 min
+- **Push to develop** → Full CI only (no deploy)
+- **Version tags (v*)** → Full CI + build all platforms + create release
+- **Manual dispatch** → Configurable: choose what to build/deploy
 
 ---
 
-### Release (`.github/workflows/release.yml`)
-**Triggers**: Version tags (`v*`), Manual dispatch
+## 📋 Workflow Jobs
 
-**What it builds**:
-1. **Web (Capacitor)** - Production build uploaded as artifact
-2. **Android APK** - Unsigned release APK
-3. **Desktop Apps**:
-   - macOS: `.dmg` and `.zip`
-   - Windows: `.exe` installer
-   - Linux: `.AppImage` and `.deb` package
+### CI Jobs (Run on all events)
+- ✅ **Lint**: ESLint + Prettier checks
+- ✅ **Type Check**: TypeScript compilation
+- ✅ **Test**: Unit tests with Vitest (70 tests)
+- ✅ **Build Web**: Production build + bundle size check (max 5MB)
 
-**Artifacts**: Uploaded to GitHub Releases automatically
+### Extended Testing (Main branch only)
+- ✅ **E2E Tests**: Playwright end-to-end tests
+- ✅ **Visual Tests**: Visual regression testing
 
-**How to trigger**:
+### Deployment (Main branch only)
+- 🚀 **Deploy Web**: Auto-deploy to GitHub Pages
+  - URL: https://jbcom.github.io/otter-river-rush/
+
+### Platform Builds (Tags or manual)
+- 📱 **Build Android**: Unsigned APK for Android devices
+- 🖥️ **Build Desktop**: macOS (.dmg), Windows (.exe), Linux (.AppImage, .deb)
+
+### Release (Tags only)
+- 📦 **Create Release**: GitHub Release with all platform artifacts
+
+---
+
+## 🎯 Usage Patterns
+
+### For Contributors (Pull Requests)
+```bash
+# Push your branch → CI runs automatically
+git push origin feature/my-feature
+
+# What runs:
+# - Lint, type-check, test, build (~3 min)
+# - Fast feedback, no deployment
+```
+
+### For Maintainers (Main Branch)
+```bash
+# Push to main → Full CI + auto-deploy
+git push origin main
+
+# What runs:
+# - All CI checks
+# - E2E + visual tests
+# - Auto-deploy to GitHub Pages
+# Total: ~6 min
+```
+
+### For Releases (Version Tags)
 ```bash
 # Create and push a version tag
 git tag v1.0.0
 git push origin v1.0.0
 
-# Or manually via GitHub Actions UI
+# What runs:
+# - All CI checks
+# - Build Android APK
+# - Build desktop apps (Mac, Windows, Linux)
+# - Create GitHub Release with all artifacts
+# - Auto-deploy web to GitHub Pages
 ```
+
+### Manual Workflow Dispatch
+Go to **Actions** → **CI/CD** → **Run workflow**
+
+**Options:**
+- ✅ Deploy to GitHub Pages (default: true)
+- ✅ Build Android APK (default: true)
+- ✅ Build Desktop apps (default: true)
+- ⬜ Create GitHub Release (default: false)
+
+Use this to:
+- Build specific platforms without creating a release
+- Test release process before tagging
+- Deploy to Pages without waiting for tags
 
 ---
 
-## 📦 Manual Workflows
+## 🎨 Workflow Gating Logic
 
-### Build Mobile (`.github/workflows/mobile-build.yml`)
-**Triggers**: Manual only (deprecated, use `release.yml`)
-
-Quick Android APK build without creating a release.
-
-### Build Desktop (`.github/workflows/desktop-build.yml`)
-**Triggers**: Manual only (deprecated, use `release.yml`)
-
-Quick desktop builds for testing without creating a release.
+| Trigger | Lint/Test/Build | E2E/Visual | Deploy Web | Build Platforms | Create Release |
+|---------|----------------|------------|------------|-----------------|----------------|
+| **PR** | ✅ | ⬜ | ⬜ | ⬜ | ⬜ |
+| **Push to develop** | ✅ | ⬜ | ⬜ | ⬜ | ⬜ |
+| **Push to main** | ✅ | ✅ | ✅ | ⬜ | ⬜ |
+| **Tag v\*** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Manual (default)** | ✅ | ✅ | ✅ | ✅ | ⬜ |
 
 ---
 
-## 🚀 Usage
-
-### For Contributors (Pull Requests)
-1. Push your branch → CI runs automatically
-2. Lint, tests, and build must pass
-3. E2E/Visual tests run on `main` merge
-
-### For Maintainers (Releases)
-
-#### Quick Deploy to Pages
-```bash
-git push origin main
-# Automatically deploys to GitHub Pages
-```
-
-#### Create a Release
-```bash
-# Tag a new version
-git tag v1.0.0
-git push origin v1.0.0
-
-# Workflow automatically:
-# 1. Builds web, Android, desktop
-# 2. Creates GitHub Release
-# 3. Uploads all artifacts
-```
-
-#### Manual Build
-```bash
-# Go to Actions tab
-# Select "Release" workflow
-# Click "Run workflow"
-# Enter version tag (e.g., v1.0.0)
-```
-
----
-
-## 📋 Artifact Retention
+## 📊 Artifact Retention
 
 - **CI builds**: 7 days
-- **Release builds**: 30 days
+- **Platform builds**: 30 days
 - **GitHub Releases**: Permanent
+
+---
+
+## 🚀 Quick Reference
+
+### Deploy to Production
+```bash
+git push origin main
+# → Web auto-deploys to GitHub Pages
+```
+
+### Create Full Release
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+# → Builds all platforms + creates GitHub Release
+```
+
+### Build Android Only
+```bash
+# Use manual workflow dispatch:
+# Actions → CI/CD → Run workflow
+# - Uncheck "Build Desktop apps"
+# - Uncheck "Create GitHub Release"
+```
+
+### Build Desktop Only
+```bash
+# Use manual workflow dispatch:
+# Actions → CI/CD → Run workflow
+# - Uncheck "Build Android APK"
+# - Uncheck "Create GitHub Release"
+```
 
 ---
 
@@ -120,6 +157,16 @@ npm run lint
 npm run type-check
 npm test -- --run
 npm run build
+```
+
+### Bundle Size Exceeding Limit
+```bash
+# Check current bundle size
+npm run build
+du -sh dist
+
+# Optimize images
+npm run process-icons
 ```
 
 ### Android Build Failing
@@ -145,34 +192,31 @@ npm run electron:build
 
 ## 🔐 Secrets Required
 
-**None currently!** All workflows use:
+**None currently!** The workflow uses:
 - `GITHUB_TOKEN` (auto-provided by GitHub Actions)
 - Public npm packages (no auth needed)
 
-**For future enhancements**:
+**For future enhancements:**
 - `ANDROID_KEYSTORE`: For signed APK releases
 - `CODECOV_TOKEN`: For coverage reporting (optional)
 
 ---
 
-## 📊 Workflow Status
-
-Check all workflows: [Actions Tab](https://github.com/jbcom/otter-river-rush/actions)
-
----
-
-## 🎯 Best Practices
-
-1. **Always run CI locally first** before pushing
-2. **Use semantic versioning** for tags (v1.0.0, v1.1.0, etc.)
-3. **Test release workflow** with manual dispatch before tagging
-4. **Check artifacts** after release workflow completes
-5. **Update CHANGELOG.md** before creating releases
-
----
-
 ## 📖 Related Documentation
 
-- [Platform Setup Guide](../PLATFORM_SETUP.md)
-- [Contributing Guide](../CONTRIBUTING.md)
-- [Cross-Platform Build Guide](../docs/implementation/CROSS_PLATFORM_BUILD_GUIDE.md)
+- [Platform Setup Guide](../../PLATFORM_SETUP.md)
+- [Contributing Guide](../../CONTRIBUTING.md)
+- [Cross-Platform Build Guide](../../docs/implementation/CROSS_PLATFORM_BUILD_GUIDE.md)
+
+---
+
+## 💡 Design Philosophy
+
+**One workflow to rule them all:**
+- Single source of truth for all automation
+- Gating logic instead of multiple workflows
+- Clear, maintainable, predictable behavior
+- Fast feedback for common cases (PRs)
+- Comprehensive builds when needed (releases)
+
+**Status**: [![CI/CD](https://github.com/jbcom/otter-river-rush/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/jbcom/otter-river-rush/actions/workflows/ci-cd.yml)

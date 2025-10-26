@@ -3,19 +3,47 @@ name: CI/CD
 on:
   push:
     branches: [ main, develop ]
+    tags:
+      - 'v*'
   pull_request:
     branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      deploy_web:
+        description: 'Deploy to GitHub Pages'
+        required: false
+        type: boolean
+        default: true
+      build_android:
+        description: 'Build Android APK'
+        required: false
+        type: boolean
+        default: true
+      build_desktop:
+        description: 'Build Desktop apps'
+        required: false
+        type: boolean
+        default: true
+      create_release:
+        description: 'Create GitHub Release'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # ============================================================================
+  # CI JOBS - Run on all pushes and PRs
+  # ============================================================================
+  
   lint:
     name: Lint Code
     runs-on: ubuntu-latest
@@ -85,8 +113,8 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: false
 
-  build:
-    name: Build Project
+  build-web:
+    name: Build Web
     runs-on: ubuntu-latest
     needs: [lint, type-check, test]
     
@@ -104,6 +132,8 @@ jobs:
       
       - name: Build project
         run: npm run build
+        env:
+          NODE_ENV: production
       
       - name: Check bundle size
         run: |
@@ -120,12 +150,19 @@ jobs:
         with:
           name: dist
           path: dist/
-          retention-days: 7
+          retention-days: 30
+
+  # ============================================================================
+  # EXTENDED TESTING - Run on main branch pushes only
+  # ============================================================================
 
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-web
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch')
     
     steps:
       - uses: actions/checkout@v5
@@ -162,8 +199,10 @@ jobs:
   visual-tests:
     name: Visual Regression Tests
     runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build-web
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch')
     permissions:
       contents: read
     
@@ -200,3 +239,284 @@ jobs:
             test-results/
             playwright-report/
           retention-days: 7
+
+  # ============================================================================
+  # DEPLOYMENT - Deploy to GitHub Pages on main pushes
+  # ============================================================================
+
+  deploy-web:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: [build-web, e2e]
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && inputs.deploy_web)
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      
+      - name: Upload artifact to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # ============================================================================
+  # AUTOMATED RELEASE - Create version tags and changelogs on main pushes
+  # ============================================================================
+
+  auto-release:
+    name: Automated Release
+    runs-on: ubuntu-latest
+    needs: [build-web, e2e, deploy-web]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          semantic_version: 24
+          extra_plugins: |
+            @semantic-release/changelog@6
+            @semantic-release/git@10
+            conventional-changelog-conventionalcommits@8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================================================
+  # PLATFORM BUILDS - Build Android and Desktop on tags or manual trigger
+  # ============================================================================
+
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    needs: build-web
+    if: |
+      startsWith(github.ref, 'refs/tags/v') ||
+      (github.event_name == 'workflow_dispatch' && inputs.build_android)
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Download web build
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      
+      - name: Sync Capacitor
+        run: npx cap sync android
+      
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Build unsigned APK
+        run: |
+          cd android
+          chmod +x ./gradlew
+          ./gradlew assembleRelease
+      
+      - name: Rename APK
+        run: |
+          VERSION="${{ github.ref_name }}"
+          if [ -z "$VERSION" ] || [ "$VERSION" = "${{ github.ref }}" ]; then
+            VERSION="dev-$(date +%Y%m%d)"
+          fi
+          mv android/app/build/outputs/apk/release/app-release-unsigned.apk \
+             android/app/build/outputs/apk/release/otter-river-rush-${VERSION}-unsigned.apk
+      
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: android/app/build/outputs/apk/release/*.apk
+          retention-days: 30
+
+  build-desktop:
+    name: Build Desktop (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    needs: build-web
+    if: |
+      startsWith(github.ref, 'refs/tags/v') ||
+      (github.event_name == 'workflow_dispatch' && inputs.build_desktop)
+    
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            platform: mac
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: windows
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Download web build
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      
+      - name: Build Electron app
+        run: npm run electron:build
+      
+      - name: Upload macOS artifacts
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-mac
+          path: |
+            dist-electron/*.dmg
+            dist-electron/*.zip
+          retention-days: 30
+      
+      - name: Upload Linux artifacts
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-linux
+          path: |
+            dist-electron/*.AppImage
+            dist-electron/*.deb
+          retention-days: 30
+      
+      - name: Upload Windows artifacts
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-windows
+          path: |
+            dist-electron/*.exe
+          retention-days: 30
+
+  # ============================================================================
+  # RELEASE - Create GitHub Release for version tags
+  # ============================================================================
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-web, build-android, build-desktop]
+    # Run if conditions met AND at least build-web completed (android/desktop may be skipped)
+    if: |
+      always() &&
+      needs.build-web.result == 'success' &&
+      (startsWith(github.ref, 'refs/tags/v') ||
+       (github.event_name == 'workflow_dispatch' && inputs.create_release))
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          path: release-assets/
+      
+      - name: Display structure
+        run: ls -R release-assets/
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## 🦦 Otter River Rush ${{ github.ref_name }}
+            
+            ### 📦 Downloads
+            
+            #### 🌐 Web (PWA)
+            Play online: [https://jbcom.github.io/otter-river-rush/](https://jbcom.github.io/otter-river-rush/)
+            
+            #### 📱 Mobile
+            - **Android**: Download the APK below and install on your device
+              - Note: This is an unsigned APK. You may need to enable "Install from Unknown Sources"
+            
+            #### 🖥️ Desktop
+            - **Windows**: Download the `.exe` installer
+            - **macOS**: Download the `.dmg` file
+            - **Linux**: Download the `.AppImage` or `.deb` package
+            
+            ### 🎮 What's New
+            See [CHANGELOG.md](https://github.com/jbcom/otter-river-rush/blob/main/CHANGELOG.md) for details.
+            
+            ### 🐛 Known Issues
+            - Android APK is unsigned (requires manual security permission)
+            - First launch may take a moment to load assets
+            
+            ### 📖 Documentation
+            - [Platform Setup Guide](https://github.com/jbcom/otter-river-rush/blob/main/PLATFORM_SETUP.md)
+            - [Contributing](https://github.com/jbcom/otter-river-rush/blob/main/CONTRIBUTING.md)
+          files: |
+            release-assets/android-apk/*.apk
+            release-assets/desktop-mac/*.dmg
+            release-assets/desktop-mac/*.zip
+            release-assets/desktop-linux/*.AppImage
+            release-assets/desktop-linux/*.deb
+            release-assets/desktop-windows/*.exe
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
