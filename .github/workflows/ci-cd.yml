@@ -14,21 +14,6 @@ on:
         required: false
         type: boolean
         default: true
-      build_android:
-        description: 'Build Android APK'
-        required: false
-        type: boolean
-        default: true
-      build_desktop:
-        description: 'Build Desktop apps'
-        required: false
-        type: boolean
-        default: true
-      create_release:
-        description: 'Create GitHub Release'
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: write
