@@ -2,22 +2,24 @@
 <html lang="en" data-theme="otter">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="description" content="Otter River Rush - An endless runner game" />
-    <meta name="theme-color" content="#3b82f6" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>Otter River Rush</title>
   </head>
-  <body class="bg-gradient-to-br from-slate-900 to-slate-800 min-h-screen overflow-hidden">
-    <div id="app" class="flex items-center justify-center min-h-screen p-4">
-      <!-- Game Canvas Container -->
-      <div class="relative w-full max-w-4xl mx-auto">
-        <canvas 
-          id="gameCanvas" 
-          class="block w-full h-auto rounded-lg shadow-2xl bg-blue-900"
-        ></canvas>
+  <body class="m-0 p-0 overflow-hidden">
+    <div id="app" class="w-screen h-screen fixed inset-0">
+      <!-- Fullscreen Game Canvas -->
+      <canvas 
+        id="gameCanvas" 
+        class="block w-full h-full bg-blue-900"
+      ></canvas>
         
         <!-- UI Overlay -->
         <div id="ui" class="absolute inset-0 pointer-events-none">
@@ -289,7 +291,6 @@
             </div>
           </div>
         </div>
-      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

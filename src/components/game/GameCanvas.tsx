@@ -88,7 +88,7 @@ export function GameCanvas({
   }, [status, spawnEntity]);
 
   return (
-    <div className="w-full h-full">
+    <div className="fixed inset-0 w-screen h-screen">
       <Canvas
         className="w-full h-full"
         gl={{

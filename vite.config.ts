@@ -24,14 +24,18 @@ export default defineConfig({
       // - mask-icon.svg
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'Otter River Rush',
+        name: "Otter River Rush - Rusty's Adventure",
         short_name: 'OtterRush',
         description:
-          'An endless runner game featuring an adventurous otter navigating a rushing river',
-        theme_color: '#1e3a8a',
+          'Join Rusty the Otter on a wild river adventure! Dodge obstacles, collect coins, and ride the rapids in this exciting endless runner game.',
+        theme_color: '#0f172a',
         background_color: '#0f172a',
-        display: 'standalone',
+        display: 'fullscreen',
         orientation: 'portrait',
+        categories: ['games', 'action'],
+        lang: 'en-US',
+        start_url: '/otter-river-rush/',
+        scope: '/otter-river-rush/',
         icons: [
           {
             src: 'pwa-192x192.png',

@@ -18,37 +18,58 @@ export function HUD(): React.JSX.Element {
   };
 
   return (
-    <div className="absolute inset-0 pointer-events-none">
-      {/* Score and stats */}
+    <div className="fixed inset-0 pointer-events-none z-40">
+      {/* Score and stats - Top Left */}
       <div className="absolute top-4 left-4 space-y-2">
-        <div className="text-3xl font-bold text-white drop-shadow-lg">
-          Score: {score.toLocaleString()}
+        <div className="otter-hud-panel pointer-events-auto">
+          <div className="flex items-center gap-2">
+            <img src="/icons/hud-star.png" alt="Score" className="w-6 h-6" />
+            <span className="otter-stat">{score.toLocaleString()}</span>
+          </div>
         </div>
-        <div className="text-xl text-white/90 drop-shadow-lg">
-          Distance: {Math.floor(distance)}m
+        <div className="otter-hud-panel pointer-events-auto">
+          <div className="flex items-center gap-2">
+            <img
+              src="/icons/hud-distance.png"
+              alt="Distance"
+              className="w-6 h-6"
+            />
+            <span className="otter-stat">{Math.floor(distance)}m</span>
+          </div>
         </div>
-        <div className="flex gap-4 text-lg text-white/80 drop-shadow-lg">
-          <span>💰 {coins}</span>
-          <span>💎 {gems}</span>
+        <div className="otter-hud-panel pointer-events-auto">
+          <div className="flex items-center gap-2">
+            <img src="/icons/hud-coin.png" alt="Coins" className="w-5 h-5" />
+            <span className="otter-stat">{coins}</span>
+            <img src="/icons/hud-gem.png" alt="Gems" className="w-5 h-5 ml-2" />
+            <span className="otter-stat">{gems}</span>
+          </div>
         </div>
       </div>
 
       {/* Combo indicator */}
       {combo > 0 && (
         <div className="absolute top-4 right-4">
-          <div className="badge badge-primary badge-lg text-xl font-bold animate-pulse">
-            {combo}x Combo!
+          <div className="otter-hud-panel bg-gradient-to-r from-orange-500/50 to-yellow-500/50 border-orange-400 pointer-events-auto animate-pulse">
+            <span className="text-2xl font-extrabold text-yellow-200 drop-shadow-lg">
+              {combo}x COMBO!
+            </span>
           </div>
         </div>
       )}
 
-      {/* Lives - moved to top-right to avoid joystick overlap */}
-      <div className="absolute top-4 right-4 flex gap-2 mt-12">
-        {Array.from({ length: lives }).map((_, i) => (
-          <span key={i} className="text-3xl drop-shadow-lg">
-            ❤️
-          </span>
-        ))}
+      {/* Lives - Top Right (below combo) */}
+      <div className="absolute top-20 right-4 otter-hud-panel pointer-events-auto">
+        <div className="flex gap-1">
+          {Array.from({ length: lives }).map((_, i) => (
+            <img
+              key={i}
+              src="/icons/hud-heart.png"
+              alt="Life"
+              className="w-6 h-6"
+            />
+          ))}
+        </div>
       </div>
 
       {/* Virtual Joystick for mobile */}
