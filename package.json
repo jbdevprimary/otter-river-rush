@@ -1,0 +1,157 @@
+{
+  "name": "otter-river-rush",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "electron/main.js",
+  "description": "Otter River Rush - An endless runner game for GitHub Pages",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:visual": "playwright test tests/e2e/visual.spec.ts",
+    "test:visual:update": "playwright test tests/e2e/visual.spec.ts --update-snapshots",
+    "test:visual:ui": "playwright test tests/e2e/visual.spec.ts --ui",
+    "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0 --ignore-pattern 'android/**' --ignore-pattern 'ios/**'",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,html}\"",
+    "type-check": "tsc --noEmit",
+    "verify": "npm run lint && npm run type-check && npm test -- --run && npm run build",
+    "generate-sprites": "tsx scripts/generate-sprites.ts",
+    "generate-sprites:list": "tsx scripts/generate-sprites.ts --list",
+    "generate-content": "tsx scripts/generate-content.ts",
+    "generate-hud": "tsx scripts/generate-hud-sprites.ts",
+    "generate-pwa-icons": "tsx scripts/generate-pwa-icons.ts",
+    "process-icons": "tsx scripts/process-icons.ts",
+    "create-placeholder-icons": "tsx scripts/create-placeholder-icons.ts",
+    "generate-all": "npm run generate-sprites && npm run generate-hud && npm run generate-pwa-icons && npm run process-icons",
+    "analyze": "vite-bundle-visualizer",
+    "electron": "electron .",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:build": "npm run build && electron-builder",
+    "electron:build:all": "npm run build && electron-builder -mwl",
+    "cap:init": "cap init",
+    "cap:sync": "cap sync",
+    "cap:android": "cap open android",
+    "cap:ios": "cap open ios",
+    "cap:build:android": "npm run build && cap sync android && cd android && ./gradlew assembleRelease",
+    "cap:build:ios": "npm run build && cap sync ios && cd ios/App && xcodebuild -workspace App.xcworkspace -scheme App -configuration Release",
+    "mobile:build": "npm run cap:build:android",
+    "desktop:build": "npm run electron:build",
+    "verify:platforms": "bash scripts/verify-platforms.sh",
+    "prepare": "[ -d .git ] && npx husky install || echo 'Not a git repo, skipping husky install'"
+  },
+  "build": {
+    "appId": "com.ottergames.riverrush",
+    "productName": "Otter River Rush",
+    "directories": {
+      "output": "dist-electron",
+      "buildResources": "public"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "!electron/*.ts"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.games",
+      "icon": "public/pwa-512x512.png"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "public/pwa-512x512.png"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Game",
+      "icon": "public/pwa-512x512.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.4.0",
+    "howler": "^2.2.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "three": "^0.180.0",
+    "yuka": "^0.7.8",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@ai-sdk/openai": "^2.0.53",
+    "@anthropic-ai/sdk": "^0.67.0",
+    "@capacitor/android": "^7.4.4",
+    "@capacitor/cli": "^7.4.4",
+    "@capacitor/core": "^7.4.4",
+    "@capacitor/ios": "^7.4.4",
+    "@playwright/test": "^1.47.0",
+    "@tailwindcss/postcss": "^4.1.16",
+    "@types/howler": "^2.2.11",
+    "@types/node": "^24.9.1",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@types/three": "^0.180.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@vitest/coverage-v8": "^4.0.3",
+    "@vitest/ui": "^4.0.3",
+    "ai": "^5.0.78",
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.1",
+    "daisyui": "^5.3.9",
+    "electron": "^38.4.0",
+    "electron-builder": "^26.0.12",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "husky": "^9.0.0",
+    "jsdom": "^27.0.1",
+    "lint-staged": "^15.2.0",
+    "openai": "^6.7.0",
+    "playwright": "^1.47.0",
+    "postcss": "^8.5.6",
+    "prettier": "^3.3.0",
+    "rollup-plugin-visualizer": "^5.12.0",
+    "sharp": "^0.34.4",
+    "tailwindcss": "^4.1.16",
+    "tsx": "^4.20.6",
+    "typescript": "^5.5.0",
+    "undici": "^7.16.0",
+    "vite": "^7.1.12",
+    "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-pwa": "^1.1.0",
+    "vitest": "^4.0.3",
+    "wait-on": "^9.0.1",
+    "workbox-window": "^7.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{css,html,json,md}": [
+      "prettier --write"
+    ]
+  }
+}
