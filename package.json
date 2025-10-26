@@ -30,6 +30,8 @@
     "process-icons": "tsx scripts/process-icons.ts",
     "create-placeholder-icons": "tsx scripts/create-placeholder-icons.ts",
     "generate-all": "npm run generate-sprites && npm run generate-hud && npm run generate-ui-icons && npm run generate-pwa-icons && npm run process-icons",
+    "asset-pipeline": "tsx scripts/asset-pipeline.ts",
+    "asset-quality": "tsx scripts/asset-quality-check.ts",
     "analyze": "vite-bundle-visualizer",
     "electron": "electron .",
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
