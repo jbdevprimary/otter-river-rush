@@ -115,6 +115,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
+      - name: Generate fresh content (main branch only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          echo "🎨 Generating fresh game content..."
+          npm run generate-content || echo "⚠️  Content generation failed, using committed files"
+          npm run generate-sprites || echo "⚠️  Sprite generation failed, using committed files"
+          npm run generate-hud || echo "⚠️  HUD generation failed, using committed files"
+          npm run generate-ui-icons || echo "⚠️  UI icon generation failed, using committed files"
+          npm run asset-pipeline || echo "⚠️  Asset pipeline failed, using committed files"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        continue-on-error: true
+      
       - name: Build project
         run: npm run build
         env:

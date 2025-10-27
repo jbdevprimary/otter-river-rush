@@ -3,23 +3,17 @@
  * Level Pattern Generator - Uses Claude to generate obstacle patterns
  */
 
-import Anthropic from '@anthropic-ai/sdk';
+import { anthropic } from '@ai-sdk/anthropic';
+import { generateText } from 'ai';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
 
 async function generateLevelPatterns() {
   console.log('🗺️ Generating Level Patterns with Claude...');
   
-  const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 8000,
-    messages: [{
-      role: 'user',
-      content: `Design 15 challenging and varied obstacle patterns for "Otter River Rush", a 3-lane endless runner.
+  const { text } = await generateText({
+    model: anthropic('claude-sonnet-4-20250514'),
+    prompt: `Design 15 challenging and varied obstacle patterns for "Otter River Rush", a 3-lane endless runner.
 
 For each pattern, provide:
 1. id, name, description
@@ -66,28 +60,24 @@ export const LEVEL_PATTERNS = [
   // ... 14 more
 ];
 \`\`\``,
-    }],
   });
 
-  const content = message.content[0];
-  if (content.type === 'text') {
-    // Try to extract TypeScript code block
-    const tsCode = content.text.match(/```typescript\n([\s\S]*?)\n```/)?.[1];
-    if (tsCode) {
-      writeFileSync(
-        join(process.cwd(), 'src', 'game', 'data', 'level-patterns.ts'),
-        tsCode
-      );
-      console.log('✅ Level patterns generated and saved!');
-      console.log(`📝 ${tsCode.split('\n').length} lines of pattern data`);
-    } else {
-      // Save the whole response if no code block found
-      writeFileSync(
-        join(process.cwd(), 'src', 'game', 'data', 'level-patterns.ts'),
-        content.text
-      );
-      console.log('⚠️ Saved raw response - may need manual cleanup');
-    }
+  // Try to extract TypeScript code block
+  const tsCode = text.match(/```typescript\n([\s\S]*?)\n```/)?.[1];
+  if (tsCode) {
+    writeFileSync(
+      join(process.cwd(), 'src', 'game', 'data', 'level-patterns.ts'),
+      tsCode
+    );
+    console.log('✅ Level patterns generated and saved!');
+    console.log(`📝 ${tsCode.split('\n').length} lines of pattern data`);
+  } else {
+    // Save the whole response if no code block found
+    writeFileSync(
+      join(process.cwd(), 'src', 'game', 'data', 'level-patterns.ts'),
+      text
+    );
+    console.log('⚠️ Saved raw response - may need manual cleanup');
   }
 }
 

@@ -3,23 +3,17 @@
  * AI Content Generator - Uses Claude to generate game design content
  */
 
-import Anthropic from '@anthropic-ai/sdk';
+import { anthropic } from '@ai-sdk/anthropic';
+import { generateText } from 'ai';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
 
 async function generateEnemyBehaviors() {
   console.log('🤖 Generating Enemy AI Behaviors with Claude...');
   
-  const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 4000,
-    messages: [{
-      role: 'user',
-      content: `You're a game designer for an endless runner called "Otter River Rush". Design 6 enemy types with AI behaviors using Yuka.js steering behaviors.
+  const { text } = await generateText({
+    model: anthropic('claude-sonnet-4-20250514'),
+    prompt: `You're a game designer for an endless runner called "Otter River Rush". Design 6 enemy types with AI behaviors using Yuka.js steering behaviors.
 
 For each enemy, provide:
 1. Name and description
@@ -42,31 +36,24 @@ export const ENEMY_DEFINITIONS = [
   }
 ];
 \`\`\``,
-    }],
   });
 
-  const content = message.content[0];
-  if (content.type === 'text') {
-    const tsCode = content.text.match(/```typescript\n([\s\S]*?)\n```/)?.[1];
-    if (tsCode) {
-      writeFileSync(
-        join(process.cwd(), 'src', 'game', 'data', 'enemy-definitions.ts'),
-        tsCode
-      );
-      console.log('✅ Enemy behaviors generated!');
-    }
+  const tsCode = text.match(/```typescript\n([\s\S]*?)\n```/)?.[1];
+  if (tsCode) {
+    writeFileSync(
+      join(process.cwd(), 'src', 'game', 'data', 'enemy-definitions.ts'),
+      tsCode
+    );
+    console.log('✅ Enemy behaviors generated!');
   }
 }
 
 async function generateAchievements() {
   console.log('🏆 Generating Achievement Definitions with Claude...');
   
-  const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 4000,
-    messages: [{
-      role: 'user',
-      content: `Design 30 creative achievements for "Otter River Rush" - an endless runner game.
+  const { text } = await generateText({
+    model: anthropic('claude-sonnet-4-20250514'),
+    prompt: `Design 30 creative achievements for "Otter River Rush" - an endless runner game.
 
 Categories:
 - Distance milestones
@@ -94,31 +81,24 @@ export const ACHIEVEMENT_DEFINITIONS = [
   }
 ];
 \`\`\``,
-    }],
   });
 
-  const content = message.content[0];
-  if (content.type === 'text') {
-    const tsCode = content.text.match(/```typescript\n([\s\S]*?)\n```/)?.[1];
-    if (tsCode) {
-      writeFileSync(
-        join(process.cwd(), 'src', 'game', 'data', 'achievement-definitions.ts'),
-        tsCode
-      );
-      console.log('✅ Achievements generated!');
-    }
+  const tsCode = text.match(/```typescript\n([\s\S]*?)\n```/)?.[1];
+  if (tsCode) {
+    writeFileSync(
+      join(process.cwd(), 'src', 'game', 'data', 'achievement-definitions.ts'),
+      tsCode
+    );
+    console.log('✅ Achievements generated!');
   }
 }
 
 async function generateLevelPatterns() {
   console.log('🗺️ Generating Level Patterns with Claude...');
   
-  const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 4000,
-    messages: [{
-      role: 'user',
-      content: `Design 15 obstacle patterns for "Otter River Rush" (3-lane endless runner).
+  const { text } = await generateText({
+    model: anthropic('claude-sonnet-4-20250514'),
+    prompt: `Design 15 obstacle patterns for "Otter River Rush" (3-lane endless runner).
 
 Pattern types:
 - Wave (alternating lanes)
@@ -150,31 +130,24 @@ export const LEVEL_PATTERNS = [
   }
 ];
 \`\`\``,
-    }],
   });
 
-  const content = message.content[0];
-  if (content.type === 'text') {
-    const tsCode = content.text.match(/```typescript\n([\s\S]*?)\n```/)?.[1];
-    if (tsCode) {
-      writeFileSync(
-        join(process.cwd(), 'src', 'game', 'data', 'level-patterns.ts'),
-        tsCode
-      );
-      console.log('✅ Level patterns generated!');
-    }
+  const tsCode = text.match(/```typescript\n([\s\S]*?)\n```/)?.[1];
+  if (tsCode) {
+    writeFileSync(
+      join(process.cwd(), 'src', 'game', 'data', 'level-patterns.ts'),
+      tsCode
+    );
+    console.log('✅ Level patterns generated!');
   }
 }
 
 async function generateGameTips() {
   console.log('💡 Generating Loading Tips with Claude...');
   
-  const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 2000,
-    messages: [{
-      role: 'user',
-      content: `Write 25 helpful, fun loading screen tips for "Otter River Rush". Mix gameplay tips with otter facts and humor.
+  const { text } = await generateText({
+    model: anthropic('claude-sonnet-4-20250514'),
+    prompt: `Write 25 helpful, fun loading screen tips for "Otter River Rush". Mix gameplay tips with otter facts and humor.
 
 Examples:
 - "Otters hold hands while sleeping so they don't drift apart!"
@@ -182,19 +155,14 @@ Examples:
 - "The shield power-up can save you from one hit"
 
 Output as TypeScript array.`,
-    }],
   });
 
-  const content = message.content[0];
-  if (content.type === 'text') {
-    const tsCode = content.text.match(/```typescript\n([\s\S]*?)\n```/)?.[1] || 
-                   content.text;
-    writeFileSync(
-      join(process.cwd(), 'src', 'game', 'data', 'loading-tips.ts'),
-      `export const LOADING_TIPS = ${tsCode};`
-    );
-    console.log('✅ Loading tips generated!');
-  }
+  const tsCode = text.match(/```typescript\n([\s\S]*?)\n```/)?.[1] || text;
+  writeFileSync(
+    join(process.cwd(), 'src', 'game', 'data', 'loading-tips.ts'),
+    `export const LOADING_TIPS = ${tsCode};`
+  );
+  console.log('✅ Loading tips generated!');
 }
 
 // Run all generators

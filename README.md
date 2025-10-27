@@ -242,6 +242,17 @@ npm run test:visual:update
 
 The game automatically deploys to GitHub Pages on push to main branch.
 
+### CI/CD Pipeline
+
+Our automated workflow:
+1. **Generates Fresh Content** - AI creates level patterns, enemy behaviors, sprites (main branch only)
+2. **Runs Quality Checks** - Linting, type-checking, and unit tests
+3. **Builds & Tests** - Creates optimized bundle with E2E tests
+4. **Deploys to Web** - GitHub Pages hosting
+5. **Creates Releases** - Semantic versioning with platform builds
+
+> 📋 Secrets configured: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` for content generation
+
 ### Manual Deployment
 ```bash
 npm run build
