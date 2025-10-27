@@ -39,7 +39,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       
       - name: Install dependencies
@@ -61,7 +61,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       
       - name: Install dependencies
@@ -80,7 +80,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       
       - name: Install dependencies
@@ -109,7 +109,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       
       - name: Install dependencies
@@ -143,7 +143,7 @@ jobs:
           # No artificial limit - this is a game with assets, not a landing page
       
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: dist
           path: dist/
@@ -168,7 +168,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       
       - name: Install dependencies
@@ -178,7 +178,7 @@ jobs:
         run: npx playwright install --with-deps
       
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: dist
           path: dist/
@@ -187,7 +187,7 @@ jobs:
         run: npm run test:e2e
       
       - name: Upload Playwright report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: playwright-report
@@ -211,7 +211,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       
       - name: Install dependencies
@@ -221,7 +221,7 @@ jobs:
         run: npx playwright install --with-deps chromium
       
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: dist
           path: dist/
@@ -230,7 +230,7 @@ jobs:
         run: npm run test:visual
       
       - name: Upload visual test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: visual-test-results
@@ -263,7 +263,7 @@ jobs:
     
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: dist
           path: dist/
@@ -272,7 +272,7 @@ jobs:
         uses: actions/configure-pages@v5
       
       - name: Upload artifact to Pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: dist/
       
@@ -311,7 +311,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       
       - name: Install dependencies
@@ -343,7 +343,7 @@ jobs:
       
       - name: Trigger platform builds if new release
         if: steps.semantic.outputs.new_release_published == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
