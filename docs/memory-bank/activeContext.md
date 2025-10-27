@@ -1,131 +1,133 @@
 # Active Context - Otter River Rush
 
-**Last Updated**: 2025-10-26  
-**Current Branch**: copilot/refactor-image-processing-pipeline  
-**Session Status**: ✅ COMPLETE - Ready for merge
+**Last Updated**: 2025-10-27  
+**Current Branch**: copilot/update-ci-workflows  
+**Session Status**: ✅ COMPLETE - PR comments resolved, Docker environment created
 
 ## Current Work Summary
 
 ### Completed Tasks ✅
 
-#### 1. Migrated to Vercel AI SDK
-- Replaced `@anthropic-ai/sdk` with `@ai-sdk/anthropic`
-- Updated `generate-content.ts` and `generate-level-patterns.ts`
-- All AI generation now uses consistent Vercel AI SDK
-- API keys auto-picked from `process.env.ANTHROPIC_API_KEY` and `OPENAI_API_KEY`
+#### 1. Docker Development Environment
+- Created comprehensive `.cursor/Dockerfile` based on Playwright image
+- Includes Node 22, Java 17, Gradle 9.1.0, Android SDK API 35
+- `docker-compose.yml` with dev, build, android, test services
+- `docker.sh` CLI helper with 15 commands
+- Complete README with troubleshooting guide
+- Optimized `.dockerignore` for fast builds
+- Environment matches CI/CD pipeline exactly
 
-#### 2. Integrated Content Generation in CI/CD
-- Added content generation step to build-web job in ci-cd.yml
-- Runs on main branch only (cost optimization)
-- Generates: game content (Claude), sprites (OpenAI), HUD, UI icons, asset pipeline
-- GitHub secrets properly mapped to env vars
-- Fails gracefully if APIs unavailable
+#### 2. Resolved All PR Review Comments
+- **Copilot**: Fixed `ignoreAssetsPattern` to use `!*.gz:!*.br` (proper exclusion syntax)
+- **Cursor[bot]**: Added clarifying comment why web always builds (desktop/mobile need it)
+- **Gemini #1**: Reverted `capacitor.build.gradle` to auto-generated state (VERSION_21)
+- **Gemini #2**: Replaced `afterEvaluate` with `plugins.withType` for Java 17 enforcement
+- Used modern property assignment syntax (`=`) throughout Gradle files
 
-#### 3. Fixed Asset Post-Processor Bugs
-- Adaptive quality re-processing now uses PNG explicitly (line 206)
-- Fixed ICO format handling (removed redundant resize, dynamic quality)
-- Added exhaustive type checking for format switch
-- Added comprehensive JSDoc to applyFormatConversion
-
-#### 4. Documentation Cleanup
-- Deleted 20+ cruft summary/status documents
-- Cleaned up PR bodies and transformation docs
-- Kept only essential docs in memory-bank/
+#### 3. Documentation Updates
+- Updated `PLATFORM_SETUP.md` with Docker quick-start banner
+- Added detailed Java 17 explanation and installation instructions
+- Clarified why Java 17 (not 21) is required for Capacitor
+- Deleted cruft summary documents
 
 ## Key Files Modified This Session
 
-1. **package.json** - Replaced Anthropic SDK with Vercel AI SDK package
-2. **scripts/generate-content.ts** - Migrated to Vercel AI SDK
-3. **scripts/generate-level-patterns.ts** - Migrated to Vercel AI SDK
-4. **scripts/asset-post-processor.ts** - Fixed adaptive quality bug
-5. **.github/workflows/ci-cd.yml** - Added content generation step
-6. **README.md** - Updated deployment section
-7. **docs/memory-bank/activeContext.md** - This file
+1. **`.cursor/Dockerfile`** - 165-line production-grade Docker image
+2. **`.cursor/docker-compose.yml`** - Multi-service orchestration
+3. **`.cursor/docker.sh`** - Executable CLI helper (279 lines)
+4. **`.cursor/README.md`** - Complete Docker documentation
+5. **`.dockerignore`** - Build optimization
+6. **`android/app/build.gradle`** - Fixed ignoreAssetsPattern syntax
+7. **`android/app/capacitor.build.gradle`** - Reverted to auto-generated (VERSION_21)
+8. **`android/build.gradle`** - Modern `plugins.withType` for Java 17 enforcement
+9. **`.github/workflows/build-platforms.yml`** - Added clarifying comment
+10. **`PLATFORM_SETUP.md`** - Docker quick-start, Java 17 explanation
+11. **`docs/memory-bank/activeContext.md`** - This file
 
-## How Content Generation Works
+## Docker Environment Architecture
 
-### Main Branch Workflow
+### Build Strategy
+- **Base Image**: `mcr.microsoft.com/playwright:v1.47.0-jammy` (Ubuntu 22.04)
+- **Node.js 22**: Matches CI exactly
+- **Java 17**: Required by Capacitor 7.x, Android Gradle Plugin 8.x
+- **Gradle 9.1.0**: Matches `gradle-wrapper.properties`
+- **Android SDK**: API 35 with Build Tools 35.0.0
+- **Global Tools**: tsx, typescript, vite, electron, @capacitor/cli
+
+### Usage
+```bash
+# Build image (one time, ~5-10 minutes)
+.cursor/docker.sh build
+
+# Start development
+.cursor/docker.sh dev
+
+# Common commands
+.cursor/docker.sh web              # Vite dev server
+.cursor/docker.sh build-android    # Build APK
+.cursor/docker.sh test             # Run tests
+.cursor/docker.sh verify           # Verify environment
 ```
-Push to main
-  ↓
-CI (lint, test, type-check) - parallel
-  ↓
-build-web job:
-  1. npm ci
-  2. Generate fresh content (NEW!)
-     - generate-content (Claude) - enemy AI, levels, achievements, tips
-     - generate-sprites (OpenAI) - otter, obstacles, enemies
-     - generate-hud (OpenAI) - HUD elements
-     - generate-ui-icons (OpenAI) - menu icons
-     - asset-pipeline - optimization
-  3. npm run build
-  4. Upload dist/
-  ↓
-E2E + Visual Tests
-  ↓
-Deploy to GitHub Pages
-  ↓
-Auto-release (semantic versioning)
-  ↓
-Platform Builds
-```
 
-### API Key Flow
-- GitHub Secrets: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`
-- Workflow maps to env vars (lines 128-129 in ci-cd.yml)
-- Vercel AI SDK auto-picks up from `process.env`
-- Falls back to committed files if generation fails
+### Why Java 17?
+- **Capacitor 7.x requirement**: Official compatibility target
+- **Android Gradle Plugin 8.x**: Optimized for Java 17
+- **CI environment match**: GitHub Actions uses Temurin Java 17
+- **LTS support**: Maintained until 2029
+- **Ecosystem standard**: Android development hasn't migrated to Java 21 yet
 
 ## Tech Stack
 
-### AI/ML
-- **Vercel AI SDK** (`ai` package) - Unified AI interface
-- **@ai-sdk/anthropic** - Claude provider
-- **@ai-sdk/openai** - OpenAI provider
+### Development Environment
+- **Docker**: Containerized dev environment matching CI
+- **Node.js 22**: Latest LTS
+- **Java 17**: Temurin distribution (Capacitor requirement)
+- **Gradle 9.1.0**: Modern Android builds
+- **Android SDK API 35**: Latest Android development
 
 ### Build/Deploy
 - Vite 7.x
-- GitHub Actions CI/CD
-- Semantic Release
-- GitHub Pages
+- GitHub Actions CI/CD (unified `build-platforms.yml`)
+- GitHub Pages (web deployment)
+- Capacitor 7.x (mobile)
+- Electron 38.x (desktop)
 
 ### Game
 - TypeScript (strict mode)
 - Canvas 2D rendering
-- Yuka.js (AI behaviors)
 - Zustand (state management)
 
 ## Next Steps
 
 ### Immediate
-- Merge this branch to main
-- Watch CI/CD run content generation
-- Verify fresh content in deployment
+- Merge PR #58 (copilot/update-ci-workflows)
+- Verify unified build-platforms workflow
+- Test Docker environment locally
 
 ### Short-term
-- Monitor API costs (expected $1-2 per deploy)
-- Ensure asset quality remains high
-- Check semantic release is working properly
+- Build Docker image and test all commands
+- Verify Android builds work in Docker
+- Document any issues discovered during testing
 
 ## Important Patterns
 
-### Content Generation
-- Always use Vercel AI SDK (`generateText` + provider)
-- Keep prompts consistent across runs for idempotency
-- Extract TypeScript code blocks from responses
-- Fall back to committed files gracefully
+### Docker Development
+- Always use `.cursor/docker.sh` commands (don't call docker directly)
+- Web build ALWAYS runs (desktop and mobile need it as base)
+- Use named volumes for caching (node_modules, gradle)
+- Image is ~3GB (includes Android SDK, browsers, tools)
 
-### Asset Pipeline
-- Idempotent - safe to run multiple times
-- Adaptive quality for file size optimization
-- Format-specific handling (PNG, ICO, WebP, JPG)
-- Exhaustive type checking for safety
+### Gradle Modernization
+- Use property assignment syntax: `namespace = "value"`
+- Use `plugins.withType` instead of `afterEvaluate`
+- Don't edit auto-generated files (`capacitor.build.gradle`)
+- Global Java 17 enforcement in root `build.gradle`
 
-### CI/CD
-- Content generation only on main branch (not PRs)
-- Use `continue-on-error: true` for non-critical steps
-- Map GitHub secrets to env vars explicitly
-- Always test locally before pushing workflow changes
+### CI/CD Optimization
+- Single web build reused across all platforms
+- Parallel platform builds (desktop, mobile)
+- Flexible platform selection (all/web/desktop/mobile)
+- Optional asset generation on demand
 
 ## Memory Bank Files
 
@@ -139,4 +141,4 @@ Platform Builds
 ---
 
 **Status**: Ready for merge ✅  
-**Next Session**: Monitor first automated content generation run
+**Next Session**: Test Docker environment, merge PR, verify workflows

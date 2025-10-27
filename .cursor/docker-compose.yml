@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # Main development environment
+  dev:
+    build:
+      context: ..
+      dockerfile: .cursor/Dockerfile
+    container_name: otter-river-rush-dev
+    volumes:
+      - ..:/workspace
+      - node_modules:/workspace/node_modules
+      - android_gradle:/workspace/android/.gradle
+      - android_build:/workspace/android/build
+    ports:
+      - "5173:5173"  # Vite dev server
+      - "4173:4173"  # Vite preview
+      - "9323:9323"  # Playwright UI
+    environment:
+      - NODE_ENV=development
+      - FORCE_COLOR=1
+      - CHOKIDAR_USEPOLLING=true  # For file watching in Docker
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+  # Build environment (optimized for CI-like builds)
+  build:
+    build:
+      context: ..
+      dockerfile: .cursor/Dockerfile
+    container_name: otter-river-rush-build
+    volumes:
+      - ..:/workspace
+      - build_cache:/root/.npm
+    environment:
+      - NODE_ENV=production
+      - CI=true
+    profiles:
+      - build
+    command: npm run build
+
+  # Android build environment
+  android:
+    build:
+      context: ..
+      dockerfile: .cursor/Dockerfile
+    container_name: otter-river-rush-android
+    volumes:
+      - ..:/workspace
+      - android_gradle:/workspace/android/.gradle
+      - android_build:/workspace/android/build
+      - gradle_cache:/root/.gradle
+    environment:
+      - ANDROID_SDK_ROOT=/opt/android-sdk
+      - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+    profiles:
+      - android
+    command: /bin/bash
+
+  # Testing environment (with Playwright)
+  test:
+    build:
+      context: ..
+      dockerfile: .cursor/Dockerfile
+    container_name: otter-river-rush-test
+    volumes:
+      - ..:/workspace
+      - node_modules:/workspace/node_modules
+    environment:
+      - CI=true
+    profiles:
+      - test
+    command: npm test
+
+volumes:
+  # Named volumes for better performance and caching
+  node_modules:
+    driver: local
+  android_gradle:
+    driver: local
+  android_build:
+    driver: local
+  gradle_cache:
+    driver: local
+  build_cache:
+    driver: local
+
+networks:
+  default:
+    name: otter-river-rush-network

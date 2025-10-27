@@ -2,6 +2,13 @@
 
 Complete guide to building and running on **Web, Android, iOS, Windows, macOS, and Linux**.
 
+> **🐳 Quick Start with Docker**: Want a pre-configured environment with all dependencies?  
+> See [`.cursor/README.md`](.cursor/README.md) for the Docker development environment that matches our CI pipeline exactly.  
+> ```bash
+> .cursor/docker.sh dev    # Interactive development shell
+> .cursor/docker.sh web    # Start dev server
+> ```
+
 ---
 
 ## ✅ Current Status
@@ -53,7 +60,28 @@ npm run build
 
 ### Prerequisites
 1. **Install Android Studio**: https://developer.android.com/studio
-2. **Install Java 17+**: `java -version` should show 17+
+2. **Install Java 17** (required by Capacitor & Android Gradle Plugin):
+   ```bash
+   # Check version
+   java -version  # Should show "17.x.x"
+   
+   # Install on Ubuntu/Debian
+   sudo apt install openjdk-17-jdk
+   
+   # Install on macOS
+   brew install openjdk@17
+   
+   # Set JAVA_HOME
+   export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64  # Linux
+   export JAVA_HOME=/opt/homebrew/opt/openjdk@17        # macOS (Apple Silicon)
+   ```
+   
+   > **⚠️ Why Java 17?**  
+   > - Capacitor 7.x requires Java 17 (not 21+)
+   > - Android Gradle Plugin 8.x is optimized for Java 17
+   > - Our CI uses Java 17 (Temurin distribution)
+   > - Using Java 21+ may cause subtle incompatibilities
+
 3. **Set ANDROID_HOME**:
    ```bash
    export ANDROID_HOME=$HOME/Android/Sdk           # Linux

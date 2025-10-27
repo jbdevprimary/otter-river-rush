@@ -1,5 +1,8 @@
 name: Web Build & Deploy
 
+# DEPRECATED: This workflow is maintained for backward compatibility.
+# New builds should use the "Build All Platforms" workflow which is more efficient.
+
 # Web platform flow: Build → Deploy → E2E test DEPLOYED URL
 
 on:

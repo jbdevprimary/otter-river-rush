@@ -1,5 +1,8 @@
 name: Desktop Build
 
+# DEPRECATED: This workflow is maintained for backward compatibility.
+# New builds should use the "Build All Platforms" workflow which reuses the web build.
+
 # Desktop platform flow: Integration tests pass → Build Electron → Manual testing
 
 on:

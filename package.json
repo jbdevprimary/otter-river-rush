@@ -4,6 +4,15 @@
   "type": "module",
   "main": "electron/main.js",
   "description": "Otter River Rush - An endless runner game for GitHub Pages",
+  "author": "jbcom",
+  "maintainers": [
+    "jbcom"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jbcom/otter-river-rush.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
