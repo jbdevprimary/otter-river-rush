@@ -284,6 +284,215 @@ export const ACHIEVEMENT_DEFINITIONS = [
     rarity: 'rare',
     checkCondition: (stats: GameStats) => stats.totalRuns >= 100,
   },
+
+  // Social & Sharing (NEW - 23 more achievements to reach 50+)
+  {
+    id: 'first_blood',
+    name: 'First Blood',
+    description: 'Complete your very first run',
+    icon: '🎯',
+    requirement: 1,
+    rarity: 'common',
+    checkCondition: (stats: GameStats) => stats.totalRuns >= 1,
+  },
+  {
+    id: 'persistent',
+    name: 'Persistent Otter',
+    description: 'Play 3 runs without giving up',
+    icon: '💪',
+    requirement: 3,
+    rarity: 'common',
+    checkCondition: (stats: GameStats) => stats.consecutiveRunsWithoutQuit >= 3,
+  },
+  {
+    id: 'comebackkid',
+    name: 'Comeback Kid',
+    description: 'Beat your personal best after 10 attempts',
+    icon: '🔥',
+    requirement: 1,
+    rarity: 'rare',
+    checkCondition: (stats: GameStats) => stats.personalBestComebacks >= 1,
+  },
+  {
+    id: 'night_owl',
+    name: 'Night Owl',
+    description: 'Play 5 runs between 10 PM and 4 AM',
+    icon: '🦉',
+    requirement: 5,
+    rarity: 'common',
+    checkCondition: (stats: GameStats) => stats.nighttimeRuns >= 5,
+  },
+  {
+    id: 'early_bird',
+    name: 'Early Bird',
+    description: 'Play 5 runs between 5 AM and 8 AM',
+    icon: '🌅',
+    requirement: 5,
+    rarity: 'common',
+    checkCondition: (stats: GameStats) => stats.morningRuns >= 5,
+  },
+  {
+    id: 'bronze_medal',
+    name: 'Bronze Medal',
+    description: 'Reach 3rd place on the local leaderboard',
+    icon: '🥉',
+    requirement: 3,
+    rarity: 'common',
+    checkCondition: (stats: GameStats) => stats.bestLeaderboardRank <= 3,
+  },
+  {
+    id: 'silver_medal',
+    name: 'Silver Medal',
+    description: 'Reach 2nd place on the local leaderboard',
+    icon: '🥈',
+    requirement: 2,
+    rarity: 'rare',
+    checkCondition: (stats: GameStats) => stats.bestLeaderboardRank <= 2,
+  },
+  {
+    id: 'gold_medal',
+    name: 'Gold Medal',
+    description: 'Reach 1st place on the local leaderboard',
+    icon: '🥇',
+    requirement: 1,
+    rarity: 'epic',
+    checkCondition: (stats: GameStats) => stats.bestLeaderboardRank <= 1,
+  },
+  {
+    id: 'double_trouble',
+    name: 'Double Trouble',
+    description: 'Collect 2 power-ups simultaneously',
+    icon: '⚡⚡',
+    requirement: 1,
+    rarity: 'common',
+    checkCondition: (stats: GameStats) => stats.maxSimultaneousPowerUps >= 2,
+  },
+  {
+    id: 'power_trinity',
+    name: 'Power Trinity',
+    description: 'Have 3 power-ups active at once',
+    icon: '✨✨✨',
+    requirement: 1,
+    rarity: 'rare',
+    checkCondition: (stats: GameStats) => stats.maxSimultaneousPowerUps >= 3,
+  },
+  {
+    id: 'close_shave',
+    name: 'Close Shave',
+    description: 'Have 50 near-miss moments',
+    icon: '😰',
+    requirement: 50,
+    rarity: 'common',
+    checkCondition: (stats: GameStats) => stats.totalNearMisses >= 50,
+  },
+  {
+    id: 'adrenaline_junkie',
+    name: 'Adrenaline Junkie',
+    description: 'Have 200 near-miss moments',
+    icon: '🎢',
+    requirement: 200,
+    rarity: 'rare',
+    checkCondition: (stats: GameStats) => stats.totalNearMisses >= 200,
+  },
+  {
+    id: 'biome_tourist',
+    name: 'Biome Tourist',
+    description: 'Visit all 4 biomes in a single run',
+    icon: '🗺️',
+    requirement: 4,
+    rarity: 'rare',
+    checkCondition: (stats: GameStats) => stats.biomesVisitedInSingleRun >= 4,
+  },
+  {
+    id: 'forest_master',
+    name: 'Forest Master',
+    description: 'Spend 10 minutes total in Forest biome',
+    icon: '🌲',
+    requirement: 600,
+    rarity: 'common',
+    checkCondition: (stats: GameStats) => stats.timeInForestBiome >= 600,
+  },
+  {
+    id: 'mountain_master',
+    name: 'Mountain Master',
+    description: 'Spend 10 minutes total in Mountain biome',
+    icon: '⛰️',
+    requirement: 600,
+    rarity: 'rare',
+    checkCondition: (stats: GameStats) => stats.timeInMountainBiome >= 600,
+  },
+  {
+    id: 'canyon_master',
+    name: 'Canyon Master',
+    description: 'Spend 10 minutes total in Canyon biome',
+    icon: '🏜️',
+    requirement: 600,
+    rarity: 'epic',
+    checkCondition: (stats: GameStats) => stats.timeInCanyonBiome >= 600,
+  },
+  {
+    id: 'rapids_master',
+    name: 'Rapids Master',
+    description: 'Spend 10 minutes total in Rapids biome',
+    icon: '🌊',
+    requirement: 600,
+    rarity: 'legendary',
+    checkCondition: (stats: GameStats) => stats.timeInRapidsBiome >= 600,
+  },
+  {
+    id: 'pacifist',
+    name: 'Pacifist Run',
+    description: 'Complete a run without collecting any power-ups',
+    icon: '☮️',
+    requirement: 1,
+    rarity: 'rare',
+    checkCondition: (stats: GameStats) => stats.runsWithoutPowerUps >= 1,
+  },
+  {
+    id: 'minimalist',
+    name: 'Minimalist',
+    description: 'Reach 1000m without collecting any coins',
+    icon: '🎨',
+    requirement: 1,
+    rarity: 'epic',
+    checkCondition: (stats: GameStats) => stats.runsTo1000WithoutCoins >= 1,
+  },
+  {
+    id: 'coin_collector',
+    name: 'Coin Vacuum',
+    description: 'Collect 100 coins in 30 seconds',
+    icon: '💨',
+    requirement: 1,
+    rarity: 'rare',
+    checkCondition: (stats: GameStats) => stats.coins100In30Seconds === true,
+  },
+  {
+    id: 'gem_hunter',
+    name: 'Gem Hunter',
+    description: 'Collect 10 gems in a single run',
+    icon: '💎',
+    requirement: 10,
+    rarity: 'rare',
+    checkCondition: (stats: GameStats) => stats.maxGemsInSingleRun >= 10,
+  },
+  {
+    id: 'millionaire',
+    name: 'Millionaire',
+    description: 'Accumulate 1,000,000 points total',
+    icon: '💸',
+    requirement: 1000000,
+    rarity: 'legendary',
+    checkCondition: (stats: GameStats) => stats.totalPointsEarned >= 1000000,
+  },
+  {
+    id: 'zen_master',
+    name: 'Zen Master',
+    description: 'Complete 10 Zen mode runs',
+    icon: '🧘',
+    requirement: 10,
+    rarity: 'common',
+    checkCondition: (stats: GameStats) => stats.zenModeRuns >= 10,
+  },
 ];
 
 export interface GameStats {
@@ -312,4 +521,23 @@ export interface GameStats {
   fastestTo1000m: number;
   weekendRuns: number;
   totalRuns: number;
+  // NEW stats for new achievements (23 additions)
+  consecutiveRunsWithoutQuit: number;
+  personalBestComebacks: number;
+  nighttimeRuns: number;
+  morningRuns: number;
+  bestLeaderboardRank: number;
+  maxSimultaneousPowerUps: number;
+  totalNearMisses: number;
+  biomesVisitedInSingleRun: number;
+  timeInForestBiome: number;
+  timeInMountainBiome: number;
+  timeInCanyonBiome: number;
+  timeInRapidsBiome: number;
+  runsWithoutPowerUps: number;
+  runsTo1000WithoutCoins: number;
+  coins100In30Seconds: boolean;
+  maxGemsInSingleRun: number;
+  totalPointsEarned: number;
+  zenModeRuns: number;
 }

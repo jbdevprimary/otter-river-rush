@@ -8,6 +8,7 @@ export class Rock {
   height: number;
   lane: number;
   active: boolean;
+  nearMissRecorded: boolean; // Track if near-miss already counted for this rock
 
   constructor() {
     this.width = ROCK_CONFIG.WIDTH;
@@ -16,6 +17,7 @@ export class Rock {
     this.y = 0;
     this.lane = 0;
     this.active = false;
+    this.nearMissRecorded = false;
   }
 
   init(lane: number, y: number, laneX: number): void {
@@ -23,6 +25,7 @@ export class Rock {
     this.y = y;
     this.x = laneX;
     this.active = true;
+    this.nearMissRecorded = false; // Reset on init
   }
 
   update(deltaTime: number, scrollSpeed: number): void {
@@ -46,6 +49,7 @@ export class Rock {
 
   reset(): void {
     this.active = false;
+    this.nearMissRecorded = false;
     this.x = 0;
     this.y = 0;
     this.lane = 0;

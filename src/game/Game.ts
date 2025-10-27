@@ -55,12 +55,16 @@ export class Game {
   private gems: number = 0;
   private combo: number = 0;
   private comboTimer: number = 0;
-  private readonly COMBO_TIMEOUT = 3000; // 3 seconds to maintain combo
+  private readonly COMBO_TIMEOUT = 2000; // 2 seconds per ARCHITECTURE.md line 643
   private scrollSpeed: number = GAME_CONFIG.SCROLL_SPEED;
   private baseScrollSpeed: number = GAME_CONFIG.SCROLL_SPEED;
   private difficulty: number = 0;
   private lastTime: number = 0;
   private difficultyTimer: number = 0;
+
+  // Fixed timestep game loop (ARCHITECTURE.md specification)
+  private accumulatedTime: number = 0;
+  private readonly FIXED_TIMESTEP = 1000 / 60; // 16.67ms for 60 FPS
 
   // Power-up states
   private scoreMultiplier: number = 1;
@@ -73,6 +77,7 @@ export class Game {
   // Stats
   private rocksAvoided: number = 0;
   private powerUpsCollected: number = 0;
+  private nearMisses: number = 0;
 
   // Time Trial mode
   private timeTrialDuration: number = 60000; // 60 seconds
@@ -120,6 +125,9 @@ export class Game {
 
   // Game start time for tracking
   private gameStartTime: number = 0;
+  
+  // Tutorial zone invincibility (DESIGN.md line 511: first 30s cannot die)
+  private readonly TUTORIAL_DURATION = 30000; // 30 seconds
 
   constructor(canvas: HTMLCanvasElement) {
     // Initialize ResponsiveCanvas first
@@ -558,7 +566,9 @@ export class Game {
     this.slowMotionEndTime = 0;
     this.rocksAvoided = 0;
     this.powerUpsCollected = 0;
+    this.nearMisses = 0;
     this.gameStartTime = performance.now();
+    this.accumulatedTime = 0; // Reset accumulator for clean game start
 
     // Apply difficulty setting
     const settings = SettingsManager.load();
@@ -722,14 +732,36 @@ export class Game {
     }, 4000);
   }
 
+  /**
+   * Fixed timestep update loop
+   * Implements ARCHITECTURE.md specification (lines 114-148)
+   * Ensures deterministic physics across all devices
+   */
   update(currentTime: number): void {
     if (this.state !== GameState.PLAYING) return;
 
-    const deltaTime = (currentTime - this.lastTime) / 1000;
+    const deltaTime = currentTime - this.lastTime;
     this.lastTime = currentTime;
+
+    // Accumulate time for fixed timestep updates
+    this.accumulatedTime += deltaTime;
+
+    // Fixed timestep physics updates
+    while (this.accumulatedTime >= this.FIXED_TIMESTEP) {
+      this.fixedUpdate(this.FIXED_TIMESTEP / 1000); // Convert to seconds
+      this.accumulatedTime -= this.FIXED_TIMESTEP;
+    }
+  }
+
+  /**
+   * Fixed timestep update - called consistently at 60 FPS
+   * Physics, collision, gameplay logic
+   */
+  private fixedUpdate(deltaTime: number): void {
 
     // Time Trial: check if time is up
     if (this.gameMode === GameMode.TIME_TRIAL) {
+      const currentTime = performance.now();
       this.timeTrialTimeLeft =
         this.timeTrialDuration - (currentTime - this.timeTrialStartTime);
       if (this.timeTrialTimeLeft <= 0) {
@@ -739,7 +771,7 @@ export class Game {
     }
 
     this.updateDifficulty(deltaTime);
-    this.updatePowerUps(currentTime);
+    this.updatePowerUps(performance.now());
     this.updateCombo(deltaTime);
 
     this.otter.update(deltaTime);
@@ -946,33 +978,58 @@ export class Game {
   private checkCollisions(): void {
     const otterAABB = this.otter.getAABB();
     const isGhost = this.ghostEndTime > performance.now();
+    const inTutorial = (performance.now() - this.gameStartTime) < this.TUTORIAL_DURATION;
 
-    // Check rock collisions (skip if ghost mode)
-    if (!isGhost) {
+    // Check rock collisions (skip if ghost mode OR tutorial zone)
+    if (!isGhost && !inTutorial) {
       const rocks = this.generator.getActiveRocks();
+      const NEAR_MISS_DISTANCE = 50; // pixels for near-miss detection
+      
       for (const rock of rocks) {
-        if (rock.active && checkAABBCollision(otterAABB, rock.getAABB())) {
-          if (this.otter.hasShield) {
-            this.otter.hasShield = false;
-            this.generator.releaseRock(rock);
-            this.audioManager.playSound('shield');
-            this.createParticles(
-              rock.x + rock.width / 2,
-              rock.y + rock.height / 2,
-              '#60a5fa'
-            );
+        if (rock.active) {
+          // Check actual collision
+          if (checkAABBCollision(otterAABB, rock.getAABB())) {
+            if (this.otter.hasShield) {
+              this.otter.hasShield = false;
+              this.generator.releaseRock(rock);
+              this.audioManager.playSound('shield');
+              this.createParticles(
+                rock.x + rock.width / 2,
+                rock.y + rock.height / 2,
+                '#60a5fa'
+              );
+            } else {
+              this.audioManager.playSound('collision');
+              this.createParticles(
+                this.otter.x + this.otter.width / 2,
+                this.otter.y + this.otter.height / 2,
+                '#d2691e'
+              );
+              // Reset combo on collision/death
+              this.combo = 0;
+              this.comboTimer = 0;
+              this.gameOver();
+              return;
+            }
           } else {
-            this.audioManager.playSound('collision');
-            this.createParticles(
-              this.otter.x + this.otter.width / 2,
-              this.otter.y + this.otter.height / 2,
-              '#d2691e'
+            // Check for near-miss (ARCHITECTURE.md lines 628-639)
+            const otterCenterX = otterAABB.x + otterAABB.width / 2;
+            const otterCenterY = otterAABB.y + otterAABB.height / 2;
+            const rockCenterX = rock.x + rock.width / 2;
+            const rockCenterY = rock.y + rock.height / 2;
+            const distance = Math.sqrt(
+              Math.pow(otterCenterX - rockCenterX, 2) +
+              Math.pow(otterCenterY - rockCenterY, 2)
             );
-            // Reset combo on collision/death
-            this.combo = 0;
-            this.comboTimer = 0;
-            this.gameOver();
-            return;
+            
+            if (distance < NEAR_MISS_DISTANCE && !rock.nearMissRecorded) {
+              rock.nearMissRecorded = true; // Mark to avoid duplicate near-misses
+              this.nearMisses++;
+              this.score += 5 * this.scoreMultiplier; // Near-miss bonus
+              this.combo++;
+              this.comboTimer = this.COMBO_TIMEOUT;
+              this.audioManager.playSound('near_miss');
+            }
           }
         }
       }

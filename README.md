@@ -3,7 +3,7 @@
 [![CI](https://github.com/jbcom/otter-river-rush/actions/workflows/ci.yml/badge.svg)](https://github.com/jbcom/otter-river-rush/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-An engaging endless runner game featuring an adventurous otter navigating a rushing river. Built with **TypeScript**, **React Three Fiber**, and **Zustand**, deployable across all platforms.
+An engaging endless runner game featuring an adventurous otter navigating a rushing river. Built with **TypeScript**, **React 19**, and **React Three Fiber 9**, deployable across all platforms.
 
 🎮 **[Play Now](https://jbcom.github.io/otter-river-rush/)** | 📖 **[Documentation](#documentation)** | 🤝 **[Contributing](./CONTRIBUTING.md)** | 📱 **[Platform Setup](./PLATFORM_SETUP.md)**
 
@@ -35,7 +35,7 @@ See **[PLATFORM_SETUP.md](./PLATFORM_SETUP.md)** for detailed setup instructions
 
 ### Technical Features
 - 📱 **Progressive Web App**: Install and play offline
-- 🎨 **Canvas Rendering**: High-performance 2D graphics
+- 🎨 **WebGL 3D Rendering**: React Three Fiber with GLB models at 60 FPS
 - 🔊 **Spatial Audio**: Immersive sound effects with Howler.js
 - 💾 **Auto-Save**: Progress saved automatically to localStorage
 - 📊 **Local Leaderboards**: Track your high scores
@@ -126,27 +126,33 @@ npm run analyze          # Visualize bundle size
 otter-river-rush/
 ├── .github/workflows/    # CI/CD pipelines
 ├── src/
-│   ├── game/
-│   │   ├── entities/     # Game objects (Otter, Rock, Collectible, etc.)
-│   │   ├── systems/      # Core systems (Physics, Audio, Procedural)
-│   │   ├── managers/     # Game managers (Score, Save, Achievement)
-│   │   ├── Game.ts       # Main game class
-│   │   └── GameState.ts  # State machine
-│   ├── rendering/
-│   │   └── Renderer.ts   # Canvas rendering engine
+│   ├── components/
+│   │   ├── game/         # R3F game components (Otter, Rock, Coin, etc.)
+│   │   └── ui/           # React UI components (HUD, Menus)
+│   ├── store/
+│   │   └── gameStore.ts  # Zustand state management
+│   ├── hooks/            # Custom React hooks
 │   ├── utils/
 │   │   ├── Config.ts     # Game configuration
 │   │   ├── MathUtils.ts  # Math helpers
-│   │   ├── Random.ts     # Seeded PRNG
-│   │   ├── CollisionDetector.ts
-│   │   ├── DifficultyScaler.ts
-│   │   └── ObjectPool.ts # Memory optimization
+│   │   ├── StorageManager.ts # Deep merge save system
+│   │   └── AudioManager.ts   # Howler.js audio
 │   ├── types/            # TypeScript definitions
-│   └── main.ts           # Entry point
+│   └── main.tsx          # Entry point
+├── public/
+│   ├── models/           # GLB 3D models (Otter, Rocks, Collectibles)
+│   ├── textures/         # Ambient background textures
+│   ├── icons/            # UI icons
+│   └── audio/            # Sound effects and music
 ├── tests/
 │   ├── unit/             # Unit tests (Vitest)
 │   └── e2e/              # E2E tests (Playwright)
-├── public/               # Static assets
+├── docs/                 # Documentation
+│   ├── ARCHITECTURE.md   # Frozen architecture spec (v2.0.0)
+│   ├── DESIGN.md         # Frozen game design spec
+│   └── BRAND_IDENTITY.md # Brand and visual identity
+└── scripts/              # Asset generation and build scripts
+```
 └── dist/                 # Production build
 ```
 
@@ -297,8 +303,8 @@ Otter River Rush is built with accessibility in mind:
 
 ### Frontend
 - **Language**: TypeScript 5.5
-- **Framework**: React 19 + React Three Fiber 9
-- **State**: Zustand 5.0
+- **Rendering**: HTML5 Canvas 2D (native)
+- **Architecture**: Entity Component System pattern
 - **Build**: Vite 7.1
 - **Styling**: Tailwind CSS 4 + DaisyUI 5
 
