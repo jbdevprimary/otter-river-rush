@@ -9,7 +9,7 @@ export default defineConfig({
   reporter: 'html',
   timeout: 30000, // 30s per test (default is 30s anyway)
   use: {
-    baseURL: 'http://localhost:4173',
+    baseURL: process.env.BASE_URL || 'http://localhost:4173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 10000, // 10s for actions
@@ -48,9 +48,11 @@ export default defineConfig({
     //   use: { ...devices['iPhone 12'] },
     // },
   ],
-  webServer: {
-    command: 'npm run preview',
-    port: 4173,
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: process.env.BASE_URL
+    ? undefined
+    : {
+        command: 'npm run preview',
+        port: 4173,
+        reuseExistingServer: !process.env.CI,
+      },
 });

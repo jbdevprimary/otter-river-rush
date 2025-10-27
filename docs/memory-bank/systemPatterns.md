@@ -152,20 +152,48 @@ See [Architecture README](../architecture/README.md#performance) for implementat
 
 See [Architecture README](../architecture/README.md#testing) for comprehensive testing documentation.
 
-### Unit Tests
+### CRITICAL ARCHITECTURE CORRECTION (2025-10-27)
+
+**The Problem We Fixed**: We were testing platform wrappers (Capacitor/Electron) instead of game logic!
+
+**Old (Wrong) Approach**:
+- Tests ran AFTER platform-specific builds
+- E2E tests ran against local artifacts
+- Testing if wrappers work, not if game works
+
+**New (Correct) Approach**:
+1. **Integration Tests FIRST** - Test core game logic BEFORE platform branching
+2. **E2E Tests Deployed URL** - Test actual GitHub Pages deployment
+3. **Three Separate Flows** - Web, Mobile, Desktop branch after integration tests
+4. **No Redundant Testing** - Wrappers just package already-tested code
+
+### Integration Tests (BEFORE Platform Branching)
 - Core systems (ScoreManager, Physics, etc.)
 - Utilities (MathUtils, Random, ObjectPool)
-- 80%+ coverage target
+- Game logic (collision, scoring, state management)
+- **Location**: `tests/integration/`
+- **Script**: `npm run test:integration`
+- **When**: BEFORE any platform-specific builds
 
-### E2E Tests
+### Unit Tests
+- Individual components and functions
+- 80%+ coverage target
+- Fast, isolated tests
+- **Location**: `tests/unit/`
+
+### E2E Tests (AFTER Web Deployment)
 - User flows (start, play, game over)
 - Input methods (keyboard, touch, mouse)
 - Performance benchmarks
+- **CRITICAL**: Tests run against DEPLOYED GitHub Pages URL, not local builds!
+- **Location**: `tests/e2e/`
 
-### Visual Tests
-- Screenshot comparisons
-- UI regression testing
-- Accessibility checks
+### Manual Testing (Platform Wrappers)
+- Capacitor (Android/iOS) wrapper functionality
+- Electron (Desktop) wrapper functionality
+- Platform-specific features (touch, native menus)
+- **Why Manual**: Automated E2E for native wrappers is complex/unreliable
+- **Documentation**: `.github/PLATFORM_BUILD_TESTING.md`
 
 ## Critical Implementation Paths
 

@@ -1,8 +1,8 @@
 # Progress - Otter River Rush
 
-**Last Updated**: 2025-10-26  
-**Current Version**: Alpha Plus (Asset Pipeline & QA Overhaul Complete)  
-**Latest Session**: Production-grade asset pipeline implementation ✅
+**Last Updated**: 2025-10-27  
+**Current Version**: Alpha Plus (CI/CD Architecture Corrected)  
+**Latest Session**: Fundamental testing architecture redesign ✅
 
 ## What Works
 
@@ -42,7 +42,16 @@
 - **TypeScript**: Strict mode, full type safety, zero build errors ✨ FIXED
 - **Build System**: Vite with HMR, optimization
 - **Testing**: Vitest unit tests (70+ tests), Playwright E2E tests
-- **CI/CD**: GitHub Actions (lint, test, build, deploy, mobile, desktop) ✨ ENHANCED
+  - ✨ **CRITICAL FIX (2025-10-27)**: Integration tests BEFORE platform branching!
+  - ✨ E2E tests now target DEPLOYED GitHub Pages URL, not local artifacts
+  - ✨ Three separate platform flows (Web, Mobile, Desktop)
+  - ✨ No redundant wrapper testing - game logic tested once, wrappers verified manually
+- **CI/CD**: GitHub Actions - COMPLETELY REDESIGNED ✨ (2025-10-27)
+  - `integration.yml` - Tests game logic FIRST
+  - `web.yml` - Build → Deploy → E2E test deployed URL
+  - `mobile.yml` - Capacitor wrapper build
+  - `desktop.yml` - Electron wrapper build
+  - `release.yml` - Orchestrates releases
 - **PWA**: Service worker, offline support, installable
 - **Code Quality**: ESLint, Prettier, zero errors
 - **Responsive Design**: Tailwind CSS + DaisyUI foundation ✨ NEW
@@ -53,10 +62,13 @@
 - **Architecture**: Comprehensive system design docs
 - **Implementation**: Guides for all major systems
 - **Testing**: Unit and E2E test examples
+  - ✨ **NEW (2025-10-27)**: Integration test directory and documentation
+  - ✨ Corrected testing strategy documentation
 - **Contributing**: Complete contributor guide
 - **Memory Bank**: Active development context (6 files, updated)
 - **Production Plans**: 10-week migration roadmap ✨ NEW
 - **Build Guides**: Cross-platform build documentation ✨ NEW
+- **CI/CD Workflows**: Comprehensive workflow documentation ✨ CORRECTED (2025-10-27)
 
 ## What's Left to Build
 
@@ -281,6 +293,12 @@
 
 ### Changed Approaches
 
+#### CI/CD Testing Strategy (2025-10-27) ✨ CRITICAL CORRECTION
+- **Original**: Tests ran after platform builds, E2E tested local artifacts, mixed concerns
+- **New**: Integration tests FIRST (before branching), E2E tests deployed URL, three separate flows
+- **Reason**: We were testing Capacitor/Electron wrappers instead of game logic!
+- **Impact**: Fundamental architecture fix - now testing correctly
+
 #### Build Errors
 - **Original**: 6 TypeScript errors blocking builds
 - **New**: Zero errors, proper type declarations
@@ -317,6 +335,11 @@
 - ✅ **Responsive design foundation** (2025-10-25) ✨ NEW
 - ✅ **Cross-platform infrastructure** (2025-10-25) ✨ NEW
 - ✅ **Production migration plan** (2025-10-25) ✨ NEW
+- ✅ **CI/CD architecture corrected** (2025-10-27) ✨ CRITICAL
+  - Integration tests before platform branching
+  - E2E tests against deployed URL
+  - Three separate platform flows
+  - Proper testing order established
 
 ### Upcoming
 - ⏳ UI conversion to Tailwind (Next - Phase 1.2)
@@ -331,7 +354,20 @@
 
 ## Next Session Goals
 
-### Immediate Tasks (Phase 1.2)
+### Immediate Tasks (Critical - 2025-10-27)
+1. **Add integration tests** to `tests/integration/` directory
+   - game-flow.test.ts (complete game lifecycle)
+   - collision.test.ts (collision detection accuracy)
+   - scoring.test.ts (score calculation correctness)
+   - state-management.test.ts (game state transitions)
+2. **Update E2E tests** to accept BASE_URL environment variable
+   - Modify Playwright tests to use process.env.BASE_URL
+   - Default to localhost for local development
+   - Use GitHub Pages URL in CI
+3. **Update Playwright config** for BASE_URL support
+4. **Verify workflows** work end-to-end with test deployment
+
+### Short-term Goals (Phase 1.2 - After Testing Fix)
 1. Convert `index.html` UI to Tailwind classes
 2. Replace inline styles with Tailwind utilities
 3. Use DaisyUI components for buttons, modals

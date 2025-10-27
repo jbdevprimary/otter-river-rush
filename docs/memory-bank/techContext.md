@@ -40,24 +40,34 @@
   - Auto-format on save
 
 #### Testing
-- **Vitest 2** - Unit testing framework
+- **Vitest 2** - Unit & Integration testing framework
   - Fast parallel execution
   - TypeScript native
   - Coverage reporting (80%+ target)
   - Watch mode for development
+  - **NEW**: `test:integration` script for core game logic tests
   
 - **Playwright 1.40** - E2E testing
   - Multi-browser testing
   - Visual regression tests
   - Mobile device emulation
   - Accessibility testing
+  - **CRITICAL**: Tests run against DEPLOYED GitHub Pages URL, not local artifacts
 
 #### CI/CD
-- **GitHub Actions** - Automated workflows
-  - CI pipeline (lint, test, build)
-  - Auto-deployment to GitHub Pages
-  - Lighthouse performance checks
-  - Cross-browser testing
+- **GitHub Actions** - Automated workflows  
+  **CRITICAL ARCHITECTURE CORRECTION (2025-10-27)**:
+  - ✅ Integration tests BEFORE platform branching (test game logic first!)
+  - ✅ Three separate platform flows: Web, Mobile, Desktop
+  - ✅ E2E tests against DEPLOYED GitHub Pages URL (not local artifacts)
+  - ✅ No redundant testing of wrappers (Capacitor/Electron just package tested code)
+  
+  **Workflow Structure**:
+  - `integration.yml` - Core game logic testing (lint, type, unit, integration)
+  - `web.yml` - Web build → Deploy to Pages → E2E test deployed URL
+  - `mobile.yml` - Mobile/Capacitor build after integration pass
+  - `desktop.yml` - Desktop/Electron build after integration pass
+  - `release.yml` - Semantic versioning orchestration
 
 ### Runtime Dependencies
 
@@ -244,21 +254,33 @@ describe('ScoreManager', () => {
 4. Run `npm run verify` before commit
 5. Create pull request
 
-### CI/CD Flow
+### CI/CD Flow (CORRECTED ARCHITECTURE - 2025-10-27)
 ```
-Push to branch
+Push to main
     ↓
-GitHub Actions CI
+INTEGRATION TESTS (integration.yml)
     ├── Lint (ESLint)
     ├── Type Check (tsc)
     ├── Unit Tests (Vitest)
-    ├── Build (Vite)
-    └── E2E Tests (Playwright)
+    └── Integration Tests (Core game logic BEFORE platform branching!)
     ↓
-Merge to main
-    ↓
-Deploy to GitHub Pages
+┌───────────┬──────────────┬──────────────┐
+│    WEB    │   MOBILE     │   DESKTOP    │
+├───────────┼──────────────┼──────────────┤
+│ Build web │ Build web    │ Build web    │
+│     ↓     │     ↓        │     ↓        │
+│  Deploy   │ Capacitor    │ Electron     │
+│     ↓     │     ↓        │     ↓        │
+│ E2E test  │ Build APK    │ Build exes   │
+│ DEPLOYED  │     ↓        │     ↓        │
+│    URL    │ Manual test  │ Manual test  │
+└─────┬─────┴──────────────┴──────────────┘
+      ↓
+  RELEASE
+  (semantic versioning)
 ```
+
+**KEY PRINCIPLE**: Test game logic BEFORE platform wrappers, not after!
 
 ### Code Quality Gates
 - ✅ Zero ESLint errors/warnings

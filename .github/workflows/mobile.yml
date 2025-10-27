@@ -1,0 +1,100 @@
+name: Mobile Build
+
+# Mobile platform flow: Integration tests pass → Build Capacitor → Manual testing
+
+on:
+  workflow_run:
+    workflows: ["Integration Tests"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0) or "test"'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mobile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && 
+       github.event.workflow_run.head_branch == 'main')
+    
+    steps:
+      - uses: actions/checkout@v5
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build web (base for Capacitor)
+        run: npm run build
+        env:
+          NODE_ENV: production
+      
+      - name: Sync Capacitor
+        run: npx cap sync android
+      
+      - name: Setup JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Build APK
+        run: |
+          cd android
+          chmod +x ./gradlew
+          ./gradlew assembleRelease
+      
+      - name: Rename APK
+        run: |
+          VERSION="${{ github.event.inputs.version || 'snapshot' }}"
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          mv android/app/build/outputs/apk/release/app-release-unsigned.apk \
+             android/app/build/outputs/apk/release/otter-river-rush-${VERSION}-${TIMESTAMP}.apk
+      
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: android-apk-${{ github.sha }}
+          path: android/app/build/outputs/apk/release/*.apk
+          retention-days: 30
+      
+      - name: Upload to release (if version tag)
+        if: github.event.inputs.version && startsWith(github.event.inputs.version, 'v')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          files: android/app/build/outputs/apk/release/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build summary
+        run: |
+          echo "## 📱 Android Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**APK built from tested codebase**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️  **Manual testing required:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download APK from artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "2. Install on Android device" >> $GITHUB_STEP_SUMMARY
+          echo "3. Follow testing guide: .github/PLATFORM_BUILD_TESTING.md" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Automated E2E testing for Capacitor is not practical." >> $GITHUB_STEP_SUMMARY
+          echo "Manual testing verifies the Capacitor wrapper works correctly." >> $GITHUB_STEP_SUMMARY
