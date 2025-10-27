@@ -160,6 +160,12 @@ ios/*.xcworkspace/xcuserdata/
 *.cer
 *.p12
 
+# Capacitor auto-generated files (DO NOT EDIT - regenerated on capacitor update/sync)
+android/app/capacitor.build.gradle
+android/capacitor.settings.gradle
+android/capacitor-cordova-android-plugins/
+ios/App/Podfile
+
 # IDE
 .idea/
 *.iml
