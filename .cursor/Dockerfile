@@ -2,7 +2,7 @@
 # Includes: Node.js 22, Java 17, Android SDK, Gradle 9.x, Playwright
 # This aligns with CI environment and eliminates version mismatches
 
-FROM mcr.microsoft.com/playwright:v1.47.0-jammy AS base
+FROM mcr.microsoft.com/playwright:v1.56.1-jammy AS base
 
 # ============================================================================
 # Base Environment Setup
