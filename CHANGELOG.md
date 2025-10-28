@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.9](https://github.com/jbcom/otter-river-rush/compare/v1.2.8...v1.2.9) (2025-10-28)
+
+### 🐛 Bug Fixes
+
+* add working directory to Capacitor sync in CI ([7e7882a](https://github.com/jbcom/otter-river-rush/commit/7e7882ab640abee8ea443a5ebb4aff4375d29450))
+
 ## [1.2.8](https://github.com/jbcom/otter-river-rush/compare/v1.2.7...v1.2.8) (2025-10-28)
 
 ### 🐛 Bug Fixes
