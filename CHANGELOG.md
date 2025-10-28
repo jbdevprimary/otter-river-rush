@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1](https://github.com/jbcom/otter-river-rush/compare/v1.1.0...v1.1.1) (2025-10-28)
+
+### 📝 Documentation
+
+* massive overhaul - mobile-first architecture complete ([a9d1987](https://github.com/jbcom/otter-river-rush/commit/a9d198761f96cc9d12f25b43cb411fe0e3373341))
+
 ## [1.1.0](https://github.com/jbcom/otter-river-rush/compare/v1.0.4...v1.1.0) (2025-10-28)
 
 ### ✨ Features
