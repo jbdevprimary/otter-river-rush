@@ -10,7 +10,7 @@ export function App(): React.JSX.Element {
 
   return (
     <div className="fixed inset-0 w-screen h-screen">
-      <GameCanvas showStats={import.meta.env.DEV} />
+      {status !== 'menu' && <GameCanvas showStats={import.meta.env.DEV} />}
 
       {status === 'menu' && <MainMenu />}
       {status === 'playing' && <GameHUD />}

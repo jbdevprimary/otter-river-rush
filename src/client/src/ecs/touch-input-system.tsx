@@ -1,43 +1,36 @@
 import { useEffect } from 'react';
-import { queries } from './world';
 import { useGameStore } from '../hooks/useGameStore';
+import { HAPTIC_PATTERNS, hapticFeedback } from '../hooks/useMobileConstraints';
+import { queries } from './world';
 
 const LANES = [-2, 0, 2];
 
 export function TouchInputSystem() {
   const { status } = useGameStore();
-  
+
   useEffect(() => {
     if (status !== 'playing') return;
-    
-    let touchStartX = 0;
-    let touchStartY = 0;
+
+    let startX = 0;
+    let startY = 0;
     const swipeThreshold = 50;
-    
-    function handleTouchStart(e: TouchEvent) {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-    }
-    
-    function handleTouchEnd(e: TouchEvent) {
-      const touchEndX = e.changedTouches[0].clientX;
-      const touchEndY = e.changedTouches[0].clientY;
-      
-      const deltaX = touchEndX - touchStartX;
-      const deltaY = touchEndY - touchStartY;
-      
+
+    function applySwipe(deltaX: number, deltaY: number) {
       const [player] = queries.player.entities;
       if (!player) return;
-      
+
       // Horizontal swipe
       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > swipeThreshold) {
         const currentLane = player.lane || 0;
-        
+
         if (deltaX > 0 && currentLane < 1) {
           // Swipe right
           player.lane = (currentLane + 1) as -1 | 0 | 1;
           player.position.x = LANES[player.lane + 1];
-          
+
+          // Haptic feedback for dodge
+          hapticFeedback(HAPTIC_PATTERNS.dodge);
+
           if (player.animation) {
             player.animation.current = 'dodge-right';
             setTimeout(() => {
@@ -48,7 +41,10 @@ export function TouchInputSystem() {
           // Swipe left
           player.lane = (currentLane - 1) as -1 | 0 | 1;
           player.position.x = LANES[player.lane + 1];
-          
+
+          // Haptic feedback for dodge
+          hapticFeedback(HAPTIC_PATTERNS.dodge);
+
           if (player.animation) {
             player.animation.current = 'dodge-left';
             setTimeout(() => {
@@ -57,9 +53,12 @@ export function TouchInputSystem() {
           }
         }
       }
-      
+
       // Vertical swipe up (jump)
       if (deltaY < -swipeThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
+        // Haptic feedback for jump
+        hapticFeedback(HAPTIC_PATTERNS.jump);
+
         if (player.animation) {
           player.animation.current = 'jump';
           setTimeout(() => {
@@ -68,15 +67,55 @@ export function TouchInputSystem() {
         }
       }
     }
-    
-    window.addEventListener('touchstart', handleTouchStart);
-    window.addEventListener('touchend', handleTouchEnd);
-    
+
+    function handleTouchStart(e: TouchEvent) {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }
+    function handleTouchEnd(e: TouchEvent) {
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
+      applySwipe(endX - startX, endY - startY);
+    }
+
+    // Pointer (unified) events for broader device support (mouse, pen)
+    function handlePointerDown(e: PointerEvent) {
+      startX = e.clientX;
+      startY = e.clientY;
+    }
+    function handlePointerUp(e: PointerEvent) {
+      const endX = e.clientX;
+      const endY = e.clientY;
+      applySwipe(endX - startX, endY - startY);
+    }
+
+    // Mouse fallback for environments without touch/pointer events
+    function handleMouseDown(e: MouseEvent) {
+      startX = e.clientX;
+      startY = e.clientY;
+    }
+    function handleMouseUp(e: MouseEvent) {
+      const endX = e.clientX;
+      const endY = e.clientY;
+      applySwipe(endX - startX, endY - startY);
+    }
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    window.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    window.addEventListener('pointerup', handlePointerUp, { passive: true });
+    window.addEventListener('mousedown', handleMouseDown, { passive: true });
+    window.addEventListener('mouseup', handleMouseUp, { passive: true });
+
     return () => {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [status]);
-  
+
   return null;
 }

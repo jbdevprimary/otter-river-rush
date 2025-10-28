@@ -2,7 +2,7 @@
  * E2E tests for Otter River Rush gameplay
  */
 
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { TEST_CONFIG } from '../test-config';
 
 test.describe('Gameplay', () => {
@@ -13,12 +13,11 @@ test.describe('Gameplay', () => {
 
   test('should load the game', async ({ page }) => {
     await expect(page).toHaveTitle(/Otter River Rush/);
-    await expect(page.locator('canvas')).toBeVisible();
+    await expect(page.locator('canvas, canvas.webgl')).toBeVisible();
   });
 
   test('should start game when clicking start button', async ({ page }) => {
-    const startButton = page.locator('button', { hasText: /start|play/i });
-    await startButton.click();
+    await page.click('#classicButton');
 
     // Check that score is visible and starts at 0
     const scoreElement = page.locator('[data-testid="score"]');
@@ -28,7 +27,7 @@ test.describe('Gameplay', () => {
 
   test('should pause game when pressing Escape', async ({ page }) => {
     // Start the game
-    await page.locator('button', { hasText: /start|play/i }).click();
+    await page.click('#classicButton');
 
     // Press Escape
     await page.keyboard.press('Escape');
@@ -39,7 +38,7 @@ test.describe('Gameplay', () => {
 
   test('should handle keyboard controls', async ({ page }) => {
     // Start the game
-    await page.locator('button', { hasText: /start|play/i }).click();
+    await page.click('#classicButton');
 
     // Wait for game to be active
     await page.waitForTimeout(500);
@@ -55,7 +54,7 @@ test.describe('Gameplay', () => {
   });
 
   test('should display distance counter', async ({ page }) => {
-    await page.locator('button', { hasText: /start|play/i }).click();
+    await page.click('#classicButton');
 
     const distanceElement = page.locator('[data-testid="distance"]');
     await expect(distanceElement).toBeVisible();
@@ -67,7 +66,7 @@ test.describe('Gameplay', () => {
   });
 
   test('should show game over screen on collision', async ({ page }) => {
-    await page.locator('button', { hasText: /start|play/i }).click();
+    await page.click('#classicButton');
 
     // Wait for potential collision (or force one)
     await page.waitForTimeout(5000);
@@ -123,7 +122,7 @@ test.describe('Gameplay', () => {
       test.skip();
     }
 
-    await page.locator('button', { hasText: /start|play/i }).click();
+    await page.click('#classicButton');
     await page.waitForTimeout(500);
 
     const canvas = page.locator('canvas');

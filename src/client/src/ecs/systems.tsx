@@ -4,6 +4,7 @@
  */
 
 import { useFrame } from '@react-three/fiber';
+import { useRef } from 'react';
 import { queries, world, spawn, type Entity } from './world';
 import { useGameStore } from '../hooks/useGameStore';
 import { With } from 'miniplex';
@@ -22,11 +23,19 @@ const particleEntities = queries.particles;
  * Movement System - Move all entities with velocity
  */
 export function MovementSystem() {
+  const accumulatorMs = useRef(0);
+  const fixedStepMs = 1000 / 60;
+  
   useFrame((_, dt) => {
-    for (const entity of movingEntities) {
-      entity.position.x += entity.velocity!.x * dt;
-      entity.position.y += entity.velocity!.y * dt;
-      entity.position.z += entity.velocity!.z * dt;
+    accumulatorMs.current += dt * 1000;
+    while (accumulatorMs.current >= fixedStepMs) {
+      const step = fixedStepMs / 1000;
+      for (const entity of movingEntities) {
+        entity.position.x += entity.velocity!.x * step;
+        entity.position.y += entity.velocity!.y * step;
+        entity.position.z += entity.velocity!.z * step;
+      }
+      accumulatorMs.current -= fixedStepMs;
     }
   });
   return null;
@@ -99,32 +108,34 @@ export function CollisionSystem() {
  */
 export function SpawnerSystem() {
   const status = useGameStore((state) => state.status);
+  const lastObstacleSpawn = useRef(0);
+  const lastCollectibleSpawn = useRef(0);
+  const accumulatorMs = useRef(0);
+  const fixedStepMs = 1000 / 60;
   
-  useFrame((state) => {
+  useFrame((_, dt) => {
     if (status !== 'playing') return;
-    
-    const time = state.clock.elapsedTime;
-    
-    // Spawn obstacle every N seconds
-    const obstacleRate = 1 / PHYSICS.spawnInterval.obstacles;
-    if (Math.floor(time * obstacleRate) > Math.floor((time - 0.016) * obstacleRate)) {
-      const laneIndex = Math.floor(Math.random() * 3) as -1 | 0 | 1;
-      const lane = getLaneX(laneIndex);
-      const variant = Math.floor(Math.random() * 4);
-      spawn.rock(lane, VISUAL.positions.spawnY, variant);
-    }
-    
-    // Spawn collectible every N seconds
-    const collectibleRate = 1 / PHYSICS.spawnInterval.collectibles;
-    if (Math.floor(time * collectibleRate) > Math.floor((time - 0.016) * collectibleRate)) {
-      const laneIndex = Math.floor(Math.random() * 3) as -1 | 0 | 1;
-      const lane = getLaneX(laneIndex);
-      
-      if (Math.random() > 0.7) {
-        spawn.gem(lane, VISUAL.positions.spawnY);
-      } else {
-        spawn.coin(lane, VISUAL.positions.spawnY);
+    accumulatorMs.current += dt * 1000;
+    while (accumulatorMs.current >= fixedStepMs) {
+      const now = performance.now();
+      if (now - lastObstacleSpawn.current > PHYSICS.spawnInterval.obstacles * 1000) {
+        const laneIndex = Math.floor(Math.random() * 3) as -1 | 0 | 1;
+        const lane = getLaneX(laneIndex);
+        const variant = Math.floor(Math.random() * 4);
+        spawn.rock(lane, VISUAL.positions.spawnY, variant);
+        lastObstacleSpawn.current = now;
       }
+      if (now - lastCollectibleSpawn.current > PHYSICS.spawnInterval.collectibles * 1000) {
+        const laneIndex = Math.floor(Math.random() * 3) as -1 | 0 | 1;
+        const lane = getLaneX(laneIndex);
+        if (Math.random() > 0.7) {
+          spawn.gem(lane, VISUAL.positions.spawnY);
+        } else {
+          spawn.coin(lane, VISUAL.positions.spawnY);
+        }
+        lastCollectibleSpawn.current = now;
+      }
+      accumulatorMs.current -= fixedStepMs;
     }
   });
   return null;
@@ -158,13 +169,18 @@ export function AnimationSystem() {
  * Particle Decay System - Remove expired particles
  */
 export function ParticleSystem() {
+  const accumulatorMs = useRef(0);
+  const fixedStepMs = 1000 / 60;
   useFrame((_, dt) => {
-    for (const particle of particleEntities) {
-      particle.particle!.lifetime -= dt * 1000;
-      
-      if (particle.particle!.lifetime <= 0) {
-        world.addComponent(particle, 'destroyed', true);
+    accumulatorMs.current += dt * 1000;
+    while (accumulatorMs.current >= fixedStepMs) {
+      for (const particle of particleEntities) {
+        particle.particle!.lifetime -= fixedStepMs;
+        if (particle.particle!.lifetime <= 0) {
+          world.addComponent(particle, 'destroyed', true);
+        }
       }
+      accumulatorMs.current -= fixedStepMs;
     }
   });
   return null;

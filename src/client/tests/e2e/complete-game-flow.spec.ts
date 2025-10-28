@@ -6,8 +6,8 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Complete Game Flow - Full Playthrough', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173/otter-river-rush/');
+  test.beforeEach(async ({ page, baseURL }) => {
+    await page.goto(baseURL || '/');
     await page.waitForLoadState('networkidle');
   });
 

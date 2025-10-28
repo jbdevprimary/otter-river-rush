@@ -38,6 +38,7 @@ export function getHudPath(filename: string): string {
  * Get sprite asset path
  */
 export function getSpritePath(filename: string): string {
+  // Deprecated: sprites are no longer used after GLB migration
   return getAssetPath(`sprites/${filename}`);
 }
 
@@ -74,12 +75,7 @@ export const ASSET_URLS = {
     OTTER_DODGE_LEFT: getModelPath('otter-rusty-dodge-left.glb'),
     OTTER_DODGE_RIGHT: getModelPath('otter-rusty-dodge-right.glb'),
   },
-  SPRITES: {
-    POWER_UP_SHIELD: getSpritePath('powerup-shield.png'),
-    POWER_UP_MAGNET: getSpritePath('powerup-magnet.png'),
-    POWER_UP_MULTIPLIER: getSpritePath('powerup-multiplier.png'),
-    POWER_UP_SPEED: getSpritePath('powerup-speed.png'),
-  },
+  // SPRITES kept for HUD/UI icons only if needed; gameplay entities use GLB models
   HUD: {
     HEART: getHudPath('heart-icon.png'),
     COIN_PANEL: getHudPath('coin-panel.png'),

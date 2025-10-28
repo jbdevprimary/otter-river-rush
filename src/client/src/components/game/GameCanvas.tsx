@@ -1,32 +1,34 @@
-import React, { useEffect } from 'react';
+import { PerspectiveCamera, Stats } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import { OrthographicCamera, Stats } from '@react-three/drei';
-import { Suspense } from 'react';
-import { useGameStore } from '../../hooks/useGameStore';
-import { EntityRenderer } from './EntityRenderer';
-import { GameSystems } from '../../ecs/systems';
-import { InputSystem } from '../../ecs/input-system';
-import { spawn, queries } from '../../ecs/world';
-import { River } from './River';
-import { LaneMarkers } from './LaneMarkers';
-import { CameraSystem } from '../../ecs/camera-system';
-import { ScoreSystem } from '../../ecs/score-system';
-import { PowerUpSystem } from '../../ecs/power-up-system';
-import { TouchInputSystem } from '../../ecs/touch-input-system';
-import { BiomeSystem } from '../../ecs/biome-system';
-import { DifficultySystem } from '../../ecs/difficulty-system';
+import React, { Suspense, useEffect, useRef } from 'react';
+import { VISUAL } from '../../config/visual-constants';
 import { AchievementSystem } from '../../ecs/achievement-system';
+import { BiomeSystem } from '../../ecs/biome-system';
+import { CameraSystem } from '../../ecs/camera-system';
 import { ComboSystem } from '../../ecs/combo-system';
+import { DifficultySystem } from '../../ecs/difficulty-system';
+import { EnemySystem } from '../../ecs/enemy-system';
+import { InputSystem } from '../../ecs/input-system';
+import { LeaderboardSystem } from '../../ecs/leaderboard-system';
 import { MagnetSystem } from '../../ecs/magnet-system';
 import { NearMissSystem } from '../../ecs/near-miss-system';
-import { ShieldEffectSystem } from '../../ecs/shield-effect-system';
-import { WeatherSystem } from '../../ecs/weather-system';
+import { PowerUpSystem } from '../../ecs/power-up-system';
 import { QuestSystem } from '../../ecs/quest-system';
-import { LeaderboardSystem } from '../../ecs/leaderboard-system';
-import { EnemySystem } from '../../ecs/enemy-system';
-import { VisualEffects } from './VisualEffects';
+import { ScoreSystem } from '../../ecs/score-system';
+import { ShieldEffectSystem } from '../../ecs/shield-effect-system';
+import { GameSystems } from '../../ecs/systems';
+import { TouchInputSystem } from '../../ecs/touch-input-system';
+import { WeatherSystem } from '../../ecs/weather-system';
+import { queries, spawn } from '../../ecs/world';
+import { useGameStore } from '../../hooks/useGameStore';
+import { useMobileConstraints } from '../../hooks/useMobileConstraints';
+import { EntityRenderer } from './EntityRenderer';
+import { LaneMarkers } from './LaneMarkers';
+import { River } from './River';
 import { Skybox } from './Skybox';
-import { VISUAL } from '../../config/visual-constants';
+import { Terrain } from './Terrain';
+import { VisualEffects } from './VisualEffects';
+import { VolumetricSky } from './VolumetricSky';
 
 interface GameCanvasProps {
   showStats?: boolean;
@@ -34,7 +36,9 @@ interface GameCanvasProps {
 
 export function GameCanvas({ showStats = false }: GameCanvasProps): React.JSX.Element {
   const { status } = useGameStore();
-  
+  const constraints = useMobileConstraints();
+  const canvasRef = useRef<HTMLDivElement>(null);
+
   // Initialize player when game starts
   useEffect(() => {
     if (status === 'playing') {
@@ -44,43 +48,54 @@ export function GameCanvas({ showStats = false }: GameCanvasProps): React.JSX.El
     }
   }, [status]);
 
+  // Responsive canvas sizing based on orientation
+  const canvasStyle: React.CSSProperties = {
+    width: '100vw',
+    height: constraints.orientation === 'portrait' ? '80vh' : '100vh',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+  };
+
   return (
-    <div className="fixed inset-0 w-screen h-screen">
+    <div ref={canvasRef} className="fixed inset-0 w-screen h-screen z-0" style={canvasStyle}>
       <Canvas
         className="w-full h-full"
         gl={{
-          antialias: true,
+          antialias: !constraints.isMobile, // Disable AA on mobile for performance
           alpha: false,
           powerPreference: 'high-performance',
         }}
-        dpr={[1, 2]}
+        dpr={constraints.pixelRatio}
       >
-        <OrthographicCamera
+        <PerspectiveCamera
           makeDefault
-          position={[VISUAL.camera.position.x, VISUAL.camera.position.y, VISUAL.camera.position.z]}
-          zoom={VISUAL.camera.zoom}
-          near={VISUAL.camera.near}
-          far={VISUAL.camera.far}
+          position={[0, 3, 6]}
+          fov={constraints.isPhone ? 60 : 50} // Wider FOV on phones
+          near={0.1}
+          far={100}
         />
 
         <ambientLight intensity={VISUAL.lighting.ambient.intensity} color={VISUAL.lighting.ambient.color} />
-        <directionalLight 
-          position={VISUAL.lighting.directional.main.position} 
-          intensity={VISUAL.lighting.directional.main.intensity} 
+        <directionalLight
+          position={VISUAL.lighting.directional.main.position}
+          intensity={VISUAL.lighting.directional.main.intensity}
         />
-        <directionalLight 
-          position={VISUAL.lighting.directional.fill.position} 
-          intensity={VISUAL.lighting.directional.fill.intensity} 
+        <directionalLight
+          position={VISUAL.lighting.directional.fill.position}
+          intensity={VISUAL.lighting.directional.fill.intensity}
         />
 
         <Suspense fallback={null}>
           <Skybox />
+          <VolumetricSky />
+          <Terrain />
           <River />
           <LaneMarkers />
           <fog attach="fog" args={[VISUAL.fog.color, VISUAL.fog.near, VISUAL.fog.far]} />
-          
+
           <EntityRenderer />
-          
+
           <GameSystems />
           <InputSystem />
           <TouchInputSystem />

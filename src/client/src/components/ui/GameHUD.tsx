@@ -1,76 +1,90 @@
-import { useGameStore } from '../../hooks/useGameStore';
-import { queries } from '../../ecs/world';
 import { useBiome } from '../../ecs/biome-system';
+import { queries } from '../../ecs/world';
+import { useGameStore } from '../../hooks/useGameStore';
+import { useMobileConstraints } from '../../hooks/useMobileConstraints';
 
 export function GameHUD() {
   const { score, distance, coins, gems, combo } = useGameStore();
   const [player] = queries.player.entities;
   const biome = useBiome();
-  
+  const constraints = useMobileConstraints();
+
+  // Mobile-first: use safe areas for positioning
+  const topOffset = `max(1rem, ${constraints.safeAreas.top}px)`;
+  const bottomOffset = `max(1rem, ${constraints.safeAreas.bottom}px)`;
+  const leftOffset = `max(1rem, ${constraints.safeAreas.left}px)`;
+  const rightOffset = `max(1rem, ${constraints.safeAreas.right}px)`;
+
+  // Adjust font sizes for device type
+  const scoreFontSize = constraints.isPhone ? 'text-3xl' : 'text-4xl';
+  const distanceFontSize = constraints.isPhone ? 'text-lg' : 'text-xl';
+
   return (
-    <div className="absolute inset-0 pointer-events-none">
-      {/* Top Stats */}
-      <div className="absolute top-4 left-4 space-y-2">
-        <div id="score" className="text-4xl font-bold text-white drop-shadow-lg" data-testid="score">
+    <div className="absolute inset-0 pointer-events-none z-10">
+      {/* Top Stats - Safe area aware */}
+      <div className="absolute space-y-2" style={{ top: topOffset, left: leftOffset }}>
+        <div id="score" className={`${scoreFontSize} font-bold text-white drop-shadow-lg`} data-testid="score">
           {Math.floor(score).toLocaleString()}
         </div>
-        <div id="distance" className="text-xl text-blue-300" data-testid="distance">
+        <div id="distance" className={`${distanceFontSize} text-blue-300`} data-testid="distance">
           {Math.floor(distance)}m
         </div>
         {combo > 0 && (
-          <div className="text-2xl text-yellow-400 animate-pulse">
-            {combo}x COMBO!
+          <div className="text-xl text-yellow-400 animate-pulse">
+            {combo}x!
           </div>
         )}
       </div>
-      
-      {/* Top Right - Collectibles */}
-      <div className="absolute top-4 right-4 space-y-2 text-right">
-        <div className="text-xl text-yellow-400">
+
+      {/* Top Right - Collectibles - Safe area aware */}
+      <div className="absolute space-y-2 text-right" style={{ top: topOffset, right: rightOffset }}>
+        <div className={`${distanceFontSize} text-yellow-400`}>
           💰 {coins}
         </div>
-        <div className="text-xl text-pink-400">
+        <div className={`${distanceFontSize} text-pink-400`}>
           💎 {gems}
         </div>
       </div>
-      
-      {/* Bottom Left - Health */}
+
+      {/* Bottom Left - Health - Safe area & thumb zone aware */}
       {player && player.health && (
-        <div className="absolute bottom-4 left-4 flex gap-2">
+        <div className="absolute flex gap-2" style={{ bottom: bottomOffset, left: leftOffset }}>
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className={`text-3xl ${i < player.health! ? 'opacity-100' : 'opacity-20'}`}
+              className={`text-2xl ${i < player.health! ? 'opacity-100' : 'opacity-20'}`}
             >
               ❤️
             </div>
           ))}
         </div>
       )}
-      
-      {/* Bottom Center - Biome */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center">
-        <div className="text-sm text-blue-200 opacity-70">
-          {biome.name}
+
+      {/* Biome - Only show on tablets (too cluttered on phones) */}
+      {constraints.isTablet && (
+        <div className="absolute left-1/2 -translate-x-1/2 text-center" style={{ bottom: bottomOffset }}>
+          <div className="text-sm text-blue-200 opacity-70">
+            {biome.name}
+          </div>
         </div>
-      </div>
-      
-      {/* Power-up indicators */}
+      )}
+
+      {/* Power-up indicators - Compact for mobile */}
       {player && (
-        <div className="absolute top-20 right-4 space-y-1">
+        <div className="absolute space-y-1" style={{ top: `calc(${topOffset} + 4rem)`, right: rightOffset }}>
           {player.ghost && (
-            <div className="text-sm bg-purple-500/80 px-3 py-1 rounded">
-              👻 Ghost
+            <div className="text-xs bg-purple-500/80 px-2 py-0.5 rounded">
+              👻
             </div>
           )}
           {player.invincible && (
-            <div className="text-sm bg-blue-500/80 px-3 py-1 rounded">
-              🛡️ Shield
+            <div className="text-xs bg-blue-500/80 px-2 py-0.5 rounded">
+              🛡️
             </div>
           )}
           {(player as any).magnetActive && (
-            <div className="text-sm bg-yellow-500/80 px-3 py-1 rounded">
-              🧲 Magnet
+            <div className="text-xs bg-yellow-500/80 px-2 py-0.5 rounded">
+              🧲
             </div>
           )}
         </div>

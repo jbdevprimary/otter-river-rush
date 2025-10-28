@@ -21,10 +21,10 @@
   - Bundle analysis built-in
 
 #### Rendering
-- **HTML5 Canvas 2D** - Native browser rendering API
-  - No external rendering library
-  - Direct canvas manipulation
-  - LayeredCanvas pattern for optimization
+- **React Three Fiber (Three.js/WebGL)** - Declarative 3D rendering
+  - GLB models with animations (useGLTF/useAnimations)
+  - ProceduralSky, Terrain, post-processing
+  - Fixed-timestep ECS systems
 
 ### Development Tools
 
@@ -40,19 +40,19 @@
   - Auto-format on save
 
 #### Testing
-- **Vitest 2** - Unit & Integration testing framework
+- **Vitest 4** - Unit & Integration testing framework
   - Fast parallel execution
   - TypeScript native
   - Coverage reporting (80%+ target)
   - Watch mode for development
   - **NEW**: `test:integration` script for core game logic tests
   
-- **Playwright 1.40** - E2E testing
+- **Playwright 1.47** - E2E testing
   - Multi-browser testing
   - Visual regression tests
-  - Mobile device emulation
+  - Mobile device emulation (Pixel/iPhone/iPad)
   - Accessibility testing
-  - **CRITICAL**: Tests run against DEPLOYED GitHub Pages URL, not local artifacts
+  - Uses preview server or BASE_URL for stability
 
 #### CI/CD
 - **GitHub Actions** - Automated workflows  
@@ -86,9 +86,9 @@
   - Install prompts
 
 #### Utilities
-- **Canvas-related**: Native browser APIs only
+- **R3F helpers**: drei/postprocessing
 - **Storage**: localStorage (no external library)
-- **State**: Custom implementation (no Redux/MobX)
+- **State**: Zustand
 
 ### Build Configuration
 
@@ -192,7 +192,7 @@ npm run desktop:build        # Shortcut for desktop build
 ### Platform Constraints
 - **Client-side only**: No server/backend
 - **localStorage**: Max 5-10MB storage
-- **No WebGL**: Canvas 2D only
+- **WebGL required**: Three.js via R3F
 - **Static hosting**: GitHub Pages compatible
 
 ## Dependencies

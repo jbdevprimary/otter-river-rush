@@ -1,6 +1,6 @@
 # Otter River Rush - Dev Tools
 
-Development tools for generating 3D models, textures, and sprites for Otter River Rush.
+Development tools for generating 3D models and textures for Otter River Rush.
 
 ## 🎨 3D Model Generation
 
@@ -95,10 +95,7 @@ After generating models:
    - Replace texture planes with `useGLTF` hooks
    - Load animated models with proper controls
    
-2. **Delete Old 2D Sprites**
-   ```bash
-   rm -rf src/client/public/sprites/*.png
-   ```
+2. **Sprites deprecated**: Gameplay uses GLB models; no sprite generation.
 
 3. **Test in Browser**
    ```bash
@@ -127,7 +124,6 @@ pnpm pipeline
 ```bash
 pnpm generate:models      # 3D models via Meshy
 pnpm generate:textures    # PBR textures from AmbientCG
-pnpm generate:sprites     # 2D sprites via OpenAI DALL-E
 pnpm generate:content     # AI-generated game content
 ```
 

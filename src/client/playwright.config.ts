@@ -6,7 +6,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0, // Reduced from 2 to 1 for speed
   workers: process.env.CI ? 2 : undefined, // Increased from 1 to 2 for speed
-  reporter: 'html',
+  reporter: 'list',
   timeout: 30000, // 30s per test (default is 30s anyway)
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:4173',
@@ -33,35 +33,31 @@ export default defineConfig({
     },
     {
       name: 'chromium-video',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         video: 'on', // Always record video
       },
       testMatch: '**/ai-playthrough.spec.ts', // Only for AI playthrough tests
     },
-    // Only test chromium in CI for speed - others can be tested locally
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
+    // Mobile and Tablet profiles for cross-device coverage (executed locally by default)
+    {
+      name: 'mobile-chrome',
+      use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'mobile-safari',
+      use: { ...devices['iPhone 12'] },
+    },
+    {
+      name: 'tablet-ipad',
+      use: { ...devices['iPad Pro 11'] },
+    },
   ],
   webServer: process.env.BASE_URL
     ? undefined
     : {
-        command: 'npm run preview',
-        port: 4173,
-        reuseExistingServer: !process.env.CI,
-      },
+      command: 'npm run preview',
+      port: 4173,
+      reuseExistingServer: !process.env.CI,
+    },
 });

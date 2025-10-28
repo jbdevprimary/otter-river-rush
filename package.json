@@ -39,11 +39,11 @@
     },
     "files": [
       "dist/**/*",
-      "electron/**/*",
-      "!electron/*.ts"
+      "wrappers/electron/**/*",
+      "!wrappers/electron/*.ts"
     ],
     "extraMetadata": {
-      "main": "electron/main.js"
+      "main": "wrappers/electron/main.js"
     },
     "mac": {
       "target": [

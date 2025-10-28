@@ -1,3 +1,45 @@
+name: Desktop Build (macOS)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  mac:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web
+        run: pnpm build
+
+      - name: Build Electron (dir)
+        run: pnpm exec electron-builder --dir
+
+      - name: Build Electron (dmg)
+        run: pnpm exec electron-builder --mac dmg zip -c.mac.identity=null
+
+      - name: Upload desktop artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-mac
+          path: dist-electron/**
 name: Desktop Build
 
 # DEPRECATED: This workflow is maintained for backward compatibility.

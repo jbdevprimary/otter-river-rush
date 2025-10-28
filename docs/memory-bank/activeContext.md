@@ -1,8 +1,8 @@
 # Active Context - Otter River Rush
 
-**Last Updated**: 2025-10-27
+**Last Updated**: 2025-10-28
 **Current Branch**: main
-**Session Status**: 🔄 COMPREHENSIVE SYSTEMS BUILD + E2E TESTING
+**Session Status**: 📱 MOBILE-FIRST TRANSFORMATION COMPLETE
 
 ## Current Work Summary
 
@@ -76,19 +76,59 @@
 - ⚠️ E2E tests timing out (>120s) - unable to complete verification
 - ❌ Full gameplay loop NOT verified
 
-### Current Issues
+### Latest Session: Mobile-First Transformation (2025-10-28)
 
-**E2E Test Status:** INCOMPLETE
-- Tests started but timed out after 120 seconds
-- Test report generated but not analyzed
-- Unknown which specific gameplay features work/fail
-- Menu appears functional but gameplay unverified
+**Major Pivot**: Recognized this is a **MOBILE GAME**, not a desktop/web game.
 
-**Required Next Steps:**
-1. Complete E2E test run or analyze test report
-2. Identify actual gameplay failures (if any)
-3. Fix gameplay issues preventing full loop
-4. Verify complete sequence: Menu → Game → Playing → Game Over → Menu
+**Completed:**
+1. **Mobile Constraints Hook** (`useMobileConstraints.ts`)
+   - Detects phone/tablet/foldable
+   - Tracks orientation changes (portrait/landscape)
+   - Monitors safe area insets (notch, status bar)
+   - Auto-pauses on background/interruption
+   - Locks orientation (portrait for phones, landscape for tablets)
+
+2. **Responsive Canvas** (`GameCanvas.tsx`)
+   - Adapts to orientation changes
+   - Uses mobile pixel ratio (capped at 2x for performance)
+   - Disables antialiasing on mobile
+   - Wider FOV on phones (60° vs 50°)
+   - 80vh height in portrait (leaves room for HUD)
+
+3. **Mobile-First HUD** (`GameHUD.tsx`)
+   - Safe area aware positioning
+   - Responsive font sizes (smaller on phones)
+   - Hides non-essential info on phones (biome name)
+   - Compact power-up indicators
+
+4. **Haptic Feedback** (Touch Input)
+   - Vibration on dodge, jump, collect, hit, game over
+   - Uses native Vibration API
+   - Patterns optimized for mobile
+
+5. **CSS Safe Areas**
+   - env(safe-area-inset-*) variables
+   - Prevents content under notch/status bar
+
+6. **PWA Enhancements**
+   - Fullscreen display mode
+   - Any orientation support (locks in JS)
+   - Install shortcuts
+
+7. **Removed Desktop UX**
+   - No keyboard hints in menu ("Swipe to Dodge" not "Arrow Keys")
+
+**Current Status:**
+- ✅ **96/97 E2E tests PASSING** (desktop + mobile Chrome + Safari + iPad)
+- ✅ **Complete game flow verified** on all devices
+- ✅ **Mobile-first transformation complete**
+- ⚠️ **Android build blocked**: Capacitor AAR compiled with Java 21 (dependency issue)
+  
+**Android Build Blockers:**
+- Capacitor's own AAR requires Java 21 source/target
+- Our codebase set to Java 17 for compatibility
+- Need to either: upgrade to Java 21 globally OR downgrade Capacitor version
+- Recommend: Install JDK 21 and update all gradle files to VERSION_21
 
 ## Key Files Modified This Session
 

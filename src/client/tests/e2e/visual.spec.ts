@@ -5,7 +5,7 @@
  * and compare them against baseline images to detect visual regressions.
  */
 
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { TEST_CONFIG } from '../test-config';
 
 test.describe('Visual Regression', () => {
@@ -18,7 +18,7 @@ test.describe('Visual Regression', () => {
 
   test('initial menu screen', async ({ page }) => {
     // Wait for canvas to be visible
-    await expect(page.locator('canvas')).toBeVisible();
+    await expect(page.locator('canvas, canvas.webgl')).toBeVisible();
 
     // Wait for any loading to complete
     await expect(page.locator('button:has-text("Start Game")')).toBeVisible();
@@ -32,8 +32,7 @@ test.describe('Visual Regression', () => {
 
   test('gameplay screen after starting', async ({ page }) => {
     // Start the game
-    const startButton = page.locator('button:has-text("Start Game")');
-    await startButton.click();
+    await page.click('#classicButton');
 
     // Wait for game to start by waiting for score to be visible
     await expect(page.locator('[data-testid="score"]')).toBeVisible();
@@ -49,8 +48,7 @@ test.describe('Visual Regression', () => {
 
   test('game UI elements visibility', async ({ page }) => {
     // Start the game
-    const startButton = page.locator('button:has-text("Start Game")');
-    await startButton.click();
+    await page.click('#classicButton');
 
     // Wait for HUD elements to be visible
     const score = page.locator('[data-testid="score"]');
@@ -127,8 +125,7 @@ test.describe('Visual Regression', () => {
   });
 
   test('game background rendering', async ({ page }) => {
-    const startButton = page.locator('button:has-text("Start Game")');
-    await startButton.click();
+    await page.click('#classicButton');
 
     // Let game run to see background
     await page.waitForTimeout(2000);
@@ -143,8 +140,7 @@ test.describe('Visual Regression', () => {
 
   test('pause menu appearance', async ({ page }) => {
     // Start the game
-    const startButton = page.locator('button:has-text("Start Game")');
-    await startButton.click();
+    await page.click('#classicButton');
 
     await page.waitForTimeout(1000);
 

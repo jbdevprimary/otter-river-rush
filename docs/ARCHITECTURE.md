@@ -1,8 +1,8 @@
 # Otter River Rush - React Three Fiber Architecture
 
 **Document Type:** 🔒 Frozen Technical Specification  
-**Version:** 2.0.0  
-**Last Updated:** 2025-10-27  
+**Version:** 2.1.0  
+**Last Updated:** 2025-10-28  
 **Status:** LOCKED - Technical Foundation Document
 
 ---
@@ -17,6 +17,17 @@
 3. **Performance:** 60 FPS non-negotiable across mobile and desktop
 4. **Component Composition:** React's declarative nature for game state and rendering
 5. **Modern Tooling:** TypeScript + Vite + R3F ecosystem
+
+---
+
+## 🔄 v2.1.0 (Minor) Updates
+
+- Enforced GLB-only entity rendering via generic `EntityRenderer`.
+- Added fixed-timestep accumulator across ECS systems (deterministic updates).
+- Switched to `PerspectiveCamera`; integrated ProceduralSky and Terrain.
+- Implemented GLB animation mixing for otter/actors.
+- Mobile-first inputs: swipe via touch/pointer/mouse; Playwright mobile profiles added.
+- E2E stabilized to use baseURL/preview and non-interactive reporters.
 
 ---
 

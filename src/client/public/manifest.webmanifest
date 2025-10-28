@@ -4,8 +4,8 @@
   "description": "An endless runner game where you dodge obstacles as Rusty the Otter",
   "start_url": "/otter-river-rush/",
   "scope": "/otter-river-rush/",
-  "display": "standalone",
-  "orientation": "portrait",
+  "display": "fullscreen",
+  "orientation": "any",
   "theme_color": "#0f172a",
   "background_color": "#0f172a",
   "icons": [
@@ -28,14 +28,22 @@
       "purpose": "maskable"
     }
   ],
-  "categories": ["games", "entertainment"],
+  "categories": [
+    "games",
+    "entertainment"
+  ],
   "shortcuts": [
     {
       "name": "Quick Play",
       "short_name": "Play",
       "description": "Start playing immediately",
       "url": "/otter-river-rush/?mode=classic",
-      "icons": [{ "src": "/otter-river-rush/pwa-192x192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/otter-river-rush/pwa-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

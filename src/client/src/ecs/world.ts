@@ -6,8 +6,9 @@
 import { World } from 'miniplex';
 import createReactAPI from 'miniplex-react';
 import type { Object3D } from 'three';
-import { VISUAL, PHYSICS, getLaneX, getModelScale } from '../config/visual-constants';
 import { ASSET_URLS } from '../config/game-constants';
+import { PHYSICS, VISUAL, getLaneX, getModelScale } from '../config/visual-constants';
+import { getModelVariantsSync, loadModelsManifest } from '../utils/model-manifest';
 
 /**
  * Entity type definition
@@ -17,31 +18,31 @@ export type Entity = {
   // Core components
   position: { x: number; y: number; z: number };
   velocity?: { x: number; y: number; z: number };
-  
+
   // Three.js rendering
   model?: {
     url: string;
     scale?: number;
   };
   three?: Object3D;
-  
+
   // Animation
   animation?: {
     current: string;  // 'idle', 'walk', 'run', 'jump', 'collect', 'hit', 'death'
     urls: Record<string, string>;
   };
-  
+
   // Physics
   collider?: {
     width: number;
     height: number;
     depth: number;
   };
-  
+
   // Game behavior
   scrollSpeed?: number;
   lane?: -1 | 0 | 1;  // Left, Center, Right
-  
+
   // Entity types (tags)
   player?: true;
   obstacle?: true;
@@ -59,21 +60,21 @@ export type Entity = {
     type: 'shield' | 'magnet' | 'ghost' | 'multiplier' | 'slow_motion';
     duration?: number;
   };
-  
+
   // State
   health?: number;
   invincible?: true;
   ghost?: true;
   collected?: true;
   destroyed?: true;
-  
+
   // Visual effects
   particle?: {
     color: string;
     lifetime: number;
     size: number;
   };
-  
+
   // Metadata
   id?: string;
   variant?: number;  // For multiple rock types
@@ -97,13 +98,13 @@ export const ECS = createReactAPI(world);
 export const queries = {
   // Player
   player: world.with('player', 'position', 'model'),
-  
+
   // Enemies
   enemies: world.with('enemy', 'position', 'collider'),
-  
+
   // Obstacles
   obstacles: world.with('obstacle', 'position', 'collider'),
-  
+
   // Collectibles
   collectibles: world.with('collectible', 'position'),
   coins: world.with('collectible', 'position').where(
@@ -112,21 +113,21 @@ export const queries = {
   gems: world.with('collectible', 'position').where(
     (e) => e.collectible?.type === 'gem'
   ),
-  
+
   // Power-ups
   powerUps: world.with('powerUp', 'position'),
-  
+
   // Visual effects
   particles: world.with('particle', 'position', 'velocity'),
-  
+
   // Physics
   moving: world.with('position', 'velocity'),
   collidable: world.with('position', 'collider'),
-  
+
   // Lifecycle
   collected: world.with('collected'),
   destroyed: world.with('destroyed'),
-  
+
   // Rendering
   renderable: world.with('position', 'three'),
 };
@@ -166,19 +167,20 @@ export const spawn = {
     }),
 
   rock: (x: number, y: number, variant: number = 0) => {
-    const variants = [
+    const manifestVariants = getModelVariantsSync('rock');
+    const fallback = [
       ASSET_URLS.MODELS.ROCK_RIVER,
       ASSET_URLS.MODELS.ROCK_MOSSY,
       ASSET_URLS.MODELS.ROCK_CRACKED,
       ASSET_URLS.MODELS.ROCK_CRYSTAL,
     ];
-    
+    const selectedUrl = (manifestVariants[variant % Math.max(manifestVariants.length, 1)]) || fallback[variant % fallback.length];
     return world.add({
       obstacle: true,
       position: { x, y, z: VISUAL.layers.obstacles },
       velocity: { x: 0, y: -PHYSICS.scrollSpeed, z: 0 },
       model: {
-        url: variants[variant % variants.length],
+        url: selectedUrl,
         scale: getModelScale('rock'),
       },
       collider: { width: 1.2, height: 1.2, depth: 1.2 },
@@ -221,3 +223,6 @@ export const spawn = {
       },
     }),
 };
+
+// Lazy-load models manifest at runtime for dynamic variants
+loadModelsManifest().catch(() => { });

@@ -3,10 +3,10 @@
  * Automatically loads and displays 3D models for each entity
  */
 
-import { useGLTF } from '@react-three/drei';
-import { ECS, queries } from '../../ecs/world';
-import { useEffect, useRef } from 'react';
+import { useAnimations, useGLTF } from '@react-three/drei';
+import { useEffect, useMemo, useRef } from 'react';
 import type { Group } from 'three';
+import { ECS, queries } from '../../ecs/world';
 
 /**
  * Model component - Loads and renders a GLB model
@@ -14,7 +14,7 @@ import type { Group } from 'three';
 function Model({ url, scale = 1 }: { url: string; scale?: number }) {
   const { scene } = useGLTF(url);
   const groupRef = useRef<Group>(null);
-  
+
   return (
     <group ref={groupRef}>
       <primitive object={scene.clone()} scale={scale} />
@@ -25,24 +25,40 @@ function Model({ url, scale = 1 }: { url: string; scale?: number }) {
 /**
  * Animated Model - Loads GLB with animations
  */
-function AnimatedModel({ 
-  baseUrl, 
-  animationUrl, 
-  scale = 1 
-}: { 
-  baseUrl: string; 
-  animationUrl?: string; 
+function AnimatedModel({
+  baseUrl,
+  animationUrl,
+  scale = 1
+}: {
+  baseUrl: string;
+  animationUrl?: string;
   scale?: number;
 }) {
+  const groupRef = useRef<Group>(null);
   const base = useGLTF(baseUrl);
   const anim = animationUrl ? useGLTF(animationUrl) : null;
-  
-  // TODO: Wire up animation mixer
-  // const { actions, mixer } = useAnimations(anim?.animations || [], groupRef);
-  
+
+  // Use animation GLB's clips if available; fall back to none
+  const clips = useMemo(() => (anim?.animations ? anim.animations : []), [anim]);
+  const { actions } = useAnimations(clips, groupRef);
+
+  useEffect(() => {
+    // Stop all current actions
+    Object.values(actions).forEach((a) => a?.stop());
+    // Play the first clip if available
+    const first = Object.keys(actions)[0];
+    if (first) {
+      actions[first]?.reset().fadeIn(0.15).play();
+    }
+    return () => {
+      Object.values(actions).forEach((a) => a?.fadeOut(0.1));
+    };
+  }, [actions, animationUrl]);
+
+  const displayObject = useMemo(() => (anim?.scene ?? base.scene).clone(), [anim, base]);
   return (
-    <group>
-      <primitive object={base.scene.clone()} scale={scale} />
+    <group ref={groupRef}>
+      <primitive object={displayObject} scale={scale} />
     </group>
   );
 }
@@ -58,7 +74,7 @@ export function PlayerRenderer() {
           <ECS.Component name="three">
             <group position={[entity.position.x, entity.position.y, entity.position.z]}>
               {entity.animation && entity.animation.urls[entity.animation.current] ? (
-                <AnimatedModel 
+                <AnimatedModel
                   baseUrl={entity.model!.url}
                   animationUrl={entity.animation.urls[entity.animation.current]}
                   scale={entity.model!.scale}
@@ -102,7 +118,7 @@ export function CollectiblesRenderer() {
       {(entity) => (
         <ECS.Entity entity={entity}>
           <ECS.Component name="three">
-            <group 
+            <group
               position={[entity.position.x, entity.position.y, entity.position.z]}
               rotation={[0, Date.now() * 0.001, 0]}  // Spinning collectibles
             >

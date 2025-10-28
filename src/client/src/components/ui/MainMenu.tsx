@@ -11,8 +11,8 @@ export function MainMenu(): React.JSX.Element {
   const { startGame } = useGameStore();
 
   return (
-    <div id="startScreen" className="fixed inset-0 flex items-start justify-center pointer-events-auto game-bg-overlay z-50 overflow-y-auto pt-8">
-      <div className="w-full max-w-xl p-3 space-y-2 splash-in">
+    <div id="startScreen" className="fixed inset-0 flex items-start justify-center pointer-events-auto game-bg-overlay z-50 overflow-y-auto overflow-x-hidden pt-4 pb-8">
+      <div className="w-full max-w-xl px-3 pb-4 space-y-2 splash-in">
         {/* Hero Section with Mascot */}
         <div className="text-center">
           <img
@@ -25,7 +25,7 @@ export function MainMenu(): React.JSX.Element {
             🌊 Jump in and ride the rapids! 🌊
           </p>
           <div className="otter-speech-bubble inline-block mt-1 text-xs">
-            Use Arrow Keys or Swipe to Dodge!
+            Swipe to Dodge · Tap to Jump!
           </div>
         </div>
 
