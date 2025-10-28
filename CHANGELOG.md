@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.8](https://github.com/jbcom/otter-river-rush/compare/v1.2.7...v1.2.8) (2025-10-28)
+
+### 🐛 Bug Fixes
+
+* CI E2E tests - use smoke tests only ([ec42432](https://github.com/jbcom/otter-river-rush/commit/ec4243264245e34b9512d9048b40192326b6969f))
+
 ## [1.2.7](https://github.com/jbcom/otter-river-rush/compare/v1.2.6...v1.2.7) (2025-10-28)
 
 ### 📝 Documentation
