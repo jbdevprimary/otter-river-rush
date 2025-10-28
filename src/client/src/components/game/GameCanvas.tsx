@@ -88,8 +88,7 @@ export function GameCanvas({ showStats = false }: GameCanvasProps): React.JSX.El
 
         <Suspense fallback={null}>
           <Skybox />
-          {/* VolumetricSky disabled temporarily - might crash on some devices */}
-          {/* <VolumetricSky /> */}
+          <VolumetricSky />
           <Terrain />
           <River />
           <LaneMarkers />

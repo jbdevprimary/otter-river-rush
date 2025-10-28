@@ -17,106 +17,47 @@ export function MainMenu(): React.JSX.Element {
   };
 
   return (
-    <div id="startScreen" className="fixed inset-0 flex items-start justify-center pointer-events-auto game-bg-overlay z-50 overflow-y-auto overflow-x-hidden pt-4 pb-8">
-      <div className="w-full max-w-xl px-3 pb-4 space-y-2 splash-in">
-        {/* Hero Section with Mascot */}
-        <div className="text-center">
-          <img
-            src={getHudPath('splash-screen.png')}
-            alt="Rusty the Otter"
-            className="mx-auto w-24 h-24 object-contain mb-1 otter-bounce"
-          />
-          <h1 className="otter-title text-3xl">Otter River Rush</h1>
-          <p className="otter-subtitle mt-1 text-sm">
-            🌊 Jump in and ride the rapids! 🌊
-          </p>
-          <div className="otter-speech-bubble inline-block mt-1 text-xs">
-            Swipe to Dodge · Tap to Jump!
-          </div>
+    <div id="startScreen" className="fixed inset-0 flex items-center justify-center pointer-events-auto game-bg-overlay z-50">
+      <div className="w-full max-w-md px-4 space-y-3 splash-in overflow-y-auto max-h-screen">
+        {/* Hero Section - Compact */}
+        <div className="text-center py-2">
+          <h1 className="otter-title text-2xl mb-1">Otter River Rush</h1>
+          <p className="text-xs text-blue-300">Swipe to Dodge!</p>
         </div>
 
-        {/* Mode Selection */}
-        <div className="space-y-1.5 mt-2">
-          <h3 className="otter-subtitle text-center mb-1 text-sm">
-            Choose Your Adventure!
-          </h3>
+        {/* Mode Selection - Compact */}
+        <div className="space-y-2">
 
           <button
             id="classicButton"
             onClick={() => handleStartGame('classic')}
-            className="otter-mode-card w-full flex items-center gap-4 text-left"
+            className="otter-btn otter-btn-primary w-full text-lg py-3"
           >
-            <div className="otter-mode-icon">
-              <img
-                src={getIconPath('mode-rapid-rush.png')}
-                alt="Rapid Rush"
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="flex-1">
-              <div className="otter-mode-title">Rapid Rush</div>
-              <div className="otter-mode-desc">
-                Endless adventure through wild rapids!
-              </div>
-            </div>
+            🏃 Rapid Rush
           </button>
 
           <button
             id="timeTrialButton"
             onClick={() => handleStartGame('time_trial')}
-            className="otter-mode-card w-full flex items-center gap-4 text-left"
+            className="otter-btn otter-btn-secondary w-full text-lg py-3"
           >
-            <div className="otter-mode-icon">
-              <img
-                src={getIconPath('mode-speed-splash.png')}
-                alt="Speed Splash"
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="flex-1">
-              <div className="otter-mode-title">Speed Splash</div>
-              <div className="otter-mode-desc">
-                60 seconds of high-speed thrills!
-              </div>
-            </div>
+            ⏱️ Time Trial
           </button>
 
           <button
             id="zenButton"
             onClick={() => handleStartGame('zen')}
-            className="otter-mode-card w-full flex items-center gap-4 text-left"
+            className="otter-btn otter-btn-secondary w-full text-lg py-3"
           >
-            <div className="otter-mode-icon">
-              <img
-                src={getIconPath('mode-chill-cruise.png')}
-                alt="Chill Cruise"
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="flex-1">
-              <div className="otter-mode-title">Chill Cruise</div>
-              <div className="otter-mode-desc">
-                Relaxing float down the lazy river
-              </div>
-            </div>
+            🧘 Zen Mode
           </button>
 
           <button
             id="dailyButton"
             onClick={() => handleStartGame('daily_challenge')}
-            className="otter-mode-card w-full flex items-center gap-4 text-left"
+            className="otter-btn otter-btn-secondary w-full text-lg py-3"
           >
-            <div className="otter-mode-icon">
-              <img
-                src={getIconPath('mode-daily-dive.png')}
-                alt="Daily Dive"
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="flex-1">
-              <div className="otter-mode-title">Daily Dive</div>
-              <div className="otter-mode-desc">Fresh challenge every day!</div>
-            </div>
+            🎲 Daily Challenge
           </button>
         </div>
       </div>
