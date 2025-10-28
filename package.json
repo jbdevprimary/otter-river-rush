@@ -1,6 +1,6 @@
 {
   "name": "otter-river-rush-monorepo",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "private": true,
   "type": "module",
   "description": "Otter River Rush - A React Three Fiber endless runner game",
