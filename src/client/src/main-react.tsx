@@ -5,8 +5,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import './style.css';
 
 /**
- * Main entry point for React version
- * This will eventually replace the vanilla TypeScript game
+ * Main entry point - React Three Fiber game
  */
 
 const rootElement = document.getElementById('app');
@@ -32,7 +31,12 @@ console.warn('🦦 Otter River Rush - React Three Fiber Edition');
 console.warn('📊 Development Mode Active');
 console.warn('🎮 Game State available at: window.__gameStore');
 
-// Expose game store for debugging (always, for E2E tests)
+// Expose game store and debug tools for debugging (always, for E2E tests)
 import('./hooks/useGameStore').then(({ useGameStore }) => {
   (window as { __gameStore?: unknown }).__gameStore = useGameStore;
+});
+
+// Load debug tools
+import('./utils/debug-tools').then(({ debugTools }) => {
+  (window as any).debug = debugTools;
 });
