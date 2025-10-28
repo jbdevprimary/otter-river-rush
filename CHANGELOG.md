@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.7](https://github.com/jbcom/otter-river-rush/compare/v1.2.6...v1.2.7) (2025-10-28)
+
+### 📝 Documentation
+
+* update memory bank - production ready status ([4b1ad7e](https://github.com/jbcom/otter-river-rush/commit/4b1ad7e08521c94de5351d809430e5fe09c61fcb))
+
 ## [1.2.6](https://github.com/jbcom/otter-river-rush/compare/v1.2.5...v1.2.6) (2025-10-28)
 
 ### 🐛 Bug Fixes
