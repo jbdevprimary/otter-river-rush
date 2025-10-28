@@ -12,6 +12,7 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || 'http://localhost:4173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    video: 'retain-on-failure', // Record video for failures (AI tests override to 'on')
     actionTimeout: 10000, // 10s for actions
   },
   // Visual testing specific settings
