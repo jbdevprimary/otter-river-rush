@@ -7,6 +7,7 @@ import { World } from 'miniplex';
 import createReactAPI from 'miniplex-react';
 import type { Object3D } from 'three';
 import { VISUAL, PHYSICS, getLaneX, getModelScale } from '../config/visual-constants';
+import { ASSET_URLS } from '../config/game-constants';
 
 /**
  * Entity type definition
@@ -141,23 +142,23 @@ export const spawn = {
       velocity: { x: 0, y: 0, z: 0 },
       lane,
       model: {
-        url: '/otter-river-rush/models/otter-rusty.glb',
+        url: ASSET_URLS.MODELS.OTTER,
         scale: getModelScale('otter'),
       },
       animation: {
         current: 'idle',
         urls: {
-          idle: '/otter-river-rush/models/otter-rusty.glb',
-          walk: '/otter-river-rush/models/otter-rusty-walk.glb',
-          run: '/otter-river-rush/models/otter-rusty-run.glb',
-          jump: '/otter-river-rush/models/otter-rusty-jump.glb',
-          collect: '/otter-river-rush/models/otter-rusty-collect.glb',
-          hit: '/otter-river-rush/models/otter-rusty-hit.glb',
-          death: '/otter-river-rush/models/otter-rusty-death.glb',
-          victory: '/otter-river-rush/models/otter-rusty-victory.glb',
-          happy: '/otter-river-rush/models/otter-rusty-happy.glb',
-          dodgeLeft: '/otter-river-rush/models/otter-rusty-dodge-left.glb',
-          dodgeRight: '/otter-river-rush/models/otter-rusty-dodge-right.glb',
+          idle: ASSET_URLS.ANIMATIONS.OTTER_IDLE,
+          walk: ASSET_URLS.ANIMATIONS.OTTER_WALK,
+          run: ASSET_URLS.ANIMATIONS.OTTER_RUN,
+          jump: ASSET_URLS.ANIMATIONS.OTTER_JUMP,
+          collect: ASSET_URLS.ANIMATIONS.OTTER_COLLECT,
+          hit: ASSET_URLS.ANIMATIONS.OTTER_HIT,
+          death: ASSET_URLS.ANIMATIONS.OTTER_DEATH,
+          victory: ASSET_URLS.ANIMATIONS.OTTER_VICTORY,
+          happy: ASSET_URLS.ANIMATIONS.OTTER_HAPPY,
+          dodgeLeft: ASSET_URLS.ANIMATIONS.OTTER_DODGE_LEFT,
+          dodgeRight: ASSET_URLS.ANIMATIONS.OTTER_DODGE_RIGHT,
         },
       },
       collider: { width: 0.8, height: 1.2, depth: 0.8 },
@@ -166,10 +167,10 @@ export const spawn = {
 
   rock: (x: number, y: number, variant: number = 0) => {
     const variants = [
-      '/otter-river-rush/models/rock-river.glb',
-      '/otter-river-rush/models/rock-mossy.glb',
-      '/otter-river-rush/models/rock-cracked.glb',
-      '/otter-river-rush/models/rock-crystal.glb',
+      ASSET_URLS.MODELS.ROCK_RIVER,
+      ASSET_URLS.MODELS.ROCK_MOSSY,
+      ASSET_URLS.MODELS.ROCK_CRACKED,
+      ASSET_URLS.MODELS.ROCK_CRYSTAL,
     ];
     
     return world.add({
@@ -191,7 +192,7 @@ export const spawn = {
       position: { x, y, z: VISUAL.layers.collectibles },
       velocity: { x: 0, y: -PHYSICS.scrollSpeed, z: 0 },
       model: {
-        url: '/otter-river-rush/models/coin-gold.glb',
+        url: ASSET_URLS.MODELS.COIN,
         scale: getModelScale('coin'),
       },
       collider: { width: 0.6, height: 0.6, depth: 0.6 },
@@ -203,7 +204,7 @@ export const spawn = {
       position: { x, y, z: VISUAL.layers.collectibles },
       velocity: { x: 0, y: -PHYSICS.scrollSpeed, z: 0 },
       model: {
-        url: '/otter-river-rush/models/gem-red.glb',
+        url: ASSET_URLS.MODELS.GEM_RED,
         scale: getModelScale('gem'),
       },
       collider: { width: 0.8, height: 0.8, depth: 0.8 },

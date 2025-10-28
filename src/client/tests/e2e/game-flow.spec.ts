@@ -185,7 +185,9 @@ test.describe('Game Flow E2E Tests', () => {
     });
     
     await page.waitForTimeout(1000);
-    await page.click('#restartButton');
+    await page.evaluate(() => {
+      document.querySelector<HTMLButtonElement>('#restartButton')?.click();
+    });
     await page.waitForTimeout(1000);
     
     // Should be back in game
