@@ -13,22 +13,30 @@ let audioEnabled = true;
 let audioUnlocked = false;
 
 /**
+ * Get audio path with base URL
+ */
+function getAudioPath(path: string): string {
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  return `${baseUrl}${path}`.replace(/\/+/g, '/');
+}
+
+/**
  * Initialize audio system
  * Call on first user interaction to unlock audio on mobile
  */
 export function initAudio() {
-    if (audioUnlocked) return;
-
-    // Unlock audio context on mobile (required by iOS/Android)
-    const unlockAudio = new Howl({
-        src: ['/audio/sfx/ui-click.ogg'],
-        volume: 0,
-    });
-    unlockAudio.play();
-    unlockAudio.unload();
-
-    audioUnlocked = true;
-    console.log('🔊 Audio system unlocked');
+  if (audioUnlocked) return;
+  
+  // Unlock audio context on mobile (required by iOS/Android)
+  const unlockAudio = new Howl({
+    src: [getAudioPath('audio/sfx/ui-click.ogg')],
+    volume: 0,
+  });
+  unlockAudio.play();
+  unlockAudio.unload();
+  
+  audioUnlocked = true;
+  console.log('🔊 Audio system unlocked');
 }
 
 /**
@@ -82,17 +90,17 @@ export function setAudioEnabled(enabled: boolean) {
  * Preload all game sounds
  */
 export function preloadSounds() {
-    // UI sounds
-    loadSound('ui-click', '/audio/sfx/ui-click.ogg', 0.5);
-
-    // Gameplay sounds
-    loadSound('jump', '/audio/sfx/jump.ogg', 0.6);
-    loadSound('dodge', '/audio/sfx/woosh4.ogg', 0.4);
-    loadSound('collect-coin', '/audio/sfx/collect-coin.ogg', 0.7);
-    loadSound('collect-gem', '/audio/sfx/collect-gem.ogg', 0.8);
-    loadSound('hit', '/audio/sfx/hit.ogg', 0.9);
-
-    console.log('🎵 Sound effects preloaded');
+  // UI sounds
+  loadSound('ui-click', getAudioPath('audio/sfx/ui-click.ogg'), 0.5);
+  
+  // Gameplay sounds
+  loadSound('jump', getAudioPath('audio/sfx/jump.ogg'), 0.6);
+  loadSound('dodge', getAudioPath('audio/sfx/woosh4.ogg'), 0.4);
+  loadSound('collect-coin', getAudioPath('audio/sfx/collect-coin.ogg'), 0.7);
+  loadSound('collect-gem', getAudioPath('audio/sfx/collect-gem.ogg'), 0.8);
+  loadSound('hit', getAudioPath('audio/sfx/hit.ogg'), 0.9);
+  
+  console.log('🎵 Sound effects preloaded');
 }
 
 /**
