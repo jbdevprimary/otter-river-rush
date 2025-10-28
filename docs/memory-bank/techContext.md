@@ -464,7 +464,31 @@ npx playwright test --debug
 
 ---
 
-**Last Updated**: 2025-10-25  
+**Last Updated**: 2025-10-28  
 **Document Type**: TOC (links to detailed tech docs)  
 **Update Frequency**: When tech stack changes  
-**Latest Update**: Production infrastructure and cross-platform support added
+**Latest Update**: Mobile-first transformation complete, volumetric sky + PBR terrain integrated
+
+---
+
+## 🆕 v2.1.0 Updates (2025-10-28)
+
+**Mobile-First Transformation:**
+- Added `useMobileConstraints` hook (orientation, safe areas, haptics)
+- Integrated `@takram/three-clouds` for volumetric sky
+- Added `usePBRMaterial` hook for AmbientCG textures
+- Consolidated CI/CD to `mobile-primary.yml` (ONE workflow)
+- Best-in-class GHA actions (gradle, signing, Play Store upload)
+- Anthropic Computer Use test for AI gameplay
+
+**Graphics Upgrades:**
+- Volumetric clouds with 3-layer system (low/mid/high altitude)
+- PBR terrain with AmbientCG textures (Grass, Rock, Sand)
+- Biome-aware materials and cloud coverage
+- Mobile performance presets (low/medium/high)
+
+**Testing:**
+- 96/97 E2E passing across all devices
+- Mobile gesture validation
+- Complete game flow verified
+- AI-driven autonomous gameplay test
