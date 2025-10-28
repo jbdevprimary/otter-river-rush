@@ -31,6 +31,14 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    {
+      name: 'chromium-video',
+      use: { 
+        ...devices['Desktop Chrome'],
+        video: 'on', // Always record video
+      },
+      testMatch: '**/ai-playthrough.spec.ts', // Only for AI playthrough tests
+    },
     // Only test chromium in CI for speed - others can be tested locally
     // {
     //   name: 'firefox',

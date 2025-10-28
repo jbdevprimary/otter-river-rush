@@ -7,7 +7,9 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('AI Player Persona - Autonomous Gameplay', () => {
-  test('AI Persona plays 30-second session with goal-oriented behavior', async ({ page }) => {
+  test('AI Persona plays 30-second session with goal-oriented behavior', async ({ page }, testInfo) => {
+    // Force video recording for this test
+    testInfo.annotations.push({ type: 'video', description: 'always' });
     // Navigate to game
     await page.goto('http://localhost:5173/otter-river-rush/');
     await page.waitForLoadState('networkidle');
