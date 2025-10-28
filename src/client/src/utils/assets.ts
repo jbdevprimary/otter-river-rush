@@ -34,13 +34,7 @@ export function getHudPath(filename: string): string {
   return getAssetPath(`hud/${filename}`);
 }
 
-/**
- * Get sprite asset path
- */
-export function getSpritePath(filename: string): string {
-  // Deprecated: sprites are no longer used after GLB migration
-  return getAssetPath(`sprites/${filename}`);
-}
+// Sprites removed - we use GLB 3D models exclusively
 
 /**
  * Get model asset path
