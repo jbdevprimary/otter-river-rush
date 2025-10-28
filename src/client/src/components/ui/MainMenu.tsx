@@ -10,7 +10,7 @@ import { audio } from '../../utils/audio';
 
 export function MainMenu(): React.JSX.Element {
   const { startGame } = useGameStore();
-  
+
   const handleStartGame = (mode: 'classic' | 'time_trial' | 'zen' | 'daily_challenge') => {
     audio.uiClick();
     startGame(mode);

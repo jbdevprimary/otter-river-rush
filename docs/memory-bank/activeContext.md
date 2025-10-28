@@ -260,4 +260,33 @@
 7. **Android APK** - Built and ready to install
 8. **Documentation Complete** - Memory bank, README, architecture updated
 
-**Next Session**: Install APK on real Android device, collect user feedback, iterate on mobile UX
+### Audio Integration (2025-10-28 Final)
+
+**Kenney Audio Integrated:**
+- 7 sound effects from Kenney Audio Pack (CC0)
+- UI click, jump, dodge, collect-coin, collect-gem, hit
+- Howler.js for cross-platform playback
+- Mobile unlock on first interaction (iOS/Android requirement)
+- Synchronized with haptic feedback (audio + vibration)
+- Auto-preload on app mount
+
+**Audio Triggers:**
+- Touch gestures → dodge/jump sounds + haptics
+- Collisions → hit sound + haptics
+- Collections → coin/gem sounds
+- UI buttons → click sounds
+
+**Source Files:**
+- `/Users/jbogaty/assets/Kenney/Audio/` (Interface, Impact, Foley packs)
+- Copied to `public/audio/sfx/`
+- Integrated via `utils/audio.ts`
+
+---
+
+**Next Steps:**
+1. Install APK on real Android device
+2. Test audio + haptics together on hardware
+3. Verify volumetric clouds and PBR terrain render correctly
+4. Collect user feedback on mobile UX
+5. Optimize based on real device performance
+6. Consider background music (Kenney Music Loops available)

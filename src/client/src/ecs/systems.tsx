@@ -4,12 +4,12 @@
  */
 
 import { useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
-import { queries, world, spawn, type Entity } from './world';
-import { useGameStore } from '../hooks/useGameStore';
 import { With } from 'miniplex';
-import { VISUAL, PHYSICS, getLaneX } from '../config/visual-constants';
+import { useRef } from 'react';
+import { PHYSICS, VISUAL, getLaneX } from '../config/visual-constants';
+import { useGameStore } from '../hooks/useGameStore';
 import { audio } from '../utils/audio';
+import { queries, spawn, world, type Entity } from './world';
 
 // Define queries at module level
 const movingEntities = queries.moving;
@@ -26,7 +26,7 @@ const particleEntities = queries.particles;
 export function MovementSystem() {
   const accumulatorMs = useRef(0);
   const fixedStepMs = 1000 / 60;
-  
+
   useFrame((_, dt) => {
     accumulatorMs.current += dt * 1000;
     while (accumulatorMs.current >= fixedStepMs) {
@@ -51,14 +51,14 @@ export function CleanupSystem() {
     for (const entity of destroyedEntities) {
       world.remove(entity);
     }
-    
+
     // Remove entities that scrolled off bottom
     for (const entity of movingEntities) {
       if (entity.position.y < VISUAL.positions.despawnY) {
         world.remove(entity);
       }
     }
-    
+
     // Remove collected entities
     for (const entity of collectedEntities) {
       world.remove(entity);
@@ -72,20 +72,20 @@ export function CleanupSystem() {
  */
 export function CollisionSystem() {
   const status = useGameStore((state) => state.status);
-  
+
   useFrame(() => {
     if (status !== 'playing') return;
-    
+
     const [player] = playerEntities.entities;
     if (!player || !player.collider) return;
-    
+
     // Check obstacle collisions
     for (const obstacle of obstacleEntities) {
       if (checkCollision(player as any, obstacle)) {
         handleObstacleHit(player, obstacle);
       }
     }
-    
+
     // Check enemy collisions
     const enemies = queries.enemies || [];
     for (const enemy of enemies) {
@@ -93,7 +93,7 @@ export function CollisionSystem() {
         handleEnemyHit(player, enemy);
       }
     }
-    
+
     // Check collectible collisions
     for (const collectible of collectibleEntities) {
       if (collectible.collider && checkCollision(player as any, collectible as any)) {
@@ -113,7 +113,7 @@ export function SpawnerSystem() {
   const lastCollectibleSpawn = useRef(0);
   const accumulatorMs = useRef(0);
   const fixedStepMs = 1000 / 60;
-  
+
   useFrame((_, dt) => {
     if (status !== 'playing') return;
     accumulatorMs.current += dt * 1000;
@@ -147,11 +147,11 @@ export function SpawnerSystem() {
  */
 export function AnimationSystem() {
   const status = useGameStore((state) => state.status);
-  
+
   useFrame(() => {
     const [player] = playerEntities.entities;
     if (!player || !player.animation) return;
-    
+
     // Update animation based on game state
     if (status === 'playing') {
       // Check if moving between lanes
@@ -200,14 +200,14 @@ function checkCollision(
     minY: a.position.y - a.collider.height / 2,
     maxY: a.position.y + a.collider.height / 2,
   };
-  
+
   const bBox = {
     minX: b.position.x - b.collider.width / 2,
     maxX: b.position.x + b.collider.width / 2,
     minY: b.position.y - b.collider.height / 2,
     maxY: b.position.y + b.collider.height / 2,
   };
-  
+
   return (
     aBox.minX < bBox.maxX &&
     aBox.maxX > bBox.minX &&
@@ -224,26 +224,26 @@ function handleEnemyHit(
   enemy: With<Entity, 'enemy'>
 ) {
   if (player.invincible || player.ghost) return;
-  
+
   const damage = enemy.ai?.aggression || 1;
   if (player.health) {
     player.health -= damage;
-    
+
     if (player.animation) {
       player.animation.current = 'hit';
       setTimeout(() => {
         if (player.animation) player.animation.current = 'walk';
       }, 500);
     }
-    
+
     if (player.health <= 0) {
       useGameStore.getState().endGame();
       if (player.animation) player.animation.current = 'death';
     }
   }
-  
+
   world.addComponent(enemy, 'destroyed', true);
-  
+
   for (let i = 0; i < 12; i++) {
     spawn.particle(enemy.position.x, enemy.position.y, '#ff0000');
   }
@@ -258,14 +258,14 @@ function handleObstacleHit(
 ) {
   // Skip if player is invincible or ghost
   if (player.invincible || player.ghost) return;
-  
+
   // Reduce health
   if (player.health) {
     player.health -= 1;
-    
+
     // Play hit sound
     audio.hit();
-    
+
     // Update animation
     if (player.animation) {
       player.animation.current = 'hit';
@@ -273,7 +273,7 @@ function handleObstacleHit(
         if (player.animation) player.animation.current = 'walk';
       }, 500);
     }
-    
+
     // Game over if no health
     if (player.health <= 0) {
       useGameStore.getState().endGame();
@@ -282,10 +282,10 @@ function handleObstacleHit(
       }
     }
   }
-  
+
   // Remove obstacle
   world.addComponent(obstacle, 'destroyed', true);
-  
+
   // Spawn particles
   for (let i = 0; i < 8; i++) {
     spawn.particle(obstacle.position.x, obstacle.position.y, '#ff6b6b');
@@ -300,7 +300,7 @@ function handleCollect(
   collectible: With<Entity, 'collectible'>
 ) {
   const { collectCoin, collectGem, incrementCombo } = useGameStore.getState();
-  
+
   // Add to score + play sound
   if (collectible.collectible!.type === 'coin') {
     collectCoin(collectible.collectible!.value);
@@ -309,9 +309,9 @@ function handleCollect(
     collectGem(collectible.collectible!.value);
     audio.collectGem();
   }
-  
+
   incrementCombo();
-  
+
   // Play collect animation briefly
   if (player.animation) {
     player.animation.current = 'collect';
@@ -319,10 +319,10 @@ function handleCollect(
       if (player.animation) player.animation.current = 'walk';
     }, 300);
   }
-  
+
   // Mark collected
   world.addComponent(collectible, 'collected', true);
-  
+
   // Spawn particles
   const color = collectible.collectible!.type === 'coin' ? '#ffd700' : '#ff1493';
   for (let i = 0; i < 12; i++) {
