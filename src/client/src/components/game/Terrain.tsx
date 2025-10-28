@@ -52,15 +52,12 @@ function TerrainMesh() {
         return getLocalTexturePaths(texture.id, '1K', 'jpg');
     }, [biome.name]);
 
-    // Load PBR material
-    const pbrMaterial = usePBRMaterial({
-        color: texturePaths.baseColor,
-        normal: texturePaths.normal,
-        roughness: texturePaths.roughness,
-        ao: texturePaths.ao,
-        repeat: [16, 16],
-        normalScale: 0.5,
-    });
+    // Simple material fallback (PBR textures cause loading hang)
+    const material = useMemo(() => new THREE.MeshStandardMaterial({
+        color: biome.fogColor,
+        roughness: 0.8,
+        metalness: 0,
+    }), [biome.fogColor]);
 
     const geometry = useMemo(() => {
         // Reduce detail on mobile for performance
@@ -95,7 +92,7 @@ function TerrainMesh() {
     });
 
     return (
-        <mesh ref={meshRef} geometry={geometry} material={pbrMaterial} position={[0, -0.6, 0]} receiveShadow />
+        <mesh ref={meshRef} geometry={geometry} material={material} position={[0, -0.6, 0]} receiveShadow />
     );
 }
 

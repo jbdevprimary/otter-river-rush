@@ -9,13 +9,16 @@
  */
 export function getLocalTexturePaths(apiId: string, resolution = '1K', format = 'jpg') {
     const ext = format.toLowerCase();
+    const baseUrl = import.meta.env.BASE_URL || '/';
+    const prefix = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+    
     return {
-        baseColor: `textures/${apiId}/${apiId}_${resolution}_Color.${ext}`,
-        normal: `textures/${apiId}/${apiId}_${resolution}_NormalGL.${ext}`,
-        roughness: `textures/${apiId}/${apiId}_${resolution}_Roughness.${ext}`,
-        ao: `textures/${apiId}/${apiId}_${resolution}_AmbientOcclusion.${ext}`,
-        displacement: `textures/${apiId}/${apiId}_${resolution}_Displacement.${ext}`,
-        metallic: `textures/${apiId}/${apiId}_${resolution}_Metalness.${ext}`,
+        baseColor: `${prefix}textures/${apiId}/${apiId}_${resolution}_Color.${ext}`,
+        normal: `${prefix}textures/${apiId}/${apiId}_${resolution}_NormalGL.${ext}`,
+        roughness: `${prefix}textures/${apiId}/${apiId}_${resolution}_Roughness.${ext}`,
+        ao: `${prefix}textures/${apiId}/${apiId}_${resolution}_AmbientOcclusion.${ext}`,
+        displacement: `${prefix}textures/${apiId}/${apiId}_${resolution}_Displacement.${ext}`,
+        metallic: `${prefix}textures/${apiId}/${apiId}_${resolution}_Metalness.${ext}`,
     };
 }
 

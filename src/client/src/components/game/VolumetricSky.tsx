@@ -10,6 +10,7 @@
  */
 
 import { CloudLayer, Clouds } from '@takram/three-clouds/r3f';
+import { Atmosphere } from '@takram/three-atmosphere/r3f';
 import { useBiome } from '../../ecs/biome-system';
 import { useMobileConstraints } from '../../hooks/useMobileConstraints';
 
@@ -39,11 +40,12 @@ export function VolumetricSky({
     const finalCoverage = biomeCoverage[biome.name as keyof typeof biomeCoverage] || coverage;
 
     return (
-        <Clouds
-            qualityPreset={qualityPreset}
-            coverage={finalCoverage}
-            disableDefaultLayers
-        >
+        <Atmosphere>
+          <Clouds
+              qualityPreset={qualityPreset}
+              coverage={finalCoverage}
+              disableDefaultLayers
+          >
             {/* Low altitude clouds (cumulus) - fluffy clouds close to horizon */}
             <CloudLayer
                 channel='r'
@@ -70,7 +72,8 @@ export function VolumetricSky({
                 shapeDetailAmount={0}
                 coverageFilterWidth={0.5}
             />
-        </Clouds>
+          </Clouds>
+        </Atmosphere>
     );
 }
 

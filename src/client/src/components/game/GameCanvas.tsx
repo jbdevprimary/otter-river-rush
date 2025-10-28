@@ -39,11 +39,16 @@ export function GameCanvas({ showStats = false }: GameCanvasProps): React.JSX.El
   const constraints = useMobileConstraints();
   const canvasRef = useRef<HTMLDivElement>(null);
 
+  console.log('🎮 GameCanvas rendering, status:', status);
+  console.log('📱 Mobile constraints:', constraints);
+
   // Initialize player when game starts
   useEffect(() => {
     if (status === 'playing') {
+      console.log('🦦 Spawning otter...');
       if (queries.player.entities.length === 0) {
         spawn.otter(0);
+        console.log('✅ Otter spawned');
       }
     }
   }, [status]);
@@ -88,8 +93,6 @@ export function GameCanvas({ showStats = false }: GameCanvasProps): React.JSX.El
 
         <Suspense fallback={null}>
           <Skybox />
-          <VolumetricSky />
-          <Terrain />
           <River />
           <LaneMarkers />
           <fog attach="fog" args={[VISUAL.fog.color, VISUAL.fog.near, VISUAL.fog.far]} />
