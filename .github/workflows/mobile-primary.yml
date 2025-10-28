@@ -61,6 +61,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+      
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -75,8 +80,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       
-      - name: Install Playwright
-        run: npx playwright install chromium --with-deps
+      - name: Download web dist
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+      
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install chromium --with-deps
       
       - name: Run E2E (game-flow only, fast)
         working-directory: src/client
