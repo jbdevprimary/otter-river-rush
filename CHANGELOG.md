@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0](https://github.com/jbcom/otter-river-rush/compare/v1.0.4...v1.1.0) (2025-10-28)
+
+### ✨ Features
+
+* Add AI persona E2E test with goal-oriented autonomous gameplay ([5c240d6](https://github.com/jbcom/otter-river-rush/commit/5c240d6395d9f18bf3752bfe4ac1dd03f607819d))
+* Add compositional flow E2E tests - verify complete game sequences ([0e97540](https://github.com/jbcom/otter-river-rush/commit/0e97540949bfe046e266721e9baf06c4ec25ca5f))
+* Configure video recording for AI playthrough tests ([ac9ddda](https://github.com/jbcom/otter-river-rush/commit/ac9ddda4fce9a38d1818fb9135036aef969e2a9d))
+* Fix asset paths, upgrade AI to Sonnet 4.5, add process-compose ([9a6cc7f](https://github.com/jbcom/otter-river-rush/commit/9a6cc7f448c12eab041f803ba5a779d60ac5eab5))
+* leverage best-in-class GHA marketplace actions ([ac56a4c](https://github.com/jbcom/otter-river-rush/commit/ac56a4cf0f95e1470aa2207a80aaa2d71f1159db))
+* mobile-first transformation + volumetric sky + PBR terrain ([e33c506](https://github.com/jbcom/otter-river-rush/commit/e33c50641c7ab4e55fc89dab13af80e660446a80))
+
+### 🐛 Bug Fixes
+
+* Remove outdated comment, expose debug tools ([24ab14f](https://github.com/jbcom/otter-river-rush/commit/24ab14f9034337ff136e0dba47942ae2533f9d21))
+* Simplify E2E tests, lower FPS threshold for headless - 14/14 passing ([0e042a9](https://github.com/jbcom/otter-river-rush/commit/0e042a9855cd786af317529bbdb0331aaa3ce970))
+* use actions/setup-java instead of homebrew for CI ([b7977bd](https://github.com/jbcom/otter-river-rush/commit/b7977bd90e9481e966a86bc5eb484fdeaee740b8))
+* Use ASSET_URLS in world.ts, fix restart button click ([d37b72b](https://github.com/jbcom/otter-river-rush/commit/d37b72bdeadf12803449163cfeba36c607fbda20))
+
+### ♻️ Refactoring
+
+* Extract sharp format conversion to eliminate duplication ([#47](https://github.com/jbcom/otter-river-rush/issues/47)) ([fcaf233](https://github.com/jbcom/otter-river-rush/commit/fcaf233353dfe34f6d7c5fb721a1f8898581b987))
+
+### 🔧 Chores
+
+* consolidate workflows for mobile-first focus ([4bfab09](https://github.com/jbcom/otter-river-rush/commit/4bfab097fc238b257a206c9596780c5c63549231))
+* **deps:** Update all non-major dependencies ([#51](https://github.com/jbcom/otter-river-rush/issues/51)) ([d8caca4](https://github.com/jbcom/otter-river-rush/commit/d8caca4a3af3a64da1b8796b7379f7ab15449b3d))
+* **deps:** Update GitHub Actions ([#52](https://github.com/jbcom/otter-river-rush/issues/52)) ([1787a1c](https://github.com/jbcom/otter-river-rush/commit/1787a1c3bbb64167e36caad569205d502d25d51d))
+* **deps:** Update major dependencies ([#55](https://github.com/jbcom/otter-river-rush/issues/55)) ([1ec8b23](https://github.com/jbcom/otter-river-rush/commit/1ec8b2381d6ae61062534834f2770388347e8fbd))
+* **deps:** Update mcr.microsoft.com/playwright Docker tag to v1.56.1 ([#61](https://github.com/jbcom/otter-river-rush/issues/61)) ([9e573db](https://github.com/jbcom/otter-river-rush/commit/9e573db8647139170747c0eabdaa75203cae774b))
+* Remove unnecessary peer flag from package-lock.json ([#57](https://github.com/jbcom/otter-river-rush/issues/57)) ([595c611](https://github.com/jbcom/otter-river-rush/commit/595c6119303e42dc85990c70220d1db79fa54d54))
+
 ## [1.0.4](https://github.com/jbcom/otter-river-rush/compare/v1.0.3...v1.0.4) (2025-10-26)
 
 ### 🐛 Bug Fixes
