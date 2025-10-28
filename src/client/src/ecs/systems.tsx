@@ -1,0 +1,339 @@
+/**
+ * Game Systems using Miniplex ECS
+ * Movement, collision, spawning, cleanup
+ */
+
+import { useFrame } from '@react-three/fiber';
+import { queries, world, spawn, type Entity } from './world';
+import { useGameStore } from '../hooks/useGameStore';
+import { With } from 'miniplex';
+import { VISUAL, PHYSICS, getLaneX } from '../config/visual-constants';
+
+// Define queries at module level
+const movingEntities = queries.moving;
+const destroyedEntities = queries.destroyed;
+const collectedEntities = queries.collected;
+const playerEntities = queries.player;
+const obstacleEntities = queries.obstacles;
+const collectibleEntities = queries.collectibles;
+const particleEntities = queries.particles;
+
+/**
+ * Movement System - Move all entities with velocity
+ */
+export function MovementSystem() {
+  useFrame((_, dt) => {
+    for (const entity of movingEntities) {
+      entity.position.x += entity.velocity!.x * dt;
+      entity.position.y += entity.velocity!.y * dt;
+      entity.position.z += entity.velocity!.z * dt;
+    }
+  });
+  return null;
+}
+
+/**
+ * Cleanup System - Remove entities that are off-screen or destroyed
+ */
+export function CleanupSystem() {
+  useFrame(() => {
+    // Remove destroyed entities
+    for (const entity of destroyedEntities) {
+      world.remove(entity);
+    }
+    
+    // Remove entities that scrolled off bottom
+    for (const entity of movingEntities) {
+      if (entity.position.y < VISUAL.positions.despawnY) {
+        world.remove(entity);
+      }
+    }
+    
+    // Remove collected entities
+    for (const entity of collectedEntities) {
+      world.remove(entity);
+    }
+  });
+  return null;
+}
+
+/**
+ * Collision System - Check for collisions and handle them
+ */
+export function CollisionSystem() {
+  const status = useGameStore((state) => state.status);
+  
+  useFrame(() => {
+    if (status !== 'playing') return;
+    
+    const [player] = playerEntities.entities;
+    if (!player || !player.collider) return;
+    
+    // Check obstacle collisions
+    for (const obstacle of obstacleEntities) {
+      if (checkCollision(player as any, obstacle)) {
+        handleObstacleHit(player, obstacle);
+      }
+    }
+    
+    // Check enemy collisions
+    const enemies = queries.enemies || [];
+    for (const enemy of enemies) {
+      if (enemy.collider && checkCollision(player as any, enemy as any)) {
+        handleEnemyHit(player, enemy);
+      }
+    }
+    
+    // Check collectible collisions
+    for (const collectible of collectibleEntities) {
+      if (collectible.collider && checkCollision(player as any, collectible as any)) {
+        handleCollect(player, collectible);
+      }
+    }
+  });
+  return null;
+}
+
+/**
+ * Spawner System - Spawn obstacles and collectibles
+ */
+export function SpawnerSystem() {
+  const status = useGameStore((state) => state.status);
+  
+  useFrame((state) => {
+    if (status !== 'playing') return;
+    
+    const time = state.clock.elapsedTime;
+    
+    // Spawn obstacle every N seconds
+    const obstacleRate = 1 / PHYSICS.spawnInterval.obstacles;
+    if (Math.floor(time * obstacleRate) > Math.floor((time - 0.016) * obstacleRate)) {
+      const laneIndex = Math.floor(Math.random() * 3) as -1 | 0 | 1;
+      const lane = getLaneX(laneIndex);
+      const variant = Math.floor(Math.random() * 4);
+      spawn.rock(lane, VISUAL.positions.spawnY, variant);
+    }
+    
+    // Spawn collectible every N seconds
+    const collectibleRate = 1 / PHYSICS.spawnInterval.collectibles;
+    if (Math.floor(time * collectibleRate) > Math.floor((time - 0.016) * collectibleRate)) {
+      const laneIndex = Math.floor(Math.random() * 3) as -1 | 0 | 1;
+      const lane = getLaneX(laneIndex);
+      
+      if (Math.random() > 0.7) {
+        spawn.gem(lane, VISUAL.positions.spawnY);
+      } else {
+        spawn.coin(lane, VISUAL.positions.spawnY);
+      }
+    }
+  });
+  return null;
+}
+
+/**
+ * Animation System - Control otter animations based on state
+ */
+export function AnimationSystem() {
+  const status = useGameStore((state) => state.status);
+  
+  useFrame(() => {
+    const [player] = playerEntities.entities;
+    if (!player || !player.animation) return;
+    
+    // Update animation based on game state
+    if (status === 'playing') {
+      // Check if moving between lanes
+      const isMoving = Math.abs(player.velocity!.x) > 0.1;
+      player.animation.current = isMoving ? 'run' : 'walk';
+    } else if (status === 'game_over') {
+      player.animation.current = 'death';
+    } else {
+      player.animation.current = 'idle';
+    }
+  });
+  return null;
+}
+
+/**
+ * Particle Decay System - Remove expired particles
+ */
+export function ParticleSystem() {
+  useFrame((_, dt) => {
+    for (const particle of particleEntities) {
+      particle.particle!.lifetime -= dt * 1000;
+      
+      if (particle.particle!.lifetime <= 0) {
+        world.addComponent(particle, 'destroyed', true);
+      }
+    }
+  });
+  return null;
+}
+
+/**
+ * Helper: Check AABB collision between two entities
+ */
+function checkCollision(
+  a: With<Entity, 'position' | 'collider'>,
+  b: With<Entity, 'position' | 'collider'>
+): boolean {
+  const aBox = {
+    minX: a.position.x - a.collider.width / 2,
+    maxX: a.position.x + a.collider.width / 2,
+    minY: a.position.y - a.collider.height / 2,
+    maxY: a.position.y + a.collider.height / 2,
+  };
+  
+  const bBox = {
+    minX: b.position.x - b.collider.width / 2,
+    maxX: b.position.x + b.collider.width / 2,
+    minY: b.position.y - b.collider.height / 2,
+    maxY: b.position.y + b.collider.height / 2,
+  };
+  
+  return (
+    aBox.minX < bBox.maxX &&
+    aBox.maxX > bBox.minX &&
+    aBox.minY < bBox.maxY &&
+    aBox.maxY > bBox.minY
+  );
+}
+
+/**
+ * Handle enemy collision
+ */
+function handleEnemyHit(
+  player: With<Entity, 'player'>,
+  enemy: With<Entity, 'enemy'>
+) {
+  if (player.invincible || player.ghost) return;
+  
+  const damage = enemy.ai?.aggression || 1;
+  if (player.health) {
+    player.health -= damage;
+    
+    if (player.animation) {
+      player.animation.current = 'hit';
+      setTimeout(() => {
+        if (player.animation) player.animation.current = 'walk';
+      }, 500);
+    }
+    
+    if (player.health <= 0) {
+      useGameStore.getState().endGame();
+      if (player.animation) player.animation.current = 'death';
+    }
+  }
+  
+  world.addComponent(enemy, 'destroyed', true);
+  
+  for (let i = 0; i < 12; i++) {
+    spawn.particle(enemy.position.x, enemy.position.y, '#ff0000');
+  }
+}
+
+/**
+ * Handle obstacle collision
+ */
+function handleObstacleHit(
+  player: With<Entity, 'player'>,
+  obstacle: With<Entity, 'obstacle'>
+) {
+  // Skip if player is invincible or ghost
+  if (player.invincible || player.ghost) return;
+  
+  // Reduce health
+  if (player.health) {
+    player.health -= 1;
+    
+    // Update animation
+    if (player.animation) {
+      player.animation.current = 'hit';
+      setTimeout(() => {
+        if (player.animation) player.animation.current = 'walk';
+      }, 500);
+    }
+    
+    // Game over if no health
+    if (player.health <= 0) {
+      useGameStore.getState().endGame();
+      if (player.animation) {
+        player.animation.current = 'death';
+      }
+    }
+  }
+  
+  // Remove obstacle
+  world.addComponent(obstacle, 'destroyed', true);
+  
+  // Spawn particles
+  for (let i = 0; i < 8; i++) {
+    spawn.particle(obstacle.position.x, obstacle.position.y, '#ff6b6b');
+  }
+}
+
+/**
+ * Handle collectible collection
+ */
+function handleCollect(
+  player: With<Entity, 'player'>,
+  collectible: With<Entity, 'collectible'>
+) {
+  const { collectCoin, collectGem, incrementCombo } = useGameStore.getState();
+  
+  // Add to score
+  if (collectible.collectible!.type === 'coin') {
+    collectCoin(collectible.collectible!.value);
+  } else {
+    collectGem(collectible.collectible!.value);
+  }
+  
+  incrementCombo();
+  
+  // Play collect animation briefly
+  if (player.animation) {
+    player.animation.current = 'collect';
+    setTimeout(() => {
+      if (player.animation) player.animation.current = 'walk';
+    }, 300);
+  }
+  
+  // Mark collected
+  world.addComponent(collectible, 'collected', true);
+  
+  // Spawn particles
+  const color = collectible.collectible!.type === 'coin' ? '#ffd700' : '#ff1493';
+  for (let i = 0; i < 12; i++) {
+    spawn.particle(collectible.position.x, collectible.position.y, color);
+  }
+}
+
+/**
+ * Master Game Systems Component
+ */
+export function GameSystems() {
+  return (
+    <>
+      <MovementSystem />
+      <CollisionSystem />
+      <CleanupSystem />
+      <SpawnerSystem />
+      <AnimationSystem />
+      <ParticleSystem />
+    </>
+  );
+}
+
+// Add camera shake on collision
+function triggerCameraShake(intensity: number = 0.2) {
+  if ((window as any).__cameraShake) {
+    (window as any).__cameraShake(intensity);
+  }
+}
+
+// Call in handleObstacleHit
+queries.destroyed.onEntityAdded.subscribe((entity) => {
+  if (entity.obstacle) {
+    triggerCameraShake(0.3);
+  }
+});

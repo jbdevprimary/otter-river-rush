@@ -1,0 +1,22 @@
+{
+    "mcpServers": {
+        "realm_walker_game": {
+            "command": "go",
+            "args": [
+                "run",
+                "cmd/mcp-server/*.go"
+            ],
+            "disabled": false,
+            "alwaysAllow": [
+                "start_game",
+                "get_visible_map",
+                "get_tile_at_coords",
+                "move_to",
+                "get_game_state",
+                "level_up",
+                "server_info",
+                "health_check"
+            ]
+        }
+    }
+}

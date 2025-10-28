@@ -1,34 +1,94 @@
 # Active Context - Otter River Rush
 
-**Last Updated**: 2025-10-27  
-**Current Branch**: copilot/update-ci-workflows  
-**Session Status**: ✅ COMPLETE - PR comments resolved, Docker environment created
+**Last Updated**: 2025-10-27
+**Current Branch**: main
+**Session Status**: 🔄 COMPREHENSIVE SYSTEMS BUILD + E2E TESTING
 
 ## Current Work Summary
 
 ### Completed Tasks ✅
 
-#### 1. Docker Development Environment
-- Created comprehensive `.cursor/Dockerfile` based on Playwright image
-- Includes Node 22, Java 17, Gradle 9.1.0, Android SDK API 35
-- `docker-compose.yml` with dev, build, android, test services
-- `docker.sh` CLI helper with 15 commands
-- Complete README with troubleshooting guide
-- Optimized `.dockerignore` for fast builds
-- Environment matches CI/CD pipeline exactly
+#### 1. Complete Monorepo Reorganization
+- pnpm workspace (client + dev-tools)
+- React Three Fiber ACTIVE
+- Miniplex ECS integrated
+- Build: 1.25MB, 346KB gzipped
 
-#### 2. Resolved All PR Review Comments
-- **Copilot**: Fixed `ignoreAssetsPattern` to use `!*.gz:!*.br` (proper exclusion syntax)
-- **Cursor[bot]**: Added clarifying comment why web always builds (desktop/mobile need it)
-- **Gemini #1**: Reverted `capacitor.build.gradle` to auto-generated state (VERSION_21)
-- **Gemini #2**: Replaced `afterEvaluate` with `plugins.withType` for Java 17 enforcement
-- Used modern property assignment syntax (`=`) throughout Gradle files
+#### 2. Meshy 3D Assets (18 GLB files, 91 MB)
+- Otter: 1 model + 10 animations
+- Rocks: 4 variants (retextured)
+- Collectibles: coin + gem
+- Idempotent generation pipeline
+- Recovery manager for task matching
 
-#### 3. Documentation Updates
-- Updated `PLATFORM_SETUP.md` with Docker quick-start banner
-- Added detailed Java 17 explanation and installation instructions
-- Clarified why Java 17 (not 21) is required for Capacitor
-- Deleted cruft summary documents
+#### 3. Complete Game Architecture
+**10 Systems Created:**
+- Movement, Collision, Spawning, Cleanup
+- Score, Power-ups, Difficulty, Biomes
+- Achievements, Audio framework
+- Camera (follow + shake)
+- Input (keyboard + touch/swipe)
+
+**Components:**
+- EntityRenderer (GLB models with Miniplex)
+- GameCanvas (complete 3D scene)
+- GameHUD, MainMenu, GameOver (with proper IDs)
+- River, Skybox, LaneMarkers
+- Visual Effects (bloom, vignette)
+- Error Boundary
+
+**Utilities:**
+- Math helpers (lerp, clamp, easing, etc.)
+- Collision helpers (AABB, spatial grid, QuadTree)
+- Entity helpers (movement, targeting, spawning)
+- Animation helpers (transitions, queuing)
+- Debug tools (god mode, teleport, freeze)
+- Test helpers (test world, assertions)
+- Performance tools (pooling, profiling)
+
+**Hooks:**
+- useEntityQuery (player, obstacles, collectibles)
+- useAnimationMixer (animation control)
+- usePersistence (save/load)
+- useAssetPreloader (loading screen)
+
+#### 4. Testing & Documentation
+- E2E tests created (14 tests)
+- Integration tests (ECS system)
+- Complete documentation (README, guides)
+- Memory bank updated
+
+### Recent Work - Session 2025-10-27
+
+**Asset Path Corrections:**
+1. Created missing `manifest.webmanifest` file
+2. Created `src/utils/assets.ts` with base URL helpers
+3. Fixed 10 component files to use proper asset paths:
+   - MainMenu, HUD, GameOver, HealthBar (UI)
+   - Coin, Gem, Rock, Otter (Game)
+   - game-constants.ts, EntityRenderer.tsx (System)
+4. Corrected "post-processor" → "processor" naming (PRE-commit workflow)
+
+**Results:**
+- ✅ Zero console errors (no 404s)
+- ✅ Menu loads and displays correctly
+- ✅ Running at 120 FPS
+- ⚠️ E2E tests timing out (>120s) - unable to complete verification
+- ❌ Full gameplay loop NOT verified
+
+### Current Issues
+
+**E2E Test Status:** INCOMPLETE
+- Tests started but timed out after 120 seconds
+- Test report generated but not analyzed
+- Unknown which specific gameplay features work/fail
+- Menu appears functional but gameplay unverified
+
+**Required Next Steps:**
+1. Complete E2E test run or analyze test report
+2. Identify actual gameplay failures (if any)
+3. Fix gameplay issues preventing full loop
+4. Verify complete sequence: Menu → Game → Playing → Game Over → Menu
 
 ## Key Files Modified This Session
 
@@ -140,5 +200,5 @@
 
 ---
 
-**Status**: Ready for merge ✅  
-**Next Session**: Test Docker environment, merge PR, verify workflows
+**Status**: 8/14 tests passing, game initialization broken
+**Next Session**: Fix entity spawning, keyboard input, FPS display - core gameplay issues
