@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.3](https://github.com/jbcom/otter-river-rush/compare/v1.2.2...v1.2.3) (2025-10-28)
+
+### 📝 Documentation
+
+* add production ready status document ([4fe6884](https://github.com/jbcom/otter-river-rush/commit/4fe6884c204d7ca75ee84f23244edf7cd125b81f))
+
+### 🔧 Chores
+
+* remove sprites folder (rebase brought it back) ([3caedf8](https://github.com/jbcom/otter-river-rush/commit/3caedf86cbf2fcca221080703f16c68fa34c7d5b))
+
 ## [1.2.2](https://github.com/jbcom/otter-river-rush/compare/v1.2.1...v1.2.2) (2025-10-28)
 
 ### 🐛 Bug Fixes
