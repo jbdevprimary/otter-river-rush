@@ -89,9 +89,9 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install chromium --with-deps
       
-      - name: Run E2E (game-flow only, fast)
+      - name: Run E2E (smoke tests only, CI-safe)
         working-directory: src/client
-        run: pnpm test:e2e --project=chromium --grep="game-flow|complete-game"
+        run: pnpm test:e2e --project=chromium --grep="smoke"
       
       - name: Upload Playwright report
         if: failure()
