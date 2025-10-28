@@ -119,10 +119,11 @@ jobs:
           path: dist
       
       - name: Setup Java 21
-        run: |
-          brew install openjdk@21
-          echo "JAVA_HOME=/opt/homebrew/opt/openjdk@21" >> $GITHUB_ENV
-          echo "/opt/homebrew/opt/openjdk@21/bin" >> $GITHUB_PATH
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
       
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
