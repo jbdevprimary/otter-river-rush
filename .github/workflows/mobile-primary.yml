@@ -147,6 +147,7 @@ jobs:
       
       - name: Capacitor sync
         run: pnpm exec cap sync android
+        working-directory: .
       
       - name: Build Debug APK
         uses: gradle/actions/setup-gradle@v4
