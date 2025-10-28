@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGameStore } from '../../hooks/useGameStore';
 import { getHudPath, getIconPath } from '../../utils/assets';
+import { audio } from '../../utils/audio';
 
 /**
  * MainMenu Component - Branded game menu
@@ -9,6 +10,11 @@ import { getHudPath, getIconPath } from '../../utils/assets';
 
 export function MainMenu(): React.JSX.Element {
   const { startGame } = useGameStore();
+  
+  const handleStartGame = (mode: 'classic' | 'time_trial' | 'zen' | 'daily_challenge') => {
+    audio.uiClick();
+    startGame(mode);
+  };
 
   return (
     <div id="startScreen" className="fixed inset-0 flex items-start justify-center pointer-events-auto game-bg-overlay z-50 overflow-y-auto overflow-x-hidden pt-4 pb-8">
@@ -37,7 +43,7 @@ export function MainMenu(): React.JSX.Element {
 
           <button
             id="classicButton"
-            onClick={() => startGame('classic')}
+            onClick={() => handleStartGame('classic')}
             className="otter-mode-card w-full flex items-center gap-4 text-left"
           >
             <div className="otter-mode-icon">
@@ -57,7 +63,7 @@ export function MainMenu(): React.JSX.Element {
 
           <button
             id="timeTrialButton"
-            onClick={() => startGame('time_trial')}
+            onClick={() => handleStartGame('time_trial')}
             className="otter-mode-card w-full flex items-center gap-4 text-left"
           >
             <div className="otter-mode-icon">
@@ -77,7 +83,7 @@ export function MainMenu(): React.JSX.Element {
 
           <button
             id="zenButton"
-            onClick={() => startGame('zen')}
+            onClick={() => handleStartGame('zen')}
             className="otter-mode-card w-full flex items-center gap-4 text-left"
           >
             <div className="otter-mode-icon">
@@ -97,7 +103,7 @@ export function MainMenu(): React.JSX.Element {
 
           <button
             id="dailyButton"
-            onClick={() => startGame('daily_challenge')}
+            onClick={() => handleStartGame('daily_challenge')}
             className="otter-mode-card w-full flex items-center gap-4 text-left"
           >
             <div className="otter-mode-icon">

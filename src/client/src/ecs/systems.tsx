@@ -9,6 +9,7 @@ import { queries, world, spawn, type Entity } from './world';
 import { useGameStore } from '../hooks/useGameStore';
 import { With } from 'miniplex';
 import { VISUAL, PHYSICS, getLaneX } from '../config/visual-constants';
+import { audio } from '../utils/audio';
 
 // Define queries at module level
 const movingEntities = queries.moving;
@@ -262,6 +263,9 @@ function handleObstacleHit(
   if (player.health) {
     player.health -= 1;
     
+    // Play hit sound
+    audio.hit();
+    
     // Update animation
     if (player.animation) {
       player.animation.current = 'hit';
@@ -297,11 +301,13 @@ function handleCollect(
 ) {
   const { collectCoin, collectGem, incrementCombo } = useGameStore.getState();
   
-  // Add to score
+  // Add to score + play sound
   if (collectible.collectible!.type === 'coin') {
     collectCoin(collectible.collectible!.value);
+    audio.collectCoin();
   } else {
     collectGem(collectible.collectible!.value);
+    audio.collectGem();
   }
   
   incrementCombo();

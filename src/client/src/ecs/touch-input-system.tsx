@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useGameStore } from '../hooks/useGameStore';
 import { HAPTIC_PATTERNS, hapticFeedback } from '../hooks/useMobileConstraints';
 import { queries } from './world';
+import { audio } from '../utils/audio';
 
 const LANES = [-2, 0, 2];
 
@@ -28,8 +29,9 @@ export function TouchInputSystem() {
           player.lane = (currentLane + 1) as -1 | 0 | 1;
           player.position.x = LANES[player.lane + 1];
 
-          // Haptic feedback for dodge
+          // Haptic + audio feedback
           hapticFeedback(HAPTIC_PATTERNS.dodge);
+          audio.dodge();
 
           if (player.animation) {
             player.animation.current = 'dodge-right';
@@ -42,8 +44,9 @@ export function TouchInputSystem() {
           player.lane = (currentLane - 1) as -1 | 0 | 1;
           player.position.x = LANES[player.lane + 1];
 
-          // Haptic feedback for dodge
+          // Haptic + audio feedback
           hapticFeedback(HAPTIC_PATTERNS.dodge);
+          audio.dodge();
 
           if (player.animation) {
             player.animation.current = 'dodge-left';
@@ -54,12 +57,13 @@ export function TouchInputSystem() {
         }
       }
 
-      // Vertical swipe up (jump)
-      if (deltaY < -swipeThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
-        // Haptic feedback for jump
-        hapticFeedback(HAPTIC_PATTERNS.jump);
+        // Vertical swipe up (jump)
+        if (deltaY < -swipeThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
+            // Haptic + audio feedback for jump
+            hapticFeedback(HAPTIC_PATTERNS.jump);
+            audio.jump();
 
-        if (player.animation) {
+            if (player.animation) {
           player.animation.current = 'jump';
           setTimeout(() => {
             if (player.animation) player.animation.current = 'walk';

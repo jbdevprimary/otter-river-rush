@@ -40,3 +40,16 @@ import('./hooks/useGameStore').then(({ useGameStore }) => {
 import('./utils/debug-tools').then(({ debugTools }) => {
   (window as any).debug = debugTools;
 });
+
+// Preload audio
+import('./utils/audio').then(({ audio }) => {
+  audio.preload();
+  // Unlock on first user interaction
+  const unlockAudio = () => {
+    audio.init();
+    document.removeEventListener('click', unlockAudio);
+    document.removeEventListener('touchstart', unlockAudio);
+  };
+  document.addEventListener('click', unlockAudio, { once: true });
+  document.addEventListener('touchstart', unlockAudio, { once: true });
+});
