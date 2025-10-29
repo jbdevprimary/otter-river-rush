@@ -77,7 +77,10 @@ export function LeaderboardSystem(): null {
       leaderboardRef.current = { daily, weekly, allTime };
 
       // Save to localStorage
-      localStorage.setItem('otter_leaderboard', JSON.stringify(leaderboardRef.current));
+      localStorage.setItem(
+        'otter_leaderboard',
+        JSON.stringify(leaderboardRef.current)
+      );
     }
   }, [status, score, distance, mode]);
 
@@ -87,7 +90,10 @@ export function LeaderboardSystem(): null {
       get: (type: 'daily' | 'weekly' | 'allTime' = 'allTime') => {
         return leaderboardRef.current[type];
       },
-      getPlayerRank: (playerScore: number, type: 'daily' | 'weekly' | 'allTime' = 'allTime') => {
+      getPlayerRank: (
+        playerScore: number,
+        type: 'daily' | 'weekly' | 'allTime' = 'allTime'
+      ) => {
         const board = leaderboardRef.current[type];
         const higherScores = board.filter((e) => e.score > playerScore);
         return higherScores.length + 1;
@@ -98,7 +104,10 @@ export function LeaderboardSystem(): null {
         } else {
           leaderboardRef.current = { daily: [], weekly: [], allTime: [] };
         }
-        localStorage.setItem('otter_leaderboard', JSON.stringify(leaderboardRef.current));
+        localStorage.setItem(
+          'otter_leaderboard',
+          JSON.stringify(leaderboardRef.current)
+        );
       },
     };
 

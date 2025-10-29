@@ -26,15 +26,15 @@ import { EntityRenderer } from './EntityRenderer';
 import { LaneMarkers } from './LaneMarkers';
 import { River } from './River';
 import { Skybox } from './Skybox';
-import { Terrain } from './Terrain';
 import { VisualEffects } from './VisualEffects';
-import { VolumetricSky } from './VolumetricSky';
 
 interface GameCanvasProps {
   showStats?: boolean;
 }
 
-export function GameCanvas({ showStats = false }: GameCanvasProps): React.JSX.Element {
+export function GameCanvas({
+  showStats = false,
+}: GameCanvasProps): React.JSX.Element {
   const { status } = useGameStore();
   const constraints = useMobileConstraints();
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -63,7 +63,11 @@ export function GameCanvas({ showStats = false }: GameCanvasProps): React.JSX.El
   };
 
   return (
-    <div ref={canvasRef} className="fixed inset-0 w-screen h-screen z-0" style={canvasStyle}>
+    <div
+      ref={canvasRef}
+      className="fixed inset-0 w-screen h-screen z-0"
+      style={canvasStyle}
+    >
       <Canvas
         className="w-full h-full"
         gl={{
@@ -81,7 +85,10 @@ export function GameCanvas({ showStats = false }: GameCanvasProps): React.JSX.El
           far={100}
         />
 
-        <ambientLight intensity={VISUAL.lighting.ambient.intensity} color={VISUAL.lighting.ambient.color} />
+        <ambientLight
+          intensity={VISUAL.lighting.ambient.intensity}
+          color={VISUAL.lighting.ambient.color}
+        />
         <directionalLight
           position={VISUAL.lighting.directional.main.position}
           intensity={VISUAL.lighting.directional.main.intensity}
@@ -95,7 +102,10 @@ export function GameCanvas({ showStats = false }: GameCanvasProps): React.JSX.El
           <Skybox />
           <River />
           <LaneMarkers />
-          <fog attach="fog" args={[VISUAL.fog.color, VISUAL.fog.near, VISUAL.fog.far]} />
+          <fog
+            attach="fog"
+            args={[VISUAL.fog.color, VISUAL.fog.near, VISUAL.fog.far]}
+          />
 
           <EntityRenderer />
 

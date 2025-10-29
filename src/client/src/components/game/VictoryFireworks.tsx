@@ -20,7 +20,10 @@ interface VictoryFireworksProps {
   intensity?: number;
 }
 
-export function VictoryFireworks({ active, intensity = 1 }: VictoryFireworksProps): React.JSX.Element | null {
+export function VictoryFireworks({
+  active,
+  intensity = 1,
+}: VictoryFireworksProps): React.JSX.Element | null {
   const fireworksRef = useRef<Firework[]>([]);
   const particleGroupRef = useRef<THREE.Group>(null);
   const lastSpawnRef = useRef(0);
@@ -104,7 +107,11 @@ export function VictoryFireworks({ active, intensity = 1 }: VictoryFireworksProp
                 Math.cos(phi) * speed,
                 Math.sin(phi) * Math.sin(theta) * speed
               ),
-              color: new THREE.Color().setHSL(hue + (Math.random() - 0.5) * 0.1, 1, 0.6),
+              color: new THREE.Color().setHSL(
+                hue + (Math.random() - 0.5) * 0.1,
+                1,
+                0.6
+              ),
               life: 1,
               maxLife: 1 + Math.random(),
             });
@@ -113,7 +120,9 @@ export function VictoryFireworks({ active, intensity = 1 }: VictoryFireworksProp
       } else {
         // Update explosion particles
         firework.particles = firework.particles.filter((particle) => {
-          particle.position.add(particle.velocity.clone().multiplyScalar(delta));
+          particle.position.add(
+            particle.velocity.clone().multiplyScalar(delta)
+          );
           particle.velocity.y -= 8 * delta; // Gravity
           particle.velocity.multiplyScalar(0.98); // Air resistance
           particle.life -= delta;
@@ -129,7 +138,11 @@ export function VictoryFireworks({ active, intensity = 1 }: VictoryFireworksProp
     });
 
     // Update particle mesh
-    if (particleGroupRef.current && geometryRef.current && materialRef.current) {
+    if (
+      particleGroupRef.current &&
+      geometryRef.current &&
+      materialRef.current
+    ) {
       // Collect all particles
       const allParticles = fireworksRef.current.flatMap((f) => f.particles);
 
@@ -148,12 +161,21 @@ export function VictoryFireworks({ active, intensity = 1 }: VictoryFireworksProp
           colors[i * 3 + 2] = particle.color.b * alpha;
         });
 
-        geometryRef.current.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometryRef.current.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        geometryRef.current.setAttribute(
+          'position',
+          new THREE.BufferAttribute(positions, 3)
+        );
+        geometryRef.current.setAttribute(
+          'color',
+          new THREE.BufferAttribute(colors, 3)
+        );
         materialRef.current.opacity = 1;
       } else {
         // Clear geometry when no particles
-        geometryRef.current.setAttribute('position', new THREE.BufferAttribute(new Float32Array(0), 3));
+        geometryRef.current.setAttribute(
+          'position',
+          new THREE.BufferAttribute(new Float32Array(0), 3)
+        );
       }
     }
   });

@@ -1,31 +1,49 @@
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Mesh } from 'three';
 import { useBiome } from '../../ecs/biome-system';
 import { useGameStore } from '../../hooks/useGameStore';
 
-export function WaterEffects() {
+export function WaterEffects(): React.JSX.Element | null {
   const meshRef = useRef<Mesh>(null);
   const { status } = useGameStore();
   const biome = useBiome();
-  
+
+  // Biome-specific water colors
+  const waterColors = {
+    forest: [0.1, 0.3, 0.5], // Deep blue-green
+    mountain: [0.15, 0.4, 0.7], // Clear mountain water
+    canyon: [0.2, 0.3, 0.4], // Murky desert water
+    rapids: [0.05, 0.2, 0.4], // Dark turbulent water
+  };
+
+  const waterColor = waterColors[biome.name as keyof typeof waterColors] || [
+    0.1, 0.2, 0.7,
+  ];
+
   useFrame((_, dt) => {
     if (!meshRef.current || status !== 'playing') return;
-    
+
     // Animate water
-    const material = meshRef.current.material as any;
+    const material = meshRef.current.material as {
+      uniforms?: { time: { value: number } };
+    };
     if (material.uniforms) {
       material.uniforms.time.value += dt;
     }
   });
-  
+
   return (
-    <mesh ref={meshRef} position={[0, -0.5, -1]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh
+      ref={meshRef}
+      position={[0, -0.5, -1]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
       <planeGeometry args={[20, 30, 32, 32]} />
       <shaderMaterial
         uniforms={{
           time: { value: 0 },
-          color: { value: [0.1, 0.2, 0.7] },
+          color: { value: waterColor },
         }}
         vertexShader={`
           uniform float time;

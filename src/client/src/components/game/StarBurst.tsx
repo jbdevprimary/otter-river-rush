@@ -65,7 +65,11 @@ export function StarBurst({
         const y = Math.sin(star.angle) * star.distance;
 
         return (
-          <sprite key={i} position={[x, y, 0]} scale={[star.size, star.size, 1]}>
+          <sprite
+            key={i}
+            position={[x, y, 0]}
+            scale={[star.size, star.size, 1]}
+          >
             <spriteMaterial
               color={color}
               transparent

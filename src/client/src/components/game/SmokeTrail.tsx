@@ -81,7 +81,11 @@ export function SmokeTrail({
   return (
     <group ref={groupRef}>
       {particlesRef.current.map((particle, i) => (
-        <sprite key={i} position={particle.position} scale={[particle.size, particle.size, 1]}>
+        <sprite
+          key={i}
+          position={particle.position}
+          scale={[particle.size, particle.size, 1]}
+        >
           <spriteMaterial
             color={color}
             transparent

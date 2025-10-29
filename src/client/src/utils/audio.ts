@@ -26,7 +26,7 @@ function getAudioPath(path: string): string {
  */
 export function initAudio() {
   if (audioUnlocked) return;
-  
+
   // Unlock audio context on mobile (required by iOS/Android)
   const unlockAudio = new Howl({
     src: [getAudioPath('audio/sfx/ui-click.ogg')],
@@ -34,7 +34,7 @@ export function initAudio() {
   });
   unlockAudio.play();
   unlockAudio.unload();
-  
+
   audioUnlocked = true;
   console.log('🔊 Audio system unlocked');
 }
@@ -43,47 +43,47 @@ export function initAudio() {
  * Load a sound effect
  */
 function loadSound(id: string, src: string, volume = 1.0): Howl {
-    if (sounds[id]) return sounds[id];
+  if (sounds[id]) return sounds[id];
 
-    const sound = new Howl({
-        src: [src],
-        volume,
-        preload: true,
-    });
+  const sound = new Howl({
+    src: [src],
+    volume,
+    preload: true,
+  });
 
-    sounds[id] = sound;
-    return sound;
+  sounds[id] = sound;
+  return sound;
 }
 
 /**
  * Play a sound effect
  */
 export function playSound(id: string) {
-    if (!audioEnabled || !audioUnlocked) return;
+  if (!audioEnabled || !audioUnlocked) return;
 
-    const sound = sounds[id];
-    if (sound) {
-        sound.play();
-    }
+  const sound = sounds[id];
+  if (sound) {
+    sound.play();
+  }
 }
 
 /**
  * Set master volume
  */
 export function setVolume(volume: number) {
-    Howler.volume(Math.max(0, Math.min(1, volume)));
+  Howler.volume(Math.max(0, Math.min(1, volume)));
 }
 
 /**
  * Enable/disable audio
  */
 export function setAudioEnabled(enabled: boolean) {
-    audioEnabled = enabled;
-    if (!enabled) {
-        Howler.mute(true);
-    } else {
-        Howler.mute(false);
-    }
+  audioEnabled = enabled;
+  if (!enabled) {
+    Howler.mute(true);
+  } else {
+    Howler.mute(false);
+  }
 }
 
 /**
@@ -92,14 +92,14 @@ export function setAudioEnabled(enabled: boolean) {
 export function preloadSounds() {
   // UI sounds
   loadSound('ui-click', getAudioPath('audio/sfx/ui-click.ogg'), 0.5);
-  
+
   // Gameplay sounds
   loadSound('jump', getAudioPath('audio/sfx/jump.ogg'), 0.6);
   loadSound('dodge', getAudioPath('audio/sfx/woosh4.ogg'), 0.4);
   loadSound('collect-coin', getAudioPath('audio/sfx/collect-coin.ogg'), 0.7);
   loadSound('collect-gem', getAudioPath('audio/sfx/collect-gem.ogg'), 0.8);
   loadSound('hit', getAudioPath('audio/sfx/hit.ogg'), 0.9);
-  
+
   console.log('🎵 Sound effects preloaded');
 }
 
@@ -107,20 +107,19 @@ export function preloadSounds() {
  * Game audio actions
  */
 export const audio = {
-    // UI
-    uiClick: () => playSound('ui-click'),
+  // UI
+  uiClick: () => playSound('ui-click'),
 
-    // Gameplay
-    jump: () => playSound('jump'),
-    dodge: () => playSound('dodge'),
-    collectCoin: () => playSound('collect-coin'),
-    collectGem: () => playSound('collect-gem'),
-    hit: () => playSound('hit'),
+  // Gameplay
+  jump: () => playSound('jump'),
+  dodge: () => playSound('dodge'),
+  collectCoin: () => playSound('collect-coin'),
+  collectGem: () => playSound('collect-gem'),
+  hit: () => playSound('hit'),
 
-    // System
-    init: initAudio,
-    preload: preloadSounds,
-    setVolume,
-    setEnabled: setAudioEnabled,
+  // System
+  init: initAudio,
+  preload: preloadSounds,
+  setVolume,
+  setEnabled: setAudioEnabled,
 };
-

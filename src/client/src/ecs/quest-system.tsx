@@ -140,7 +140,7 @@ export function QuestSystem(): null {
       // Check completion
       if (quest.progress >= quest.target && !quest.completed) {
         quest.completed = true;
-        
+
         // Award rewards
         useGameStore.getState().updateScore(quest.reward.coins);
         if (quest.reward.gems) {
@@ -163,7 +163,9 @@ export function QuestSystem(): null {
       },
       recordPerfectRun: () => {
         progressRef.current.perfectRuns++;
-        const survivalQuest = questsRef.current.find((q) => q.id === 'daily_survival');
+        const survivalQuest = questsRef.current.find(
+          (q) => q.id === 'daily_survival'
+        );
         if (survivalQuest) {
           survivalQuest.progress = 1;
         }

@@ -10,18 +10,18 @@ export function findNearestEntity<T extends keyof Entity>(
 ): Entity | null {
   let nearest: Entity | null = null;
   let nearestDist = maxDistance;
-  
+
   for (const entity of entities) {
     const dx = entity.position.x - fromX;
     const dy = entity.position.y - fromY;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    
+
     if (dist < nearestDist) {
       nearest = entity;
       nearestDist = dist;
     }
   }
-  
+
   return nearest;
 }
 
@@ -33,17 +33,17 @@ export function getEntitiesInRadius(
 ): Entity[] {
   const result: Entity[] = [];
   const radiusSq = radius * radius;
-  
+
   for (const entity of entities) {
     const dx = entity.position.x - centerX;
     const dy = entity.position.y - centerY;
     const distSq = dx * dx + dy * dy;
-    
+
     if (distSq <= radiusSq) {
       result.push(entity);
     }
   }
-  
+
   return result;
 }
 
@@ -58,19 +58,34 @@ export function countEntitiesOfType(
   return count;
 }
 
-export function teleportEntity(entity: With<Entity, 'position'>, x: number, y: number, z: number = entity.position.z) {
+export function teleportEntity(
+  entity: With<Entity, 'position'>,
+  x: number,
+  y: number,
+  z: number = entity.position.z
+) {
   entity.position.x = x;
   entity.position.y = y;
   entity.position.z = z;
 }
 
-export function setVelocity(entity: With<Entity, 'velocity'>, x: number, y: number, z: number = 0) {
+export function setVelocity(
+  entity: With<Entity, 'velocity'>,
+  x: number,
+  y: number,
+  z: number = 0
+) {
   entity.velocity!.x = x;
   entity.velocity!.y = y;
   entity.velocity!.z = z;
 }
 
-export function addVelocity(entity: With<Entity, 'velocity'>, x: number, y: number, z: number = 0) {
+export function addVelocity(
+  entity: With<Entity, 'velocity'>,
+  x: number,
+  y: number,
+  z: number = 0
+) {
   entity.velocity!.x += x;
   entity.velocity!.y += y;
   entity.velocity!.z += z;
@@ -88,11 +103,21 @@ export function stopEntity(entity: With<Entity, 'velocity'>) {
   entity.velocity!.z = 0;
 }
 
-export function isOffScreen(entity: With<Entity, 'position'>, minY: number = -10, maxY: number = 10): boolean {
+export function isOffScreen(
+  entity: With<Entity, 'position'>,
+  minY: number = -10,
+  maxY: number = 10
+): boolean {
   return entity.position.y < minY || entity.position.y > maxY;
 }
 
-export function isInBounds(entity: With<Entity, 'position'>, minX: number, maxX: number, minY: number, maxY: number): boolean {
+export function isInBounds(
+  entity: With<Entity, 'position'>,
+  minX: number,
+  maxX: number,
+  minY: number,
+  maxY: number
+): boolean {
   return (
     entity.position.x >= minX &&
     entity.position.x <= maxX &&
@@ -101,7 +126,11 @@ export function isInBounds(entity: With<Entity, 'position'>, minX: number, maxX:
   );
 }
 
-export function rotateEntityTowards(entity: With<Entity, 'position'>, targetX: number, targetY: number): number {
+export function rotateEntityTowards(
+  entity: With<Entity, 'position'>,
+  targetX: number,
+  targetY: number
+): number {
   const dx = targetX - entity.position.x;
   const dy = targetY - entity.position.y;
   return Math.atan2(dy, dx);
@@ -116,7 +145,7 @@ export function moveTowards(
   const dx = targetX - entity.position.x;
   const dy = targetY - entity.position.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
-  
+
   if (dist > 0) {
     entity.velocity!.x = (dx / dist) * speed;
     entity.velocity!.y = (dy / dist) * speed;
@@ -138,13 +167,20 @@ export function getEntitySpeed(entity: With<Entity, 'velocity'>): number {
   return Math.sqrt(vx * vx + vy * vy + vz * vz);
 }
 
-export function dampenVelocity(entity: With<Entity, 'velocity'>, damping: number = 0.9) {
+export function dampenVelocity(
+  entity: With<Entity, 'velocity'>,
+  damping: number = 0.9
+) {
   entity.velocity!.x *= damping;
   entity.velocity!.y *= damping;
   entity.velocity!.z *= damping;
 }
 
-export function bounceOffWalls(entity: With<Entity, 'position' | 'velocity'>, minX: number = -6, maxX: number = 6) {
+export function bounceOffWalls(
+  entity: With<Entity, 'position' | 'velocity'>,
+  minX: number = -6,
+  maxX: number = 6
+) {
   if (entity.position.x < minX) {
     entity.position.x = minX;
     entity.velocity!.x *= -1;

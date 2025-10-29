@@ -24,15 +24,23 @@ export class SoundManager {
   load(key: string, url: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const audio = new Audio(url);
-      
-      audio.addEventListener('canplaythrough', () => {
-        this.sounds.set(key, audio);
-        resolve();
-      }, { once: true });
 
-      audio.addEventListener('error', (e) => {
-        reject(new Error(`Failed to load sound: ${url}`));
-      }, { once: true });
+      audio.addEventListener(
+        'canplaythrough',
+        () => {
+          this.sounds.set(key, audio);
+          resolve();
+        },
+        { once: true }
+      );
+
+      audio.addEventListener(
+        'error',
+        (e) => {
+          reject(new Error(`Failed to load sound: ${url}`));
+        },
+        { once: true }
+      );
 
       audio.load();
     });
@@ -243,12 +251,7 @@ export class SpatialAudio {
   /**
    * Create a spatial sound source
    */
-  createSource(
-    key: string,
-    x: number,
-    y: number,
-    z: number
-  ): PannerNode {
+  createSource(key: string, x: number, y: number, z: number): PannerNode {
     const panner = this.context.createPanner();
     panner.panningModel = 'HRTF';
     panner.distanceModel = 'inverse';
@@ -363,7 +366,7 @@ export class MusicManager {
     if (this.currentTrack) {
       const now = this.context.currentTime;
       this.currentGain.gain.linearRampToValueAtTime(0, now + fadeTime);
-      
+
       setTimeout(() => {
         this.currentTrack?.stop();
         this.currentTrack = null;

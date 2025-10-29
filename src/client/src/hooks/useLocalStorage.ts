@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 /**
  * Hook for managing localStorage with React state
- * 
+ *
  * @example
  * const [theme, setTheme] = useLocalStorage('theme', 'dark');
  */
@@ -25,10 +25,11 @@ export function useLocalStorage<T>(
   const setValue = useCallback(
     (value: T | ((val: T) => T)) => {
       try {
-        const valueToStore = value instanceof Function ? value(storedValue) : value;
+        const valueToStore =
+          value instanceof Function ? value(storedValue) : value;
         setStoredValue(valueToStore);
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
-        
+
         // Dispatch event for cross-tab synchronization
         window.dispatchEvent(
           new CustomEvent('local-storage', {
@@ -60,7 +61,10 @@ export function useLocalStorage<T>(
           try {
             setStoredValue(JSON.parse(e.newValue));
           } catch (error) {
-            console.error(`Error parsing storage change for key "${key}":`, error);
+            console.error(
+              `Error parsing storage change for key "${key}":`,
+              error
+            );
           }
         }
       } else {
@@ -72,11 +76,20 @@ export function useLocalStorage<T>(
     };
 
     window.addEventListener('storage', handleStorageChange as EventListener);
-    window.addEventListener('local-storage', handleStorageChange as EventListener);
+    window.addEventListener(
+      'local-storage',
+      handleStorageChange as EventListener
+    );
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange as EventListener);
-      window.removeEventListener('local-storage', handleStorageChange as EventListener);
+      window.removeEventListener(
+        'storage',
+        handleStorageChange as EventListener
+      );
+      window.removeEventListener(
+        'local-storage',
+        handleStorageChange as EventListener
+      );
     };
   }, [key]);
 
@@ -103,7 +116,8 @@ export function useSessionStorage<T>(
   const setValue = useCallback(
     (value: T | ((val: T) => T)) => {
       try {
-        const valueToStore = value instanceof Function ? value(storedValue) : value;
+        const valueToStore =
+          value instanceof Function ? value(storedValue) : value;
         setStoredValue(valueToStore);
         window.sessionStorage.setItem(key, JSON.stringify(valueToStore));
       } catch (error) {

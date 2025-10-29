@@ -3,13 +3,13 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0, // Reduced from 2 to 1 for speed
-  workers: process.env.CI ? 2 : undefined, // Increased from 1 to 2 for speed
+  forbidOnly: !!process.env['CI'],
+  retries: process.env['CI'] ? 1 : 0, // Reduced from 2 to 1 for speed
+  workers: process.env['CI'] ? 2 : undefined, // Increased from 1 to 2 for speed
   reporter: 'list',
   timeout: 30000, // 30s per test (default is 30s anyway)
   use: {
-    baseURL: process.env.BASE_URL || 'http://localhost:4173',
+    baseURL: process.env['BASE_URL'] || 'http://localhost:4173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure', // Record video for failures (AI tests override to 'on')
@@ -53,11 +53,11 @@ export default defineConfig({
       use: { ...devices['iPad Pro 11'] },
     },
   ],
-  webServer: process.env.BASE_URL
+  webServer: process.env['BASE_URL']
     ? undefined
     : {
-      command: 'npm run preview',
-      port: 4173,
-      reuseExistingServer: !process.env.CI,
-    },
+        command: 'npm run preview',
+        port: 4173,
+        reuseExistingServer: !process.env['CI'],
+      },
 });

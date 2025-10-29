@@ -7,7 +7,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🏊',
     requirement: 1,
     rarity: 'common',
-    checkCondition: 'gameComplete === true'
+    checkCondition: 'gameComplete === true',
   },
   {
     id: 'river_explorer',
@@ -16,7 +16,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🗺️',
     requirement: 1000,
     rarity: 'common',
-    checkCondition: 'totalDistanceTraveled >= 1000'
+    checkCondition: 'totalDistanceTraveled >= 1000',
   },
   {
     id: 'swift_current',
@@ -25,7 +25,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '💨',
     requirement: 5000,
     rarity: 'rare',
-    checkCondition: 'currentRunDistance >= 5000'
+    checkCondition: 'currentRunDistance >= 5000',
   },
   {
     id: 'marathon_swimmer',
@@ -34,7 +34,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🏆',
     requirement: 25000,
     rarity: 'epic',
-    checkCondition: 'currentRunDistance >= 25000'
+    checkCondition: 'currentRunDistance >= 25000',
   },
   {
     id: 'river_legend',
@@ -43,7 +43,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '👑',
     requirement: 100000,
     rarity: 'legendary',
-    checkCondition: 'totalDistanceTraveled >= 100000'
+    checkCondition: 'totalDistanceTraveled >= 100000',
   },
 
   // Skill-based Achievements
@@ -54,7 +54,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🤿',
     requirement: 10,
     rarity: 'rare',
-    checkCondition: 'consecutivePerfectDives >= 10'
+    checkCondition: 'consecutivePerfectDives >= 10',
   },
   {
     id: 'combo_master',
@@ -63,7 +63,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '⚡',
     requirement: 50,
     rarity: 'epic',
-    checkCondition: 'maxComboMultiplier >= 50'
+    checkCondition: 'maxComboMultiplier >= 50',
   },
   {
     id: 'untouchable',
@@ -72,7 +72,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '✨',
     requirement: 120,
     rarity: 'epic',
-    checkCondition: 'timeSurvived >= 120 && damagesTaken === 0'
+    checkCondition: 'timeSurvived >= 120 && damagesTaken === 0',
   },
   {
     id: 'barrel_roll_expert',
@@ -81,7 +81,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🌪️',
     requirement: 100,
     rarity: 'rare',
-    checkCondition: 'totalBarrelRolls >= 100'
+    checkCondition: 'totalBarrelRolls >= 100',
   },
   {
     id: 'air_time_ace',
@@ -90,7 +90,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🪂',
     requirement: 30,
     rarity: 'rare',
-    checkCondition: 'totalAirTimeInRun >= 30'
+    checkCondition: 'totalAirTimeInRun >= 30',
   },
 
   // Collection Achievements
@@ -101,7 +101,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🪙',
     requirement: 500,
     rarity: 'common',
-    checkCondition: 'totalCoinsCollected >= 500'
+    checkCondition: 'totalCoinsCollected >= 500',
   },
   {
     id: 'treasure_hunter',
@@ -110,7 +110,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '💎',
     requirement: 100,
     rarity: 'rare',
-    checkCondition: 'totalGemsCollected >= 100'
+    checkCondition: 'totalGemsCollected >= 100',
   },
   {
     id: 'hoarder',
@@ -119,7 +119,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🏦',
     requirement: 200,
     rarity: 'rare',
-    checkCondition: 'coinsCollectedThisRun >= 200'
+    checkCondition: 'coinsCollectedThisRun >= 200',
   },
   {
     id: 'fish_feast',
@@ -128,7 +128,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🐟',
     requirement: 1000,
     rarity: 'epic',
-    checkCondition: 'totalFishCollected >= 1000'
+    checkCondition: 'totalFishCollected >= 1000',
   },
   {
     id: 'shell_seeker',
@@ -137,7 +137,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🐚',
     requirement: 50,
     rarity: 'epic',
-    checkCondition: 'rareShellsFound >= 50'
+    checkCondition: 'rareShellsFound >= 50',
   },
 
   // Mastery Achievements
@@ -148,7 +148,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '⭐',
     requirement: 5,
     rarity: 'common',
-    checkCondition: 'uniquePowerUpsUsed >= 5'
+    checkCondition: 'uniquePowerUpsUsed >= 5',
   },
   {
     id: 'speed_demon',
@@ -157,7 +157,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🚀',
     requirement: 50,
     rarity: 'rare',
-    checkCondition: 'speedBoostUsageCount >= 50'
+    checkCondition: 'speedBoostUsageCount >= 50',
   },
   {
     id: 'obstacle_encyclopedia',
@@ -166,7 +166,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '📚',
     requirement: 15,
     rarity: 'epic',
-    checkCondition: 'uniqueObstaclesEncountered >= 15'
+    checkCondition: 'uniqueObstaclesEncountered >= 15',
   },
   {
     id: 'enemy_expert',
@@ -175,7 +175,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '⚔️',
     requirement: 10,
     rarity: 'rare',
-    checkCondition: 'uniqueEnemyTypesDefeated >= 10'
+    checkCondition: 'uniqueEnemyTypesDefeated >= 10',
   },
   {
     id: 'master_otter',
@@ -184,7 +184,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🦦',
     requirement: 20,
     rarity: 'legendary',
-    checkCondition: 'otterSkinsUnlocked >= 20 && abilitiesUnlocked >= 8'
+    checkCondition: 'otterSkinsUnlocked >= 20 && abilitiesUnlocked >= 8',
   },
 
   // Secret/Easter Egg Achievements
@@ -195,7 +195,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🕳️',
     requirement: 1,
     rarity: 'epic',
-    checkCondition: 'secretCaveDiscovered === true'
+    checkCondition: 'secretCaveDiscovered === true',
   },
   {
     id: 'rainbow_rider',
@@ -204,7 +204,8 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🌈',
     requirement: 1,
     rarity: 'legendary',
-    checkCondition: 'rainbowWaterfallRidden === true && weatherCondition === "storm"'
+    checkCondition:
+      'rainbowWaterfallRidden === true && weatherCondition === "storm"',
   },
   {
     id: 'ghost_otter',
@@ -213,7 +214,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '👻',
     requirement: 1,
     rarity: 'legendary',
-    checkCondition: 'ghostOtterEncountered === true'
+    checkCondition: 'ghostOtterEncountered === true',
   },
   {
     id: 'ancient_statue',
@@ -222,7 +223,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🗿',
     requirement: 1,
     rarity: 'epic',
-    checkCondition: 'ancientStatueActivated === true'
+    checkCondition: 'ancientStatueActivated === true',
   },
   {
     id: 'time_traveler',
@@ -231,7 +232,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '⏰',
     requirement: 1,
     rarity: 'legendary',
-    checkCondition: 'temporalWhirlpoolEntered === true'
+    checkCondition: 'temporalWhirlpoolEntered === true',
   },
 
   // Time-based Challenges
@@ -242,7 +243,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '⏱️',
     requirement: 1000,
     rarity: 'rare',
-    checkCondition: 'currentRunDistance >= 1000 && runTime <= 120'
+    checkCondition: 'currentRunDistance >= 1000 && runTime <= 120',
   },
   {
     id: 'daily_swimmer',
@@ -251,7 +252,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '📅',
     requirement: 7,
     rarity: 'rare',
-    checkCondition: 'consecutiveDaysPlayed >= 7'
+    checkCondition: 'consecutiveDaysPlayed >= 7',
   },
   {
     id: 'night_owl',
@@ -260,7 +261,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🦉',
     requirement: 10,
     rarity: 'epic',
-    checkCondition: 'nightTimeRunsCompleted >= 10'
+    checkCondition: 'nightTimeRunsCompleted >= 10',
   },
   {
     id: 'early_bird',
@@ -269,7 +270,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🐦',
     requirement: 1,
     rarity: 'common',
-    checkCondition: 'runCompletedBefore7AM === true'
+    checkCondition: 'runCompletedBefore7AM === true',
   },
   {
     id: 'weekend_warrior',
@@ -278,7 +279,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '🏋️',
     requirement: 600, // 10 hours in minutes
     rarity: 'epic',
-    checkCondition: 'weekendPlayTimeMinutes >= 600'
+    checkCondition: 'weekendPlayTimeMinutes >= 600',
   },
   {
     id: 'endurance_champion',
@@ -287,6 +288,6 @@ export const ACHIEVEMENT_DEFINITIONS = [
     icon: '💪',
     requirement: 900, // 15 minutes in seconds
     rarity: 'legendary',
-    checkCondition: 'currentRunSurvivalTime >= 900'
-  }
+    checkCondition: 'currentRunSurvivalTime >= 900',
+  },
 ];

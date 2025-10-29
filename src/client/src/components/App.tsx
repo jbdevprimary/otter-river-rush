@@ -17,7 +17,10 @@ export function App(): React.JSX.Element {
       {status === 'game_over' && <GameOver />}
 
       {status === 'paused' && (
-        <div id="pauseScreen" className="fixed inset-0 flex items-center justify-center pointer-events-auto game-bg-overlay z-50">
+        <div
+          id="pauseScreen"
+          className="fixed inset-0 flex items-center justify-center pointer-events-auto game-bg-overlay z-50"
+        >
           <div className="otter-panel w-full max-w-sm splash-in">
             <h2 className="otter-subtitle text-center mb-6">⏸️ Paused</h2>
             <div className="space-y-3">

@@ -28,7 +28,7 @@ function Model({ url, scale = 1 }: { url: string; scale?: number }) {
 function AnimatedModel({
   baseUrl,
   animationUrl,
-  scale = 1
+  scale = 1,
 }: {
   baseUrl: string;
   animationUrl?: string;
@@ -39,7 +39,10 @@ function AnimatedModel({
   const anim = animationUrl ? useGLTF(animationUrl) : null;
 
   // Use animation GLB's clips if available; fall back to none
-  const clips = useMemo(() => (anim?.animations ? anim.animations : []), [anim]);
+  const clips = useMemo(
+    () => (anim?.animations ? anim.animations : []),
+    [anim]
+  );
   const { actions } = useAnimations(clips, groupRef);
 
   useEffect(() => {
@@ -55,7 +58,10 @@ function AnimatedModel({
     };
   }, [actions, animationUrl]);
 
-  const displayObject = useMemo(() => (anim?.scene ?? base.scene).clone(), [anim, base]);
+  const displayObject = useMemo(
+    () => (anim?.scene ?? base.scene).clone(),
+    [anim, base]
+  );
   return (
     <group ref={groupRef}>
       <primitive object={displayObject} scale={scale} />
@@ -72,8 +78,15 @@ export function PlayerRenderer() {
       {(entity) => (
         <ECS.Entity entity={entity}>
           <ECS.Component name="three">
-            <group position={[entity.position.x, entity.position.y, entity.position.z]}>
-              {entity.animation && entity.animation.urls[entity.animation.current] ? (
+            <group
+              position={[
+                entity.position.x,
+                entity.position.y,
+                entity.position.z,
+              ]}
+            >
+              {entity.animation &&
+              entity.animation.urls[entity.animation.current] ? (
                 <AnimatedModel
                   baseUrl={entity.model!.url}
                   animationUrl={entity.animation.urls[entity.animation.current]}
@@ -99,7 +112,13 @@ export function ObstaclesRenderer() {
       {(entity) => (
         <ECS.Entity entity={entity}>
           <ECS.Component name="three">
-            <group position={[entity.position.x, entity.position.y, entity.position.z]}>
+            <group
+              position={[
+                entity.position.x,
+                entity.position.y,
+                entity.position.z,
+              ]}
+            >
               <Model url={entity.model!.url} scale={entity.model!.scale} />
             </group>
           </ECS.Component>
@@ -119,8 +138,12 @@ export function CollectiblesRenderer() {
         <ECS.Entity entity={entity}>
           <ECS.Component name="three">
             <group
-              position={[entity.position.x, entity.position.y, entity.position.z]}
-              rotation={[0, Date.now() * 0.001, 0]}  // Spinning collectibles
+              position={[
+                entity.position.x,
+                entity.position.y,
+                entity.position.z,
+              ]}
+              rotation={[0, Date.now() * 0.001, 0]} // Spinning collectibles
             >
               <Model url={entity.model!.url} scale={entity.model!.scale} />
             </group>
@@ -138,7 +161,9 @@ export function ParticlesRenderer() {
   return (
     <ECS.Entities in={queries.particles}>
       {(entity) => (
-        <mesh position={[entity.position.x, entity.position.y, entity.position.z]}>
+        <mesh
+          position={[entity.position.x, entity.position.y, entity.position.z]}
+        >
           <sphereGeometry args={[entity.particle!.size * 0.01, 8, 8]} />
           <meshBasicMaterial color={entity.particle!.color} />
         </mesh>

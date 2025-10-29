@@ -6,13 +6,13 @@ import { useGameStore } from '../hooks/useGameStore';
 class AudioManager {
   private sounds: Map<string, HTMLAudioElement> = new Map();
   private music: HTMLAudioElement | null = null;
-  
+
   loadSound(name: string, url: string) {
     const audio = new Audio(url);
     audio.preload = 'auto';
     this.sounds.set(name, audio);
   }
-  
+
   playSound(name: string, volume: number = 0.5) {
     const sound = this.sounds.get(name);
     if (sound) {
@@ -21,7 +21,7 @@ class AudioManager {
       sound.play().catch(() => {});
     }
   }
-  
+
   playMusic(url: string, volume: number = 0.3) {
     if (this.music) {
       this.music.pause();
@@ -31,7 +31,7 @@ class AudioManager {
     this.music.loop = true;
     this.music.play().catch(() => {});
   }
-  
+
   stopMusic() {
     if (this.music) {
       this.music.pause();
@@ -44,13 +44,13 @@ const audioManager = new AudioManager();
 
 export function AudioSystem() {
   const { status } = useGameStore();
-  
+
   useEffect(() => {
     // Load sound effects (placeholder - would need actual audio files)
     // audioManager.loadSound('collect', '/audio/collect.mp3');
     // audioManager.loadSound('hit', '/audio/hit.mp3');
     // audioManager.loadSound('powerup', '/audio/powerup.mp3');
-    
+
     // Play music when game starts
     if (status === 'playing') {
       // audioManager.playMusic('/audio/game-music.mp3');
@@ -58,27 +58,31 @@ export function AudioSystem() {
       // audioManager.stopMusic();
     }
   }, [status]);
-  
+
   useEffect(() => {
     // Listen for entity events
-    const unsubCollected = queries.collected.onEntityAdded.subscribe((entity) => {
-      if (entity.collectible) {
-        // audioManager.playSound('collect', 0.3);
+    const unsubCollected = queries.collected.onEntityAdded.subscribe(
+      (entity) => {
+        if (entity.collectible) {
+          // audioManager.playSound('collect', 0.3);
+        }
       }
-    });
-    
-    const unsubDestroyed = queries.destroyed.onEntityAdded.subscribe((entity) => {
-      if (entity.obstacle) {
-        // audioManager.playSound('hit', 0.5);
+    );
+
+    const unsubDestroyed = queries.destroyed.onEntityAdded.subscribe(
+      (entity) => {
+        if (entity.obstacle) {
+          // audioManager.playSound('hit', 0.5);
+        }
       }
-    });
-    
+    );
+
     return () => {
       unsubCollected();
       unsubDestroyed();
     };
   }, []);
-  
+
   return null;
 }
 

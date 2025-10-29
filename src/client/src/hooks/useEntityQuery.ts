@@ -34,9 +34,9 @@ export function useParticles() {
 
 export function useEntitiesNear(x: number, y: number, radius: number) {
   const allEntities = Array.from(world.entities);
-  
+
   return useMemo(() => {
-    return allEntities.filter(entity => {
+    return allEntities.filter((entity) => {
       const dx = entity.position.x - x;
       const dy = entity.position.y - y;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -56,31 +56,31 @@ export function useEntityCount() {
 
 export function useNearestObstacle(fromX: number, fromY: number) {
   const obstacles = useObstacles();
-  
+
   return useMemo(() => {
     let nearest: Entity | null = null;
     let minDist = Infinity;
-    
+
     for (const obstacle of obstacles) {
       const dx = obstacle.position.x - fromX;
       const dy = obstacle.position.y - fromY;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      
+
       if (dist < minDist) {
         minDist = dist;
         nearest = obstacle;
       }
     }
-    
+
     return nearest;
   }, [obstacles, fromX, fromY]);
 }
 
 export function useEntitiesInFront(y: number) {
   const allEntities = Array.from(world.entities);
-  
+
   return useMemo(() => {
-    return allEntities.filter(entity => entity.position.y > y);
+    return allEntities.filter((entity) => entity.position.y > y);
   }, [allEntities.length, y]);
 }
 

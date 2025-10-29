@@ -9,7 +9,7 @@ export const debugTools = {
     }
     console.groupEnd();
   },
-  
+
   logEntityCounts() {
     console.group('📊 Entity Counts');
     console.log('Total:', world.entities.length);
@@ -20,17 +20,17 @@ export const debugTools = {
     console.log('Moving:', queries.moving.entities.length);
     console.groupEnd();
   },
-  
+
   logPlayer() {
     const [player] = queries.player.entities;
     console.log('🦦 Player:', player);
   },
-  
+
   clearAllEntities() {
     world.clear();
     console.log('🧹 Cleared all entities');
   },
-  
+
   spawnTestEntities() {
     const { spawn } = require('../ecs/world');
     spawn.otter(0);
@@ -41,7 +41,7 @@ export const debugTools = {
     spawn.gem(2, 9);
     console.log('✨ Spawned test entities');
   },
-  
+
   freezeGame() {
     for (const entity of queries.moving) {
       if (entity.velocity) {
@@ -52,7 +52,7 @@ export const debugTools = {
     }
     console.log('⏸️ Game frozen');
   },
-  
+
   teleportPlayer(x: number, y: number) {
     const [player] = queries.player.entities;
     if (player) {
@@ -61,7 +61,7 @@ export const debugTools = {
       console.log(`📍 Player teleported to (${x}, ${y})`);
     }
   },
-  
+
   godMode(enable: boolean = true) {
     const [player] = queries.player.entities;
     if (player) {
@@ -76,7 +76,7 @@ export const debugTools = {
       }
     }
   },
-  
+
   setHealth(health: number) {
     const [player] = queries.player.entities;
     if (player && player.health !== undefined) {
@@ -84,7 +84,7 @@ export const debugTools = {
       console.log(`❤️ Health set to ${health}`);
     }
   },
-  
+
   triggerAnimation(animationName: string) {
     const [player] = queries.player.entities;
     if (player && player.animation) {
@@ -92,7 +92,7 @@ export const debugTools = {
       console.log(`🎬 Playing animation: ${animationName}`);
     }
   },
-  
+
   getPerformanceStats() {
     return {
       totalEntities: world.entities.length,
@@ -103,14 +103,20 @@ export const debugTools = {
       renderableEntities: queries.renderable.entities.length,
     };
   },
-  
+
   exportGameState() {
     const state = {
-      entities: world.entities.map(e => ({
+      entities: world.entities.map((e) => ({
         position: e.position,
         velocity: e.velocity,
         health: e.health,
-        type: e.player ? 'player' : e.obstacle ? 'obstacle' : e.collectible ? 'collectible' : 'unknown',
+        type: e.player
+          ? 'player'
+          : e.obstacle
+            ? 'obstacle'
+            : e.collectible
+              ? 'collectible'
+              : 'unknown',
       })),
       queries: {
         player: queries.player.entities.length,

@@ -20,7 +20,10 @@ interface QuestsPanelProps {
   onClose: () => void;
 }
 
-export function QuestsPanel({ isOpen, onClose }: QuestsPanelProps): React.JSX.Element | null {
+export function QuestsPanel({
+  isOpen,
+  onClose,
+}: QuestsPanelProps): React.JSX.Element | null {
   const [quests, setQuests] = useState<Quest[]>([]);
 
   useEffect(() => {
@@ -34,16 +37,22 @@ export function QuestsPanel({ isOpen, onClose }: QuestsPanelProps): React.JSX.El
 
   const getQuestIcon = (type: Quest['type']): string => {
     switch (type) {
-      case 'collect': return '💰';
-      case 'distance': return '🏃';
-      case 'combo': return '🔥';
-      case 'survival': return '❤️';
-      case 'perfect': return '⭐';
-      default: return '📋';
+      case 'collect':
+        return '💰';
+      case 'distance':
+        return '🏃';
+      case 'combo':
+        return '🔥';
+      case 'survival':
+        return '❤️';
+      case 'perfect':
+        return '⭐';
+      default:
+        return '📋';
     }
   };
 
-  const completedCount = quests.filter(q => q.completed).length;
+  const completedCount = quests.filter((q) => q.completed).length;
   const totalCount = quests.length;
 
   return (
@@ -88,7 +97,10 @@ export function QuestsPanel({ isOpen, onClose }: QuestsPanelProps): React.JSX.El
             </div>
           ) : (
             quests.map((quest) => {
-              const progressPercent = Math.min((quest.progress / quest.target) * 100, 100);
+              const progressPercent = Math.min(
+                (quest.progress / quest.target) * 100,
+                100
+              );
               const isCompleted = quest.completed;
 
               return (
@@ -110,8 +122,12 @@ export function QuestsPanel({ isOpen, onClose }: QuestsPanelProps): React.JSX.El
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div>
-                          <h3 className="font-bold text-white">{quest.title}</h3>
-                          <p className="text-sm text-gray-400">{quest.description}</p>
+                          <h3 className="font-bold text-white">
+                            {quest.title}
+                          </h3>
+                          <p className="text-sm text-gray-400">
+                            {quest.description}
+                          </p>
                         </div>
                         {isCompleted && (
                           <div className="text-2xl flex-shrink-0">✅</div>
@@ -122,7 +138,8 @@ export function QuestsPanel({ isOpen, onClose }: QuestsPanelProps): React.JSX.El
                       <div className="mb-2">
                         <div className="flex justify-between text-xs text-gray-400 mb-1">
                           <span>
-                            {quest.progress.toLocaleString()} / {quest.target.toLocaleString()}
+                            {quest.progress.toLocaleString()} /{' '}
+                            {quest.target.toLocaleString()}
                           </span>
                           <span>{progressPercent.toFixed(0)}%</span>
                         </div>
@@ -150,14 +167,15 @@ export function QuestsPanel({ isOpen, onClose }: QuestsPanelProps): React.JSX.El
                             <span>{quest.reward.gems}</span>
                           </div>
                         )}
-                        {quest.reward.unlocks && quest.reward.unlocks.length > 0 && (
-                          <div className="flex items-center gap-1 text-blue-400">
-                            <span>🎁</span>
-                            <span className="text-xs">
-                              {quest.reward.unlocks.join(', ')}
-                            </span>
-                          </div>
-                        )}
+                        {quest.reward.unlocks &&
+                          quest.reward.unlocks.length > 0 && (
+                            <div className="flex items-center gap-1 text-blue-400">
+                              <span>🎁</span>
+                              <span className="text-xs">
+                                {quest.reward.unlocks.join(', ')}
+                              </span>
+                            </div>
+                          )}
                       </div>
                     </div>
                   </div>
@@ -171,9 +189,12 @@ export function QuestsPanel({ isOpen, onClose }: QuestsPanelProps): React.JSX.El
         <div className="mt-6 p-3 bg-blue-900/30 rounded-lg border border-blue-700">
           <div className="text-sm text-gray-300">
             <p className="mb-1">
-              💡 <strong>Tip:</strong> Complete quests to earn coins, gems, and unlock special rewards!
+              💡 <strong>Tip:</strong> Complete quests to earn coins, gems, and
+              unlock special rewards!
             </p>
-            <p className="text-xs text-gray-400">Quests reset daily at midnight.</p>
+            <p className="text-xs text-gray-400">
+              Quests reset daily at midnight.
+            </p>
           </div>
         </div>
 

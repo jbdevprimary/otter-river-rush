@@ -29,7 +29,10 @@ export function GameOver(): React.JSX.Element {
         : "Let's Dive In Again!";
 
   return (
-    <div id="gameOverScreen" className="fixed inset-0 flex items-center justify-center pointer-events-auto game-bg-overlay z-50">
+    <div
+      id="gameOverScreen"
+      className="fixed inset-0 flex items-center justify-center pointer-events-auto game-bg-overlay z-50"
+    >
       <div className="otter-panel w-full max-w-md splash-in">
         {/* Otter Mascot Reaction */}
         <div className="text-center mb-6">
@@ -53,7 +56,13 @@ export function GameOver(): React.JSX.Element {
                 />
                 <span className="otter-stat-label">Score</span>
               </div>
-              <span id="finalScore" className="otter-stat" data-testid="final-score">{score.toLocaleString()}</span>
+              <span
+                id="finalScore"
+                className="otter-stat"
+                data-testid="final-score"
+              >
+                {score.toLocaleString()}
+              </span>
             </div>
           </div>
 
@@ -67,7 +76,13 @@ export function GameOver(): React.JSX.Element {
                 />
                 <span className="otter-stat-label">Distance</span>
               </div>
-              <span id="finalDistance" className="otter-stat" data-testid="final-distance">{Math.floor(distance)}m</span>
+              <span
+                id="finalDistance"
+                className="otter-stat"
+                data-testid="final-distance"
+              >
+                {Math.floor(distance)}m
+              </span>
             </div>
           </div>
 
@@ -80,13 +95,17 @@ export function GameOver(): React.JSX.Element {
                   alt="Coins"
                   className="w-5 h-5"
                 />
-                <span id="finalCoins" className="otter-stat">{coins}</span>
+                <span id="finalCoins" className="otter-stat">
+                  {coins}
+                </span>
                 <img
                   src={getIconPath('hud-gem.png')}
                   alt="Gems"
                   className="w-5 h-5 ml-1"
                 />
-                <span id="finalGems" className="otter-stat">{gems}</span>
+                <span id="finalGems" className="otter-stat">
+                  {gems}
+                </span>
               </div>
             </div>
           </div>
@@ -111,7 +130,9 @@ export function GameOver(): React.JSX.Element {
                 />
                 <span className="otter-stat-label">Best</span>
               </div>
-              <span id="highScore" className="otter-stat">{highScore.toLocaleString()}</span>
+              <span id="highScore" className="otter-stat">
+                {highScore.toLocaleString()}
+              </span>
             </div>
           </div>
         </div>

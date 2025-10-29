@@ -22,33 +22,44 @@ export function GameHUD() {
   return (
     <div className="absolute inset-0 pointer-events-none z-10">
       {/* Top Stats - Safe area aware */}
-      <div className="absolute space-y-2" style={{ top: topOffset, left: leftOffset }}>
-        <div id="score" className={`${scoreFontSize} font-bold text-white drop-shadow-lg`} data-testid="score">
+      <div
+        className="absolute space-y-2"
+        style={{ top: topOffset, left: leftOffset }}
+      >
+        <div
+          id="score"
+          className={`${scoreFontSize} font-bold text-white drop-shadow-lg`}
+          data-testid="score"
+        >
           {Math.floor(score).toLocaleString()}
         </div>
-        <div id="distance" className={`${distanceFontSize} text-blue-300`} data-testid="distance">
+        <div
+          id="distance"
+          className={`${distanceFontSize} text-blue-300`}
+          data-testid="distance"
+        >
           {Math.floor(distance)}m
         </div>
         {combo > 0 && (
-          <div className="text-xl text-yellow-400 animate-pulse">
-            {combo}x!
-          </div>
+          <div className="text-xl text-yellow-400 animate-pulse">{combo}x!</div>
         )}
       </div>
 
       {/* Top Right - Collectibles - Safe area aware */}
-      <div className="absolute space-y-2 text-right" style={{ top: topOffset, right: rightOffset }}>
-        <div className={`${distanceFontSize} text-yellow-400`}>
-          💰 {coins}
-        </div>
-        <div className={`${distanceFontSize} text-pink-400`}>
-          💎 {gems}
-        </div>
+      <div
+        className="absolute space-y-2 text-right"
+        style={{ top: topOffset, right: rightOffset }}
+      >
+        <div className={`${distanceFontSize} text-yellow-400`}>💰 {coins}</div>
+        <div className={`${distanceFontSize} text-pink-400`}>💎 {gems}</div>
       </div>
 
       {/* Bottom Left - Health - Safe area & thumb zone aware */}
       {player && player.health && (
-        <div className="absolute flex gap-2" style={{ bottom: bottomOffset, left: leftOffset }}>
+        <div
+          className="absolute flex gap-2"
+          style={{ bottom: bottomOffset, left: leftOffset }}
+        >
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
@@ -62,25 +73,27 @@ export function GameHUD() {
 
       {/* Biome - Only show on tablets (too cluttered on phones) */}
       {constraints.isTablet && (
-        <div className="absolute left-1/2 -translate-x-1/2 text-center" style={{ bottom: bottomOffset }}>
-          <div className="text-sm text-blue-200 opacity-70">
-            {biome.name}
-          </div>
+        <div
+          className="absolute left-1/2 -translate-x-1/2 text-center"
+          style={{ bottom: bottomOffset }}
+        >
+          <div className="text-sm text-blue-200 opacity-70">{biome.name}</div>
         </div>
       )}
 
       {/* Power-up indicators - Compact for mobile */}
       {player && (
-        <div className="absolute space-y-1" style={{ top: `calc(${topOffset} + 4rem)`, right: rightOffset }}>
+        <div
+          className="absolute space-y-1"
+          style={{ top: `calc(${topOffset} + 4rem)`, right: rightOffset }}
+        >
           {player.ghost && (
             <div className="text-xs bg-purple-500/80 px-2 py-0.5 rounded">
               👻
             </div>
           )}
           {player.invincible && (
-            <div className="text-xs bg-blue-500/80 px-2 py-0.5 rounded">
-              🛡️
-            </div>
+            <div className="text-xs bg-blue-500/80 px-2 py-0.5 rounded">🛡️</div>
           )}
           {(player as any).magnetActive && (
             <div className="text-xs bg-yellow-500/80 px-2 py-0.5 rounded">

@@ -4,7 +4,7 @@ import { StorageManager } from '../utils/StorageManager';
 
 export function usePersistence() {
   const { highScore, score } = useGameStore();
-  
+
   useEffect(() => {
     // Load saved data on mount
     const saved = StorageManager.load();
@@ -14,14 +14,14 @@ export function usePersistence() {
       });
     }
   }, []);
-  
+
   useEffect(() => {
     // Save high score when it changes
     if (score > highScore) {
       StorageManager.save({ highScore: score });
     }
   }, [score, highScore]);
-  
+
   useEffect(() => {
     // Auto-save every 30 seconds
     const interval = setInterval(() => {
@@ -31,7 +31,7 @@ export function usePersistence() {
         totalGamesPlayed: (StorageManager.load()?.totalGamesPlayed || 0) + 1,
       });
     }, 30000);
-    
+
     return () => clearInterval(interval);
   }, []);
 }
@@ -46,25 +46,30 @@ export function useSettings() {
       });
     }
   }, []);
-  
-  const saveSettings = (settings: Partial<{ soundEnabled: boolean; musicEnabled: boolean }>) => {
-    const current = StorageManager.load()?.settings || { soundEnabled: true, musicEnabled: true };
+
+  const saveSettings = (
+    settings: Partial<{ soundEnabled: boolean; musicEnabled: boolean }>
+  ) => {
+    const current = StorageManager.load()?.settings || {
+      soundEnabled: true,
+      musicEnabled: true,
+    };
     StorageManager.save({ settings: { ...current, ...settings } });
   };
-  
+
   return { saveSettings };
 }
 
 export function useAchievements() {
   const [unlocked, setUnlocked] = useState<string[]>([]);
-  
+
   useEffect(() => {
     const saved = StorageManager.load();
     if (saved?.achievements) {
       setUnlocked(saved.achievements);
     }
   }, []);
-  
+
   const unlockAchievement = (id: string) => {
     if (!unlocked.includes(id)) {
       const newUnlocked = [...unlocked, id];
@@ -72,6 +77,6 @@ export function useAchievements() {
       StorageManager.save({ achievements: newUnlocked });
     }
   };
-  
+
   return { unlocked, unlockAchievement };
 }

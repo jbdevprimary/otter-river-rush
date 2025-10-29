@@ -96,7 +96,10 @@ export function CollisionSystem() {
 
     // Check collectible collisions
     for (const collectible of collectibleEntities) {
-      if (collectible.collider && checkCollision(player as any, collectible as any)) {
+      if (
+        collectible.collider &&
+        checkCollision(player as any, collectible as any)
+      ) {
         handleCollect(player, collectible);
       }
     }
@@ -119,14 +122,20 @@ export function SpawnerSystem() {
     accumulatorMs.current += dt * 1000;
     while (accumulatorMs.current >= fixedStepMs) {
       const now = performance.now();
-      if (now - lastObstacleSpawn.current > PHYSICS.spawnInterval.obstacles * 1000) {
+      if (
+        now - lastObstacleSpawn.current >
+        PHYSICS.spawnInterval.obstacles * 1000
+      ) {
         const laneIndex = Math.floor(Math.random() * 3) as -1 | 0 | 1;
         const lane = getLaneX(laneIndex);
         const variant = Math.floor(Math.random() * 4);
         spawn.rock(lane, VISUAL.positions.spawnY, variant);
         lastObstacleSpawn.current = now;
       }
-      if (now - lastCollectibleSpawn.current > PHYSICS.spawnInterval.collectibles * 1000) {
+      if (
+        now - lastCollectibleSpawn.current >
+        PHYSICS.spawnInterval.collectibles * 1000
+      ) {
         const laneIndex = Math.floor(Math.random() * 3) as -1 | 0 | 1;
         const lane = getLaneX(laneIndex);
         if (Math.random() > 0.7) {
@@ -324,7 +333,8 @@ function handleCollect(
   world.addComponent(collectible, 'collected', true);
 
   // Spawn particles
-  const color = collectible.collectible!.type === 'coin' ? '#ffd700' : '#ff1493';
+  const color =
+    collectible.collectible!.type === 'coin' ? '#ffd700' : '#ff1493';
   for (let i = 0; i < 12; i++) {
     spawn.particle(collectible.position.x, collectible.position.y, color);
   }

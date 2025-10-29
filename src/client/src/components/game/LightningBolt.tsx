@@ -24,7 +24,7 @@ export function LightningBolt({
   start,
   end,
   segments = 8,
-  thickness = 0.05,
+  thickness: _thickness = 0.05,
   color = '#00ffff',
   duration = 0.5,
   flicker = true,
@@ -44,12 +44,18 @@ export function LightningBolt({
     direction.normalize();
 
     // Perpendicular vectors for offset
-    const perpendicular = new THREE.Vector3(-direction.y, direction.x, 0).normalize();
+    const perpendicular = new THREE.Vector3(
+      -direction.y,
+      direction.x,
+      0
+    ).normalize();
     const segmentList: LightningSegment[] = [];
 
     for (let i = 0; i < segments; i++) {
       const t = i / segments;
-      const segmentStart = startVec.clone().add(direction.clone().multiplyScalar(length * t));
+      const segmentStart = startVec
+        .clone()
+        .add(direction.clone().multiplyScalar(length * t));
       const segmentEnd = startVec
         .clone()
         .add(direction.clone().multiplyScalar(length * (t + 1 / segments)));

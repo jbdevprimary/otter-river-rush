@@ -191,7 +191,7 @@ export function applyEnvironmentMap(
 ): void {
   const pmremGenerator = new THREE.PMREMGenerator(new THREE.WebGLRenderer());
   const cubeRenderTarget = pmremGenerator.fromScene(new THREE.Scene());
-  
+
   material.envMap = cubeRenderTarget.texture;
   material.envMapIntensity = envMapIntensity;
   material.needsUpdate = true;

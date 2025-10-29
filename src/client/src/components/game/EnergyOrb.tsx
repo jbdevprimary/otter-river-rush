@@ -39,7 +39,7 @@ export function EnergyOrb({
       const glowPulse = Math.sin(time * pulseSpeed * 1.5) * 0.3 + 1;
       glowRef.current.scale.setScalar(pulse * glowPulse * 1.2);
       glowRef.current.rotation.y -= rotationSpeed * 0.008;
-      
+
       const material = glowRef.current.material as THREE.MeshBasicMaterial;
       material.opacity = (Math.sin(time * pulseSpeed * 2) * 0.2 + 0.5) * 0.4;
     }
@@ -75,7 +75,7 @@ export function EnergyOrb({
       {[...Array(8)].map((_, i) => {
         const angle = (i / 8) * Math.PI * 2;
         const orbitRadius = radius * 1.8;
-        
+
         return (
           <mesh
             key={i}

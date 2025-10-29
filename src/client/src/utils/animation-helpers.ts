@@ -1,10 +1,18 @@
 import type { Entity } from '../ecs/world';
 import type { With } from 'miniplex';
 
-export type AnimationName = 
-  | 'idle' | 'walk' | 'run' | 'jump'
-  | 'collect' | 'hit' | 'death' | 'victory'
-  | 'happy' | 'dodgeLeft' | 'dodgeRight';
+export type AnimationName =
+  | 'idle'
+  | 'walk'
+  | 'run'
+  | 'jump'
+  | 'collect'
+  | 'hit'
+  | 'death'
+  | 'victory'
+  | 'happy'
+  | 'dodgeLeft'
+  | 'dodgeRight';
 
 export function setAnimation(
   entity: With<Entity, 'animation'>,
@@ -15,9 +23,9 @@ export function setAnimation(
     console.warn(`Animation ${animationName} not found for entity`);
     return;
   }
-  
+
   entity.animation.current = animationName;
-  
+
   if (duration) {
     setTimeout(() => {
       // Return to idle or walk based on game state
@@ -35,7 +43,7 @@ export function playOneShotAnimation(
   returnTo: AnimationName = 'walk'
 ) {
   setAnimation(entity, animationName);
-  
+
   setTimeout(() => {
     if (entity.animation) {
       entity.animation.current = returnTo;
@@ -43,11 +51,17 @@ export function playOneShotAnimation(
   }, duration);
 }
 
-export function hasAnimation(entity: With<Entity, 'animation'>, animationName: string): boolean {
+export function hasAnimation(
+  entity: With<Entity, 'animation'>,
+  animationName: string
+): boolean {
   return !!entity.animation.urls[animationName];
 }
 
-export function getAnimationURL(entity: With<Entity, 'animation'>, animationName: string): string | undefined {
+export function getAnimationURL(
+  entity: With<Entity, 'animation'>,
+  animationName: string
+): string | undefined {
   return entity.animation.urls[animationName];
 }
 
@@ -56,17 +70,17 @@ export function queueAnimations(
   animations: Array<{ name: AnimationName; duration: number }>
 ) {
   let currentDelay = 0;
-  
+
   for (const anim of animations) {
     setTimeout(() => {
       if (entity.animation) {
         entity.animation.current = anim.name;
       }
     }, currentDelay);
-    
+
     currentDelay += anim.duration;
   }
-  
+
   // Return to walk after all animations
   setTimeout(() => {
     if (entity.animation) {
@@ -120,13 +134,13 @@ export function updateAnimationState(
     state.previous = state.current;
     state.current = newAnimation;
     state.transitionProgress = 0;
-    
+
     // Animate transition
     const startTime = Date.now();
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
       state.transitionProgress = Math.min(elapsed / transitionTime, 1);
-      
+
       if (state.transitionProgress >= 1) {
         clearInterval(interval);
         state.previous = null;

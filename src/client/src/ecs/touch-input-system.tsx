@@ -21,7 +21,10 @@ export function TouchInputSystem() {
       if (!player) return;
 
       // Horizontal swipe
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > swipeThreshold) {
+      if (
+        Math.abs(deltaX) > Math.abs(deltaY) &&
+        Math.abs(deltaX) > swipeThreshold
+      ) {
         const currentLane = player.lane || 0;
 
         if (deltaX > 0 && currentLane < 1) {
@@ -106,7 +109,9 @@ export function TouchInputSystem() {
 
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchend', handleTouchEnd, { passive: true });
-    window.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    window.addEventListener('pointerdown', handlePointerDown, {
+      passive: true,
+    });
     window.addEventListener('pointerup', handlePointerUp, { passive: true });
     window.addEventListener('mousedown', handleMouseDown, { passive: true });
     window.addEventListener('mouseup', handleMouseUp, { passive: true });

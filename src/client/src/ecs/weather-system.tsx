@@ -33,13 +33,18 @@ export function WeatherSystem(): React.JSX.Element {
   // Determine weather based on distance (biome-dependent)
   const getWeatherType = (dist: number): WeatherType => {
     const segment = Math.floor(dist / 1000) % 4;
-    
+
     switch (segment) {
-      case 0: return 'clear'; // Forest - clear
-      case 1: return 'fog'; // Mountain - foggy
-      case 2: return 'clear'; // Canyon - clear but dusty
-      case 3: return 'snow'; // Crystal caves - snow/sparkles
-      default: return 'clear';
+      case 0:
+        return 'clear'; // Forest - clear
+      case 1:
+        return 'fog'; // Mountain - foggy
+      case 2:
+        return 'clear'; // Canyon - clear but dusty
+      case 3:
+        return 'snow'; // Crystal caves - snow/sparkles
+      default:
+        return 'clear';
     }
   };
 
@@ -51,7 +56,7 @@ export function WeatherSystem(): React.JSX.Element {
     // Rain system
     if (currentWeather === 'rain' || currentWeather === 'storm') {
       const spawnRate = currentWeather === 'storm' ? 0.02 : 0.05;
-      
+
       if (time - lastSpawnRef.current > spawnRate) {
         lastSpawnRef.current = time;
 
@@ -77,7 +82,7 @@ export function WeatherSystem(): React.JSX.Element {
       rainDropsRef.current = rainDropsRef.current.filter((drop) => {
         drop.position.add(drop.velocity.clone().multiplyScalar(delta));
         drop.life -= delta * 2;
-        
+
         // Remove if below ground or faded
         return drop.position.y > -5 && drop.life > 0;
       });
@@ -120,10 +125,10 @@ export function WeatherSystem(): React.JSX.Element {
       snowFlakesRef.current = snowFlakesRef.current.filter((flake) => {
         flake.position.add(flake.velocity.clone().multiplyScalar(delta));
         flake.rotation += flake.rotationSpeed * delta;
-        
+
         // Drift side to side
         flake.position.x += Math.sin(time + flake.position.y) * 0.01;
-        
+
         return flake.position.y > -5;
       });
 

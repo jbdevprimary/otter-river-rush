@@ -6,10 +6,10 @@ import { useGameStore } from '../../hooks/useGameStore';
 export function River() {
   const meshRef = useRef<Mesh>(null);
   const { status } = useGameStore();
-  
+
   useFrame((_, dt) => {
     if (!meshRef.current || status !== 'playing') return;
-    
+
     // Scroll water texture
     if (meshRef.current.material && 'map' in meshRef.current.material) {
       const mat = meshRef.current.material as any;
@@ -22,11 +22,7 @@ export function River() {
   return (
     <mesh ref={meshRef} position={[0, 0, -1]} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[20, 30]} />
-      <meshStandardMaterial 
-        color="#1e40af"
-        metalness={0.3}
-        roughness={0.7}
-      />
+      <meshStandardMaterial color="#1e40af" metalness={0.3} roughness={0.7} />
     </mesh>
   );
 }

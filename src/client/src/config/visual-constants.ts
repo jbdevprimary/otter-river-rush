@@ -29,18 +29,18 @@ export const VISUAL = {
 
   // Entity Scales (CRITICAL - makes models visible!)
   scales: {
-    otter: 2.0,        // Player needs to be big and visible!
-    rock: 1.5,         // Obstacles clearly visible
-    coin: 0.8,         // Collectibles medium size
-    gem: 1.0,          // Gems slightly larger than coins
-    particle: 0.05,    // Tiny particles
+    otter: 2.0, // Player needs to be big and visible!
+    rock: 1.5, // Obstacles clearly visible
+    coin: 0.8, // Collectibles medium size
+    gem: 1.0, // Gems slightly larger than coins
+    particle: 0.05, // Tiny particles
   },
 
   // Entity Positions (Y-axis)
   positions: {
-    player: -3,        // Player at bottom of screen
-    spawnY: 8,         // Where obstacles/collectibles spawn (top)
-    despawnY: -10,     // Where entities are removed (bottom)
+    player: -3, // Player at bottom of screen
+    spawnY: 8, // Where obstacles/collectibles spawn (top)
+    despawnY: -10, // Where entities are removed (bottom)
   },
 
   // Colors
@@ -120,10 +120,10 @@ export const FLOW = {
  * Physics Constants
  */
 export const PHYSICS = {
-  scrollSpeed: 5,       // Base scroll speed
+  scrollSpeed: 5, // Base scroll speed
   spawnInterval: {
-    obstacles: 2,       // Spawn rock every 2 seconds
-    collectibles: 3,    // Spawn coin/gem every 3 seconds
+    obstacles: 2, // Spawn rock every 2 seconds
+    collectibles: 3, // Spawn coin/gem every 3 seconds
   },
 } as const;
 

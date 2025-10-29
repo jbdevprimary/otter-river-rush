@@ -4,22 +4,22 @@ import { useGameStore } from '../hooks/useGameStore';
 
 export function MagnetSystem() {
   const { status } = useGameStore();
-  
+
   useFrame((_, dt) => {
     if (status !== 'playing') return;
-    
+
     const [player] = queries.player.entities;
     if (!player || !(player as any).magnetActive) return;
-    
+
     const magnetRadius = 3;
     const pullSpeed = 8;
-    
+
     // Pull collectibles towards player
     for (const collectible of queries.collectibles) {
       const dx = player.position.x - collectible.position.x;
       const dy = player.position.y - collectible.position.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      
+
       if (dist < magnetRadius && dist > 0) {
         // Pull towards player
         const force = pullSpeed / dist;
@@ -29,7 +29,7 @@ export function MagnetSystem() {
         }
       }
     }
-    
+
     // Deactivate if expired
     const now = Date.now();
     if ((player as any).magnetEndTime && now > (player as any).magnetEndTime) {
@@ -37,6 +37,6 @@ export function MagnetSystem() {
       delete (player as any).magnetEndTime;
     }
   });
-  
+
   return null;
 }

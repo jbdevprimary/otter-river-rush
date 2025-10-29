@@ -27,7 +27,10 @@ export function EnemySystem() {
 
       if (validEnemies.length > 0) {
         // Weighted random selection
-        const totalWeight = validEnemies.reduce((sum, e) => sum + e.spawn.weight, 0);
+        const totalWeight = validEnemies.reduce(
+          (sum, e) => sum + e.spawn.weight,
+          0
+        );
         let random = Math.random() * totalWeight;
 
         for (const enemyDef of validEnemies) {

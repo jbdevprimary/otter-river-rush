@@ -6,7 +6,10 @@ interface SettingsPanelProps {
   onClose: () => void;
 }
 
-export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps): React.JSX.Element | null {
+export function SettingsPanel({
+  isOpen,
+  onClose,
+}: SettingsPanelProps): React.JSX.Element | null {
   const { soundEnabled, musicEnabled, volume, updateSettings } = useGameStore();
 
   if (!isOpen) return null;
@@ -31,7 +34,10 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps): React.JS
         <div className="space-y-6">
           {/* Sound Effects Toggle */}
           <div className="flex items-center justify-between">
-            <label htmlFor="soundToggle" className="text-lg font-semibold text-white">
+            <label
+              htmlFor="soundToggle"
+              className="text-lg font-semibold text-white"
+            >
               🔊 Sound Effects
             </label>
             <button
@@ -51,7 +57,10 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps): React.JS
 
           {/* Music Toggle */}
           <div className="flex items-center justify-between">
-            <label htmlFor="musicToggle" className="text-lg font-semibold text-white">
+            <label
+              htmlFor="musicToggle"
+              className="text-lg font-semibold text-white"
+            >
               🎵 Music
             </label>
             <button
@@ -71,7 +80,10 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps): React.JS
 
           {/* Volume Slider */}
           <div className="space-y-2">
-            <label htmlFor="volumeSlider" className="text-lg font-semibold text-white">
+            <label
+              htmlFor="volumeSlider"
+              className="text-lg font-semibold text-white"
+            >
               🔈 Volume: {Math.round(volume * 100)}%
             </label>
             <input
@@ -80,14 +92,18 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps): React.JS
               min="0"
               max="100"
               value={volume * 100}
-              onChange={(e) => updateSettings({ volume: parseInt(e.target.value) / 100 })}
+              onChange={(e) =>
+                updateSettings({ volume: parseInt(e.target.value) / 100 })
+              }
               className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
             />
           </div>
 
           {/* Graphics Quality */}
           <div className="space-y-2">
-            <label className="text-lg font-semibold text-white">🎨 Graphics Quality</label>
+            <label className="text-lg font-semibold text-white">
+              🎨 Graphics Quality
+            </label>
             <div className="grid grid-cols-3 gap-2">
               <button className="otter-btn otter-btn-secondary">Low</button>
               <button className="otter-btn otter-btn-primary">Medium</button>
@@ -97,7 +113,9 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps): React.JS
 
           {/* Controls */}
           <div className="space-y-2">
-            <label className="text-lg font-semibold text-white">🎮 Controls</label>
+            <label className="text-lg font-semibold text-white">
+              🎮 Controls
+            </label>
             <div className="text-sm text-gray-300 space-y-1">
               <div className="flex justify-between">
                 <span>Move Left:</span>

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useGameStore } from '../../hooks/useGameStore';
-import { getHudPath, getIconPath } from '../../utils/assets';
 import { audio } from '../../utils/audio';
 
 /**
@@ -11,13 +10,18 @@ import { audio } from '../../utils/audio';
 export function MainMenu(): React.JSX.Element {
   const { startGame } = useGameStore();
 
-  const handleStartGame = (mode: 'classic' | 'time_trial' | 'zen' | 'daily_challenge') => {
+  const handleStartGame = (
+    mode: 'classic' | 'time_trial' | 'zen' | 'daily_challenge'
+  ): void => {
     audio.uiClick();
     startGame(mode);
   };
 
   return (
-    <div id="startScreen" className="fixed inset-0 flex items-center justify-center pointer-events-auto game-bg-overlay z-50">
+    <div
+      id="startScreen"
+      className="fixed inset-0 flex items-center justify-center pointer-events-auto game-bg-overlay z-50"
+    >
       <div className="w-full max-w-md px-4 space-y-3 splash-in overflow-y-auto max-h-screen">
         {/* Hero Section - Compact */}
         <div className="text-center py-2">
@@ -27,7 +31,6 @@ export function MainMenu(): React.JSX.Element {
 
         {/* Mode Selection - Compact */}
         <div className="space-y-2">
-
           <button
             id="classicButton"
             onClick={() => handleStartGame('classic')}

@@ -22,7 +22,8 @@ test.describe('Mobile Gestures', () => {
     await page.waitForTimeout(200);
 
     const laneAfterRight = await page.evaluate(() => {
-      const entities = (window as any).debug?.exportGameState?.()?.entities || [];
+      const entities =
+        (window as any).debug?.exportGameState?.()?.entities || [];
       const player = entities.find((e: any) => e.type === 'player');
       return player?.position?.x ?? 0;
     });
@@ -31,7 +32,8 @@ test.describe('Mobile Gestures', () => {
     await page.waitForTimeout(200);
 
     const laneAfterLeft = await page.evaluate(() => {
-      const entities = (window as any).debug?.exportGameState?.()?.entities || [];
+      const entities =
+        (window as any).debug?.exportGameState?.()?.entities || [];
       const player = entities.find((e: any) => e.type === 'player');
       return player?.position?.x ?? 0;
     });
@@ -49,5 +51,3 @@ test.describe('Mobile Gestures', () => {
     expect(distance).toBeGreaterThan(0);
   });
 });
-
-

@@ -30,6 +30,11 @@ export default [
       globals: {
         console: 'readonly',
         Buffer: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
       },
     },
     plugins: {
@@ -74,6 +79,11 @@ export default [
         requestAnimationFrame: 'readonly',
         performance: 'readonly',
         localStorage: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        confirm: 'readonly',
       },
     },
     plugins: {

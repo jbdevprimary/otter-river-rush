@@ -7,8 +7,16 @@ import { World } from 'miniplex';
 import createReactAPI from 'miniplex-react';
 import type { Object3D } from 'three';
 import { ASSET_URLS } from '../config/game-constants';
-import { PHYSICS, VISUAL, getLaneX, getModelScale } from '../config/visual-constants';
-import { getModelVariantsSync, loadModelsManifest } from '../utils/model-manifest';
+import {
+  PHYSICS,
+  VISUAL,
+  getLaneX,
+  getModelScale,
+} from '../config/visual-constants';
+import {
+  getModelVariantsSync,
+  loadModelsManifest,
+} from '../utils/model-manifest';
 
 /**
  * Entity type definition
@@ -28,7 +36,7 @@ export type Entity = {
 
   // Animation
   animation?: {
-    current: string;  // 'idle', 'walk', 'run', 'jump', 'collect', 'hit', 'death'
+    current: string; // 'idle', 'walk', 'run', 'jump', 'collect', 'hit', 'death'
     urls: Record<string, string>;
   };
 
@@ -41,7 +49,7 @@ export type Entity = {
 
   // Game behavior
   scrollSpeed?: number;
-  lane?: -1 | 0 | 1;  // Left, Center, Right
+  lane?: -1 | 0 | 1; // Left, Center, Right
 
   // Entity types (tags)
   player?: true;
@@ -77,7 +85,7 @@ export type Entity = {
 
   // Metadata
   id?: string;
-  variant?: number;  // For multiple rock types
+  variant?: number; // For multiple rock types
 };
 
 /**
@@ -107,12 +115,12 @@ export const queries = {
 
   // Collectibles
   collectibles: world.with('collectible', 'position'),
-  coins: world.with('collectible', 'position').where(
-    (e) => e.collectible?.type === 'coin'
-  ),
-  gems: world.with('collectible', 'position').where(
-    (e) => e.collectible?.type === 'gem'
-  ),
+  coins: world
+    .with('collectible', 'position')
+    .where((e) => e.collectible?.type === 'coin'),
+  gems: world
+    .with('collectible', 'position')
+    .where((e) => e.collectible?.type === 'gem'),
 
   // Power-ups
   powerUps: world.with('powerUp', 'position'),
@@ -139,7 +147,11 @@ export const spawn = {
   otter: (lane: -1 | 0 | 1 = 0) =>
     world.add({
       player: true,
-      position: { x: getLaneX(lane), y: VISUAL.positions.player, z: VISUAL.layers.player },
+      position: {
+        x: getLaneX(lane),
+        y: VISUAL.positions.player,
+        z: VISUAL.layers.player,
+      },
       velocity: { x: 0, y: 0, z: 0 },
       lane,
       model: {
@@ -174,7 +186,9 @@ export const spawn = {
       ASSET_URLS.MODELS.ROCK_CRACKED,
       ASSET_URLS.MODELS.ROCK_CRYSTAL,
     ];
-    const selectedUrl = (manifestVariants[variant % Math.max(manifestVariants.length, 1)]) || fallback[variant % fallback.length];
+    const selectedUrl =
+      manifestVariants[variant % Math.max(manifestVariants.length, 1)] ||
+      fallback[variant % fallback.length];
     return world.add({
       obstacle: true,
       position: { x, y, z: VISUAL.layers.obstacles },
@@ -214,7 +228,11 @@ export const spawn = {
 
   particle: (x: number, y: number, color: string) =>
     world.add({
-      particle: { color, lifetime: 1000, size: getModelScale('particle') * 100 },
+      particle: {
+        color,
+        lifetime: 1000,
+        size: getModelScale('particle') * 100,
+      },
       position: { x, y, z: VISUAL.layers.particles },
       velocity: {
         x: (Math.random() - 0.5) * 2,
@@ -225,4 +243,4 @@ export const spawn = {
 };
 
 // Lazy-load models manifest at runtime for dynamic variants
-loadModelsManifest().catch(() => { });
+loadModelsManifest().catch(() => {});

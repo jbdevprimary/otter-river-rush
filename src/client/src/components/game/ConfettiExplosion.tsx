@@ -27,7 +27,6 @@ export function ConfettiExplosion({
 }: ConfettiExplosionProps): React.JSX.Element {
   const particlesRef = useRef<Particle[]>([]);
   const groupRef = useRef<THREE.Group>(null);
-  const startTimeRef = useRef(Date.now());
 
   useEffect(() => {
     // Initialize particles
@@ -95,7 +94,11 @@ export function ConfettiExplosion({
         const alpha = Math.max(0, particle.life);
 
         return (
-          <mesh key={i} position={particle.position} rotation={[0, 0, particle.rotation]}>
+          <mesh
+            key={i}
+            position={particle.position}
+            rotation={[0, 0, particle.rotation]}
+          >
             <planeGeometry args={[particle.size, particle.size * 1.5]} />
             <meshBasicMaterial
               color={particle.color}

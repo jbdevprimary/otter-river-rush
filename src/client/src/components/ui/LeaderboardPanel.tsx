@@ -14,8 +14,13 @@ interface LeaderboardPanelProps {
   onClose: () => void;
 }
 
-export function LeaderboardPanel({ isOpen, onClose }: LeaderboardPanelProps): React.JSX.Element | null {
-  const [selectedTab, setSelectedTab] = useState<'daily' | 'weekly' | 'allTime'>('daily');
+export function LeaderboardPanel({
+  isOpen,
+  onClose,
+}: LeaderboardPanelProps): React.JSX.Element | null {
+  const [selectedTab, setSelectedTab] = useState<
+    'daily' | 'weekly' | 'allTime'
+  >('daily');
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
 
   useEffect(() => {
@@ -80,7 +85,11 @@ export function LeaderboardPanel({ isOpen, onClose }: LeaderboardPanelProps): Re
             entries.map((entry, index) => {
               const isTop3 = entry.rank <= 3;
               const medals = ['🥇', '🥈', '🥉'];
-              const bgColors = ['bg-yellow-900/30', 'bg-gray-600/30', 'bg-orange-900/30'];
+              const bgColors = [
+                'bg-yellow-900/30',
+                'bg-gray-600/30',
+                'bg-orange-900/30',
+              ];
 
               return (
                 <div
@@ -94,15 +103,20 @@ export function LeaderboardPanel({ isOpen, onClose }: LeaderboardPanelProps): Re
                     {isTop3 ? (
                       <span className="text-3xl">{medals[entry.rank - 1]}</span>
                     ) : (
-                      <span className="text-xl font-bold text-gray-400">#{entry.rank}</span>
+                      <span className="text-xl font-bold text-gray-400">
+                        #{entry.rank}
+                      </span>
                     )}
                   </div>
 
                   {/* Player info */}
                   <div className="flex-1">
-                    <div className="font-semibold text-white">{entry.playerName}</div>
+                    <div className="font-semibold text-white">
+                      {entry.playerName}
+                    </div>
                     <div className="text-sm text-gray-400">
-                      {entry.mode.replace('_', ' ')} • {new Date(entry.date).toLocaleDateString()}
+                      {entry.mode.replace('_', ' ')} •{' '}
+                      {new Date(entry.date).toLocaleDateString()}
                     </div>
                   </div>
 
@@ -111,7 +125,9 @@ export function LeaderboardPanel({ isOpen, onClose }: LeaderboardPanelProps): Re
                     <div className="text-lg font-bold text-yellow-400">
                       {entry.score.toLocaleString()}
                     </div>
-                    <div className="text-xs text-gray-400">{entry.distance.toFixed(0)}m</div>
+                    <div className="text-xs text-gray-400">
+                      {entry.distance.toFixed(0)}m
+                    </div>
                   </div>
                 </div>
               );
@@ -123,7 +139,9 @@ export function LeaderboardPanel({ isOpen, onClose }: LeaderboardPanelProps): Re
         {(window as any).leaderboard && entries.length > 0 && (
           <div className="mt-4 p-3 bg-blue-900/30 rounded-lg border-2 border-blue-500">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-white">Your Rank:</span>
+              <span className="text-sm font-semibold text-white">
+                Your Rank:
+              </span>
               <span className="text-lg font-bold text-yellow-400">
                 #{(window as any).leaderboard.getPlayerRank(0, selectedTab)}
               </span>

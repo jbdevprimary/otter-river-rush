@@ -7,7 +7,7 @@ interface WindowSize {
 
 /**
  * Hook for tracking window size
- * 
+ *
  * @example
  * const { width, height } = useWindowSize();
  */
@@ -34,12 +34,14 @@ export function useWindowSize(): WindowSize {
 
 /**
  * Hook for media queries
- * 
+ *
  * @example
  * const isMobile = useMediaQuery('(max-width: 768px)');
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
+  const [matches, setMatches] = useState(
+    () => window.matchMedia(query).matches
+  );
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(query);

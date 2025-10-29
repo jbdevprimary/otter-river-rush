@@ -6,14 +6,14 @@ export function useAssetPreloader() {
   const [loaded, setLoaded] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<Error | null>(null);
-  
+
   useEffect(() => {
     const models = Object.values(ASSET_URLS.MODELS);
     const animations = Object.values(ASSET_URLS.ANIMATIONS);
     const allAssets = [...models, ...animations];
-    
+
     let loadedCount = 0;
-    
+
     const loadAssets = async () => {
       try {
         for (const url of allAssets) {
@@ -27,10 +27,10 @@ export function useAssetPreloader() {
         console.error('Asset loading failed:', err);
       }
     };
-    
+
     loadAssets();
   }, []);
-  
+
   return { loaded, progress, error };
 }
 
@@ -38,11 +38,9 @@ export function LoadingScreen({ progress }: { progress: number }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-slate-900">
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-white">
-          🦦 Otter River Rush
-        </h1>
+        <h1 className="text-4xl font-bold text-white">🦦 Otter River Rush</h1>
         <div className="w-64 h-4 bg-slate-700 rounded-full overflow-hidden">
-          <div 
+          <div
             className="h-full bg-blue-500 transition-all duration-300"
             style={{ width: `${progress}%` }}
           />

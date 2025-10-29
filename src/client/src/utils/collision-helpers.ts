@@ -32,8 +32,14 @@ export function checkAABBCollision(a: AABB, b: AABB): boolean {
 }
 
 export function checkSphereCollision(
-  x1: number, y1: number, z1: number, r1: number,
-  x2: number, y2: number, z2: number, r2: number
+  x1: number,
+  y1: number,
+  z1: number,
+  r1: number,
+  x2: number,
+  y2: number,
+  z2: number,
+  r2: number
 ): boolean {
   const dx = x2 - x1;
   const dy = y2 - y1;
@@ -43,16 +49,25 @@ export function checkSphereCollision(
   return distSq < radiusSum * radiusSum;
 }
 
-export function checkPointInAABB(x: number, y: number, z: number, aabb: AABB): boolean {
+export function checkPointInAABB(
+  x: number,
+  y: number,
+  z: number,
+  aabb: AABB
+): boolean {
   return (
-    x >= aabb.minX && x <= aabb.maxX &&
-    y >= aabb.minY && y <= aabb.maxY &&
+    x >= aabb.minX &&
+    x <= aabb.maxX &&
+    y >= aabb.minY &&
+    y <= aabb.maxY &&
     (!aabb.minZ || (z >= aabb.minZ && z <= aabb.maxZ))
   );
 }
 
 export function getClosestPoint(
-  px: number, py: number, pz: number,
+  px: number,
+  py: number,
+  pz: number,
   aabb: AABB
 ): { x: number; y: number; z: number } {
   return {
@@ -69,24 +84,24 @@ export function checkRayAABBIntersection(
 ): boolean {
   const tmin = (aabb.minX - rayOrigin.x) / rayDir.x;
   const tmax = (aabb.maxX - rayOrigin.x) / rayDir.x;
-  
+
   let t0 = Math.min(tmin, tmax);
   let t1 = Math.max(tmin, tmax);
-  
+
   const tymin = (aabb.minY - rayOrigin.y) / rayDir.y;
   const tymax = (aabb.maxY - rayOrigin.y) / rayDir.y;
-  
+
   t0 = Math.max(t0, Math.min(tymin, tymax));
   t1 = Math.min(t1, Math.max(tymin, tymax));
-  
+
   if (aabb.minZ && aabb.maxZ) {
     const tzmin = (aabb.minZ - rayOrigin.z) / rayDir.z;
     const tzmax = (aabb.maxZ - rayOrigin.z) / rayDir.z;
-    
+
     t0 = Math.max(t0, Math.min(tzmin, tzmax));
     t1 = Math.min(t1, Math.max(tzmin, tzmax));
   }
-  
+
   return t1 >= t0 && t1 >= 0;
 }
 
@@ -108,7 +123,12 @@ export function getCellKey(x: number, y: number, cellSize: number): string {
   return `${cellX},${cellY}`;
 }
 
-export function insertIntoGrid(grid: SpatialGrid, entity: any, x: number, y: number) {
+export function insertIntoGrid(
+  grid: SpatialGrid,
+  entity: any,
+  x: number,
+  y: number
+) {
   const key = getCellKey(x, y, grid.cellSize);
   if (!grid.cells.has(key)) {
     grid.cells.set(key, new Set());
@@ -116,22 +136,26 @@ export function insertIntoGrid(grid: SpatialGrid, entity: any, x: number, y: num
   grid.cells.get(key)!.add(entity);
 }
 
-export function getNearbyEntities(grid: SpatialGrid, x: number, y: number): Set<any> {
+export function getNearbyEntities(
+  grid: SpatialGrid,
+  x: number,
+  y: number
+): Set<any> {
   const nearby = new Set<any>();
   const cellX = Math.floor(x / grid.cellSize);
   const cellY = Math.floor(y / grid.cellSize);
-  
+
   // Check 3x3 grid around position
   for (let dx = -1; dx <= 1; dx++) {
     for (let dy = -1; dy <= 1; dy++) {
       const key = `${cellX + dx},${cellY + dy}`;
       const cell = grid.cells.get(key);
       if (cell) {
-        cell.forEach(e => nearby.add(e));
+        cell.forEach((e) => nearby.add(e));
       }
     }
   }
-  
+
   return nearby;
 }
 

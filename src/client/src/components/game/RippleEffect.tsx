@@ -43,7 +43,7 @@ export function RippleEffect({
     }
   }
 
-  useFrame((state, delta) => {
+  useFrame((_state, _delta) => {
     const elapsed = (Date.now() - startTimeRef.current) / 1000;
     const progress = elapsed / duration;
 

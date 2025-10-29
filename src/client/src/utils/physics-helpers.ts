@@ -112,7 +112,10 @@ export class VectorSpring {
   }
 
   update(deltaTime: number = 1): THREE.Vector3 {
-    const force = this.target.clone().sub(this.position).multiplyScalar(this.stiffness);
+    const force = this.target
+      .clone()
+      .sub(this.position)
+      .multiplyScalar(this.stiffness);
     this.velocity.add(force);
     this.velocity.multiplyScalar(this.damping);
     this.position.add(this.velocity.clone().multiplyScalar(deltaTime));
@@ -133,7 +136,9 @@ export function calculateBounce(
   restitution: number = 0.8
 ): THREE.Vector3 {
   const dot = velocity.dot(normal);
-  return velocity.clone().sub(normal.clone().multiplyScalar(2 * dot * restitution));
+  return velocity
+    .clone()
+    .sub(normal.clone().multiplyScalar(2 * dot * restitution));
 }
 
 /**
@@ -178,10 +183,13 @@ export class VerletParticle {
     this.previousPosition = position.clone();
   }
 
-  update(deltaTime: number, acceleration: THREE.Vector3 = new THREE.Vector3()): void {
+  update(
+    deltaTime: number,
+    acceleration: THREE.Vector3 = new THREE.Vector3()
+  ): void {
     const velocity = this.position.clone().sub(this.previousPosition);
     this.previousPosition.copy(this.position);
-    
+
     this.position
       .add(velocity)
       .add(acceleration.multiplyScalar(deltaTime * deltaTime));
@@ -237,7 +245,8 @@ export class Pendulum {
   }
 
   update(deltaTime: number): void {
-    const angularAcceleration = -(this.gravity / this.length) * Math.sin(this.angle);
+    const angularAcceleration =
+      -(this.gravity / this.length) * Math.sin(this.angle);
     this.angularVelocity += angularAcceleration * deltaTime;
     this.angularVelocity *= 0.999; // Damping
     this.angle += this.angularVelocity * deltaTime;
@@ -279,7 +288,8 @@ export function calculateWindForce(
 ): THREE.Vector3 {
   const noiseX = Math.sin(position.x * 0.1 + time * 0.5) * Math.cos(time * 0.3);
   const noiseY = Math.cos(position.y * 0.1 + time * 0.4) * Math.sin(time * 0.2);
-  const noiseZ = Math.sin(position.z * 0.1 + time * 0.6) * Math.cos(time * 0.25);
+  const noiseZ =
+    Math.sin(position.z * 0.1 + time * 0.6) * Math.cos(time * 0.25);
 
   return new THREE.Vector3(noiseX, noiseY, noiseZ).multiplyScalar(strength);
 }
