@@ -20,9 +20,9 @@ export function MainMenu(): React.JSX.Element {
   return (
     <div
       id="startScreen"
-      className="fixed inset-0 flex items-center justify-center pointer-events-auto game-bg-overlay z-50"
+      className="fixed inset-0 pointer-events-auto game-bg-overlay z-50"
     >
-      <div className="w-full max-w-md px-4 space-y-3 splash-in overflow-y-auto max-h-screen">
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4 space-y-3 splash-in overflow-y-auto max-h-screen">
         {/* Hero Section - Compact */}
         <div className="text-center py-2">
           <h1 className="otter-title text-2xl mb-1">Otter River Rush</h1>

@@ -4,14 +4,20 @@
  */
 
 import { useAnimations, useGLTF } from '@react-three/drei';
-import { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import type { Group } from 'three';
 import { ECS, queries } from '../../ecs/world';
 
 /**
  * Model component - Loads and renders a GLB model
  */
-function Model({ url, scale = 1 }: { url: string; scale?: number }) {
+function Model({
+  url,
+  scale = 1,
+}: {
+  url: string;
+  scale?: number;
+}): React.JSX.Element {
   const { scene } = useGLTF(url);
   const groupRef = useRef<Group>(null);
 
@@ -33,7 +39,7 @@ function AnimatedModel({
   baseUrl: string;
   animationUrl?: string;
   scale?: number;
-}) {
+}): React.JSX.Element {
   const groupRef = useRef<Group>(null);
   const base = useGLTF(baseUrl);
   const anim = animationUrl ? useGLTF(animationUrl) : null;
@@ -72,7 +78,7 @@ function AnimatedModel({
 /**
  * Render the player (otter) with current animation
  */
-export function PlayerRenderer() {
+export function PlayerRenderer(): React.JSX.Element | null {
   return (
     <ECS.Entities in={queries.player}>
       {(entity) => (
@@ -106,7 +112,7 @@ export function PlayerRenderer() {
 /**
  * Render all obstacles with variant support
  */
-export function ObstaclesRenderer() {
+export function ObstaclesRenderer(): React.JSX.Element | null {
   return (
     <ECS.Entities in={queries.obstacles}>
       {(entity) => (
@@ -131,7 +137,7 @@ export function ObstaclesRenderer() {
 /**
  * Render all collectibles
  */
-export function CollectiblesRenderer() {
+export function CollectiblesRenderer(): React.JSX.Element | null {
   return (
     <ECS.Entities in={queries.collectibles}>
       {(entity) => (
@@ -157,7 +163,7 @@ export function CollectiblesRenderer() {
 /**
  * Render particles
  */
-export function ParticlesRenderer() {
+export function ParticlesRenderer(): React.JSX.Element | null {
   return (
     <ECS.Entities in={queries.particles}>
       {(entity) => (
@@ -175,7 +181,7 @@ export function ParticlesRenderer() {
 /**
  * Master Entity Renderer - Renders all entities
  */
-export function EntityRenderer() {
+export function EntityRenderer(): React.JSX.Element {
   return (
     <>
       <PlayerRenderer />

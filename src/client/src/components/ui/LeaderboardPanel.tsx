@@ -24,8 +24,19 @@ export function LeaderboardPanel({
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
 
   useEffect(() => {
-    if (isOpen && (window as any).leaderboard) {
-      const data = (window as any).leaderboard.get(selectedTab);
+    if (
+      isOpen &&
+      (
+        window as unknown as {
+          leaderboard?: { get: (tab: string) => LeaderboardEntry[] };
+        }
+      ).leaderboard
+    ) {
+      const data = (
+        window as unknown as {
+          leaderboard: { get: (tab: string) => LeaderboardEntry[] };
+        }
+      ).leaderboard.get(selectedTab);
       setEntries(data || []);
     }
   }, [isOpen, selectedTab]);
@@ -136,18 +147,35 @@ export function LeaderboardPanel({
         </div>
 
         {/* Player rank */}
-        {(window as any).leaderboard && entries.length > 0 && (
-          <div className="mt-4 p-3 bg-blue-900/30 rounded-lg border-2 border-blue-500">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-white">
-                Your Rank:
-              </span>
-              <span className="text-lg font-bold text-yellow-400">
-                #{(window as any).leaderboard.getPlayerRank(0, selectedTab)}
-              </span>
+        {(
+          window as unknown as {
+            leaderboard?: {
+              getPlayerRank: (playerId: number, tab: string) => number;
+            };
+          }
+        ).leaderboard &&
+          entries.length > 0 && (
+            <div className="mt-4 p-3 bg-blue-900/30 rounded-lg border-2 border-blue-500">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-white">
+                  Your Rank:
+                </span>
+                <span className="text-lg font-bold text-yellow-400">
+                  #
+                  {(
+                    window as unknown as {
+                      leaderboard: {
+                        getPlayerRank: (
+                          playerId: number,
+                          tab: string
+                        ) => number;
+                      };
+                    }
+                  ).leaderboard.getPlayerRank(0, selectedTab)}
+                </span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Close button */}
         <button

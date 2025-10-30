@@ -39,16 +39,11 @@ export function GameCanvas({
   const constraints = useMobileConstraints();
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  console.log('🎮 GameCanvas rendering, status:', status);
-  console.log('📱 Mobile constraints:', constraints);
-
   // Initialize player when game starts
   useEffect(() => {
     if (status === 'playing') {
-      console.log('🦦 Spawning otter...');
       if (queries.player.entities.length === 0) {
         spawn.otter(0);
-        console.log('✅ Otter spawned');
       }
     }
   }, [status]);

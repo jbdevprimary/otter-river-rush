@@ -95,7 +95,7 @@ export function GameHUD() {
           {player.invincible && (
             <div className="text-xs bg-blue-500/80 px-2 py-0.5 rounded">🛡️</div>
           )}
-          {(player as any).magnetActive && (
+          {(player as { magnetActive?: boolean }).magnetActive && (
             <div className="text-xs bg-yellow-500/80 px-2 py-0.5 rounded">
               🧲
             </div>

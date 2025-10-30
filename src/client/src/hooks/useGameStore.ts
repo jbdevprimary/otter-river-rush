@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { resetWorld } from '../ecs/world';
 
 /**
  * Game State Store using Zustand
@@ -94,7 +95,10 @@ export const useGameStore = create<GameState>((set, get) => ({
   highScore: 0,
 
   // Actions
-  startGame: (mode) =>
+  startGame: (mode) => {
+    // Reset the ECS world to clear all entities
+    resetWorld();
+    
     set(() => ({
       status: 'playing',
       mode,
@@ -105,7 +109,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       combo: 0,
       lives: 3,
       powerUps: { ...initialPowerUps },
-    })),
+    }));
+  },
 
   pauseGame: () => set({ status: 'paused' }),
   resumeGame: () => set({ status: 'playing' }),
@@ -120,7 +125,10 @@ export const useGameStore = create<GameState>((set, get) => ({
       };
     }),
 
-  returnToMenu: () =>
+  returnToMenu: () => {
+    // Reset the ECS world to clear all entities
+    resetWorld();
+    
     set({
       status: 'menu',
       score: 0,
@@ -130,7 +138,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       combo: 0,
       lives: 3,
       powerUps: { ...initialPowerUps },
-    }),
+    });
+  },
 
   updateScore: (points) =>
     set((state) => ({

@@ -162,7 +162,7 @@ test.describe('Game Flow E2E Tests', () => {
     );
     // Give game time to initialize before checking distance
     await page.waitForTimeout(2000);
-    
+
     // Distance should increase over time - poll with longer timeout
     await expect(async () => {
       const distance = await page.evaluate(

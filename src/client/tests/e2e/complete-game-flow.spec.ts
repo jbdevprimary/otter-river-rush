@@ -42,7 +42,9 @@ test.describe('Complete Game Flow - Full Playthrough', () => {
 
     await expect(async () => {
       const entityCount = await page.evaluate(() => {
-        return (window as any).debug?.getPerformanceStats?.()?.totalEntities || 0;
+        return (
+          (window as any).debug?.getPerformanceStats?.()?.totalEntities || 0
+        );
       });
       expect(entityCount).toBeGreaterThanOrEqual(1); // At least player entity
     }).toPass({ timeout: 5000 });

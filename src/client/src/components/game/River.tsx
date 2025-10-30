@@ -11,10 +11,18 @@ export function River() {
     if (!meshRef.current || status !== 'playing') return;
 
     // Scroll water texture
-    if (meshRef.current.material && 'map' in meshRef.current.material) {
-      const mat = meshRef.current.material as any;
-      if (mat.map) {
-        mat.map.offset.y += dt * 0.5;
+    if (meshRef.current.material) {
+      const material = Array.isArray(meshRef.current.material) 
+        ? meshRef.current.material[0] 
+        : meshRef.current.material;
+      
+      if (material && 'map' in material) {
+        const mat = material as {
+          map?: { offset: { y: number } };
+        };
+        if (mat.map) {
+          mat.map.offset.y += dt * 0.5;
+        }
       }
     }
   });

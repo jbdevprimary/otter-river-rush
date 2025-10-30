@@ -141,6 +141,16 @@ export const queries = {
 };
 
 /**
+ * Reset the world - clear all entities
+ */
+export function resetWorld(): void {
+  // Clear all entities from the world
+  for (const entity of world.entities) {
+    world.remove(entity);
+  }
+}
+
+/**
  * Helper functions for spawning entities
  */
 export const spawn = {
