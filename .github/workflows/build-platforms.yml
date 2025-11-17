@@ -64,7 +64,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'npm'
       
       - name: Install dependencies
@@ -160,7 +160,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'npm'
       
       - name: Install dependencies
@@ -243,7 +243,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'npm'
       
       - name: Install dependencies
@@ -259,7 +259,7 @@ jobs:
         run: npx cap sync android
       
       - name: Setup JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -275,7 +275,7 @@ jobs:
         run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;34.0.0"
       
       - name: Build APK with Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
         with:
           gradle-version: wrapper
           arguments: assembleRelease
@@ -294,7 +294,7 @@ jobs:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: android-apk-${{ github.sha }}
           path: android/app/build/outputs/apk/release/*.apk
@@ -324,7 +324,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'npm'
       
       - name: Install dependencies
