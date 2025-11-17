@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.10](https://github.com/jbcom/otter-river-rush/compare/v1.2.9...v1.2.10) (2025-11-17)
+
+### 🔧 Chores
+
+* **deps:** Update all non-major dependencies ([#65](https://github.com/jbcom/otter-river-rush/issues/65)) ([8772ceb](https://github.com/jbcom/otter-river-rush/commit/8772ceb1828e8d94943f654e24f2e53de395187d))
+* **deps:** Update GitHub Actions ([#66](https://github.com/jbcom/otter-river-rush/issues/66)) ([f492ea2](https://github.com/jbcom/otter-river-rush/commit/f492ea258ea855ea9d28d7050250f3dc197d3b3e))
+* **deps:** Update major dependencies ([#67](https://github.com/jbcom/otter-river-rush/issues/67)) ([fbc0cbb](https://github.com/jbcom/otter-river-rush/commit/fbc0cbb94df9588f16278d2a46a5ad22b94d5a8a))
+
 ## [1.2.9](https://github.com/jbcom/otter-river-rush/compare/v1.2.8...v1.2.9) (2025-10-28)
 
 ### 🐛 Bug Fixes
