@@ -1,34 +1,37 @@
 {
   "name": "otter-river-rush-monorepo",
-  "version": "1.2.10",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Otter River Rush - A React Three Fiber endless runner game",
+  "description": "Otter River Rush - A Babylon.js + Reactylon endless runner game",
   "author": "jbcom",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/jbcom/otter-river-rush.git"
   },
+  "packageManager": "pnpm@10.28.0",
   "engines": {
     "node": ">=22.0.0",
-    "pnpm": ">=9.0.0"
+    "pnpm": ">=10.0.0"
   },
   "scripts": {
-    "dev": "pnpm --filter client dev",
-    "build": "pnpm --filter client build",
-    "preview": "pnpm --filter client preview",
+    "dev": "pnpm --filter @otter-river-rush/web dev",
+    "dev:legacy": "pnpm --filter client dev",
+    "build": "pnpm -r --filter '@otter-river-rush/*' build && pnpm --filter @otter-river-rush/web build",
+    "build:legacy": "pnpm --filter client build",
+    "preview": "pnpm --filter @otter-river-rush/web preview",
     "test": "pnpm --filter client test",
     "test:e2e": "pnpm --filter client test:e2e",
-    "lint": "pnpm --filter client lint",
-    "type-check": "pnpm --filter client type-check",
+    "lint": "pnpm -r lint",
+    "type-check": "pnpm -r typecheck",
     "generate:models": "pnpm --filter dev-tools tsx src/generators/meshy-models.ts",
     "generate:animations": "pnpm --filter dev-tools tsx src/generators/otter-animations.ts",
     "generate:textures": "pnpm --filter dev-tools generate:textures",
     "generate:sprites": "pnpm --filter dev-tools generate:sprites",
     "pipeline": "pnpm --filter dev-tools pipeline",
     "quality-check": "pnpm --filter dev-tools quality-check",
-    "verify": "pnpm --filter client lint && pnpm --filter client type-check && pnpm --filter client test -- --run"
+    "verify": "pnpm lint && pnpm type-check"
   },
   "build": {
     "appId": "com.ottergames.riverrush",
