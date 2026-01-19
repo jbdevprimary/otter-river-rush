@@ -3,12 +3,12 @@
  * Renders all entities from the ECS world as 3D models with animation support
  */
 
+import { VISUAL } from '@otter-river-rush/config';
+import { queries } from '@otter-river-rush/core';
+import type { Entity } from '@otter-river-rush/types';
 import { useEffect, useRef } from 'react';
 import { useScene } from 'reactylon';
-import { queries } from '@otter-river-rush/core';
-import { loadGLB, type GLBResult } from '../loaders/glb-loader';
-import type { Entity } from '@otter-river-rush/types';
-import { VISUAL } from '@otter-river-rush/config';
+import { type GLBResult, loadGLB } from '../loaders/glb-loader';
 
 // Track loaded models with their animation state
 interface LoadedModel {
@@ -47,7 +47,9 @@ export function EntityRenderer() {
       const win = window as typeof window & { __lastEntityLog?: number };
       if (!win.__lastEntityLog || now - win.__lastEntityLog > 1000) {
         win.__lastEntityLog = now;
-        console.log(`[EntityRenderer] moving=${movingEntities.length} obstacles=${obstacleEntities.length} collectibles=${collectibleEntities.length} loaded=${loadedModels.size} loading=${loading.size}`);
+        console.log(
+          `[EntityRenderer] moving=${movingEntities.length} obstacles=${obstacleEntities.length} collectibles=${collectibleEntities.length} loaded=${loadedModels.size} loading=${loading.size}`
+        );
       }
 
       const allEntities = [...movingEntities, ...obstacleEntities, ...collectibleEntities];
@@ -87,7 +89,12 @@ export function EntityRenderer() {
           continue;
         }
 
-        console.log('[EntityRenderer] Loading model:', modelUrl, 'for entity:', entity.player ? 'player' : entity.obstacle ? 'obstacle' : 'collectible');
+        console.log(
+          '[EntityRenderer] Loading model:',
+          modelUrl,
+          'for entity:',
+          entity.player ? 'player' : entity.obstacle ? 'obstacle' : 'collectible'
+        );
 
         // Mark as loading
         loading.add(entity);
@@ -96,52 +103,50 @@ export function EntityRenderer() {
           url: modelUrl,
           scene,
           scaling: scale,
-        }).then((result) => {
-          loading.delete(entity);
+        })
+          .then((result) => {
+            loading.delete(entity);
 
-          // Check if entity was destroyed while loading
-          if (entity.destroyed || entity.collected) {
-            result.dispose();
-            return;
-          }
+            // Check if entity was destroyed while loading
+            if (entity.destroyed || entity.collected) {
+              result.dispose();
+              return;
+            }
 
-          const loadedModel: LoadedModel = {
-            glbResult: result,
-            currentAnimation: null,
-            entity,
-          };
+            const loadedModel: LoadedModel = {
+              glbResult: result,
+              currentAnimation: null,
+              entity,
+            };
 
-          loadedModels.set(entity, loadedModel);
+            loadedModels.set(entity, loadedModel);
 
-          // Store reference in entity for collision detection
-          entity.three = result.rootMesh;
+            // Store reference in entity for collision detection
+            entity.three = result.rootMesh;
 
-          // Set initial position
-          // App uses game coords directly: X=lanes, Y=forward/back, Z=height
-          // Camera is configured for this coordinate system (see App.tsx)
-          if (entity.position) {
-            result.rootMesh.position.set(
-              entity.position.x,
-              entity.position.y,
-              entity.position.z
-            );
-          }
+            // Set initial position
+            // App uses game coords directly: X=lanes, Y=forward/back, Z=height
+            // Camera is configured for this coordinate system (see App.tsx)
+            if (entity.position) {
+              result.rootMesh.position.set(entity.position.x, entity.position.y, entity.position.z);
+            }
 
-          // Start animations
-          if (entity.player) {
-            // Store otter model reference
-            otterAnimRef.current.model = loadedModel;
-            // Play run animation for otter
-            result.playAnimation(0, true, 1.2);
-            loadedModel.currentAnimation = 'run';
-          } else if (result.animationGroups.length > 0) {
-            // Play first animation for other entities
-            result.playAnimation(0, true, 1.0);
-          }
-        }).catch((err) => {
-          console.error('Failed to load model:', modelUrl, err);
-          loading.delete(entity);
-        });
+            // Start animations
+            if (entity.player) {
+              // Store otter model reference
+              otterAnimRef.current.model = loadedModel;
+              // Play run animation for otter
+              result.playAnimation(0, true, 1.2);
+              loadedModel.currentAnimation = 'run';
+            } else if (result.animationGroups.length > 0) {
+              // Play first animation for other entities
+              result.playAnimation(0, true, 1.0);
+            }
+          })
+          .catch((err) => {
+            console.error('Failed to load model:', modelUrl, err);
+            loading.delete(entity);
+          });
       }
 
       // Update positions and handle cleanup
@@ -150,11 +155,7 @@ export function EntityRenderer() {
 
         // Update position - use game coords directly
         if (entity.position) {
-          glbResult.rootMesh.position.set(
-            entity.position.x,
-            entity.position.y,
-            entity.position.z
-          );
+          glbResult.rootMesh.position.set(entity.position.x, entity.position.y, entity.position.z);
         }
 
         // Handle animation state changes for player

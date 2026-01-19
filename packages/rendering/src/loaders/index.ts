@@ -2,4 +2,4 @@
  * Asset loaders
  */
 
-export { loadGLB, preloadGLBs, type LoadGLBOptions, type GLBResult } from './glb-loader';
+export { type GLBResult, type LoadGLBOptions, loadGLB, preloadGLBs } from './glb-loader';

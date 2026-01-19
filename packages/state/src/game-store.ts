@@ -3,11 +3,11 @@
  * Central state management for the game
  */
 
+import { getCharacter, getDefaultCharacter, type OtterCharacter } from '@otter-river-rush/config';
+import { resetWorld } from '@otter-river-rush/core';
+import type { GameMode, GameStatus, PowerUpType } from '@otter-river-rush/types';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { resetWorld } from '@otter-river-rush/core';
-import { getCharacter, getDefaultCharacter, type OtterCharacter } from '@otter-river-rush/config';
-import type { GameMode, GameStatus, PowerUpType } from '@otter-river-rush/types';
 
 export interface PowerUpState {
   shield: boolean;
@@ -224,111 +224,111 @@ export const useGameStore = create<GameState>()(
         set({ status: 'character_select' });
       },
 
-  updateScore: (points) =>
-    set((state) => ({
-      score: state.score + points,
-    })),
+      updateScore: (points) =>
+        set((state) => ({
+          score: state.score + points,
+        })),
 
-  updateDistance: (meters) =>
-    set((state) => ({
-      distance: state.distance + meters,
-    })),
+      updateDistance: (meters) =>
+        set((state) => ({
+          distance: state.distance + meters,
+        })),
 
-  collectCoin: (value) =>
-    set((state) => {
-      // Apply character coin multiplier
-      const multiplier = state.activeTraits?.coinValueMod ?? 1;
-      const adjustedValue = Math.round(value * multiplier);
-      return {
-        coins: state.coins + adjustedValue,
-        score: state.score + adjustedValue * 10,
-      };
-    }),
+      collectCoin: (value) =>
+        set((state) => {
+          // Apply character coin multiplier
+          const multiplier = state.activeTraits?.coinValueMod ?? 1;
+          const adjustedValue = Math.round(value * multiplier);
+          return {
+            coins: state.coins + adjustedValue,
+            score: state.score + adjustedValue * 10,
+          };
+        }),
 
-  collectGem: (value) =>
-    set((state) => {
-      // Apply character gem multiplier
-      const multiplier = state.activeTraits?.gemValueMod ?? 1;
-      const adjustedValue = Math.round(value * multiplier);
-      return {
-        gems: state.gems + adjustedValue,
-        score: state.score + adjustedValue * 50,
-      };
-    }),
+      collectGem: (value) =>
+        set((state) => {
+          // Apply character gem multiplier
+          const multiplier = state.activeTraits?.gemValueMod ?? 1;
+          const adjustedValue = Math.round(value * multiplier);
+          return {
+            gems: state.gems + adjustedValue,
+            score: state.score + adjustedValue * 50,
+          };
+        }),
 
-  incrementCombo: () =>
-    set((state) => ({
-      combo: state.combo + 1,
-    })),
+      incrementCombo: () =>
+        set((state) => ({
+          combo: state.combo + 1,
+        })),
 
-  resetCombo: () => set({ combo: 0 }),
+      resetCombo: () => set({ combo: 0 }),
 
-  loseLife: () => {
-    const state = get();
-    const newLives = state.lives - 1;
-    if (newLives <= 0) {
-      get().endGame();
-    } else {
-      set({ lives: newLives });
-    }
-  },
+      loseLife: () => {
+        const state = get();
+        const newLives = state.lives - 1;
+        if (newLives <= 0) {
+          get().endGame();
+        } else {
+          set({ lives: newLives });
+        }
+      },
 
-  activatePowerUp: (type, duration) =>
-    set((state) => {
-      const now = Date.now();
-      const endTime = duration ? now + duration : now + 5000;
+      activatePowerUp: (type, duration) =>
+        set((state) => {
+          const now = Date.now();
+          const endTime = duration ? now + duration : now + 5000;
 
-      if (type === 'shield') {
-        return {
-          powerUps: { ...state.powerUps, shield: true },
-        };
-      }
+          if (type === 'shield') {
+            return {
+              powerUps: { ...state.powerUps, shield: true },
+            };
+          }
 
-      if (type === 'multiplier') {
-        return {
-          powerUps: { ...state.powerUps, multiplier: 2 },
-        };
-      }
+          if (type === 'multiplier') {
+            return {
+              powerUps: { ...state.powerUps, multiplier: 2 },
+            };
+          }
 
-      return {
-        powerUps: { ...state.powerUps, [type]: endTime },
-      };
-    }),
+          return {
+            powerUps: { ...state.powerUps, [type]: endTime },
+          };
+        }),
 
-  deactivatePowerUp: (type) =>
-    set((state) => {
-      if (type === 'shield') {
-        return {
-          powerUps: { ...state.powerUps, shield: false },
-        };
-      }
+      deactivatePowerUp: (type) =>
+        set((state) => {
+          if (type === 'shield') {
+            return {
+              powerUps: { ...state.powerUps, shield: false },
+            };
+          }
 
-      if (type === 'multiplier') {
-        return {
-          powerUps: { ...state.powerUps, multiplier: 1 },
-        };
-      }
+          if (type === 'multiplier') {
+            return {
+              powerUps: { ...state.powerUps, multiplier: 1 },
+            };
+          }
 
-      return {
-        powerUps: { ...state.powerUps, [type]: 0 },
-      };
-    }),
+          return {
+            powerUps: { ...state.powerUps, [type]: 0 },
+          };
+        }),
 
-  updateSettings: (settings) => set(() => ({ ...settings })),
+      updateSettings: (settings) => set(() => ({ ...settings })),
 
-  reset: () =>
-    set({
-      status: 'menu',
-      mode: 'classic',
-      activeTraits: null,
-      score: 0,
-      distance: 0,
-      coins: 0,
-      gems: 0,
-      combo: 0,
-      lives: 3,
-      powerUps: { ...initialPowerUps },
-    }),
+      reset: () =>
+        set({
+          status: 'menu',
+          mode: 'classic',
+          activeTraits: null,
+          score: 0,
+          distance: 0,
+          coins: 0,
+          gems: 0,
+          combo: 0,
+          lives: 3,
+          powerUps: { ...initialPowerUps },
+        }),
     }),
     {
       name: 'otter-river-rush-storage',

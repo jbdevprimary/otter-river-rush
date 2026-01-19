@@ -2,6 +2,6 @@
  * Rendering components
  */
 
-export { GameCanvas, type GameCanvasProps } from './GameCanvas';
 export { EntityRenderer } from './EntityRenderer';
+export { GameCanvas, type GameCanvasProps } from './GameCanvas';
 export { RiverEnvironment } from './RiverEnvironment';

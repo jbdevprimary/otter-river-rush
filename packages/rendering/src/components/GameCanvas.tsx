@@ -3,11 +3,11 @@
  * Main Babylon.js canvas wrapper using Reactylon
  */
 
-import type { ReactNode } from 'react';
-import { Engine } from 'reactylon/web';
-import { Scene } from 'reactylon';
-import { Color3, Scene as BabylonScene } from '@babylonjs/core';
+import { Scene as BabylonScene, Color3 } from '@babylonjs/core';
 import { VISUAL } from '@otter-river-rush/config';
+import type { ReactNode } from 'react';
+import { Scene } from 'reactylon';
+import { Engine } from 'reactylon/web';
 
 export interface GameCanvasProps {
   children?: ReactNode;
@@ -32,9 +32,7 @@ export function GameCanvas({ children, onSceneReady }: GameCanvasProps) {
 
   return (
     <Engine engineOptions={{ antialias: true, adaptToDeviceRatio: true }}>
-      <Scene onSceneReady={handleSceneReady}>
-        {children}
-      </Scene>
+      <Scene onSceneReady={handleSceneReady}>{children}</Scene>
     </Engine>
   );
 }

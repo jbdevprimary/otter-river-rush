@@ -4,10 +4,10 @@
  */
 
 import {
-  SceneLoader,
   type AbstractMesh,
-  type Scene,
   type AnimationGroup,
+  type Scene,
+  SceneLoader,
   type Skeleton,
 } from '@babylonjs/core';
 import '@babylonjs/loaders/glTF';
@@ -27,7 +27,11 @@ export interface GLBResult {
   skeletons: Skeleton[];
   dispose: () => void;
   /** Play an animation by name or index */
-  playAnimation: (nameOrIndex: string | number, loop?: boolean, speed?: number) => AnimationGroup | null;
+  playAnimation: (
+    nameOrIndex: string | number,
+    loop?: boolean,
+    speed?: number
+  ) => AnimationGroup | null;
   /** Stop all animations */
   stopAllAnimations: () => void;
 }
@@ -61,7 +65,9 @@ export async function loadGLB(options: LoadGLBOptions): Promise<GLBResult> {
   const skeletons = result.skeletons || [];
 
   // Stop all animations initially
-  animationGroups.forEach(ag => ag.stop());
+  for (const ag of animationGroups) {
+    ag.stop();
+  }
 
   return {
     meshes: result.meshes as AbstractMesh[],
@@ -70,7 +76,7 @@ export async function loadGLB(options: LoadGLBOptions): Promise<GLBResult> {
     skeletons,
     dispose: () => {
       // Stop and dispose animations
-      animationGroups.forEach(ag => {
+      animationGroups.forEach((ag) => {
         ag.stop();
         ag.dispose();
       });
@@ -81,7 +87,9 @@ export async function loadGLB(options: LoadGLBOptions): Promise<GLBResult> {
     },
     playAnimation: (nameOrIndex: string | number, loop = true, speed = 1.0) => {
       // Stop all current animations first
-      animationGroups.forEach(ag => ag.stop());
+      for (const ag of animationGroups) {
+        ag.stop();
+      }
 
       let targetAnim: AnimationGroup | undefined;
 
@@ -90,9 +98,7 @@ export async function loadGLB(options: LoadGLBOptions): Promise<GLBResult> {
       } else {
         // Find by name (case-insensitive partial match)
         const searchName = nameOrIndex.toLowerCase();
-        targetAnim = animationGroups.find(
-          ag => ag.name.toLowerCase().includes(searchName)
-        );
+        targetAnim = animationGroups.find((ag) => ag.name.toLowerCase().includes(searchName));
       }
 
       if (targetAnim) {
@@ -103,7 +109,9 @@ export async function loadGLB(options: LoadGLBOptions): Promise<GLBResult> {
       return null;
     },
     stopAllAnimations: () => {
-      animationGroups.forEach(ag => ag.stop());
+      for (const ag of animationGroups) {
+        ag.stop();
+      }
     },
   };
 }

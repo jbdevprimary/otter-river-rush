@@ -3,4 +3,4 @@
  * Zustand state management stores
  */
 
-export { useGameStore, type GameState, type PowerUpState } from './game-store';
+export { type GameState, type PowerUpState, useGameStore } from './game-store';

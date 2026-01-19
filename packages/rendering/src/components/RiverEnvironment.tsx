@@ -9,16 +9,10 @@
  * - Z: up/down (height - ground at 0)
  */
 
+import { Color3, type Mesh, MeshBuilder, StandardMaterial, Texture } from '@babylonjs/core';
+import { BIOME_COLORS, VISUAL } from '@otter-river-rush/config';
 import { useEffect, useRef } from 'react';
 import { useScene } from 'reactylon';
-import {
-  MeshBuilder,
-  StandardMaterial,
-  Texture,
-  Color3,
-  type Mesh,
-} from '@babylonjs/core';
-import { VISUAL, BIOME_COLORS } from '@otter-river-rush/config';
 
 interface RiverEnvironmentProps {
   biome?: keyof typeof BIOME_COLORS;
@@ -60,7 +54,10 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
 
     // Add water texture for ripple effect
     try {
-      const waterTexture = new Texture('https://playground.babylonjs.com/textures/waterbump.png', scene);
+      const waterTexture = new Texture(
+        'https://playground.babylonjs.com/textures/waterbump.png',
+        scene
+      );
       waterTexture.uScale = 4;
       waterTexture.vScale = 8;
       waterMat.bumpTexture = waterTexture;
@@ -133,10 +130,14 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
       const scale = pos.scale;
 
       // Tree trunk (standing up along Z axis)
-      const trunk = MeshBuilder.CreateCylinder(`trunk${i}`, {
-        height: 2 * scale,
-        diameter: 0.4 * scale,
-      }, scene);
+      const trunk = MeshBuilder.CreateCylinder(
+        `trunk${i}`,
+        {
+          height: 2 * scale,
+          diameter: 0.4 * scale,
+        },
+        scene
+      );
       trunk.position.set(pos.x, pos.y, 1 * scale);
       const trunkMat = new StandardMaterial(`trunkMat${i}`, scene);
       trunkMat.diffuseColor = new Color3(0.35, 0.2, 0.1);
@@ -144,11 +145,15 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
       meshes.push(trunk);
 
       // Tree foliage (cone shape pointing up)
-      const foliage = MeshBuilder.CreateCylinder(`foliage${i}`, {
-        height: 3 * scale,
-        diameterTop: 0,
-        diameterBottom: 2 * scale,
-      }, scene);
+      const foliage = MeshBuilder.CreateCylinder(
+        `foliage${i}`,
+        {
+          height: 3 * scale,
+          diameterTop: 0,
+          diameterBottom: 2 * scale,
+        },
+        scene
+      );
       foliage.position.set(pos.x, pos.y, 3.5 * scale);
       const foliageMat = new StandardMaterial(`foliageMat${i}`, scene);
       foliageMat.diffuseColor = Color3.FromHexString(colors.terrain || '#166534');
@@ -199,11 +204,15 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
     // LANE MARKERS (subtle guide lines on water)
     // ===================
     VISUAL.lanes.positions.forEach((laneX, i) => {
-      const laneMarker = MeshBuilder.CreateBox(`laneMarker${i}`, {
-        width: 0.08,
-        height: riverLength,
-        depth: 0.02,
-      }, scene);
+      const laneMarker = MeshBuilder.CreateBox(
+        `laneMarker${i}`,
+        {
+          width: 0.08,
+          height: riverLength,
+          depth: 0.02,
+        },
+        scene
+      );
       laneMarker.rotation.x = Math.PI / 2;
       laneMarker.position.set(laneX, riverLength / 2 - 10, 0);
       const laneMat = new StandardMaterial(`laneMat${i}`, scene);
@@ -217,10 +226,7 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
     // ===================
     // ANIMATED WATER FLOW EFFECT
     // ===================
-    let time = 0;
     const animate = () => {
-      time += 0.016;
-
       // Animate water texture offset for flow effect
       if (waterMat.bumpTexture) {
         (waterMat.bumpTexture as Texture).vOffset -= 0.005; // Flow toward player
@@ -234,7 +240,9 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
 
     return () => {
       cancelAnimationFrame(animationRef.current);
-      meshes.forEach(mesh => mesh.dispose());
+      for (const mesh of meshes) {
+        mesh.dispose();
+      }
     };
   }, [scene, biome]);
 
