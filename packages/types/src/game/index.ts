@@ -41,7 +41,13 @@ export interface Collider {
 }
 
 // Game state enums
-export type GameStatus = 'menu' | 'character_select' | 'playing' | 'paused' | 'game_over' | 'loading';
+export type GameStatus =
+  | 'menu'
+  | 'character_select'
+  | 'playing'
+  | 'paused'
+  | 'game_over'
+  | 'loading';
 export type GameMode = 'classic' | 'time_trial' | 'zen' | 'daily_challenge';
 export type Difficulty = 'easy' | 'normal' | 'hard' | 'expert';
 

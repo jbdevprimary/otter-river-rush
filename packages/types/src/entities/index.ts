@@ -7,7 +7,7 @@ import type { AbstractMesh, TransformNode } from '@babylonjs/core';
 import type { CollectibleType, PowerUpType } from '../game';
 
 // Re-export types for convenience
-export type { Vector3D, CollectibleType, PowerUpType } from '../game';
+export type { CollectibleType, PowerUpType, Vector3D } from '../game';
 
 // Lane type (3-lane system: -1, 0, 1)
 export type Lane = -1 | 0 | 1;
@@ -66,7 +66,7 @@ export interface Entity {
   model?: ModelComponent;
   animation?: AnimationComponent;
   collider?: ColliderComponent;
-  
+
   // Entity type flags
   player?: boolean;
   obstacle?: boolean;
@@ -75,7 +75,7 @@ export interface Entity {
   particle?: ParticleComponent;
   enemy?: boolean;
   decoration?: boolean;
-  
+
   // Player-specific
   lane?: Lane;
   health?: number;
@@ -83,14 +83,14 @@ export interface Entity {
   handling?: number;
   invincible?: boolean;
   ghost?: boolean;
-  
+
   // Obstacle-specific
   variant?: number;
-  
+
   // State flags
   collected?: boolean;
   destroyed?: boolean;
-  
+
   // Rendering
   three?: AbstractMesh | TransformNode; // Babylon.js mesh reference
 }

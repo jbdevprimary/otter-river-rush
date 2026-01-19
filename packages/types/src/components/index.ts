@@ -4,12 +4,12 @@
  */
 
 export type {
-  PositionComponent,
-  VelocityComponent,
-  ModelComponent,
   AnimationComponent,
-  ColliderComponent,
   CollectibleComponent,
-  PowerUpComponent,
+  ColliderComponent,
+  ModelComponent,
   ParticleComponent,
+  PositionComponent,
+  PowerUpComponent,
+  VelocityComponent,
 } from '../entities';

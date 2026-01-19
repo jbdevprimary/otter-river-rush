@@ -38,8 +38,9 @@ export function updateSpawner(
   if (!isPlaying) return;
 
   // DEBUG: Log spawner state every second
-  if (!window.__lastSpawnerLog || now - window.__lastSpawnerLog > 1000) {
-    window.__lastSpawnerLog = now;
+  const win = window as typeof window & { __lastSpawnerLog?: number };
+  if (!win.__lastSpawnerLog || now - win.__lastSpawnerLog > 1000) {
+    win.__lastSpawnerLog = now;
     console.log(`[Spawner] now=${now} lastObs=${state.lastObstacleSpawn} interval=${PHYSICS.spawnInterval.obstacles * 1000} diff=${now - state.lastObstacleSpawn}`);
   }
 

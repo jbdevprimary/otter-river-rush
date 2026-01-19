@@ -63,15 +63,7 @@ export interface ParticleEffectEvent {
  * Audio event
  */
 export interface AudioEvent {
-  sound:
-    | 'collect'
-    | 'hit'
-    | 'powerup'
-    | 'jump'
-    | 'menu'
-    | 'achievement'
-    | 'game_over'
-    | 'level_up';
+  sound: 'collect' | 'hit' | 'powerup' | 'jump' | 'menu' | 'achievement' | 'game_over' | 'level_up';
   volume?: number;
   pitch?: number;
 }
