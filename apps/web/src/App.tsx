@@ -3,41 +3,35 @@
  * Otter River Rush Web Application - Babylon.js + Reactylon
  */
 
-import { useEffect, useRef } from 'react';
-import { GameCanvas, EntityRenderer, RiverEnvironment } from '@otter-river-rush/rendering';
-import { BabylonHUD, BabylonMenu, BabylonCharacterSelect } from '@otter-river-rush/ui';
-import { useGameStore } from '@otter-river-rush/state';
-import {
-  spawn,
-  updateMovement,
-  updateCollision,
-  updateSpawner,
-  updateCleanup,
-  updateAnimation,
-  updateParticles,
-  createSpawnerState,
-  setupKeyboardInput,
-  updatePlayerInput,
-  createInputState,
-  type CollisionHandlers,
-} from '@otter-river-rush/core';
+import type { Scene } from '@babylonjs/core';
+import { Color3, DirectionalLight, FreeCamera, HemisphericLight, Vector3 } from '@babylonjs/core';
 import {
   initAudio,
-  playMusic,
-  stopMusic,
   playCoinPickup,
   playGemPickup,
   playHit,
+  playMusic,
+  stopMusic,
 } from '@otter-river-rush/audio';
-import type { Scene } from '@babylonjs/core';
+import { getCharacter, VISUAL } from '@otter-river-rush/config';
 import {
-  FreeCamera,
-  Vector3,
-  HemisphericLight,
-  DirectionalLight,
-  Color3,
-} from '@babylonjs/core';
-import { VISUAL, getCharacter } from '@otter-river-rush/config';
+  type CollisionHandlers,
+  createInputState,
+  createSpawnerState,
+  setupKeyboardInput,
+  spawn,
+  updateAnimation,
+  updateCleanup,
+  updateCollision,
+  updateMovement,
+  updateParticles,
+  updatePlayerInput,
+  updateSpawner,
+} from '@otter-river-rush/core';
+import { EntityRenderer, GameCanvas, RiverEnvironment } from '@otter-river-rush/rendering';
+import { useGameStore } from '@otter-river-rush/state';
+import { BabylonCharacterSelect, BabylonHUD, BabylonMenu } from '@otter-river-rush/ui';
+import { useEffect, useRef } from 'react';
 
 export function App() {
   const status = useGameStore((state) => state.status);
@@ -68,30 +62,18 @@ export function App() {
     camera.inputs.clear();
 
     // Create ambient light
-    const ambientLight = new HemisphericLight(
-      'ambientLight',
-      new Vector3(0, 1, 0),
-      scene
-    );
+    const ambientLight = new HemisphericLight('ambientLight', new Vector3(0, 1, 0), scene);
     ambientLight.intensity = VISUAL.lighting.ambient.intensity;
     ambientLight.diffuse = Color3.FromHexString(VISUAL.lighting.ambient.color);
     ambientLight.groundColor = new Color3(0.2, 0.2, 0.3);
 
     // Create main directional light (sun)
-    const sunLight = new DirectionalLight(
-      'sunLight',
-      new Vector3(-1, -2, 1).normalize(),
-      scene
-    );
+    const sunLight = new DirectionalLight('sunLight', new Vector3(-1, -2, 1).normalize(), scene);
     sunLight.intensity = VISUAL.lighting.directional.main.intensity;
     sunLight.diffuse = new Color3(1, 0.95, 0.8);
 
     // Create fill light
-    const fillLight = new DirectionalLight(
-      'fillLight',
-      new Vector3(1, 1, -1).normalize(),
-      scene
-    );
+    const fillLight = new DirectionalLight('fillLight', new Vector3(1, 1, -1).normalize(), scene);
     fillLight.intensity = VISUAL.lighting.directional.fill.intensity;
     fillLight.diffuse = new Color3(0.6, 0.7, 0.9);
 
