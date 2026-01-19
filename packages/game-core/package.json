@@ -1,0 +1,63 @@
+{
+  "name": "@otter-river-rush/game-core",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Shared game logic, types, and assets for Otter River Rush - platform agnostic",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./assets": {
+      "import": "./dist/assets/index.js",
+      "types": "./dist/assets/index.d.ts"
+    },
+    "./ecs": {
+      "import": "./dist/ecs/index.js",
+      "types": "./dist/ecs/index.d.ts"
+    },
+    "./systems": {
+      "import": "./dist/systems/index.js",
+      "types": "./dist/systems/index.d.ts"
+    },
+    "./store": {
+      "import": "./dist/store/index.js",
+      "types": "./dist/store/index.d.ts"
+    },
+    "./types": {
+      "import": "./dist/types/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./config": {
+      "import": "./dist/config/index.js",
+      "types": "./dist/config/index.d.ts"
+    },
+    "./schemas": {
+      "import": "./dist/schemas/index.js",
+      "types": "./dist/schemas/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src/data"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@otter-river-rush/config": "workspace:*",
+    "@otter-river-rush/core": "workspace:*",
+    "@otter-river-rush/state": "workspace:*",
+    "@otter-river-rush/types": "workspace:*",
+    "miniplex": "^2.0.0",
+    "zustand": "^5.0.10",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

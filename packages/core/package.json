@@ -40,6 +40,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
+    "@otter-river-rush/game-core": "workspace:*",
     "@otter-river-rush/types": "workspace:*",
     "@otter-river-rush/config": "workspace:*",
     "miniplex": "^2.0.0",

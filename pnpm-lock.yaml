@@ -161,6 +161,9 @@ importers:
       '@otter-river-rush/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@otter-river-rush/game-core':
+        specifier: workspace:*
+        version: link:../../packages/game-core
       '@otter-river-rush/rendering':
         specifier: workspace:*
         version: link:../../packages/rendering
@@ -258,6 +261,9 @@ importers:
       '@otter-river-rush/config':
         specifier: workspace:*
         version: link:../config
+      '@otter-river-rush/game-core':
+        specifier: workspace:*
+        version: link:../game-core
       '@otter-river-rush/types':
         specifier: workspace:*
         version: link:../types
@@ -270,6 +276,34 @@ importers:
     devDependencies:
       typescript:
         specifier: ~5.9.3
+        version: 5.9.3
+
+  packages/game-core:
+    dependencies:
+      '@otter-river-rush/config':
+        specifier: workspace:*
+        version: link:../config
+      '@otter-river-rush/core':
+        specifier: workspace:*
+        version: link:../core
+      '@otter-river-rush/state':
+        specifier: workspace:*
+        version: link:../state
+      '@otter-river-rush/types':
+        specifier: workspace:*
+        version: link:../types
+      miniplex:
+        specifier: ^2.0.0
+        version: 2.0.0
+      zod:
+        specifier: ^3.24.0
+        version: 3.25.76
+      zustand:
+        specifier: ^5.0.10
+        version: 5.0.10(@types/react@19.2.5)(react@19.2.3)(use-sync-external-store@1.6.0(react@19.2.3))
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
         version: 5.9.3
 
   packages/rendering:
@@ -289,6 +323,9 @@ importers:
       '@otter-river-rush/core':
         specifier: workspace:*
         version: link:../core
+      '@otter-river-rush/game-core':
+        specifier: workspace:*
+        version: link:../game-core
       '@otter-river-rush/types':
         specifier: workspace:*
         version: link:../types
@@ -348,6 +385,9 @@ importers:
       '@otter-river-rush/config':
         specifier: workspace:*
         version: link:../config
+      '@otter-river-rush/game-core':
+        specifier: workspace:*
+        version: link:../game-core
       '@otter-river-rush/state':
         specifier: workspace:*
         version: link:../state
