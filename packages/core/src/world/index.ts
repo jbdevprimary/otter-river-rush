@@ -6,6 +6,13 @@
 import { World } from 'miniplex';
 import type { Entity } from '@otter-river-rush/types';
 import { VISUAL, PHYSICS, getLaneX, getModelScale, getDefaultCharacter, type OtterCharacter } from '@otter-river-rush/config';
+import {
+  getObstacleUrlVariants,
+  getCoinUrlVariants,
+  getGemUrlVariants,
+  getDecorationUrlVariants,
+  ModelUrls,
+} from '@otter-river-rush/game-core/assets';
 
 /**
  * Create the Miniplex world
@@ -96,24 +103,16 @@ export const spawn = {
   },
 
   rock: (x: number, y: number, variant: number = 0) => {
-    // CC0 obstacles organized by type
-    const rockModels = [
-      '/assets/models/obstacle/rocks/cliff_block_rock.glb',
-      '/assets/models/obstacle/rocks/cliff_blockHalf_rock.glb',
-      '/assets/models/obstacle/rocks/cliff_blockQuarter_rock.glb',
-      '/assets/models/obstacle/logs/log.glb',
-      '/assets/models/obstacle/logs/log_large.glb',
-      '/assets/models/obstacle/stumps/stump_round.glb',
-      '/assets/models/obstacle/stumps/stump_old.glb',
-    ];
-    const selectedUrl = rockModels[variant % rockModels.length];
+    // Use AssetRegistry for obstacle variants - single source of truth
+    const obstacles = getObstacleUrlVariants();
+    const selected = obstacles[variant % obstacles.length];
     return world.add({
       obstacle: true,
       position: { x, y, z: VISUAL.layers.obstacles },
       velocity: { x: 0, y: -PHYSICS.scrollSpeed, z: 0 },
       model: {
-        url: selectedUrl,
-        scale: getModelScale('rock'),
+        url: selected.url,
+        scale: selected.scale ?? getModelScale('rock'),
       },
       collider: { width: 1.2, height: 1.2, depth: 1.2 },
       variant,
@@ -121,42 +120,32 @@ export const spawn = {
   },
 
   coin: (x: number, y: number, variant: number = 0) => {
-    // CC0 coins
-    const coinModels = [
-      '/assets/models/collectible/coins/coin-gold.glb',
-      '/assets/models/collectible/coins/coin-silver.glb',
-      '/assets/models/collectible/coins/coin-bronze.glb',
-    ];
-    const values = [10, 5, 2];
-    const idx = variant % coinModels.length;
+    // Use AssetRegistry for coin variants - single source of truth
+    const coins = getCoinUrlVariants();
+    const selected = coins[variant % coins.length];
     return world.add({
-      collectible: { type: 'coin', value: values[idx] },
+      collectible: { type: 'coin', value: selected.value ?? 10 },
       position: { x, y, z: VISUAL.layers.collectibles },
       velocity: { x: 0, y: -PHYSICS.scrollSpeed, z: 0 },
       model: {
-        url: coinModels[idx],
-        scale: getModelScale('coin'),
+        url: selected.url,
+        scale: selected.scale ?? getModelScale('coin'),
       },
       collider: { width: 0.6, height: 0.6, depth: 0.6 },
     });
   },
 
   gem: (x: number, y: number, variant: number = 0) => {
-    // CC0 gems and crystals
-    const gemModels = [
-      '/assets/models/collectible/gems/detail-crystal.glb',
-      '/assets/models/collectible/gems/detail-crystal-large.glb',
-      '/assets/models/collectible/gems/heart.glb',
-    ];
-    const values = [50, 75, 100];
-    const idx = variant % gemModels.length;
+    // Use AssetRegistry for gem variants - single source of truth
+    const gems = getGemUrlVariants();
+    const selected = gems[variant % gems.length];
     return world.add({
-      collectible: { type: 'gem', value: values[idx] },
+      collectible: { type: 'gem', value: selected.value ?? 50 },
       position: { x, y, z: VISUAL.layers.collectibles },
       velocity: { x: 0, y: -PHYSICS.scrollSpeed, z: 0 },
       model: {
-        url: gemModels[idx],
-        scale: getModelScale('gem'),
+        url: selected.url,
+        scale: selected.scale ?? getModelScale('gem'),
       },
       collider: { width: 0.8, height: 0.8, depth: 0.8 },
       variant,
@@ -170,30 +159,23 @@ export const spawn = {
       position: { x, y, z: VISUAL.layers.collectibles },
       velocity: { x: 0, y: -PHYSICS.scrollSpeed, z: 0 },
       model: {
-        url: '/assets/models/collectible/gems/heart.glb',
+        url: ModelUrls.collectibles.heart,
         scale: getModelScale('gem') * 1.5,
       },
       collider: { width: 0.8, height: 0.8, depth: 0.8 },
     }),
 
   decoration: (x: number, y: number, variant: number = 0) => {
-    // CC0 decorations organized by type
-    const decorationModels = [
-      '/assets/models/decoration/plants/lily_large.glb',
-      '/assets/models/decoration/plants/lily_small.glb',
-      '/assets/models/decoration/flowers/flower_yellowA.glb',
-      '/assets/models/decoration/flowers/flower_purpleA.glb',
-      '/assets/models/decoration/plants/grass_large.glb',
-      '/assets/models/decoration/plants/plant_bush.glb',
-    ];
-    const selectedUrl = decorationModels[variant % decorationModels.length];
+    // Use AssetRegistry for decoration variants - single source of truth
+    const decorations = getDecorationUrlVariants();
+    const selected = decorations[variant % decorations.length];
     return world.add({
       decoration: true,
       position: { x, y, z: VISUAL.layers.decorations },
       velocity: { x: 0, y: -PHYSICS.scrollSpeed, z: 0 },
       model: {
-        url: selectedUrl,
-        scale: getModelScale('decoration'),
+        url: selected.url,
+        scale: selected.scale ?? getModelScale('decoration'),
       },
       variant,
     });
