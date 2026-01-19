@@ -11,9 +11,7 @@ import {
   TextBlock,
   Button,
   StackPanel,
-  Image,
   Control,
-  Grid,
 } from '@babylonjs/gui';
 import { useGameStore } from '@otter-river-rush/state';
 import { OTTER_CHARACTERS, type OtterCharacter } from '@otter-river-rush/config';
