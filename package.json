@@ -18,7 +18,7 @@
   "scripts": {
     "dev": "pnpm --filter @otter-river-rush/web dev",
     "dev:legacy": "pnpm --filter client dev",
-    "build": "pnpm -r --filter '@otter-river-rush/*' --filter '!@otter-river-rush/client' build && pnpm --filter @otter-river-rush/web build",
+    "build": "pnpm -r --filter '@otter-river-rush/*' --filter '!@otter-river-rush/client' --filter '!@otter-river-rush/dev-tools' build && pnpm --filter @otter-river-rush/web build",
     "build:legacy": "pnpm --filter client build",
     "preview": "pnpm --filter @otter-river-rush/web preview",
     "test": "pnpm --filter client test",
