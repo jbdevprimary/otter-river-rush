@@ -1,0 +1,23 @@
+{
+  "id": "otter-silver",
+  "name": "Silver Otter",
+  "type": "player",
+  "description": "Sleek silver-gray otter variant - unlockable character",
+  "pipeline": "prop",
+
+  "textTo3DPreviewTask": {
+    "prompt": "Cute stylized river otter swimming pose, sleek streamlined body, small pointed ears, whiskers, flat paddle tail, webbed feet, confident expression, game character, chibi proportions, low poly cartoon style",
+    "negativePrompt": "realistic fur texture, scary, dark, detailed, hyper realistic, human features",
+    "artStyle": "sculpture",
+    "topology": "quad",
+    "targetPolycount": 5000,
+    "symmetryMode": "auto"
+  },
+
+  "textTo3DRefineTask": {
+    "enablePbr": true,
+    "texturePrompt": "Silvery gray metallic fur with cool blue undertones, white chest and belly, charcoal gray nose, bright silvery blue eyes, light gray inner ears, sleek polished appearance, stylized game character textures"
+  },
+
+  "tasks": {}
+}

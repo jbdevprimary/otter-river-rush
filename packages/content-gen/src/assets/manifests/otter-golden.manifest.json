@@ -1,0 +1,23 @@
+{
+  "id": "otter-golden",
+  "name": "Golden Otter",
+  "type": "player",
+  "description": "Rare golden otter - special unlockable legendary character",
+  "pipeline": "prop",
+
+  "textTo3DPreviewTask": {
+    "prompt": "Cute stylized river otter swimming pose, fluffy round body, small ears, whiskers, flat paddle tail, webbed feet, majestic regal expression, sparkle effect, game character, chibi proportions, low poly cartoon style",
+    "negativePrompt": "realistic fur texture, scary, dark, detailed, hyper realistic, human features, tarnished",
+    "artStyle": "sculpture",
+    "topology": "quad",
+    "targetPolycount": 5000,
+    "symmetryMode": "auto"
+  },
+
+  "textTo3DRefineTask": {
+    "enablePbr": true,
+    "texturePrompt": "Brilliant shimmering golden fur coat with warm amber highlights, cream colored chest with golden glow, polished gold nose, gleaming amber eyes with sparkle, golden inner ears, magical luxurious appearance, stylized cartoon game textures with metallic sheen"
+  },
+
+  "tasks": {}
+}

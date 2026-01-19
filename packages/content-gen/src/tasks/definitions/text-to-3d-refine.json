@@ -1,0 +1,96 @@
+{
+  "type": "text-to-3d-refine",
+  "name": "Text to 3D Refine",
+  "description": "Add textures to a preview model from text-to-3d-preview",
+  "apiVersion": "v2",
+  "endpoint": "text-to-3d",
+  "method": "POST",
+  "inputs": [
+    {
+      "name": "mode",
+      "type": "string",
+      "required": true,
+      "value": "refine",
+      "description": "Fixed to 'refine' for this task"
+    },
+    {
+      "name": "preview_task_id",
+      "type": "string",
+      "required": true,
+      "description": "Task ID from the text-to-3d-preview step"
+    },
+    {
+      "name": "enable_pbr",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Generate PBR maps (metallic, roughness, normal)"
+    },
+    {
+      "name": "texture_prompt",
+      "type": "string",
+      "required": false,
+      "maxLength": 600,
+      "description": "Texturing guidance prompt"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "taskId",
+      "responsePath": "$.id",
+      "required": true
+    },
+    {
+      "name": "model",
+      "responsePath": "$.model_urls.glb",
+      "localFilename": "model.glb",
+      "required": true
+    },
+    {
+      "name": "fbx",
+      "responsePath": "$.model_urls.fbx",
+      "localFilename": "model.fbx",
+      "required": false
+    },
+    {
+      "name": "usdz",
+      "responsePath": "$.model_urls.usdz",
+      "localFilename": "model.usdz",
+      "required": false
+    },
+    {
+      "name": "thumbnail",
+      "responsePath": "$.thumbnail_url",
+      "localFilename": "thumbnail.png",
+      "required": false
+    },
+    {
+      "name": "baseColor",
+      "responsePath": "$.texture_urls[0].base_color",
+      "localFilename": "textures/base_color.png",
+      "required": false
+    },
+    {
+      "name": "metallic",
+      "responsePath": "$.texture_urls[0].metallic",
+      "localFilename": "textures/metallic.png",
+      "required": false
+    },
+    {
+      "name": "roughness",
+      "responsePath": "$.texture_urls[0].roughness",
+      "localFilename": "textures/roughness.png",
+      "required": false
+    },
+    {
+      "name": "normal",
+      "responsePath": "$.texture_urls[0].normal",
+      "localFilename": "textures/normal.png",
+      "required": false
+    }
+  ],
+  "streaming": {
+    "endpoint": "text-to-3d/{taskId}/stream",
+    "terminalStates": ["SUCCEEDED", "FAILED", "CANCELED"]
+  }
+}
