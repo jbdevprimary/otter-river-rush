@@ -1,0 +1,23 @@
+{
+  "id": "otter-player",
+  "name": "Otter Player",
+  "type": "player",
+  "description": "Main player character - a cute stylized river otter",
+  "pipeline": "prop",
+
+  "textTo3DPreviewTask": {
+    "prompt": "Cute stylized river otter swimming pose, round body, small ears, whiskers, flat beaver-like tail, webbed feet, happy expression, game character, chibi proportions, low poly style",
+    "negativePrompt": "realistic fur texture, scary, dark, detailed, hyper realistic, human features",
+    "artStyle": "sculpture",
+    "topology": "quad",
+    "targetPolycount": 5000,
+    "symmetryMode": "auto"
+  },
+
+  "textTo3DRefineTask": {
+    "enablePbr": true,
+    "texturePrompt": "Brown fur with warm tones, cream white belly, dark brown nose, small black eyes, pink inner ears, stylized cartoon textures, soft shading, game character colors"
+  },
+
+  "tasks": {}
+}

@@ -1,0 +1,59 @@
+{
+  "name": "@otter-river-rush/core",
+  "version": "1.0.0",
+  "description": "Platform-agnostic game logic for Otter River Rush",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./ecs": {
+      "import": "./dist/ecs/index.js",
+      "types": "./dist/ecs/index.d.ts"
+    },
+    "./stores": {
+      "import": "./dist/stores/index.js",
+      "types": "./dist/stores/index.d.ts"
+    },
+    "./systems": {
+      "import": "./dist/systems/index.js",
+      "types": "./dist/systems/index.d.ts"
+    },
+    "./physics": {
+      "import": "./dist/physics/index.js",
+      "types": "./dist/physics/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --build --force",
+    "prepublishOnly": "pnpm run build"
+  },
+  "dependencies": {
+    "@otter-river-rush/types": "workspace:*",
+    "@otter-river-rush/config": "workspace:*",
+    "miniplex": "^2.0.0",
+    "zustand": "^5.0.10"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3"
+  },
+  "keywords": [
+    "otter-river-rush",
+    "core",
+    "ecs",
+    "game-logic"
+  ],
+  "license": "MIT",
+  "private": true
+}

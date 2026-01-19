@@ -1,0 +1,23 @@
+{
+  "id": "otter-arctic",
+  "name": "Arctic Otter",
+  "type": "player",
+  "description": "Fluffy white arctic otter - winter theme unlockable",
+  "pipeline": "prop",
+
+  "textTo3DPreviewTask": {
+    "prompt": "Cute stylized arctic river otter swimming pose, extra fluffy round body, small rounded ears, whiskers, flat paddle tail, webbed feet, playful friendly expression, winter theme, game character, chibi proportions, low poly cartoon style",
+    "negativePrompt": "realistic fur texture, scary, dark, detailed, hyper realistic, human features, dirty",
+    "artStyle": "sculpture",
+    "topology": "quad",
+    "targetPolycount": 5000,
+    "symmetryMode": "auto"
+  },
+
+  "textTo3DRefineTask": {
+    "enablePbr": true,
+    "texturePrompt": "Pure fluffy white fur with soft blue-white undertones, light pink nose, bright ice blue eyes, soft pink inner ears, snowflake sparkle accents, clean winter appearance, stylized soft cartoon game textures"
+  },
+
+  "tasks": {}
+}
