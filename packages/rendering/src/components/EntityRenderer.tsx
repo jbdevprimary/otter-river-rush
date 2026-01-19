@@ -44,8 +44,9 @@ export function EntityRenderer() {
 
       // DEBUG: Log entity counts every second
       const now = Date.now();
-      if (!window.__lastEntityLog || now - window.__lastEntityLog > 1000) {
-        window.__lastEntityLog = now;
+      const win = window as typeof window & { __lastEntityLog?: number };
+      if (!win.__lastEntityLog || now - win.__lastEntityLog > 1000) {
+        win.__lastEntityLog = now;
         console.log(`[EntityRenderer] moving=${movingEntities.length} obstacles=${obstacleEntities.length} collectibles=${collectibleEntities.length} loaded=${loadedModels.size} loading=${loading.size}`);
       }
 

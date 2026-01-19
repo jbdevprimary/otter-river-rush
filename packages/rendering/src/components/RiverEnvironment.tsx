@@ -16,7 +16,6 @@ import {
   StandardMaterial,
   Texture,
   Color3,
-  Vector3,
   type Mesh,
 } from '@babylonjs/core';
 import { VISUAL, BIOME_COLORS } from '@otter-river-rush/config';
@@ -152,7 +151,7 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
       }, scene);
       foliage.position.set(pos.x, pos.y, 3.5 * scale);
       const foliageMat = new StandardMaterial(`foliageMat${i}`, scene);
-      foliageMat.diffuseColor = Color3.FromHexString(colors.foliage || '#166534');
+      foliageMat.diffuseColor = Color3.FromHexString(colors.terrain || '#166534');
       foliage.material = foliageMat;
       meshes.push(foliage);
     });
