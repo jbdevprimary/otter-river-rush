@@ -60,9 +60,6 @@
     "lineWidth": 100,
     "lineEnding": "lf"
   },
-  "organizeImports": {
-    "enabled": true
-  },
   "javascript": {
     "formatter": {
       "quoteStyle": "single",
