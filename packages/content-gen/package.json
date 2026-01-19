@@ -1,0 +1,32 @@
+{
+  "name": "@otter-river-rush/content-gen",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "generate": "tsx src/cli.ts",
+    "gen:otter": "tsx src/cli.ts otter",
+    "gen:obstacles": "tsx src/cli.ts obstacles",
+    "gen:collectibles": "tsx src/cli.ts collectibles",
+    "gen:all": "tsx src/cli.ts all"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "commander": "^14.0.2",
+    "dotenv": "^16.5.0",
+    "zod": "^3.24.0"
+  }
+}

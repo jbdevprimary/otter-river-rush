@@ -1,75 +1,196 @@
 /**
  * Entity Renderer Component
- * Renders all entities from the ECS world as 3D models
+ * Renders all entities from the ECS world as 3D models with animation support
  */
 
 import { useEffect, useRef } from 'react';
 import { useScene } from 'reactylon';
 import { queries } from '@otter-river-rush/core';
-import { loadGLB } from '../loaders/glb-loader';
-import type { AbstractMesh } from '@babylonjs/core';
+import { loadGLB, type GLBResult } from '../loaders/glb-loader';
 import type { Entity } from '@otter-river-rush/types';
+import { VISUAL } from '@otter-river-rush/config';
+
+// Track loaded models with their animation state
+interface LoadedModel {
+  glbResult: GLBResult;
+  currentAnimation: string | null;
+  entity: Entity;
+}
+
+// Default otter model (fallback)
+const DEFAULT_OTTER_MODEL = '/assets/models/player/otter-player/model.glb';
 
 export function EntityRenderer() {
   const scene = useScene();
-  const loadedModelsRef = useRef<Map<Entity, AbstractMesh>>(new Map());
+  const loadedModelsRef = useRef<Map<Entity, LoadedModel>>(new Map());
+  const loadingRef = useRef<Set<Entity>>(new Set());
+  const frameHandleRef = useRef<number>(0);
+  const otterAnimRef = useRef<{ current: string; model: LoadedModel | null }>({
+    current: 'run',
+    model: null,
+  });
 
   useEffect(() => {
     if (!scene) return;
 
+    const loadedModels = loadedModelsRef.current;
+    const loading = loadingRef.current;
+
     const frameLoop = () => {
-      // Get all entities with models
-      const entities = [...queries.moving.entities, ...queries.obstacles.entities, ...queries.collectibles.entities];
-      const loadedModels = loadedModelsRef.current;
+      // Get all entities that need rendering
+      const movingEntities = [...queries.moving.entities];
+      const obstacleEntities = [...queries.obstacles.entities];
+      const collectibleEntities = [...queries.collectibles.entities];
+
+      // DEBUG: Log entity counts every second
+      const now = Date.now();
+      if (!window.__lastEntityLog || now - window.__lastEntityLog > 1000) {
+        window.__lastEntityLog = now;
+        console.log(`[EntityRenderer] moving=${movingEntities.length} obstacles=${obstacleEntities.length} collectibles=${collectibleEntities.length} loaded=${loadedModels.size} loading=${loading.size}`);
+      }
+
+      const allEntities = [...movingEntities, ...obstacleEntities, ...collectibleEntities];
 
       // Load models for new entities
-      for (const entity of entities) {
-        if (!entity.model || !entity.model.url || loadedModels.has(entity)) continue;
+      for (const entity of allEntities) {
+        // Skip if already loaded or currently loading
+        if (loadedModels.has(entity) || loading.has(entity)) continue;
+
+        // Skip destroyed/collected
+        if (entity.destroyed || entity.collected) continue;
+
+        // Determine model URL and scale
+        let modelUrl: string | undefined;
+        let scale = 1;
+
+        if (entity.model?.url) {
+          modelUrl = entity.model.url;
+          scale = entity.model.scale ?? 1;
+        }
+
+        // Special handling for player (otter) - use entity's model or default
+        if (entity.player) {
+          // Use the model URL set when the otter was spawned (based on selected character)
+          modelUrl = entity.model?.url ?? DEFAULT_OTTER_MODEL;
+          scale = VISUAL.scales.otter;
+        }
+
+        // DEBUG: Log why entity might not load
+        if (!modelUrl) {
+          console.log('[EntityRenderer] Entity has no modelUrl:', {
+            player: entity.player,
+            obstacle: entity.obstacle,
+            collectible: entity.collectible,
+            model: entity.model,
+          });
+          continue;
+        }
+
+        console.log('[EntityRenderer] Loading model:', modelUrl, 'for entity:', entity.player ? 'player' : entity.obstacle ? 'obstacle' : 'collectible');
+
+        // Mark as loading
+        loading.add(entity);
 
         loadGLB({
-          url: entity.model.url,
+          url: modelUrl,
           scene,
-          scaling: entity.model.scale,
+          scaling: scale,
         }).then((result) => {
-          const mesh = result.rootMesh;
-          loadedModels.set(entity, mesh);
+          loading.delete(entity);
 
-          // Store reference in entity
-          entity.three = mesh;
+          // Check if entity was destroyed while loading
+          if (entity.destroyed || entity.collected) {
+            result.dispose();
+            return;
+          }
+
+          const loadedModel: LoadedModel = {
+            glbResult: result,
+            currentAnimation: null,
+            entity,
+          };
+
+          loadedModels.set(entity, loadedModel);
+
+          // Store reference in entity for collision detection
+          entity.three = result.rootMesh;
 
           // Set initial position
+          // App uses game coords directly: X=lanes, Y=forward/back, Z=height
+          // Camera is configured for this coordinate system (see App.tsx)
           if (entity.position) {
-            mesh.position.set(entity.position.x, entity.position.y, entity.position.z);
+            result.rootMesh.position.set(
+              entity.position.x,
+              entity.position.y,
+              entity.position.z
+            );
           }
+
+          // Start animations
+          if (entity.player) {
+            // Store otter model reference
+            otterAnimRef.current.model = loadedModel;
+            // Play run animation for otter
+            result.playAnimation(0, true, 1.2);
+            loadedModel.currentAnimation = 'run';
+          } else if (result.animationGroups.length > 0) {
+            // Play first animation for other entities
+            result.playAnimation(0, true, 1.0);
+          }
+        }).catch((err) => {
+          console.error('Failed to load model:', modelUrl, err);
+          loading.delete(entity);
         });
       }
 
-      // Update positions for all loaded entities
-      for (const [entity, mesh] of loadedModels.entries()) {
+      // Update positions and handle cleanup
+      for (const [entity, loadedModel] of loadedModels.entries()) {
+        const { glbResult } = loadedModel;
+
+        // Update position - use game coords directly
         if (entity.position) {
-          mesh.position.set(entity.position.x, entity.position.y, entity.position.z);
+          glbResult.rootMesh.position.set(
+            entity.position.x,
+            entity.position.y,
+            entity.position.z
+          );
+        }
+
+        // Handle animation state changes for player
+        if (entity.player && entity.animation) {
+          const targetAnim = entity.animation.current || 'run';
+          if (loadedModel.currentAnimation !== targetAnim) {
+            // For now, just update the animation speed based on state
+            // Full animation switching would require loading different GLB files
+            if (targetAnim === 'hit' || targetAnim === 'collect') {
+              glbResult.playAnimation(0, false, 2.0);
+            } else {
+              glbResult.playAnimation(0, true, 1.2);
+            }
+            loadedModel.currentAnimation = targetAnim;
+          }
         }
 
         // Clean up destroyed entities
         if (entity.destroyed || entity.collected) {
-          mesh.dispose();
+          glbResult.dispose();
           loadedModels.delete(entity);
         }
       }
 
-      requestAnimationFrame(frameLoop);
+      frameHandleRef.current = requestAnimationFrame(frameLoop);
     };
 
-    const handle = requestAnimationFrame(frameLoop);
+    frameHandleRef.current = requestAnimationFrame(frameLoop);
 
     return () => {
-      cancelAnimationFrame(handle);
+      cancelAnimationFrame(frameHandleRef.current);
       // Clean up all models
-      const loadedModels = loadedModelsRef.current;
-      for (const mesh of loadedModels.values()) {
-        mesh.dispose();
+      for (const loadedModel of loadedModels.values()) {
+        loadedModel.glbResult.dispose();
       }
       loadedModels.clear();
+      loading.clear();
     };
   }, [scene]);
 

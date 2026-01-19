@@ -74,6 +74,7 @@ export interface Entity {
   powerUp?: PowerUpComponent;
   particle?: ParticleComponent;
   enemy?: boolean;
+  decoration?: boolean;
   
   // Player-specific
   lane?: Lane;

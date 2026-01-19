@@ -30,3 +30,12 @@ export {
   UI_COLORS,
   COLORS,
 } from './colors';
+
+// Character definitions
+export {
+  OTTER_CHARACTERS,
+  getCharacter,
+  getDefaultCharacter,
+  isCharacterUnlocked,
+  type OtterCharacter,
+} from './characters';

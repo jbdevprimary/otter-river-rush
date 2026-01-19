@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asset Preview | Otter River Rush</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: monospace;
+      background: #0a1628;
+      color: #fff;
+      overflow: hidden;
+    }
+    #container {
+      display: flex;
+      height: 100vh;
+    }
+    #sidebar {
+      width: 280px;
+      background: #1e293b;
+      padding: 16px;
+      overflow-y: auto;
+      border-right: 2px solid #3b82f6;
+    }
+    #canvas-container {
+      flex: 1;
+      position: relative;
+    }
+    #renderCanvas {
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+    h1 {
+      font-size: 18px;
+      color: #3b82f6;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #475569;
+      padding-bottom: 8px;
+    }
+    h2 {
+      font-size: 14px;
+      color: #94a3b8;
+      margin: 16px 0 8px;
+      text-transform: uppercase;
+    }
+    .asset-btn {
+      display: block;
+      width: 100%;
+      padding: 8px 12px;
+      margin: 4px 0;
+      background: #334155;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-family: monospace;
+      font-size: 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.2s;
+    }
+    .asset-btn:hover {
+      background: #3b82f6;
+    }
+    .asset-btn.active {
+      background: #2563eb;
+      border: 1px solid #60a5fa;
+    }
+    .sound-btn {
+      background: #166534;
+    }
+    .sound-btn:hover {
+      background: #22c55e;
+    }
+    #info {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: rgba(0,0,0,0.7);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+    #info p { margin: 4px 0; }
+    .source { color: #94a3b8; }
+    .controls {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #475569;
+    }
+    .controls label {
+      display: block;
+      margin: 8px 0;
+      font-size: 12px;
+    }
+    .controls input[type="range"] {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="sidebar">
+      <h1>Asset Preview</h1>
+
+      <h2>Decorations (Kenney)</h2>
+      <button class="asset-btn" data-model="/assets/models/decoration/kenney/lily_large.glb" data-source="kenney">Lily Pad Large</button>
+      <button class="asset-btn" data-model="/assets/models/decoration/kenney/lily_small.glb" data-source="kenney">Lily Pad Small</button>
+      <button class="asset-btn" data-model="/assets/models/decoration/kenney/buoy.glb" data-source="kenney">Buoy</button>
+      <button class="asset-btn" data-model="/assets/models/decoration/kenney/buoy-flag.glb" data-source="kenney">Buoy Flag</button>
+      <button class="asset-btn" data-model="/assets/models/decoration/kenney/canoe.glb" data-source="kenney">Canoe</button>
+      <button class="asset-btn" data-model="/assets/models/decoration/kenney/tree_default.glb" data-source="kenney">Tree Default</button>
+      <button class="asset-btn" data-model="/assets/models/decoration/kenney/tree_detailed.glb" data-source="kenney">Tree Detailed</button>
+      <button class="asset-btn" data-model="/assets/models/decoration/kenney/plant_bush.glb" data-source="kenney">Bush</button>
+      <button class="asset-btn" data-model="/assets/models/decoration/kenney/grass_large.glb" data-source="kenney">Grass Large</button>
+      <button class="asset-btn" data-model="/assets/models/decoration/kenney/flower_yellowA.glb" data-source="kenney">Flower Yellow</button>
+      <button class="asset-btn" data-model="/assets/models/decoration/kenney/campfire_logs.glb" data-source="kenney">Campfire</button>
+
+      <h2>Decorations (Meshy)</h2>
+      <button class="asset-btn" data-model="/assets/models/decoration/lily-pad/model.glb" data-source="meshy">Lily Pad</button>
+      <button class="asset-btn" data-model="/assets/models/decoration/cattail/model.glb" data-source="meshy">Cattail</button>
+      <button class="asset-btn" data-model="/assets/models/decoration/reed-cluster/model.glb" data-source="meshy">Reed Cluster</button>
+      <button class="asset-btn" data-model="/assets/models/decoration/duck-rubber/model.glb" data-source="meshy">Rubber Duck</button>
+
+      <h2>Obstacles (Kenney)</h2>
+      <button class="asset-btn" data-model="/assets/models/obstacle/kenney/cliff_block_rock.glb" data-source="kenney">Cliff Rock</button>
+      <button class="asset-btn" data-model="/assets/models/obstacle/kenney/cliff_blockHalf_rock.glb" data-source="kenney">Cliff Rock Half</button>
+      <button class="asset-btn" data-model="/assets/models/obstacle/kenney/boat-row-small.glb" data-source="kenney">Row Boat</button>
+
+      <h2>Obstacles (Meshy)</h2>
+      <button class="asset-btn" data-model="/assets/models/obstacle/rock-large/model.glb" data-source="meshy">Rock Large</button>
+      <button class="asset-btn" data-model="/assets/models/obstacle/rock-medium/model.glb" data-source="meshy">Rock Medium</button>
+      <button class="asset-btn" data-model="/assets/models/obstacle/rock-small/model.glb" data-source="meshy">Rock Small</button>
+      <button class="asset-btn" data-model="/assets/models/obstacle/log-floating/model.glb" data-source="meshy">Floating Log</button>
+      <button class="asset-btn" data-model="/assets/models/obstacle/branch-floating/model.glb" data-source="meshy">Floating Branch</button>
+
+      <h2>Collectibles (Meshy)</h2>
+      <button class="asset-btn" data-model="/assets/models/collectible/coin-gold/model.glb" data-source="meshy">Gold Coin</button>
+      <button class="asset-btn" data-model="/assets/models/collectible/gem-blue/model.glb" data-source="meshy">Blue Gem</button>
+      <button class="asset-btn" data-model="/assets/models/collectible/gem-green/model.glb" data-source="meshy">Green Gem</button>
+      <button class="asset-btn" data-model="/assets/models/collectible/gem-purple/model.glb" data-source="meshy">Purple Gem</button>
+      <button class="asset-btn" data-model="/assets/models/collectible/fish-small/model.glb" data-source="meshy">Small Fish</button>
+      <button class="asset-btn" data-model="/assets/models/collectible/fish-golden/model.glb" data-source="meshy">Golden Fish</button>
+
+      <h2>Player</h2>
+      <button class="asset-btn" data-model="/assets/models/player/otter-player/model.glb" data-source="meshy">Otter Player</button>
+
+      <h2>Sound Effects</h2>
+      <button class="asset-btn sound-btn" data-sound="/assets/audio/sfx/coin-pickup.ogg">Coin Pickup</button>
+      <button class="asset-btn sound-btn" data-sound="/assets/audio/sfx/gem-pickup.ogg">Gem Pickup</button>
+      <button class="asset-btn sound-btn" data-sound="/assets/audio/sfx/hit.ogg">Hit</button>
+      <button class="asset-btn sound-btn" data-sound="/assets/audio/sfx/bonus.ogg">Bonus</button>
+      <button class="asset-btn sound-btn" data-sound="/assets/audio/sfx/click.ogg">Click</button>
+      <button class="asset-btn sound-btn" data-sound="/assets/audio/sfx/confirm.ogg">Confirm</button>
+
+      <h2>Music</h2>
+      <button class="asset-btn sound-btn" data-music="/assets/audio/music/flowing-rocks.ogg">Flowing Rocks (Loop)</button>
+      <button class="asset-btn sound-btn" data-music="/assets/audio/music/night-at-beach.ogg">Night at Beach</button>
+      <button class="asset-btn sound-btn" data-music="/assets/audio/music/game-over.ogg">Game Over</button>
+      <button class="asset-btn sound-btn" onclick="stopMusic()">Stop Music</button>
+
+      <div class="controls">
+        <label>
+          Scale: <span id="scaleValue">1.0</span>
+          <input type="range" id="scaleSlider" min="0.1" max="5" step="0.1" value="1">
+        </label>
+        <label>
+          Rotation Speed: <span id="rotValue">0.5</span>
+          <input type="range" id="rotSlider" min="0" max="2" step="0.1" value="0.5">
+        </label>
+      </div>
+    </div>
+
+    <div id="canvas-container">
+      <canvas id="renderCanvas"></canvas>
+      <div id="info">
+        <p><strong>Current:</strong> <span id="currentAsset">None</span></p>
+        <p class="source">Source: <span id="currentSource">-</span></p>
+        <p>Drag to rotate | Scroll to zoom</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+  <script>
+    let engine, scene, camera, currentMesh, rotationSpeed = 0.5, currentMusic = null;
+
+    async function init() {
+      const canvas = document.getElementById('renderCanvas');
+      engine = new BABYLON.Engine(canvas, true);
+      scene = new BABYLON.Scene(engine);
+
+      // Camera
+      camera = new BABYLON.ArcRotateCamera('camera', Math.PI / 4, Math.PI / 3, 5, BABYLON.Vector3.Zero(), scene);
+      camera.attachControl(canvas, true);
+      camera.wheelPrecision = 50;
+      camera.minZ = 0.1;
+
+      // Lighting
+      const ambient = new BABYLON.HemisphericLight('ambient', new BABYLON.Vector3(0, 1, 0), scene);
+      ambient.intensity = 0.7;
+
+      const directional = new BABYLON.DirectionalLight('directional', new BABYLON.Vector3(-1, -2, 1), scene);
+      directional.intensity = 0.6;
+
+      // Ground plane
+      const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 10, height: 10 }, scene);
+      const groundMat = new BABYLON.StandardMaterial('groundMat', scene);
+      groundMat.diffuseColor = new BABYLON.Color3(0.1, 0.15, 0.25);
+      groundMat.specularColor = new BABYLON.Color3(0, 0, 0);
+      ground.material = groundMat;
+      ground.position.y = -0.5;
+
+      // Background color
+      scene.clearColor = new BABYLON.Color4(0.04, 0.08, 0.15, 1);
+
+      // Render loop with rotation
+      engine.runRenderLoop(() => {
+        if (currentMesh && rotationSpeed > 0) {
+          currentMesh.rotation.y += 0.01 * rotationSpeed;
+        }
+        scene.render();
+      });
+
+      // Handle resize
+      window.addEventListener('resize', () => engine.resize());
+
+      // Setup controls
+      setupControls();
+    }
+
+    function setupControls() {
+      // Asset buttons
+      document.querySelectorAll('.asset-btn[data-model]').forEach(btn => {
+        btn.addEventListener('click', () => loadModel(btn.dataset.model, btn.dataset.source, btn.textContent));
+      });
+
+      // Sound buttons
+      document.querySelectorAll('.asset-btn[data-sound]').forEach(btn => {
+        btn.addEventListener('click', () => playSound(btn.dataset.sound));
+      });
+
+      // Music buttons
+      document.querySelectorAll('.asset-btn[data-music]').forEach(btn => {
+        btn.addEventListener('click', () => playMusicTrack(btn.dataset.music));
+      });
+
+      // Scale slider
+      document.getElementById('scaleSlider').addEventListener('input', (e) => {
+        const scale = parseFloat(e.target.value);
+        document.getElementById('scaleValue').textContent = scale.toFixed(1);
+        if (currentMesh) {
+          currentMesh.scaling = new BABYLON.Vector3(scale, scale, scale);
+        }
+      });
+
+      // Rotation slider
+      document.getElementById('rotSlider').addEventListener('input', (e) => {
+        rotationSpeed = parseFloat(e.target.value);
+        document.getElementById('rotValue').textContent = rotationSpeed.toFixed(1);
+      });
+    }
+
+    async function loadModel(path, source, name) {
+      // Remove current mesh
+      if (currentMesh) {
+        currentMesh.dispose();
+        currentMesh = null;
+      }
+
+      // Update UI
+      document.getElementById('currentAsset').textContent = name;
+      document.getElementById('currentSource').textContent = source;
+
+      // Highlight active button
+      document.querySelectorAll('.asset-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      try {
+        const result = await BABYLON.SceneLoader.ImportMeshAsync('', '', path, scene);
+
+        // Create a parent mesh to hold all imported meshes
+        currentMesh = new BABYLON.Mesh('modelRoot', scene);
+        result.meshes.forEach(mesh => {
+          if (mesh !== result.meshes[0]) {
+            mesh.parent = currentMesh;
+          } else {
+            mesh.parent = currentMesh;
+          }
+        });
+
+        // Center and scale
+        const bounds = currentMesh.getHierarchyBoundingVectors();
+        const center = bounds.max.add(bounds.min).scale(0.5);
+        const size = bounds.max.subtract(bounds.min);
+        const maxDim = Math.max(size.x, size.y, size.z);
+
+        // Position at origin
+        currentMesh.position = center.negate();
+
+        // Apply initial scale from slider
+        const scale = parseFloat(document.getElementById('scaleSlider').value);
+        currentMesh.scaling = new BABYLON.Vector3(scale, scale, scale);
+
+        // Adjust camera distance based on size
+        camera.radius = maxDim * 3;
+
+        // Play animations if present
+        if (result.animationGroups && result.animationGroups.length > 0) {
+          result.animationGroups[0].play(true);
+        }
+
+      } catch (err) {
+        console.error('Failed to load model:', err);
+        document.getElementById('currentAsset').textContent = 'Error loading: ' + name;
+      }
+    }
+
+    function playSound(path) {
+      const sound = new BABYLON.Sound('sfx', path, scene, null, { autoplay: true });
+    }
+
+    function playMusicTrack(path) {
+      stopMusic();
+      currentMusic = new BABYLON.Sound('music', path, scene, null, { autoplay: true, loop: true, volume: 0.5 });
+    }
+
+    function stopMusic() {
+      if (currentMusic) {
+        currentMusic.stop();
+        currentMusic.dispose();
+        currentMusic = null;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

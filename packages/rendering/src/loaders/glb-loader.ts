@@ -1,9 +1,15 @@
 /**
  * GLB Model Loader
- * Utilities for loading GLB models in Babylon.js
+ * Utilities for loading GLB models in Babylon.js with animation support
  */
 
-import { SceneLoader, type AbstractMesh, type Scene } from '@babylonjs/core';
+import {
+  SceneLoader,
+  type AbstractMesh,
+  type Scene,
+  type AnimationGroup,
+  type Skeleton,
+} from '@babylonjs/core';
 import '@babylonjs/loaders/glTF';
 
 export interface LoadGLBOptions {
@@ -17,11 +23,17 @@ export interface LoadGLBOptions {
 export interface GLBResult {
   meshes: AbstractMesh[];
   rootMesh: AbstractMesh;
+  animationGroups: AnimationGroup[];
+  skeletons: Skeleton[];
   dispose: () => void;
+  /** Play an animation by name or index */
+  playAnimation: (nameOrIndex: string | number, loop?: boolean, speed?: number) => AnimationGroup | null;
+  /** Stop all animations */
+  stopAllAnimations: () => void;
 }
 
 /**
- * Load a GLB model
+ * Load a GLB model with full animation support
  */
 export async function loadGLB(options: LoadGLBOptions): Promise<GLBResult> {
   const { scene, url, name, scaling = 1, onProgress } = options;
@@ -45,13 +57,53 @@ export async function loadGLB(options: LoadGLBOptions): Promise<GLBResult> {
     rootMesh.scaling.setAll(scaling);
   }
 
+  const animationGroups = result.animationGroups || [];
+  const skeletons = result.skeletons || [];
+
+  // Stop all animations initially
+  animationGroups.forEach(ag => ag.stop());
+
   return {
     meshes: result.meshes as AbstractMesh[],
     rootMesh: rootMesh as AbstractMesh,
+    animationGroups,
+    skeletons,
     dispose: () => {
+      // Stop and dispose animations
+      animationGroups.forEach(ag => {
+        ag.stop();
+        ag.dispose();
+      });
+      // Dispose meshes
       for (const mesh of result.meshes) {
         mesh.dispose();
       }
+    },
+    playAnimation: (nameOrIndex: string | number, loop = true, speed = 1.0) => {
+      // Stop all current animations first
+      animationGroups.forEach(ag => ag.stop());
+
+      let targetAnim: AnimationGroup | undefined;
+
+      if (typeof nameOrIndex === 'number') {
+        targetAnim = animationGroups[nameOrIndex];
+      } else {
+        // Find by name (case-insensitive partial match)
+        const searchName = nameOrIndex.toLowerCase();
+        targetAnim = animationGroups.find(
+          ag => ag.name.toLowerCase().includes(searchName)
+        );
+      }
+
+      if (targetAnim) {
+        targetAnim.start(loop, speed, targetAnim.from, targetAnim.to, false);
+        return targetAnim;
+      }
+
+      return null;
+    },
+    stopAllAnimations: () => {
+      animationGroups.forEach(ag => ag.stop());
     },
   };
 }

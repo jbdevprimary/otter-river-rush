@@ -4,7 +4,9 @@
  */
 
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { resetWorld } from '@otter-river-rush/core';
+import { getCharacter, getDefaultCharacter, type OtterCharacter } from '@otter-river-rush/config';
 import type { GameMode, GameStatus, PowerUpType } from '@otter-river-rush/types';
 
 export interface PowerUpState {
@@ -16,12 +18,28 @@ export interface PowerUpState {
   slowMotion: number;
 }
 
+// Persistent player progress (saved across sessions)
+export interface PlayerProgress {
+  totalDistance: number;
+  totalCoins: number;
+  totalGems: number;
+  gamesPlayed: number;
+  highScore: number;
+  unlockedCharacters: string[];
+}
+
 export interface GameState {
   // Game status
   status: GameStatus;
   mode: GameMode;
 
-  // Player stats
+  // Selected character
+  selectedCharacterId: string;
+
+  // Current character traits (applied at game start)
+  activeTraits: OtterCharacter['traits'] | null;
+
+  // Player stats (current session)
   score: number;
   distance: number;
   coins: number;
@@ -37,8 +55,12 @@ export interface GameState {
   musicEnabled: boolean;
   volume: number;
 
-  // High scores
-  highScore: number;
+  // Persistent progress
+  progress: PlayerProgress;
+
+  // Character actions
+  selectCharacter: (characterId: string) => void;
+  getSelectedCharacter: () => OtterCharacter;
 
   // Actions
   startGame: (mode: GameMode) => void;
@@ -46,6 +68,7 @@ export interface GameState {
   resumeGame: () => void;
   endGame: () => void;
   returnToMenu: () => void;
+  goToCharacterSelect: () => void;
 
   updateScore: (points: number) => void;
   updateDistance: (meters: number) => void;
@@ -74,59 +97,23 @@ const initialPowerUps: PowerUpState = {
   slowMotion: 0,
 };
 
-export const useGameStore = create<GameState>((set, get) => ({
-  // Initial state
-  status: 'menu',
-  mode: 'classic',
-  score: 0,
-  distance: 0,
-  coins: 0,
-  gems: 0,
-  combo: 0,
-  lives: 3,
-  powerUps: { ...initialPowerUps },
-  soundEnabled: true,
-  musicEnabled: true,
-  volume: 0.7,
+const initialProgress: PlayerProgress = {
+  totalDistance: 0,
+  totalCoins: 0,
+  totalGems: 0,
+  gamesPlayed: 0,
   highScore: 0,
+  unlockedCharacters: ['rusty'], // Rusty is unlocked by default
+};
 
-  // Actions
-  startGame: (mode) => {
-    // Reset the ECS world to clear all entities
-    resetWorld();
-
-    set(() => ({
-      status: 'playing',
-      mode,
-      score: 0,
-      distance: 0,
-      coins: 0,
-      gems: 0,
-      combo: 0,
-      lives: 3,
-      powerUps: { ...initialPowerUps },
-    }));
-  },
-
-  pauseGame: () => set({ status: 'paused' }),
-  resumeGame: () => set({ status: 'playing' }),
-
-  endGame: () =>
-    set((state) => {
-      const newHighScore = Math.max(state.score, state.highScore);
-      return {
-        status: 'game_over',
-        highScore: newHighScore,
-        lives: 0,
-      };
-    }),
-
-  returnToMenu: () => {
-    // Reset the ECS world to clear all entities
-    resetWorld();
-
-    set({
+export const useGameStore = create<GameState>()(
+  persist(
+    (set, get) => ({
+      // Initial state
       status: 'menu',
+      mode: 'classic',
+      selectedCharacterId: 'rusty',
+      activeTraits: null,
       score: 0,
       distance: 0,
       coins: 0,
@@ -134,8 +121,108 @@ export const useGameStore = create<GameState>((set, get) => ({
       combo: 0,
       lives: 3,
       powerUps: { ...initialPowerUps },
-    });
-  },
+      soundEnabled: true,
+      musicEnabled: true,
+      volume: 0.7,
+      progress: { ...initialProgress },
+
+      // Character actions
+      selectCharacter: (characterId) => {
+        const character = getCharacter(characterId);
+        if (character) {
+          set({ selectedCharacterId: characterId });
+        }
+      },
+
+      getSelectedCharacter: () => {
+        const state = get();
+        return getCharacter(state.selectedCharacterId) ?? getDefaultCharacter();
+      },
+
+      // Actions
+      startGame: (mode) => {
+        const state = get();
+        const character = getCharacter(state.selectedCharacterId) ?? getDefaultCharacter();
+
+        // Reset the ECS world to clear all entities
+        resetWorld();
+
+        set(() => ({
+          status: 'playing',
+          mode,
+          activeTraits: character.traits,
+          score: 0,
+          distance: 0,
+          coins: 0,
+          gems: 0,
+          combo: 0,
+          lives: character.traits.startingHealth,
+          powerUps: { ...initialPowerUps },
+        }));
+      },
+
+      pauseGame: () => set({ status: 'paused' }),
+      resumeGame: () => set({ status: 'playing' }),
+
+      endGame: () =>
+        set((state) => {
+          // Update persistent progress
+          const newProgress = {
+            ...state.progress,
+            totalDistance: state.progress.totalDistance + state.distance,
+            totalCoins: state.progress.totalCoins + state.coins,
+            totalGems: state.progress.totalGems + state.gems,
+            gamesPlayed: state.progress.gamesPlayed + 1,
+            highScore: Math.max(state.score, state.progress.highScore),
+          };
+
+          // Check for character unlocks
+          const unlockedCharacters = [...newProgress.unlockedCharacters];
+
+          // Sterling unlocks at 1000m total distance
+          if (newProgress.totalDistance >= 1000 && !unlockedCharacters.includes('sterling')) {
+            unlockedCharacters.push('sterling');
+          }
+
+          // Goldie unlocks at 5000 total coins
+          if (newProgress.totalCoins >= 5000 && !unlockedCharacters.includes('goldie')) {
+            unlockedCharacters.push('goldie');
+          }
+
+          // Frost unlocks at 10000 high score
+          if (newProgress.highScore >= 10000 && !unlockedCharacters.includes('frost')) {
+            unlockedCharacters.push('frost');
+          }
+
+          newProgress.unlockedCharacters = unlockedCharacters;
+
+          return {
+            status: 'game_over',
+            progress: newProgress,
+            lives: 0,
+          };
+        }),
+
+      returnToMenu: () => {
+        // Reset the ECS world to clear all entities
+        resetWorld();
+
+        set({
+          status: 'menu',
+          activeTraits: null,
+          score: 0,
+          distance: 0,
+          coins: 0,
+          gems: 0,
+          combo: 0,
+          lives: 3,
+          powerUps: { ...initialPowerUps },
+        });
+      },
+
+      goToCharacterSelect: () => {
+        set({ status: 'character_select' });
+      },
 
   updateScore: (points) =>
     set((state) => ({
@@ -148,16 +235,26 @@ export const useGameStore = create<GameState>((set, get) => ({
     })),
 
   collectCoin: (value) =>
-    set((state) => ({
-      coins: state.coins + value,
-      score: state.score + value * 10,
-    })),
+    set((state) => {
+      // Apply character coin multiplier
+      const multiplier = state.activeTraits?.coinValueMod ?? 1;
+      const adjustedValue = Math.round(value * multiplier);
+      return {
+        coins: state.coins + adjustedValue,
+        score: state.score + adjustedValue * 10,
+      };
+    }),
 
   collectGem: (value) =>
-    set((state) => ({
-      gems: state.gems + value,
-      score: state.score + value * 50,
-    })),
+    set((state) => {
+      // Apply character gem multiplier
+      const multiplier = state.activeTraits?.gemValueMod ?? 1;
+      const adjustedValue = Math.round(value * multiplier);
+      return {
+        gems: state.gems + adjustedValue,
+        score: state.score + adjustedValue * 50,
+      };
+    }),
 
   incrementCombo: () =>
     set((state) => ({
@@ -223,6 +320,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({
       status: 'menu',
       mode: 'classic',
+      activeTraits: null,
       score: 0,
       distance: 0,
       coins: 0,
@@ -231,4 +329,17 @@ export const useGameStore = create<GameState>((set, get) => ({
       lives: 3,
       powerUps: { ...initialPowerUps },
     }),
-}));
+    }),
+    {
+      name: 'otter-river-rush-storage',
+      // Only persist certain fields
+      partialize: (state) => ({
+        selectedCharacterId: state.selectedCharacterId,
+        progress: state.progress,
+        soundEnabled: state.soundEnabled,
+        musicEnabled: state.musicEnabled,
+        volume: state.volume,
+      }),
+    }
+  )
+);

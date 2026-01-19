@@ -36,6 +36,8 @@ export const VISUAL = {
     coin: 0.8, // Collectibles medium size
     gem: 1.0, // Gems slightly larger than coins
     particle: 0.05, // Tiny particles
+    decoration: 1.2, // Decorations (lily pads, reeds, etc.)
+    tree: 2.0, // Trees along riverbank
   },
 
   // Entity Positions (Y-axis)
@@ -86,7 +88,9 @@ export const VISUAL = {
   layers: {
     background: -5,
     river: -2,
+    riverbank: -1.5, // Trees/decorations along edges
     lanes: -1,
+    decorations: -0.5, // Lily pads, reeds on water surface
     player: 0,
     obstacles: 0,
     collectibles: 0.1,
@@ -126,6 +130,7 @@ export const PHYSICS = {
   spawnInterval: {
     obstacles: 2, // Spawn rock every 2 seconds
     collectibles: 3, // Spawn coin/gem every 3 seconds
+    decorations: 1.5, // Spawn decoration every 1.5 seconds
   },
 } as const;
 

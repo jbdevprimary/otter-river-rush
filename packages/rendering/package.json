@@ -20,6 +20,7 @@
     "@otter-river-rush/core": "workspace:*",
     "@babylonjs/core": "^8.46.2",
     "@babylonjs/loaders": "^8.46.2",
+    "@babylonjs/materials": "^8.46.2",
     "reactylon": "^3.5.2",
     "react": "^19.2.3"
   },
