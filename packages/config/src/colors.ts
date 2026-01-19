@@ -8,12 +8,15 @@ import type { BiomeType, PowerUpType } from '@otter-river-rush/types';
 /**
  * Biome-specific color schemes
  */
-export const BIOME_COLORS: Record<BiomeType, {
-  water: string;
-  terrain: string;
-  fog: string;
-  sky: string;
-}> = {
+export const BIOME_COLORS: Record<
+  BiomeType,
+  {
+    water: string;
+    terrain: string;
+    fog: string;
+    sky: string;
+  }
+> = {
   forest: {
     water: '#1e40af',
     terrain: '#166534',

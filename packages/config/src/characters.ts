@@ -26,11 +26,11 @@ export interface OtterCharacter {
 
   // Gameplay modifiers
   traits: {
-    laneChangeSpeed: number;    // Multiplier (1.0 = normal)
-    scrollSpeedMod: number;     // Multiplier (1.0 = normal, higher = harder)
-    coinValueMod: number;       // Multiplier (1.0 = normal)
-    gemValueMod: number;        // Multiplier (1.0 = normal)
-    startingHealth: number;     // Base health
+    laneChangeSpeed: number; // Multiplier (1.0 = normal)
+    scrollSpeedMod: number; // Multiplier (1.0 = normal, higher = harder)
+    coinValueMod: number; // Multiplier (1.0 = normal)
+    gemValueMod: number; // Multiplier (1.0 = normal)
+    startingHealth: number; // Base health
     invincibilityDuration: number; // ms after hit
   };
 
@@ -50,16 +50,17 @@ export const OTTER_CHARACTERS: OtterCharacter[] = [
     id: 'rusty',
     name: 'Rusty',
     title: 'The River Runner',
-    description: 'A cheerful brown otter who loves splashing through rivers. Reliable and steady, Rusty is perfect for beginners.',
+    description:
+      'A cheerful brown otter who loves splashing through rivers. Reliable and steady, Rusty is perfect for beginners.',
     personality: 'Friendly, determined, always optimistic',
     modelPath: '/assets/models/player/otter-player/model.glb',
     thumbnailPath: '/assets/models/player/otter-player/thumbnail.png',
 
     theme: {
-      primaryColor: '#8B4513',    // Saddle brown
-      secondaryColor: '#DEB887',  // Burly wood
-      accentColor: '#FFD700',     // Gold accents
-      particleColor: '#FFA500',   // Orange splash
+      primaryColor: '#8B4513', // Saddle brown
+      secondaryColor: '#DEB887', // Burly wood
+      accentColor: '#FFD700', // Gold accents
+      particleColor: '#FFA500', // Orange splash
     },
 
     traits: {
@@ -80,23 +81,24 @@ export const OTTER_CHARACTERS: OtterCharacter[] = [
     id: 'sterling',
     name: 'Sterling',
     title: 'The Shadow Swimmer',
-    description: 'A sleek silver otter who moves like moonlight on water. Quick reflexes make dodging a breeze.',
+    description:
+      'A sleek silver otter who moves like moonlight on water. Quick reflexes make dodging a breeze.',
     personality: 'Wise, calm, mysterious night owl',
     modelPath: '/assets/models/player/otter-silver/model.glb',
     thumbnailPath: '/assets/models/player/otter-silver/thumbnail.png',
 
     theme: {
-      primaryColor: '#708090',    // Slate gray
-      secondaryColor: '#C0C0C0',  // Silver
-      accentColor: '#87CEEB',     // Sky blue
-      particleColor: '#B0C4DE',   // Light steel blue
+      primaryColor: '#708090', // Slate gray
+      secondaryColor: '#C0C0C0', // Silver
+      accentColor: '#87CEEB', // Sky blue
+      particleColor: '#B0C4DE', // Light steel blue
     },
 
     traits: {
-      laneChangeSpeed: 1.4,       // 40% faster lane changes!
+      laneChangeSpeed: 1.4, // 40% faster lane changes!
       scrollSpeedMod: 1.0,
-      coinValueMod: 0.85,         // Slightly less coin value (trade-off)
-      gemValueMod: 1.2,           // But gems worth more!
+      coinValueMod: 0.85, // Slightly less coin value (trade-off)
+      gemValueMod: 1.2, // But gems worth more!
       startingHealth: 3,
       invincibilityDuration: 1200,
     },
@@ -112,24 +114,25 @@ export const OTTER_CHARACTERS: OtterCharacter[] = [
     id: 'goldie',
     name: 'Goldie',
     title: 'The Fortune Finder',
-    description: 'A magnificent golden otter with a nose for treasure. Everything Goldie touches turns to riches!',
+    description:
+      'A magnificent golden otter with a nose for treasure. Everything Goldie touches turns to riches!',
     personality: 'Regal, lucky, loves shiny things',
     modelPath: '/assets/models/player/otter-golden/model.glb',
     thumbnailPath: '/assets/models/player/otter-golden/thumbnail.png',
 
     theme: {
-      primaryColor: '#DAA520',    // Goldenrod
-      secondaryColor: '#FFD700',  // Gold
-      accentColor: '#FFF8DC',     // Cornsilk
-      particleColor: '#FFE4B5',   // Moccasin sparkle
+      primaryColor: '#DAA520', // Goldenrod
+      secondaryColor: '#FFD700', // Gold
+      accentColor: '#FFF8DC', // Cornsilk
+      particleColor: '#FFE4B5', // Moccasin sparkle
     },
 
     traits: {
-      laneChangeSpeed: 0.9,       // Slightly slower (heavy with gold!)
-      scrollSpeedMod: 0.95,       // River flows a bit slower
-      coinValueMod: 2.0,          // DOUBLE coin value!
-      gemValueMod: 1.5,           // 50% more gem value!
-      startingHealth: 2,          // Glass cannon - less health
+      laneChangeSpeed: 0.9, // Slightly slower (heavy with gold!)
+      scrollSpeedMod: 0.95, // River flows a bit slower
+      coinValueMod: 2.0, // DOUBLE coin value!
+      gemValueMod: 1.5, // 50% more gem value!
+      startingHealth: 2, // Glass cannon - less health
       invincibilityDuration: 2000,
     },
 
@@ -144,24 +147,25 @@ export const OTTER_CHARACTERS: OtterCharacter[] = [
     id: 'frost',
     name: 'Frost',
     title: 'The Arctic Ace',
-    description: 'A fluffy white otter from the frozen north. Frost thrives on speed and challenge!',
+    description:
+      'A fluffy white otter from the frozen north. Frost thrives on speed and challenge!',
     personality: 'Playful, adventurous, loves a challenge',
     modelPath: '/assets/models/player/otter-arctic/model.glb',
     thumbnailPath: '/assets/models/player/otter-arctic/thumbnail.png',
 
     theme: {
-      primaryColor: '#F0F8FF',    // Alice blue
-      secondaryColor: '#E0FFFF',  // Light cyan
-      accentColor: '#00CED1',     // Dark turquoise
-      particleColor: '#ADD8E6',   // Light blue
+      primaryColor: '#F0F8FF', // Alice blue
+      secondaryColor: '#E0FFFF', // Light cyan
+      accentColor: '#00CED1', // Dark turquoise
+      particleColor: '#ADD8E6', // Light blue
     },
 
     traits: {
-      laneChangeSpeed: 1.2,       // Quick!
-      scrollSpeedMod: 1.25,       // 25% faster scrolling (harder!)
+      laneChangeSpeed: 1.2, // Quick!
+      scrollSpeedMod: 1.25, // 25% faster scrolling (harder!)
       coinValueMod: 1.0,
       gemValueMod: 1.0,
-      startingHealth: 4,          // Extra health for the challenge
+      startingHealth: 4, // Extra health for the challenge
       invincibilityDuration: 1000, // Less invincibility time
     },
 
@@ -177,7 +181,7 @@ export const OTTER_CHARACTERS: OtterCharacter[] = [
  * Get character by ID
  */
 export function getCharacter(id: string): OtterCharacter | undefined {
-  return OTTER_CHARACTERS.find(c => c.id === id);
+  return OTTER_CHARACTERS.find((c) => c.id === id);
 }
 
 /**

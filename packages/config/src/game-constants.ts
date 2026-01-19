@@ -97,11 +97,7 @@ export const GAME_CONFIG = {
   // Accessibility
   REDUCED_MOTION_SCALE: 0.5,
   HIGH_CONTRAST_ENABLED: false,
-  COLORBLIND_MODE: 'none' as
-    | 'none'
-    | 'protanopia'
-    | 'deuteranopia'
-    | 'tritanopia',
+  COLORBLIND_MODE: 'none' as 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia',
 } as const;
 
 export const DIFFICULTY_PRESETS = {

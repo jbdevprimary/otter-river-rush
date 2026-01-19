@@ -3,39 +3,35 @@
  * Central configuration for the game
  */
 
-// Visual constants
-export {
-  VISUAL,
-  FLOW,
-  PHYSICS,
-  getLaneX,
-  getModelScale,
-} from './visual-constants';
-
-// Game constants
-export {
-  GAME_CONFIG,
-  DIFFICULTY_PRESETS,
-  GAME_MODES,
-} from './game-constants';
-
-// Physics constants
-export { PHYSICS_CONFIG } from './physics-constants';
-
-// Colors
-export {
-  BIOME_COLORS,
-  ENTITY_COLORS,
-  PARTICLE_COLORS,
-  UI_COLORS,
-  COLORS,
-} from './colors';
-
 // Character definitions
 export {
-  OTTER_CHARACTERS,
   getCharacter,
   getDefaultCharacter,
   isCharacterUnlocked,
+  OTTER_CHARACTERS,
   type OtterCharacter,
 } from './characters';
+// Colors
+export {
+  BIOME_COLORS,
+  COLORS,
+  ENTITY_COLORS,
+  PARTICLE_COLORS,
+  UI_COLORS,
+} from './colors';
+// Game constants
+export {
+  DIFFICULTY_PRESETS,
+  GAME_CONFIG,
+  GAME_MODES,
+} from './game-constants';
+// Physics constants
+export { PHYSICS_CONFIG } from './physics-constants';
+// Visual constants
+export {
+  FLOW,
+  getLaneX,
+  getModelScale,
+  PHYSICS,
+  VISUAL,
+} from './visual-constants';
