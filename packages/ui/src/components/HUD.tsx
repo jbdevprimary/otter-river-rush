@@ -12,20 +12,22 @@ export function HUD() {
   const combo = useGameStore((state) => state.combo);
 
   return (
-    <div style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      padding: '20px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      color: 'white',
-      fontSize: '18px',
-      fontFamily: 'monospace',
-      pointerEvents: 'none',
-      zIndex: 100,
-    }}>
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        padding: '20px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        color: 'white',
+        fontSize: '18px',
+        fontFamily: 'monospace',
+        pointerEvents: 'none',
+        zIndex: 100,
+      }}
+    >
       <div>
         <div>Score: {score}</div>
         <div>Distance: {Math.floor(distance)}m</div>

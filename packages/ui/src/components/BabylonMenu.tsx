@@ -3,18 +3,18 @@
  * Main menu and game over screens using Babylon.js GUI
  */
 
-import { useEffect, useRef } from 'react';
-import { useScene } from 'reactylon';
 import {
   AdvancedDynamicTexture,
-  TextBlock,
   Button,
+  Control,
   Rectangle,
   StackPanel,
-  Control,
+  TextBlock,
 } from '@babylonjs/gui';
-import { useGameStore } from '@otter-river-rush/state';
 import { UI_COLORS } from '@otter-river-rush/config';
+import { useGameStore } from '@otter-river-rush/state';
+import { useEffect, useRef } from 'react';
+import { useScene } from 'reactylon';
 
 interface BabylonMenuProps {
   type: 'menu' | 'game_over';
@@ -110,9 +110,14 @@ function createMainMenu(container: StackPanel, _gui: AdvancedDynamicTexture) {
   container.addControl(startBtn);
 
   // Select character button
-  const selectBtn = createStyledButton('selectBtn', 'SELECT OTTER', () => {
-    useGameStore.getState().goToCharacterSelect();
-  }, '#6366f1');
+  const selectBtn = createStyledButton(
+    'selectBtn',
+    'SELECT OTTER',
+    () => {
+      useGameStore.getState().goToCharacterSelect();
+    },
+    '#6366f1'
+  );
   container.addControl(selectBtn);
 
   // Controls info
@@ -127,7 +132,11 @@ function createMainMenu(container: StackPanel, _gui: AdvancedDynamicTexture) {
   container.addControl(controls);
 }
 
-function createGameOverMenu(container: StackPanel, _gui: AdvancedDynamicTexture, finalScore: number) {
+function createGameOverMenu(
+  container: StackPanel,
+  _gui: AdvancedDynamicTexture,
+  finalScore: number
+) {
   // Game Over title
   const title = new TextBlock('gameOverTitle');
   title.text = 'GAME OVER';
@@ -173,9 +182,14 @@ function createGameOverMenu(container: StackPanel, _gui: AdvancedDynamicTexture,
   container.addControl(playAgainBtn);
 
   // Menu button
-  const menuBtn = createStyledButton('menuBtn', 'MAIN MENU', () => {
-    useGameStore.getState().returnToMenu();
-  }, '#475569');
+  const menuBtn = createStyledButton(
+    'menuBtn',
+    'MAIN MENU',
+    () => {
+      useGameStore.getState().returnToMenu();
+    },
+    '#475569'
+  );
   container.addControl(menuBtn);
 }
 

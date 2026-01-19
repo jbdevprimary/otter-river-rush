@@ -3,29 +3,24 @@
  * Babylon.js GUI-based character picker with names, traits, and unlock status
  */
 
-import { useEffect, useRef } from 'react';
-import { useScene } from 'reactylon';
 import {
   AdvancedDynamicTexture,
-  Rectangle,
-  TextBlock,
   Button,
-  StackPanel,
   Control,
+  Rectangle,
+  StackPanel,
+  TextBlock,
 } from '@babylonjs/gui';
-import { useGameStore } from '@otter-river-rush/state';
 import { OTTER_CHARACTERS, type OtterCharacter } from '@otter-river-rush/config';
+import { useGameStore } from '@otter-river-rush/state';
+import { useEffect, useRef } from 'react';
+import { useScene } from 'reactylon';
 
 export function BabylonCharacterSelect() {
   const scene = useScene();
   const guiRef = useRef<AdvancedDynamicTexture | null>(null);
-  const {
-    selectedCharacterId,
-    selectCharacter,
-    startGame,
-    returnToMenu,
-    progress,
-  } = useGameStore();
+  const { selectedCharacterId, selectCharacter, startGame, returnToMenu, progress } =
+    useGameStore();
 
   useEffect(() => {
     if (!scene) return;
@@ -117,7 +112,7 @@ export function BabylonCharacterSelect() {
     infoPanel.cornerRadius = 15;
     mainPanel.addControl(infoPanel);
 
-    const selectedChar = OTTER_CHARACTERS.find(c => c.id === selectedCharacterId);
+    const selectedChar = OTTER_CHARACTERS.find((c) => c.id === selectedCharacterId);
     if (selectedChar) {
       const infoText = new TextBlock('infoText');
       infoText.text = `${selectedChar.name} - ${selectedChar.title}\n${selectedChar.personality}`;
@@ -194,7 +189,7 @@ export function BabylonCharacterSelect() {
       gui.dispose();
       guiRef.current = null;
     };
-  }, [scene, selectedCharacterId, progress]);
+  }, [scene, selectedCharacterId, progress, returnToMenu, selectCharacter, startGame]);
 
   return null;
 }
@@ -212,10 +207,12 @@ function createCharacterCard(
   card.width = '200px';
   card.height = '350px';
   card.thickness = isSelected ? 4 : 2;
-  card.color = isSelected ? '#FFD700' : (isUnlocked ? '#4A90D9' : '#444444');
+  card.color = isSelected ? '#FFD700' : isUnlocked ? '#4A90D9' : '#444444';
   card.background = isSelected
     ? 'rgba(74, 144, 217, 0.4)'
-    : (isUnlocked ? 'rgba(30, 58, 95, 0.6)' : 'rgba(30, 30, 30, 0.8)');
+    : isUnlocked
+      ? 'rgba(30, 58, 95, 0.6)'
+      : 'rgba(30, 30, 30, 0.8)';
   card.cornerRadius = 15;
   card.paddingTop = '10px';
 
@@ -283,7 +280,10 @@ function createCharacterCard(
     // Speed trait
     if (traits.scrollSpeedMod !== 1.0) {
       const speedText = new TextBlock();
-      speedText.text = traits.scrollSpeedMod > 1 ? `Speed +${Math.round((traits.scrollSpeedMod - 1) * 100)}%` : `Speed ${Math.round((traits.scrollSpeedMod - 1) * 100)}%`;
+      speedText.text =
+        traits.scrollSpeedMod > 1
+          ? `Speed +${Math.round((traits.scrollSpeedMod - 1) * 100)}%`
+          : `Speed ${Math.round((traits.scrollSpeedMod - 1) * 100)}%`;
       speedText.fontSize = 11;
       speedText.color = traits.scrollSpeedMod > 1 ? '#ff9999' : '#99ff99';
       speedText.height = '16px';
@@ -293,7 +293,10 @@ function createCharacterCard(
     // Lane change
     if (traits.laneChangeSpeed !== 1.0) {
       const laneText = new TextBlock();
-      laneText.text = traits.laneChangeSpeed > 1 ? `Agility +${Math.round((traits.laneChangeSpeed - 1) * 100)}%` : `Agility ${Math.round((traits.laneChangeSpeed - 1) * 100)}%`;
+      laneText.text =
+        traits.laneChangeSpeed > 1
+          ? `Agility +${Math.round((traits.laneChangeSpeed - 1) * 100)}%`
+          : `Agility ${Math.round((traits.laneChangeSpeed - 1) * 100)}%`;
       laneText.fontSize = 11;
       laneText.color = traits.laneChangeSpeed > 1 ? '#99ff99' : '#ff9999';
       laneText.height = '16px';
@@ -303,7 +306,8 @@ function createCharacterCard(
     // Coin bonus
     if (traits.coinValueMod !== 1.0) {
       const coinText = new TextBlock();
-      coinText.text = traits.coinValueMod > 1 ? `Coins x${traits.coinValueMod}` : `Coins x${traits.coinValueMod}`;
+      coinText.text =
+        traits.coinValueMod > 1 ? `Coins x${traits.coinValueMod}` : `Coins x${traits.coinValueMod}`;
       coinText.fontSize = 11;
       coinText.color = traits.coinValueMod > 1 ? '#ffdd44' : '#ff9999';
       coinText.height = '16px';
@@ -313,7 +317,8 @@ function createCharacterCard(
     // Gem bonus
     if (traits.gemValueMod !== 1.0) {
       const gemText = new TextBlock();
-      gemText.text = traits.gemValueMod > 1 ? `Gems x${traits.gemValueMod}` : `Gems x${traits.gemValueMod}`;
+      gemText.text =
+        traits.gemValueMod > 1 ? `Gems x${traits.gemValueMod}` : `Gems x${traits.gemValueMod}`;
       gemText.fontSize = 11;
       gemText.color = traits.gemValueMod > 1 ? '#ff44ff' : '#ff9999';
       gemText.height = '16px';

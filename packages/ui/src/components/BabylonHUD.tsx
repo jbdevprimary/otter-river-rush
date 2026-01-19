@@ -3,17 +3,11 @@
  * Heads-up display using Babylon.js GUI (AdvancedDynamicTexture)
  */
 
+import { AdvancedDynamicTexture, Control, Rectangle, StackPanel, TextBlock } from '@babylonjs/gui';
+import { UI_COLORS } from '@otter-river-rush/config';
+import { useGameStore } from '@otter-river-rush/state';
 import { useEffect, useRef } from 'react';
 import { useScene } from 'reactylon';
-import {
-  AdvancedDynamicTexture,
-  TextBlock,
-  Rectangle,
-  StackPanel,
-  Control,
-} from '@babylonjs/gui';
-import { useGameStore } from '@otter-river-rush/state';
-import { UI_COLORS } from '@otter-river-rush/config';
 
 export function BabylonHUD() {
   const scene = useScene();
