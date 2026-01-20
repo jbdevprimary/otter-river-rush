@@ -8,6 +8,7 @@ import { resetWorld } from '@otter-river-rush/core';
 import type { GameMode, GameStatus, PowerUpType } from '@otter-river-rush/types';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { updatePlayerProgress } from './progress';
 
 export interface PowerUpState {
   shield: boolean;
@@ -165,43 +166,11 @@ export const useGameStore = create<GameState>()(
       resumeGame: () => set({ status: 'playing' }),
 
       endGame: () =>
-        set((state) => {
-          // Update persistent progress
-          const newProgress = {
-            ...state.progress,
-            totalDistance: state.progress.totalDistance + state.distance,
-            totalCoins: state.progress.totalCoins + state.coins,
-            totalGems: state.progress.totalGems + state.gems,
-            gamesPlayed: state.progress.gamesPlayed + 1,
-            highScore: Math.max(state.score, state.progress.highScore),
-          };
-
-          // Check for character unlocks
-          const unlockedCharacters = [...newProgress.unlockedCharacters];
-
-          // Sterling unlocks at 1000m total distance
-          if (newProgress.totalDistance >= 1000 && !unlockedCharacters.includes('sterling')) {
-            unlockedCharacters.push('sterling');
-          }
-
-          // Goldie unlocks at 5000 total coins
-          if (newProgress.totalCoins >= 5000 && !unlockedCharacters.includes('goldie')) {
-            unlockedCharacters.push('goldie');
-          }
-
-          // Frost unlocks at 10000 high score
-          if (newProgress.highScore >= 10000 && !unlockedCharacters.includes('frost')) {
-            unlockedCharacters.push('frost');
-          }
-
-          newProgress.unlockedCharacters = unlockedCharacters;
-
-          return {
-            status: 'game_over',
-            progress: newProgress,
-            lives: 0,
-          };
-        }),
+        set((state) => ({
+          status: 'game_over',
+          progress: updatePlayerProgress(state),
+          lives: 0,
+        })),
 
       returnToMenu: () => {
         // Reset the ECS world to clear all entities
@@ -278,40 +247,38 @@ export const useGameStore = create<GameState>()(
           const now = Date.now();
           const endTime = duration ? now + duration : now + 5000;
 
-          if (type === 'shield') {
-            return {
-              powerUps: { ...state.powerUps, shield: true },
-            };
+          switch (type) {
+            case 'shield':
+              return {
+                powerUps: { ...state.powerUps, shield: true },
+              };
+            case 'multiplier':
+              return {
+                powerUps: { ...state.powerUps, multiplier: 2 },
+              };
+            default:
+              return {
+                powerUps: { ...state.powerUps, [type]: endTime },
+              };
           }
-
-          if (type === 'multiplier') {
-            return {
-              powerUps: { ...state.powerUps, multiplier: 2 },
-            };
-          }
-
-          return {
-            powerUps: { ...state.powerUps, [type]: endTime },
-          };
         }),
 
       deactivatePowerUp: (type) =>
         set((state) => {
-          if (type === 'shield') {
-            return {
-              powerUps: { ...state.powerUps, shield: false },
-            };
+          switch (type) {
+            case 'shield':
+              return {
+                powerUps: { ...state.powerUps, shield: false },
+              };
+            case 'multiplier':
+              return {
+                powerUps: { ...state.powerUps, multiplier: 1 },
+              };
+            default:
+              return {
+                powerUps: { ...state.powerUps, [type]: 0 },
+              };
           }
-
-          if (type === 'multiplier') {
-            return {
-              powerUps: { ...state.powerUps, multiplier: 1 },
-            };
-          }
-
-          return {
-            powerUps: { ...state.powerUps, [type]: 0 },
-          };
         }),
 
       updateSettings: (settings) => set(() => ({ ...settings })),
