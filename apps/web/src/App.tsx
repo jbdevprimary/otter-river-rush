@@ -46,17 +46,18 @@ export function App() {
     sceneRef.current = scene;
 
     // Create camera - BEHIND the player, looking FORWARD down the river
-    // Game uses Y for forward/back direction (river flows in -Y direction toward player)
-    // Player is at Y=-3, obstacles spawn at Y=8 and move toward player
-    // For endless runner view: camera behind player, elevated, looking ahead
+    // Game coords: X=lanes, Y=forward/back (river flow), Z=height
+    // Babylon coords: X=lateral, Y=height, Z=depth
+    // Transform: Game (x, y, z) → Babylon (x, z, y)
+    // Player at game Y=-3, obstacles spawn at game Y=8
     const camera = new FreeCamera(
       'camera',
-      new Vector3(0, -10, 4), // Behind player (Y=-10), slightly elevated (Z=4)
+      new Vector3(0, 4, -10), // Babylon: x=0, height=4 (elevated), z=-10 (behind player)
       scene
     );
 
-    // Look forward down the river (ahead of player toward where obstacles spawn)
-    camera.setTarget(new Vector3(0, 15, 0)); // Look far ahead down the river
+    // Look forward down the river (toward where obstacles spawn)
+    camera.setTarget(new Vector3(0, 0, 15)); // Babylon: x=0, height=0, z=15 (forward)
 
     // Lock camera controls for game
     camera.inputs.clear();
