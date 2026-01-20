@@ -59,7 +59,7 @@ jobs:
       build-sha: ${{ github.sha }}
     
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -155,7 +155,7 @@ jobs:
             platform: windows
     
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -238,7 +238,7 @@ jobs:
       (inputs.platforms == 'all' || inputs.platforms == 'mobile' || contains(inputs.platforms, 'mobile'))
     
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -319,7 +319,7 @@ jobs:
     timeout-minutes: 15
     
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       
       - name: Setup Node.js
         uses: actions/setup-node@v6
