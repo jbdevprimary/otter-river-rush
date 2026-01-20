@@ -14,6 +14,7 @@
     "typecheck": "tsc --build --force"
   },
   "dependencies": {
+    "@otter-river-rush/game-core": "workspace:*",
     "@otter-river-rush/types": "workspace:*",
     "@otter-river-rush/state": "workspace:*",
     "@otter-river-rush/config": "workspace:*",

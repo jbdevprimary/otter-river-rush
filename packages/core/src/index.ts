@@ -1,13 +1,8 @@
 /**
  * @otter-river-rush/core
- * Platform-agnostic game logic for Otter River Rush
+ * Re-exports from @otter-river-rush/game-core/ecs
+ *
+ * @deprecated Import directly from @otter-river-rush/game-core/ecs
  */
 
-// ECS World
-export { world, queries, resetWorld, spawn } from './world';
-
-// Systems
-export * from './systems';
-
-// Utilities
-export * from './utils';
+export * from '@otter-river-rush/game-core/ecs';
