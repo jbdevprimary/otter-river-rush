@@ -133,7 +133,7 @@ npm test                    # Run tests
 Node.js 22+, Java 17, Android SDK (for mobile)
 
 # Clone repository
-git clone https://github.com/jbcom/otter-river-rush.git
+git clone https://github.com/arcade-cabinet/otter-river-rush.git
 cd otter-river-rush
 
 # Install dependencies

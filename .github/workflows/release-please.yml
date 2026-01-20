@@ -1,0 +1,73 @@
+name: Release Please
+
+# Automated versioning using release-please
+# Creates a release PR based on conventional commits (feat:, fix:, BREAKING CHANGE:)
+# When the PR is merged, it creates a GitHub release and triggers platform builds
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+    
+    steps:
+      - name: Run Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: node
+          package-name: otter-river-rush
+          changelog-types: |
+            [
+              {"type":"feat","section":"✨ Features","hidden":false},
+              {"type":"fix","section":"🐛 Bug Fixes","hidden":false},
+              {"type":"perf","section":"⚡ Performance","hidden":false},
+              {"type":"revert","section":"⏪ Reverts","hidden":false},
+              {"type":"docs","section":"📝 Documentation","hidden":false},
+              {"type":"style","section":"💄 Styling","hidden":false},
+              {"type":"refactor","section":"♻️ Refactoring","hidden":false},
+              {"type":"test","section":"✅ Tests","hidden":false},
+              {"type":"build","section":"🏗️ Build System","hidden":false},
+              {"type":"ci","section":"👷 CI/CD","hidden":false},
+              {"type":"chore","section":"🔧 Chores","hidden":false}
+            ]
+      
+      - name: Release Summary
+        if: steps.release.outputs.release_created == 'true'
+        run: |
+          echo "## 🎉 Release ${{ steps.release.outputs.tag_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Version: ${{ steps.release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "Tag: ${{ steps.release.outputs.tag_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Release created successfully" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Trigger mobile build for release
+        if: steps.release.outputs.release_created == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const version = '${{ steps.release.outputs.tag_name }}';
+            
+            console.log(`🚀 Triggering mobile-primary workflow for ${version}`);
+            
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'mobile-primary.yml',
+              ref: 'main'
+            });
