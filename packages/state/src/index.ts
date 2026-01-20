@@ -1,6 +1,8 @@
 /**
  * @otter-river-rush/state
- * Zustand state management stores
+ * Re-exports from @otter-river-rush/game-core/store
+ *
+ * @deprecated Import directly from @otter-river-rush/game-core/store
  */
 
-export { type GameState, type PowerUpState, useGameStore } from './game-store';
+export * from '@otter-river-rush/game-core/store';

@@ -1,7 +1,13 @@
 /**
- * Entity Component System
- * Placeholder - will be populated in Phase 4
+ * @otter-river-rush/game-core/ecs
+ * Entity Component System for managing game entities
  */
 
-// Re-export from existing core package for now
-export * from '@otter-river-rush/core';
+// ECS World
+export { world, queries, resetWorld, spawn } from './world';
+
+// Systems
+export * from './systems';
+
+// Utilities
+export * from './utils';
