@@ -30,7 +30,7 @@ import {
 } from '@otter-river-rush/core';
 import { EntityRenderer, GameCanvas, RiverEnvironment } from '@otter-river-rush/rendering';
 import { useGameStore } from '@otter-river-rush/state';
-import { BabylonCharacterSelect, BabylonHUD, BabylonMenu } from '@otter-river-rush/ui';
+import { BabylonCharacterSelect, HUD, Menu } from '@otter-river-rush/ui';
 import { useEffect, useRef } from 'react';
 
 export function App() {
@@ -185,10 +185,10 @@ export function App() {
         <EntityRenderer />
 
         {/* Babylon.js GUI based on game status */}
-        {status === 'playing' && <BabylonHUD />}
-        {status === 'menu' && <BabylonMenu type="menu" />}
+        {status === 'playing' && <HUD />}
+        {status === 'menu' && <Menu type="menu" />}
         {status === 'character_select' && <BabylonCharacterSelect />}
-        {status === 'game_over' && <BabylonMenu type="game_over" />}
+        {status === 'game_over' && <Menu type="game_over" />}
       </GameCanvas>
     </div>
   );
