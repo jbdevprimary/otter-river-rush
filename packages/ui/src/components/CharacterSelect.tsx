@@ -16,7 +16,7 @@ import { useGameStore } from '@otter-river-rush/state';
 import { useEffect, useRef } from 'react';
 import { useScene } from 'reactylon';
 
-export function BabylonCharacterSelect() {
+export function CharacterSelect() {
   const scene = useScene();
   const guiRef = useRef<AdvancedDynamicTexture | null>(null);
   const { selectedCharacterId, selectCharacter, startGame, returnToMenu, progress } =
