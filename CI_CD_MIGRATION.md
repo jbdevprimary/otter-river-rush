@@ -23,8 +23,10 @@ remote: - Changes must be made through a pull request.
 - ✅ `.github/workflows/release-please.yml` - New workflow (creates release PRs)
 - ✅ `.github/workflows/release.yml` - Deprecated (disabled, kept for reference)
 - ✅ `.release-please-config.json` - release-please configuration
-- ✅ `.release-please-manifest.json` - Version tracking
+- ✅ `.release-please-manifest.json` - Version tracking (starting from 2.0.0)
 - ✅ `.releaserc.json` → `.releaserc.json.deprecated` - Old config deprecated
+
+**Note on Version:** The manifest starts at 2.0.0 to match package.json, which was already bumped to 2.0.0 during the monorepo restructure. The last semantic-release version was 1.2.10.
 
 **Why release-please?**
 - ✅ Creates a PR for each release instead of direct pushes
