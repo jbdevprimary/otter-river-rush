@@ -2,7 +2,6 @@
  * UI Components
  */
 
-export { BabylonCharacterSelect } from './BabylonCharacterSelect';
-export { BabylonHUD } from './BabylonHUD';
-export { BabylonMenu } from './BabylonMenu';
+export { CharacterSelect } from './CharacterSelect';
 export { HUD } from './HUD';
+export { Menu } from './Menu';

@@ -16,11 +16,11 @@ import { useGameStore } from '@otter-river-rush/state';
 import { useEffect, useRef } from 'react';
 import { useScene } from 'reactylon';
 
-interface BabylonMenuProps {
+interface MenuProps {
   type: 'menu' | 'game_over';
 }
 
-export function BabylonMenu({ type }: BabylonMenuProps) {
+export function Menu({ type }: MenuProps) {
   const scene = useScene();
   const guiRef = useRef<AdvancedDynamicTexture | null>(null);
   const score = useGameStore((state) => state.score);
