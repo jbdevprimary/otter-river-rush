@@ -4,15 +4,15 @@
  */
 
 import { World } from 'miniplex';
-import type { Entity } from '@otter-river-rush/types';
-import { VISUAL, PHYSICS, getLaneX, getModelScale, getDefaultCharacter, type OtterCharacter } from '@otter-river-rush/config';
+import type { Entity } from '../types';
+import { VISUAL, PHYSICS, getLaneX, getModelScale, getDefaultCharacter, type OtterCharacter } from '../config';
 import {
   getObstacleUrlVariants,
   getCoinUrlVariants,
   getGemUrlVariants,
   getDecorationUrlVariants,
   ModelUrls,
-} from '@otter-river-rush/game-core/assets';
+} from '../assets';
 
 /**
  * Create the Miniplex world
