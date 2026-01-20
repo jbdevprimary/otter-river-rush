@@ -16,7 +16,9 @@ import {
   getDecorationVariants,
 } from './AssetRegistry';
 
-const BASE_URL = '/assets';
+// Use Vite's base URL for GitHub Pages subdirectory deployment
+// import.meta.env.BASE_URL is '/otter-river-rush/' in production, '/' in dev
+const BASE_URL = `${import.meta.env.BASE_URL ?? '/'}assets`;
 
 /**
  * Resolve an asset definition to a full URL

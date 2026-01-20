@@ -5,24 +5,27 @@
 
 import { Sound, Scene, Engine } from '@babylonjs/core';
 
+// Use Vite's base URL for GitHub Pages subdirectory deployment
+const BASE_URL = `${import.meta.env.BASE_URL ?? '/'}assets`;
+
 // Audio asset paths
 export const AUDIO_PATHS = {
   music: {
-    gameplay: '/assets/audio/music/flowing-rocks.ogg',
-    ambient: '/assets/audio/music/night-at-beach.ogg',
-    gameOver: '/assets/audio/music/game-over.ogg',
+    gameplay: `${BASE_URL}/audio/music/flowing-rocks.ogg`,
+    ambient: `${BASE_URL}/audio/music/night-at-beach.ogg`,
+    gameOver: `${BASE_URL}/audio/music/game-over.ogg`,
   },
   sfx: {
-    coinPickup: '/assets/audio/sfx/coin-pickup.ogg',
-    gemPickup: '/assets/audio/sfx/gem-pickup.ogg',
-    bonus: '/assets/audio/sfx/bonus.ogg',
-    hit: '/assets/audio/sfx/hit.ogg',
-    click: '/assets/audio/sfx/click.ogg',
-    confirm: '/assets/audio/sfx/confirm.ogg',
+    coinPickup: `${BASE_URL}/audio/sfx/coin-pickup.ogg`,
+    gemPickup: `${BASE_URL}/audio/sfx/gem-pickup.ogg`,
+    bonus: `${BASE_URL}/audio/sfx/bonus.ogg`,
+    hit: `${BASE_URL}/audio/sfx/hit.ogg`,
+    click: `${BASE_URL}/audio/sfx/click.ogg`,
+    confirm: `${BASE_URL}/audio/sfx/confirm.ogg`,
   },
   ambient: {
-    waterDrip1: '/assets/audio/ambient/water-drip1.ogg',
-    waterDrip2: '/assets/audio/ambient/water-drip2.ogg',
+    waterDrip1: `${BASE_URL}/audio/ambient/water-drip1.ogg`,
+    waterDrip2: `${BASE_URL}/audio/ambient/water-drip2.ogg`,
   },
 } as const;
 
