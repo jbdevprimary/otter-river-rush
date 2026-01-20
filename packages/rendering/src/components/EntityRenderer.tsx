@@ -17,8 +17,9 @@ interface LoadedModel {
   entity: Entity;
 }
 
-// Default otter model (fallback)
-const DEFAULT_OTTER_MODEL = '/assets/models/player/otter-player/model.glb';
+// Default otter model (fallback) - uses Vite's base URL for GitHub Pages
+const BASE_URL = `${import.meta.env.BASE_URL ?? '/'}assets`;
+const DEFAULT_OTTER_MODEL = `${BASE_URL}/models/player/otter-player/model.glb`;
 
 export function EntityRenderer() {
   const scene = useScene();

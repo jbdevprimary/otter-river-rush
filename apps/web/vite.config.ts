@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  // Base path for GitHub Pages deployment at /otter-river-rush/
+  base: '/otter-river-rush/',
   server: {
     port: 3000,
   },
