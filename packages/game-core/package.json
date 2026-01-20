@@ -18,10 +18,6 @@
       "import": "./dist/ecs/index.js",
       "types": "./dist/ecs/index.d.ts"
     },
-    "./systems": {
-      "import": "./dist/systems/index.js",
-      "types": "./dist/systems/index.d.ts"
-    },
     "./store": {
       "import": "./dist/store/index.js",
       "types": "./dist/store/index.d.ts"
@@ -49,10 +45,6 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@otter-river-rush/config": "workspace:*",
-    "@otter-river-rush/core": "workspace:*",
-    "@otter-river-rush/state": "workspace:*",
-    "@otter-river-rush/types": "workspace:*",
     "miniplex": "^2.0.0",
     "zustand": "^5.0.10",
     "zod": "^3.24.0"

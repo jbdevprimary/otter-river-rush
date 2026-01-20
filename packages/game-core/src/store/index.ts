@@ -1,7 +1,6 @@
 /**
- * State Management
- * Placeholder - will be populated in Phase 5
+ * @otter-river-rush/game-core/store
+ * Zustand state management stores
  */
 
-// Re-export from existing state package for now
-export * from '@otter-river-rush/state';
+export { type GameState, type PlayerProgress, type PowerUpState, useGameStore } from './game-store';
