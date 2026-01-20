@@ -125,10 +125,15 @@ export function EntityRenderer() {
             entity.three = result.rootMesh;
 
             // Set initial position
-            // App uses game coords directly: X=lanes, Y=forward/back, Z=height
-            // Camera is configured for this coordinate system (see App.tsx)
+            // Game coords: X=lanes, Y=forward/back (river flow), Z=height
+            // Babylon coords: X=lateral, Y=height, Z=depth
+            // Transform: Game (x, y, z) → Babylon (x, z, y)
             if (entity.position) {
-              result.rootMesh.position.set(entity.position.x, entity.position.y, entity.position.z);
+              result.rootMesh.position.set(
+                entity.position.x, // X stays X (lanes/lateral)
+                entity.position.z, // Game Z → Babylon Y (height)
+                entity.position.y  // Game Y → Babylon Z (depth/forward)
+              );
             }
 
             // Start animations
@@ -153,9 +158,14 @@ export function EntityRenderer() {
       for (const [entity, loadedModel] of loadedModels.entries()) {
         const { glbResult } = loadedModel;
 
-        // Update position - use game coords directly
+        // Update position - transform game coords to Babylon coords
+        // Game (x, y, z) → Babylon (x, z, y)
         if (entity.position) {
-          glbResult.rootMesh.position.set(entity.position.x, entity.position.y, entity.position.z);
+          glbResult.rootMesh.position.set(
+            entity.position.x, // X stays X (lanes/lateral)
+            entity.position.z, // Game Z → Babylon Y (height)
+            entity.position.y  // Game Y → Babylon Z (depth/forward)
+          );
         }
 
         // Handle animation state changes for player

@@ -3,10 +3,17 @@
  * Creates the water/river visual with animated flow and parallax backgrounds
  * Optimized for ENDLESS RUNNER perspective (camera behind player, looking forward)
  *
- * Coordinate System:
+ * Game Coordinate System:
  * - X: left/right (lanes at -2, 0, 2)
  * - Y: forward/back (river direction - player at -3, obstacles spawn at 8)
  * - Z: up/down (height - ground at 0)
+ *
+ * Babylon Coordinate System (Y-up):
+ * - X: left/right (same as game)
+ * - Y: up/down (height)
+ * - Z: forward/back (depth)
+ *
+ * Transform: Game (x, y, z) → Babylon (x, z, y)
  */
 
 import { Color3, type Mesh, MeshBuilder, StandardMaterial, Texture } from '@babylonjs/core';
@@ -37,15 +44,17 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
     // ===================
     // RIVER/WATER SURFACE
     // ===================
-    // Ground plane in X-Y at Z=0 (ground level)
+    // Ground plane in X-Z (Babylon default), centered at origin, extending in Z direction
+    // CreateGround: width = X dimension, height = Z dimension
     const riverGround = MeshBuilder.CreateGround(
       'riverGround',
       { width: riverWidth, height: riverLength, subdivisions: 32 },
       scene
     );
-    // Rotate to lie in X-Y plane (default is X-Z)
-    riverGround.rotation.x = Math.PI / 2;
-    riverGround.position.set(0, riverLength / 2 - 10, -0.1); // Extend forward from behind player
+    // No rotation needed - CreateGround already lies flat in X-Z
+    // Game Y (forward) becomes Babylon Z (depth)
+    // Position: x=0 (centered), y=-0.1 (slightly below ground), z=riverLength/2-10 (extend forward from behind player)
+    riverGround.position.set(0, -0.1, riverLength / 2 - 10);
 
     const waterMat = new StandardMaterial('waterMat', scene);
     waterMat.diffuseColor = Color3.FromHexString(colors.water);
@@ -76,8 +85,8 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
       { width: bankWidth, height: riverLength },
       scene
     );
-    leftBank.rotation.x = Math.PI / 2;
-    leftBank.position.set(-(riverWidth / 2 + bankWidth / 2), riverLength / 2 - 10, 0);
+    // No rotation - use Babylon coords: (x, y=height, z=depth)
+    leftBank.position.set(-(riverWidth / 2 + bankWidth / 2), 0, riverLength / 2 - 10);
 
     const leftBankMat = new StandardMaterial('leftBankMat', scene);
     leftBankMat.diffuseColor = Color3.FromHexString(colors.terrain);
@@ -93,8 +102,8 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
       { width: bankWidth, height: riverLength },
       scene
     );
-    rightBank.rotation.x = Math.PI / 2;
-    rightBank.position.set(riverWidth / 2 + bankWidth / 2, riverLength / 2 - 10, 0);
+    // No rotation - use Babylon coords
+    rightBank.position.set(riverWidth / 2 + bankWidth / 2, 0, riverLength / 2 - 10);
 
     const rightBankMat = new StandardMaterial('rightBankMat', scene);
     rightBankMat.diffuseColor = Color3.FromHexString(colors.terrain);
@@ -129,7 +138,9 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
     treePositions.forEach((pos, i) => {
       const scale = pos.scale;
 
-      // Tree trunk (standing up along Z axis)
+      // Tree trunk (standing up along Babylon Y axis)
+      // Game (x, y, z) → Babylon (x, z, y)
+      // pos.x = game X (lateral), pos.y = game Y (forward/depth)
       const trunk = MeshBuilder.CreateCylinder(
         `trunk${i}`,
         {
@@ -138,13 +149,14 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
         },
         scene
       );
-      trunk.position.set(pos.x, pos.y, 1 * scale);
+      // Babylon: x=pos.x, y=height(1*scale), z=pos.y(depth)
+      trunk.position.set(pos.x, 1 * scale, pos.y);
       const trunkMat = new StandardMaterial(`trunkMat${i}`, scene);
       trunkMat.diffuseColor = new Color3(0.35, 0.2, 0.1);
       trunk.material = trunkMat;
       meshes.push(trunk);
 
-      // Tree foliage (cone shape pointing up)
+      // Tree foliage (cone shape pointing up in Babylon Y)
       const foliage = MeshBuilder.CreateCylinder(
         `foliage${i}`,
         {
@@ -154,7 +166,8 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
         },
         scene
       );
-      foliage.position.set(pos.x, pos.y, 3.5 * scale);
+      // Babylon: x=pos.x, y=height(3.5*scale), z=pos.y(depth)
+      foliage.position.set(pos.x, 3.5 * scale, pos.y);
       const foliageMat = new StandardMaterial(`foliageMat${i}`, scene);
       foliageMat.diffuseColor = Color3.FromHexString(colors.terrain || '#166534');
       foliage.material = foliageMat;
@@ -178,7 +191,9 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
         { height: m.height, diameterTop: 0, diameterBottom: m.width },
         scene
       );
-      mountain.position.set(m.x, m.y, m.height / 2 - 2);
+      // Game (x, y, z) → Babylon (x, z, y)
+      // m.x = game X, m.y = game Y (forward/depth), height/2-2 = game Z (height)
+      mountain.position.set(m.x, m.height / 2 - 2, m.y);
       const mountainMat = new StandardMaterial(`mountainMat${i}`, scene);
       mountainMat.diffuseColor = Color3.FromHexString('#475569');
       mountainMat.specularColor = new Color3(0, 0, 0);
@@ -190,8 +205,10 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
     // SKY BACKDROP
     // ===================
     const sky = MeshBuilder.CreatePlane('sky', { width: 80, height: 40 }, scene);
-    sky.position.set(0, 55, 10); // Far in the distance, elevated
-    sky.rotation.x = -Math.PI / 6; // Tilt back slightly
+    // Game (0, 55, 10) → Babylon (0, 10, 55)
+    // x=0 (centered), y=10 (elevated), z=55 (far in distance)
+    sky.position.set(0, 10, 55);
+    sky.rotation.x = Math.PI / 6; // Tilt to face camera
     const skyMat = new StandardMaterial('skyMat', scene);
     skyMat.diffuseColor = Color3.FromHexString(colors.sky);
     skyMat.emissiveColor = Color3.FromHexString(colors.sky).scale(0.5);
@@ -204,17 +221,20 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
     // LANE MARKERS (subtle guide lines on water)
     // ===================
     VISUAL.lanes.positions.forEach((laneX, i) => {
+      // CreateBox width=X, height=Y, depth=Z
+      // We want a thin line extending in Z (depth/forward) direction
       const laneMarker = MeshBuilder.CreateBox(
         `laneMarker${i}`,
         {
-          width: 0.08,
-          height: riverLength,
-          depth: 0.02,
+          width: 0.08,      // Thin in X
+          height: 0.02,     // Very thin in Y (height)
+          depth: riverLength, // Long in Z (depth/forward)
         },
         scene
       );
-      laneMarker.rotation.x = Math.PI / 2;
-      laneMarker.position.set(laneX, riverLength / 2 - 10, 0);
+      // No rotation needed - box is already oriented correctly
+      // Position: x=laneX, y=0.01 (just above water), z=riverLength/2-10
+      laneMarker.position.set(laneX, 0.01, riverLength / 2 - 10);
       const laneMat = new StandardMaterial(`laneMat${i}`, scene);
       laneMat.diffuseColor = new Color3(1, 1, 1);
       laneMat.alpha = 0.2;

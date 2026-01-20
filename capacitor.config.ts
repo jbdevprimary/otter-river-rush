@@ -3,7 +3,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.ottergames.riverrush',
   appName: 'Otter River Rush',
-  webDir: 'dist',
+  webDir: 'apps/web/dist',
   server: {
     androidScheme: 'https',
     iosScheme: 'https',

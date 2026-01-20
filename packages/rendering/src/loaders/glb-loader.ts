@@ -42,10 +42,17 @@ export interface GLBResult {
 export async function loadGLB(options: LoadGLBOptions): Promise<GLBResult> {
   const { scene, url, name, scaling = 1, onProgress } = options;
 
+  // Split URL into root path and filename for Babylon's SceneLoader
+  const lastSlash = url.lastIndexOf('/');
+  const rootUrl = lastSlash >= 0 ? url.substring(0, lastSlash + 1) : '';
+  const filename = lastSlash >= 0 ? url.substring(lastSlash + 1) : url;
+
+  console.log(`[GLB Loader] Loading: rootUrl="${rootUrl}" filename="${filename}"`);
+
   const result = await SceneLoader.ImportMeshAsync(
     '',
-    '',
-    url,
+    rootUrl,
+    filename,
     scene,
     onProgress ? (event) => onProgress({ loaded: event.loaded, total: event.total }) : undefined,
     '.glb'
