@@ -339,7 +339,7 @@ The full suite includes additional tests not run in CI:
 
 - **Workflow File:** `.github/workflows/mobile-primary.yml`
 - **Test Documentation:** `docs/TESTING.md`
-- **Actions Dashboard:** https://github.com/jbcom/otter-river-rush/actions
+- **Actions Dashboard:** https://github.com/arcade-cabinet/otter-river-rush/actions
 - **Pages Deployment:** https://github.com/<OWNER>/<REPO>/deployments
   _(Replace `<OWNER>/<REPO>` with your repository path. This avoids hardcoding and adapts to forks, renames, or moves.)_
 

@@ -28,10 +28,11 @@
 - Group dependency PRs logically
 - Use conventional commits (compatible with semantic-release)
 
-### Semantic Release
-- **Integrated in**: `release.yml` workflow
+### Release-Please (Release Automation)
+- **Integrated in**: `release-please.yml` workflow
 - **Status**: ✅ Configured
-- **Creates**: Version tags, CHANGELOG.md, GitHub releases
+- **Creates**: Release PRs, version tags, CHANGELOG.md, GitHub releases
+- **Note**: Replaced semantic-release (which pushed directly to main, now blocked by branch protection)
 
 ## ❌ Workflows NOT Needed (Common but Unnecessary Here)
 
@@ -105,7 +106,7 @@
 
 **Other automation is minimal but appropriate:**
 - Renovate handles dependency updates
-- Semantic-release handles versioning
+- release-please handles versioning via PRs (compliant with branch protection)
 - No unnecessary complexity
 
 **Consider adding** (optional):

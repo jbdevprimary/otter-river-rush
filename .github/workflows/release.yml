@@ -1,11 +1,13 @@
-name: Semantic Release
+name: Semantic Release (DEPRECATED)
 
-# Automated versioning and releases using semantic-release
-# Analyzes commit messages (feat:, fix:, BREAKING CHANGE:) and creates releases
+# DEPRECATED: This workflow has been replaced by release-please.yml
+# semantic-release attempts to push directly to main, which is now blocked by branch protection rules.
+# release-please creates a PR for releases instead, which complies with the new repository rules.
+#
+# This file is kept for reference but the workflow is disabled.
 
 on:
-  push:
-    branches: [ main ]
+  # Disabled - use release-please.yml instead
   workflow_dispatch:
 
 permissions:

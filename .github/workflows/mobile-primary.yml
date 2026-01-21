@@ -187,8 +187,10 @@ jobs:
           path: android/app/build/outputs/apk/release/*.apk
           retention-days: 90
       
-      - name: Upload to Google Play (if signed)
-        if: steps.semantic.outputs.new_release_published == 'true' && env.GOOGLE_PLAY_JSON_KEY != ''
+      # Upload to Google Play only on manual dispatches (triggered by release-please workflow)
+      # This ensures APKs are only published when a release is created, not on every commit
+      - name: Upload to Google Play (if manual dispatch and signed)
+        if: github.event_name == 'workflow_dispatch' && env.GOOGLE_PLAY_JSON_KEY != ''
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
