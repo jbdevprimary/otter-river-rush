@@ -79,10 +79,6 @@ jobs:
           token: ${{ secrets.CI_GITHUB_TOKEN }}
           release-type: node
           package-name: otter-river-rush
-          # skip-github-pull-request-token-check: When true, skips validating the token
-          # This allows the workflow to proceed even if token validation would fail
-          # However, actual PR creation will still fail without proper permissions
-          skip-github-pull-request-token-check: false
           changelog-types: |
             [
               {"type":"feat","section":"✨ Features","hidden":false},
