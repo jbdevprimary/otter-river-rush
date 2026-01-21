@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "release-type": "node",
   "package-name": "otter-river-rush",
   "bump-minor-pre-major": true,
@@ -16,7 +17,14 @@
     { "type": "ci", "section": "👷 CI/CD", "hidden": false },
     { "type": "chore", "section": "🔧 Chores", "hidden": false }
   ],
-  "release-search-depth": 100,
+  "release-search-depth": 500,
   "pull-request-title-pattern": "chore: release ${version}",
-  "extra-files": []
+  "extra-files": [],
+  "include-v-in-tag": true,
+  "include-component-in-tag": false,
+  "skip-github-release": false,
+  "draft": false,
+  "prerelease": false,
+  "changelog-path": "CHANGELOG.md",
+  "changelog-type": "default"
 }
