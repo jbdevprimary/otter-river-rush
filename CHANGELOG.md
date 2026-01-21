@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0](https://github.com/arcade-cabinet/otter-river-rush/compare/v1.0.4...v1.1.0) (2026-01-21)
+
+
+### Features
+
+* Add AI persona E2E test with goal-oriented autonomous gameplay ([5c240d6](https://github.com/arcade-cabinet/otter-river-rush/commit/5c240d6395d9f18bf3752bfe4ac1dd03f607819d))
+* Add compositional flow E2E tests - verify complete game sequences ([0e97540](https://github.com/arcade-cabinet/otter-river-rush/commit/0e97540949bfe046e266721e9baf06c4ec25ca5f))
+* Configure video recording for AI playthrough tests ([ac9ddda](https://github.com/arcade-cabinet/otter-river-rush/commit/ac9ddda4fce9a38d1818fb9135036aef969e2a9d))
+* Fix asset paths, upgrade AI to Sonnet 4.5, add process-compose ([9a6cc7f](https://github.com/arcade-cabinet/otter-river-rush/commit/9a6cc7f448c12eab041f803ba5a779d60ac5eab5))
+* **game-core:** DRY shared package with coordinate system fixes ([d1cb81c](https://github.com/arcade-cabinet/otter-river-rush/commit/d1cb81c1985f12da5e06aeaf7d174ebb2e0df3a1))
+* integrate Kenney audio with haptic feedback ([75ab8cb](https://github.com/arcade-cabinet/otter-river-rush/commit/75ab8cbecd9b8f0bef6bd993c6543c1e1154753e))
+* leverage best-in-class GHA marketplace actions ([ac56a4c](https://github.com/arcade-cabinet/otter-river-rush/commit/ac56a4cf0f95e1470aa2207a80aaa2d71f1159db))
+* mobile-first transformation + volumetric sky + PBR terrain ([e33c506](https://github.com/arcade-cabinet/otter-river-rush/commit/e33c50641c7ab4e55fc89dab13af80e660446a80))
+* **v2.0:** Migrate to Babylon.js + Reactylon Monorepo ([276957e](https://github.com/arcade-cabinet/otter-river-rush/commit/276957e844bc781ccaf7c5cb92064a83a47eab3d))
+
+
+### Bug Fixes
+
+* add game-core reference to types package tsconfig ([#84](https://github.com/arcade-cabinet/otter-river-rush/issues/84)) ([2f12555](https://github.com/arcade-cabinet/otter-river-rush/commit/2f125553ad73ab245922990030bcc35212c016ec))
+* add working directory to Capacitor sync in CI ([7e7882a](https://github.com/arcade-cabinet/otter-river-rush/commit/7e7882ab640abee8ea443a5ebb4aff4375d29450))
+* CI E2E tests - download dist artifact and use setup-chrome ([a2241fe](https://github.com/arcade-cabinet/otter-river-rush/commit/a2241fead231be631933c7191d566cc4f6d5b118))
+* CI E2E tests - use smoke tests only ([ec42432](https://github.com/arcade-cabinet/otter-river-rush/commit/ec4243264245e34b9512d9048b40192326b6969f))
+* compact mobile menu layout - all features enabled ([1ee75bb](https://github.com/arcade-cabinet/otter-river-rush/commit/1ee75bb689e38c788b805a0aaf10ed9802d39607))
+* GitHub Pages deployment with correct base path and asset URLs ([#83](https://github.com/arcade-cabinet/otter-river-rush/issues/83)) ([d9fdff6](https://github.com/arcade-cabinet/otter-river-rush/commit/d9fdff6cc51fa049a39dbcd39467989b34993c45))
+* re-enable volumetric sky + audio base URL paths ([2dc74ba](https://github.com/arcade-cabinet/otter-river-rush/commit/2dc74ba08d6622719d47f8c713dc2f0ebe51dfe7))
+* remove legacy static HTML - React-only index.html ([18d008f](https://github.com/arcade-cabinet/otter-river-rush/commit/18d008f86f7eb120851353fbf8a6606c3e506df3))
+* Remove outdated comment, expose debug tools ([24ab14f](https://github.com/arcade-cabinet/otter-river-rush/commit/24ab14f9034337ff136e0dba47942ae2533f9d21))
+* Simplify E2E tests, lower FPS threshold for headless - 14/14 passing ([0e042a9](https://github.com/arcade-cabinet/otter-river-rush/commit/0e042a9855cd786af317529bbdb0331aaa3ce970))
+* use actions/setup-java instead of homebrew for CI ([b7977bd](https://github.com/arcade-cabinet/otter-river-rush/commit/b7977bd90e9481e966a86bc5eb484fdeaee740b8))
+* Use ASSET_URLS in world.ts, fix restart button click ([d37b72b](https://github.com/arcade-cabinet/otter-river-rush/commit/d37b72bdeadf12803449163cfeba36c607fbda20))
+* use tsc --build for audio package typecheck ([#85](https://github.com/arcade-cabinet/otter-river-rush/issues/85)) ([6d6356b](https://github.com/arcade-cabinet/otter-river-rush/commit/6d6356b1aa695b774408fc054422aa77a19043c1))
+* volumetric clouds in EffectComposer + compact menu ([1d35859](https://github.com/arcade-cabinet/otter-river-rush/commit/1d35859707be3055f4f10f2616643b31d0460dfc))
+
 ## [1.2.10](https://github.com/arcade-cabinet/otter-river-rush/compare/v1.2.9...v1.2.10) (2025-11-17)
 
 ### 🔧 Chores
