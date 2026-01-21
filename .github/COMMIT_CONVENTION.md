@@ -88,11 +88,10 @@ versioning to help contributors format their commits correctly.
 
 ## How Automated Releases Work
 
-### 1. Push to Main
-When commits are merged to `main`, the CI/CD pipeline:
-- Runs all tests and builds
-- Deploys to GitHub Pages
-- Analyzes commit messages
+### 1. Push to Main (via PR)
+When commits are merged to `main` via pull request, the release-please workflow:
+- Analyzes commit messages since last release
+- Creates or updates a Release PR with version bump and changelog
 
 ### 2. Version Calculation
 Based on commit types since the last release:
@@ -100,19 +99,25 @@ Based on commit types since the last release:
 - Any `BREAKING CHANGE` → MAJOR bump (1.0.0 → 2.0.0)
 - Only `fix`/`docs`/etc → PATCH bump (1.0.0 → 1.0.1)
 
-### 3. Release Creation
-If new version is needed:
-- Updates `package.json` version
-- Generates `CHANGELOG.md` entry
-- Creates git tag (e.g., `v1.1.0`)
-- Pushes tag to GitHub
-- Creates GitHub Release
+### 3. Release PR
+The Release PR contains:
+- Updated `package.json` version
+- Generated `CHANGELOG.md` entry
+- Consolidated release notes from all commits
 
-### 4. Platform Builds
-The new tag triggers:
+### 4. Release Creation
+When the Release PR is merged:
+- Creates git tag (e.g., `v1.1.0`)
+- Creates GitHub Release
+- Triggers mobile build workflow
+
+### 5. Platform Builds
+The release triggers:
 - Android APK build
 - Desktop builds (Windows, macOS, Linux)
 - Assets uploaded to GitHub Release
+
+**Note:** This project uses **release-please** instead of semantic-release to comply with branch protection rules requiring PRs.
 
 ## Best Practices
 
@@ -171,4 +176,5 @@ docs: fix typo in readme [skip ci]
 
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [Semantic Versioning](https://semver.org/)
-- [semantic-release Documentation](https://semantic-release.gitbook.io/)
+- [release-please Documentation](https://github.com/googleapis/release-please)
+- [Project Release Process](../docs/RELEASE_PROCESS.md)

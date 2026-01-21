@@ -2,16 +2,16 @@
 
 **A mobile-first 3D endless runner game built with React Three Fiber**
 
-[![CI](https://github.com/jbcom/otter-river-rush/actions/workflows/mobile-primary.yml/badge.svg)](https://github.com/jbcom/otter-river-rush/actions/workflows/mobile-primary.yml)
+[![CI](https://github.com/arcade-cabinet/otter-river-rush/actions/workflows/mobile-primary.yml/badge.svg)](https://github.com/arcade-cabinet/otter-river-rush/actions/workflows/mobile-primary.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
 ## 🎮 Play Now
 
-**📱 Android**: [Download APK](https://github.com/jbcom/otter-river-rush/actions) → Artifacts → `app-debug-apk`  
+**📱 Android**: [Download APK](https://github.com/arcade-cabinet/otter-river-rush/actions) → Artifacts → `app-debug-apk`  
 **🌐 Web (PWA)**: [jbcom.github.io/otter-river-rush](https://jbcom.github.io/otter-river-rush/)  
-**🖥️ Desktop**: [Download from Releases](https://github.com/jbcom/otter-river-rush/releases)
+**🖥️ Desktop**: [Download from Releases](https://github.com/arcade-cabinet/otter-river-rush/releases)
 
 ---
 
@@ -55,7 +55,7 @@
 ### Installation
 ```bash
 # Clone repository
-git clone https://github.com/jbcom/otter-river-rush.git
+git clone https://github.com/arcade-cabinet/otter-river-rush.git
 cd otter-river-rush
 
 # Install dependencies
