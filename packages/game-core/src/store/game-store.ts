@@ -106,11 +106,19 @@ export const BIOME_THRESHOLDS: Record<BiomeType, number> = {
 export const BIOME_TRANSITION_DISTANCE = 100;
 
 export interface PowerUpState {
+  /** Shield blocks one hit (true = active) */
   shield: boolean;
+  /** Speed boost end timestamp (0 = inactive) */
   speedBoost: number;
+  /** Score multiplier value (1 = no bonus, 2 = 2x score) */
   multiplier: number;
+  /** Multiplier power-up end timestamp (0 = inactive) */
+  multiplierEndTime: number;
+  /** Magnet auto-collect end timestamp (0 = inactive) */
   magnet: number;
+  /** Ghost pass-through end timestamp (0 = inactive) */
   ghost: number;
+  /** Slow motion end timestamp (0 = inactive) */
   slowMotion: number;
 }
 
@@ -122,6 +130,26 @@ export interface PlayerProgress {
   gamesPlayed: number;
   highScore: number;
   unlockedCharacters: string[];
+}
+
+/**
+ * Colorblind mode types
+ */
+export type ColorblindMode = 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
+
+/**
+ * Game speed multiplier options
+ */
+export type GameSpeedOption = 0.5 | 0.75 | 1;
+
+/**
+ * Accessibility settings
+ */
+export interface AccessibilitySettings {
+  highContrast: boolean;
+  colorblindMode: ColorblindMode;
+  reducedMotion: boolean;
+  gameSpeedMultiplier: GameSpeedOption;
 }
 
 export interface GameState {
@@ -138,6 +166,9 @@ export interface GameState {
   // Tutorial tracking (timestamp when game started, null if not a fresh game start)
   // Only set on initial game start from menu, not on respawn
   gameStartTime: number | null;
+
+  // Time Trial mode: remaining time in milliseconds (null when not in time trial)
+  timeRemaining: number | null;
 
   // Player stats (current session)
   score: number;
@@ -160,6 +191,9 @@ export interface GameState {
   soundEnabled: boolean;
   musicEnabled: boolean;
   volume: number;
+
+  // Accessibility settings
+  accessibility: AccessibilitySettings;
 
   // Persistent progress
   progress: PlayerProgress;
@@ -186,12 +220,18 @@ export interface GameState {
   loseLife: () => void;
   addNearMissBonus: (bonus: number) => void;
 
+  // Time Trial mode
+  updateTimeRemaining: (deltaMs: number) => void;
+
   activatePowerUp: (type: PowerUpType, duration?: number) => void;
   deactivatePowerUp: (type: PowerUpType) => void;
+  checkPowerUpExpiration: () => void;
 
   updateSettings: (
     settings: Partial<Pick<GameState, 'soundEnabled' | 'musicEnabled' | 'volume'>>
   ) => void;
+
+  updateAccessibility: (settings: Partial<AccessibilitySettings>) => void;
 
   updateBiome: () => void;
 
@@ -202,6 +242,7 @@ const initialPowerUps: PowerUpState = {
   shield: false,
   speedBoost: 0,
   multiplier: 1,
+  multiplierEndTime: 0,
   magnet: 0,
   ghost: 0,
   slowMotion: 0,
@@ -216,6 +257,13 @@ const initialProgress: PlayerProgress = {
   unlockedCharacters: ['rusty'], // Rusty is unlocked by default
 };
 
+const initialAccessibility: AccessibilitySettings = {
+  highContrast: false,
+  colorblindMode: 'none',
+  reducedMotion: false,
+  gameSpeedMultiplier: 1,
+};
+
 export const useGameStore = create<GameState>()(
   persist(
     (set, get) => ({
@@ -225,6 +273,7 @@ export const useGameStore = create<GameState>()(
       selectedCharacterId: 'rusty',
       activeTraits: null,
       gameStartTime: null,
+      timeRemaining: null,
       score: 0,
       distance: 0,
       coins: 0,
@@ -239,6 +288,7 @@ export const useGameStore = create<GameState>()(
       soundEnabled: true,
       musicEnabled: true,
       volume: 0.7,
+      accessibility: { ...initialAccessibility },
       progress: { ...initialProgress },
 
       // Character actions
@@ -272,6 +322,7 @@ export const useGameStore = create<GameState>()(
           mode,
           activeTraits: character.traits,
           gameStartTime: Date.now(), // Track when game started for tutorial
+          timeRemaining: mode === 'time_trial' ? TIME_TRIAL_DURATION_MS : null,
           score: 0,
           distance: 0,
           coins: 0,
@@ -351,6 +402,7 @@ export const useGameStore = create<GameState>()(
           status: 'menu',
           activeTraits: null,
           gameStartTime: null,
+          timeRemaining: null,
           score: 0,
           distance: 0,
           coins: 0,
@@ -476,17 +528,27 @@ export const useGameStore = create<GameState>()(
       activatePowerUp: (type, duration) =>
         set((state) => {
           const now = Date.now();
-          const endTime = duration ? now + duration : now + 5000;
+          // Use type-specific durations from GAME_CONFIG
+          const durations: Record<PowerUpType, number> = {
+            shield: GAME_CONFIG.SHIELD_DURATION,
+            ghost: GAME_CONFIG.GHOST_DURATION,
+            magnet: GAME_CONFIG.MAGNET_DURATION,
+            multiplier: GAME_CONFIG.MULTIPLIER_DURATION,
+            slowMotion: GAME_CONFIG.SLOW_MOTION_DURATION,
+          };
+          const endTime = now + (duration ?? durations[type]);
 
           if (type === 'shield') {
+            // Shield is a one-hit protection, not time-based
             return {
               powerUps: { ...state.powerUps, shield: true },
             };
           }
 
           if (type === 'multiplier') {
+            // Multiplier has both a value and an end time
             return {
-              powerUps: { ...state.powerUps, multiplier: 2 },
+              powerUps: { ...state.powerUps, multiplier: GAME_CONFIG.MULTIPLIER_VALUE, multiplierEndTime: endTime },
             };
           }
 
@@ -505,7 +567,7 @@ export const useGameStore = create<GameState>()(
 
           if (type === 'multiplier') {
             return {
-              powerUps: { ...state.powerUps, multiplier: 1 },
+              powerUps: { ...state.powerUps, multiplier: 1, multiplierEndTime: 0 },
             };
           }
 
@@ -514,13 +576,65 @@ export const useGameStore = create<GameState>()(
           };
         }),
 
+      /**
+       * Check for expired power-ups and deactivate them.
+       * Should be called in the game loop.
+       */
+      checkPowerUpExpiration: () => {
+        const state = get();
+        const now = Date.now();
+        const updates: Partial<PowerUpState> = {};
+
+        // Check each timed power-up
+        if (state.powerUps.magnet > 0 && now >= state.powerUps.magnet) {
+          updates.magnet = 0;
+        }
+        if (state.powerUps.ghost > 0 && now >= state.powerUps.ghost) {
+          updates.ghost = 0;
+        }
+        if (state.powerUps.slowMotion > 0 && now >= state.powerUps.slowMotion) {
+          updates.slowMotion = 0;
+        }
+        if (state.powerUps.multiplierEndTime > 0 && now >= state.powerUps.multiplierEndTime) {
+          updates.multiplier = 1;
+          updates.multiplierEndTime = 0;
+        }
+        if (state.powerUps.speedBoost > 0 && now >= state.powerUps.speedBoost) {
+          updates.speedBoost = 0;
+        }
+
+        // Only update if there are changes
+        if (Object.keys(updates).length > 0) {
+          set({ powerUps: { ...state.powerUps, ...updates } });
+        }
+      },
+
       updateSettings: (settings) => set(() => ({ ...settings })),
+
+      updateAccessibility: (settings) =>
+        set((state) => ({
+          accessibility: { ...state.accessibility, ...settings },
+        })),
 
       addNearMissBonus: (bonus) =>
         set((state) => ({
           score: state.score + bonus,
           nearMissCount: state.nearMissCount + 1,
         })),
+
+      updateTimeRemaining: (deltaMs) => {
+        const state = get();
+        if (state.mode !== 'time_trial' || state.timeRemaining === null) return;
+
+        const newTime = state.timeRemaining - deltaMs;
+        if (newTime <= 0) {
+          // Time's up - end the game
+          set({ timeRemaining: 0 });
+          get().endGame();
+        } else {
+          set({ timeRemaining: newTime });
+        }
+      },
 
       updateBiome: () =>
         set((state) => {
@@ -560,6 +674,7 @@ export const useGameStore = create<GameState>()(
           mode: 'classic',
           activeTraits: null,
           gameStartTime: null,
+          timeRemaining: null,
           score: 0,
           distance: 0,
           coins: 0,
@@ -582,6 +697,7 @@ export const useGameStore = create<GameState>()(
         soundEnabled: state.soundEnabled,
         musicEnabled: state.musicEnabled,
         volume: state.volume,
+        accessibility: state.accessibility,
       }),
     }
   )
@@ -591,6 +707,11 @@ export const useGameStore = create<GameState>()(
  * Tutorial duration in milliseconds (30 seconds)
  */
 export const TUTORIAL_DURATION_MS = 30000;
+
+/**
+ * Time Trial mode duration in milliseconds (60 seconds)
+ */
+export const TIME_TRIAL_DURATION_MS = 60000;
 
 /**
  * Check if the tutorial period is currently active
@@ -617,4 +738,105 @@ export function getTutorialTimeRemaining(): number {
   const elapsed = Date.now() - state.gameStartTime;
   const remaining = TUTORIAL_DURATION_MS - elapsed;
   return remaining > 0 ? Math.ceil(remaining / 1000) : 0;
+}
+
+/**
+ * Get remaining time trial time in seconds
+ * @returns remaining seconds, or 0 if not in time trial mode
+ */
+export function getTimeTrialTimeRemaining(): number {
+  const state = useGameStore.getState();
+  if (state.timeRemaining === null) return 0;
+  return Math.ceil(state.timeRemaining / 1000);
+}
+
+/**
+ * Power-up display configuration
+ */
+export interface PowerUpDisplay {
+  type: PowerUpType;
+  name: string;
+  color: string;
+  icon: string;
+}
+
+/**
+ * Power-up display configurations
+ */
+export const POWER_UP_DISPLAYS: Record<PowerUpType, PowerUpDisplay> = {
+  shield: { type: 'shield', name: 'Shield', color: '#3b82f6', icon: 'S' },
+  magnet: { type: 'magnet', name: 'Magnet', color: '#f59e0b', icon: 'M' },
+  ghost: { type: 'ghost', name: 'Ghost', color: '#8b5cf6', icon: 'G' },
+  multiplier: { type: 'multiplier', name: '2x Score', color: '#ef4444', icon: 'X' },
+  slowMotion: { type: 'slowMotion', name: 'Slow Mo', color: '#06b6d4', icon: 'T' },
+};
+
+/**
+ * Get remaining time for a power-up in seconds
+ * @param type The power-up type
+ * @returns remaining seconds, or 0 if not active
+ */
+export function getPowerUpTimeRemaining(type: PowerUpType): number {
+  const state = useGameStore.getState();
+  const now = Date.now();
+
+  // Shield is binary, not time-based
+  if (type === 'shield') {
+    return state.powerUps.shield ? -1 : 0; // -1 indicates "until hit"
+  }
+
+  // Multiplier has a separate end time
+  if (type === 'multiplier') {
+    const endTime = state.powerUps.multiplierEndTime;
+    if (endTime === 0) return 0;
+    const remaining = endTime - now;
+    return remaining > 0 ? Math.ceil(remaining / 1000) : 0;
+  }
+
+  // Other power-ups store their end time directly
+  const endTime = state.powerUps[type];
+  if (endTime === 0) return 0;
+  const remaining = endTime - now;
+  return remaining > 0 ? Math.ceil(remaining / 1000) : 0;
+}
+
+/**
+ * Check if a power-up is currently active
+ * @param type The power-up type
+ * @returns true if the power-up is active
+ */
+export function isPowerUpActive(type: PowerUpType): boolean {
+  const state = useGameStore.getState();
+  const now = Date.now();
+
+  if (type === 'shield') {
+    return state.powerUps.shield;
+  }
+
+  if (type === 'multiplier') {
+    return state.powerUps.multiplierEndTime > now;
+  }
+
+  const endTime = state.powerUps[type];
+  return endTime > now;
+}
+
+/**
+ * Get all currently active power-ups with their remaining time
+ * @returns Array of active power-ups with type and remaining time
+ */
+export function getActivePowerUps(): Array<{ type: PowerUpType; timeRemaining: number }> {
+  const powerUpTypes: PowerUpType[] = ['shield', 'magnet', 'ghost', 'multiplier', 'slowMotion'];
+  const active: Array<{ type: PowerUpType; timeRemaining: number }> = [];
+
+  for (const type of powerUpTypes) {
+    if (isPowerUpActive(type)) {
+      active.push({
+        type,
+        timeRemaining: getPowerUpTimeRemaining(type),
+      });
+    }
+  }
+
+  return active;
 }

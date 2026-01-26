@@ -3,11 +3,13 @@
  * Detects and handles collisions between entities
  */
 
-import type { GameMode, GameStatus, Entity } from '../../types';
+import type { GameMode, GameStatus, Entity, PowerUpType } from '../../types';
 import type { With } from 'miniplex';
 import { world, queries, spawn } from '../world';
 import { checkCollision, checkNearMiss, NEAR_MISS_BONUS } from '../utils/collision';
-import { isTutorialActive } from '../../store/game-store';
+import { isTutorialActive, isPowerUpActive, useGameStore } from '../../store/game-store';
+import { GAME_CONFIG } from '../../config';
+import { triggerHitAnimation, triggerCollectAnimation, triggerDeathAnimation } from './animation';
 
 // Track obstacles that have already triggered a near-miss to avoid duplicates
 const nearMissedObstacles = new WeakSet<object>();
@@ -36,6 +38,7 @@ export interface CollisionHandlers {
   onObstacleHit?: (player: With<Entity, 'player'>, obstacle: With<Entity, 'obstacle'>) => void;
   onCollectCoin?: (value: number) => void;
   onCollectGem?: (value: number) => void;
+  onCollectPowerUp?: (type: PowerUpType) => void;
   onGameOver?: () => void;
   onNearMiss?: (event: NearMissEvent) => void;
 }
@@ -56,9 +59,10 @@ export function updateCollision(
   const [player] = queries.player.entities;
   if (!player || !player.collider) return;
 
-  // Check obstacle collisions and near-misses - skip damage in zen mode
+  // Check obstacle collisions and near-misses - skip damage in zen mode and time_trial mode
   // In zen mode, obstacles shouldn't spawn, but we still skip damage as a safety net
-  if (gameMode !== 'zen') {
+  // In time_trial mode, there are no lives - game ends when timer runs out
+  if (gameMode !== 'zen' && gameMode !== 'time_trial') {
     for (const obstacle of queries.obstacles) {
       if (checkCollision(player as any, obstacle)) {
         handleObstacleHit(player, obstacle, handlers);
@@ -73,10 +77,46 @@ export function updateCollision(
     }
   }
 
+  // Apply magnet effect if active - attract nearby collectibles
+  if (isPowerUpActive('magnet') && player.position) {
+    applyMagnetEffect(player);
+  }
+
   // Check collectible collisions
   for (const collectible of queries.collectibles) {
     if (collectible.collider && checkCollision(player as any, collectible as any)) {
       handleCollect(player, collectible, handlers);
+    }
+  }
+}
+
+/**
+ * Apply magnet effect - attract nearby collectibles toward player
+ */
+function applyMagnetEffect(player: With<Entity, 'player'>): void {
+  if (!player.position) return;
+
+  const magnetRadius = GAME_CONFIG.MAGNET_RADIUS;
+  const magnetSpeed = 0.15; // How fast collectibles move toward player
+
+  for (const collectible of queries.collectibles) {
+    if (!collectible.position || !collectible.velocity) continue;
+
+    // Calculate distance to player
+    const dx = player.position.x - collectible.position.x;
+    const dy = player.position.y - collectible.position.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // If within magnet radius, attract toward player
+    if (distance < magnetRadius && distance > 0.1) {
+      // Normalize direction and apply attraction
+      const nx = dx / distance;
+      const ny = dy / distance;
+
+      // Move collectible toward player (stronger when closer)
+      const attractionStrength = magnetSpeed * (1 - distance / magnetRadius);
+      collectible.position.x += nx * attractionStrength;
+      collectible.position.y += ny * attractionStrength;
     }
   }
 }
@@ -89,27 +129,44 @@ function handleObstacleHit(
   obstacle: With<Entity, 'obstacle'>,
   handlers: CollisionHandlers
 ): void {
-  // Skip if player is invincible, ghost, or in tutorial period
+  // Skip if player is invincible, has ghost power-up, or in tutorial period
   if (player.invincible || player.ghost || isTutorialActive()) return;
+
+  // Check for ghost power-up (pass through obstacles)
+  if (isPowerUpActive('ghost')) {
+    // Ghost mode - pass through without damage
+    return;
+  }
+
+  // Check for shield power-up (blocks one hit)
+  if (isPowerUpActive('shield')) {
+    // Shield absorbs the hit
+    useGameStore.getState().deactivatePowerUp('shield');
+
+    // Remove obstacle
+    world.addComponent(obstacle, 'destroyed', true);
+
+    // Spawn blue particles for shield break
+    if (obstacle.position) {
+      for (let i = 0; i < 10; i++) {
+        spawn.particle(obstacle.position.x, obstacle.position.y, '#3b82f6');
+      }
+    }
+    return;
+  }
 
   // Reduce health
   if (player.health) {
     player.health -= 1;
 
-    // Update animation
-    if (player.animation) {
-      player.animation.current = 'hit';
-      setTimeout(() => {
-        if (player.animation) player.animation.current = 'walk';
-      }, 500);
-    }
-
     // Game over if no health
     if (player.health <= 0) {
+      // Trigger death animation (permanent state)
+      triggerDeathAnimation();
       handlers.onGameOver?.();
-      if (player.animation) {
-        player.animation.current = 'death';
-      }
+    } else {
+      // Trigger hit animation (one-shot, returns to swim)
+      triggerHitAnimation();
     }
   }
 
@@ -131,24 +188,51 @@ function handleObstacleHit(
  * Handle collectible collection
  */
 function handleCollect(
-  player: With<Entity, 'player'>,
+  _player: With<Entity, 'player'>,
   collectible: With<Entity, 'collectible'>,
   handlers: CollisionHandlers
 ): void {
-  // Add to score
+  // Check if this is a power-up
+  const powerUp = (collectible as Entity).powerUp;
+  if (powerUp) {
+    // Activate the power-up
+    useGameStore.getState().activatePowerUp(powerUp.type, powerUp.duration);
+
+    // Notify handler
+    handlers.onCollectPowerUp?.(powerUp.type);
+
+    // Trigger collect animation (one-shot, returns to swim)
+    triggerCollectAnimation();
+
+    // Mark collected
+    world.addComponent(collectible, 'collected', true);
+
+    // Spawn power-up specific particles
+    if (collectible.position) {
+      const powerUpColors: Record<PowerUpType, string> = {
+        shield: '#3b82f6',
+        magnet: '#f59e0b',
+        ghost: '#8b5cf6',
+        multiplier: '#ef4444',
+        slowMotion: '#06b6d4',
+      };
+      const color = powerUpColors[powerUp.type] || '#ffffff';
+      for (let i = 0; i < 16; i++) {
+        spawn.particle(collectible.position.x, collectible.position.y, color);
+      }
+    }
+    return;
+  }
+
+  // Regular collectible (coin or gem)
   if (collectible.collectible!.type === 'coin') {
     handlers.onCollectCoin?.(collectible.collectible!.value);
-  } else {
+  } else if (collectible.collectible!.type === 'gem') {
     handlers.onCollectGem?.(collectible.collectible!.value);
   }
 
-  // Play collect animation briefly
-  if (player.animation) {
-    player.animation.current = 'collect';
-    setTimeout(() => {
-      if (player.animation) player.animation.current = 'walk';
-    }, 300);
-  }
+  // Trigger collect animation (one-shot, returns to swim)
+  triggerCollectAnimation();
 
   // Mark collected
   world.addComponent(collectible, 'collected', true);

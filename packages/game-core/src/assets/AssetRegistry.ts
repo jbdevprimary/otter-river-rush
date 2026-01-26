@@ -121,6 +121,39 @@ export const ModelAssets = {
     },
   },
 
+  powerUps: {
+    // Shield - blue crystal represents protection
+    shield: {
+      path: 'models/collectible/gems/detail-crystal.glb',
+      source: 'kenney' as const,
+      scale: 1.2,
+    },
+    // Magnet - gold coin with larger scale
+    magnet: {
+      path: 'models/collectible/coins/coin-gold.glb',
+      source: 'kenney' as const,
+      scale: 1.4,
+    },
+    // Ghost - crystal large for ethereal effect
+    ghost: {
+      path: 'models/collectible/gems/detail-crystal-large.glb',
+      source: 'kenney' as const,
+      scale: 1.2,
+    },
+    // Multiplier - heart for value boost
+    multiplier: {
+      path: 'models/collectible/gems/heart.glb',
+      source: 'kenney' as const,
+      scale: 1.3,
+    },
+    // Slow Motion - silver coin for time effect
+    slowMotion: {
+      path: 'models/collectible/coins/coin-silver.glb',
+      source: 'kenney' as const,
+      scale: 1.4,
+    },
+  },
+
   decorations: {
     // CC0 Kenney plants
     lilyLarge: {
@@ -281,6 +314,7 @@ export type PlayerModelKey = keyof typeof ModelAssets.player;
 export type ObstacleModelKey = keyof typeof ModelAssets.obstacles;
 export type CollectibleModelKey = keyof typeof ModelAssets.collectibles;
 export type DecorationModelKey = keyof typeof ModelAssets.decorations;
+export type PowerUpModelKey = keyof typeof ModelAssets.powerUps;
 
 // Union of all model keys for spawn functions
 export type AnyModelKey =
@@ -333,4 +367,11 @@ export function getGemVariants(): AssetDefinition[] {
  */
 export function getDecorationVariants(): AssetDefinition[] {
   return Object.values(ModelAssets.decorations);
+}
+
+/**
+ * Get power-up asset by type
+ */
+export function getPowerUpAsset(type: 'shield' | 'magnet' | 'ghost' | 'multiplier' | 'slowMotion'): AssetDefinition {
+  return ModelAssets.powerUps[type];
 }

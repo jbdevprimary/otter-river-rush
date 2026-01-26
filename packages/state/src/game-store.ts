@@ -29,6 +29,9 @@ export interface PlayerProgress {
   unlockedCharacters: string[];
 }
 
+// Time Trial mode duration in milliseconds (60 seconds)
+export const TIME_TRIAL_DURATION_MS = 60000;
+
 export interface GameState {
   // Game status
   status: GameStatus;
@@ -43,6 +46,9 @@ export interface GameState {
   // Tutorial tracking (timestamp when game started, null if not a fresh game start)
   // Only set on initial game start from menu, not on respawn
   gameStartTime: number | null;
+
+  // Time Trial mode: remaining time in milliseconds (null when not in time trial)
+  timeRemaining: number | null;
 
   // Player stats (current session)
   score: number;
@@ -83,6 +89,9 @@ export interface GameState {
   resetCombo: () => void;
   loseLife: () => void;
 
+  // Time Trial mode
+  updateTimeRemaining: (deltaMs: number) => void;
+
   activatePowerUp: (type: PowerUpType, duration?: number) => void;
   deactivatePowerUp: (type: PowerUpType) => void;
 
@@ -120,6 +129,7 @@ export const useGameStore = create<GameState>()(
       selectedCharacterId: 'rusty',
       activeTraits: null,
       gameStartTime: null,
+      timeRemaining: null,
       score: 0,
       distance: 0,
       coins: 0,
@@ -158,6 +168,7 @@ export const useGameStore = create<GameState>()(
           mode,
           activeTraits: character.traits,
           gameStartTime: Date.now(), // Track when game started for tutorial
+          timeRemaining: mode === 'time_trial' ? TIME_TRIAL_DURATION_MS : null,
           score: 0,
           distance: 0,
           coins: 0,
@@ -186,6 +197,7 @@ export const useGameStore = create<GameState>()(
           status: 'menu',
           activeTraits: null,
           gameStartTime: null,
+          timeRemaining: null,
           score: 0,
           distance: 0,
           coins: 0,
@@ -249,6 +261,20 @@ export const useGameStore = create<GameState>()(
         }
       },
 
+      updateTimeRemaining: (deltaMs) => {
+        const state = get();
+        if (state.mode !== 'time_trial' || state.timeRemaining === null) return;
+
+        const newTime = state.timeRemaining - deltaMs;
+        if (newTime <= 0) {
+          // Time's up - end the game
+          set({ timeRemaining: 0 });
+          get().endGame();
+        } else {
+          set({ timeRemaining: newTime });
+        }
+      },
+
       activatePowerUp: (type, duration) =>
         set((state) => {
           const now = Date.now();
@@ -296,6 +322,7 @@ export const useGameStore = create<GameState>()(
           mode: 'classic',
           activeTraits: null,
           gameStartTime: null,
+          timeRemaining: null,
           score: 0,
           distance: 0,
           coins: 0,
@@ -349,4 +376,14 @@ export function getTutorialTimeRemaining(): number {
   const elapsed = Date.now() - state.gameStartTime;
   const remaining = TUTORIAL_DURATION_MS - elapsed;
   return remaining > 0 ? Math.ceil(remaining / 1000) : 0;
+}
+
+/**
+ * Get remaining time trial time in seconds
+ * @returns remaining seconds, or 0 if not in time trial mode
+ */
+export function getTimeTrialTimeRemaining(): number {
+  const state = useGameStore.getState();
+  if (state.timeRemaining === null) return 0;
+  return Math.ceil(state.timeRemaining / 1000);
 }

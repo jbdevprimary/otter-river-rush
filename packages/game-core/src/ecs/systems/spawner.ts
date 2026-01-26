@@ -10,8 +10,20 @@ import {
   calculateObstacleSpawnInterval,
   useGameStore,
 } from '../../store';
-import type { GameMode, Lane } from '../../types';
+import type { GameMode, Lane, PowerUpType } from '../../types';
 import { spawn } from '../world';
+
+/**
+ * Power-up types available for spawning
+ */
+const POWER_UP_TYPES: PowerUpType[] = ['shield', 'magnet', 'ghost', 'multiplier', 'slowMotion'];
+
+/**
+ * Get a random power-up type
+ */
+function getRandomPowerUpType(): PowerUpType {
+  return POWER_UP_TYPES[Math.floor(Math.random() * POWER_UP_TYPES.length)];
+}
 
 export interface SpawnerState {
   lastObstacleSpawn: number;
@@ -79,15 +91,16 @@ export function updateSpawner(
     const laneIndex = Math.floor(Math.random() * 3) as Lane;
     const lane = getLaneX(laneIndex);
     const roll = Math.random();
-    if (roll > 0.9) {
-      // 10% chance for power-up (heart)
-      spawn.powerUp(lane, VISUAL.positions.spawnY);
-    } else if (roll > 0.65) {
+    if (roll > 0.95) {
+      // 5% chance for power-up (random type from 5 available)
+      const powerUpType = getRandomPowerUpType();
+      spawn.powerUp(lane, VISUAL.positions.spawnY, powerUpType);
+    } else if (roll > 0.7) {
       // 25% chance for gem/crystal
       const variant = Math.floor(Math.random() * 3);
       spawn.gem(lane, VISUAL.positions.spawnY, variant);
     } else {
-      // 65% chance for coin (gold/silver/bronze)
+      // 70% chance for coin (gold/silver/bronze)
       const variant = Math.floor(Math.random() * 3);
       spawn.coin(lane, VISUAL.positions.spawnY, variant);
     }

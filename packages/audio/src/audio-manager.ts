@@ -392,7 +392,7 @@ export function playNearMiss(): void {
 /**
  * Play background music - procedural ambient river sounds
  */
-export function playMusic(track: MusicTrack, loop: boolean = true): void {
+export function playMusic(track: MusicTrack, _loop: boolean = true): void {
   if (!state.initialized || state.muted) return;
 
   // Stop current music

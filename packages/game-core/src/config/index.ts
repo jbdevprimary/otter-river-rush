@@ -3,6 +3,18 @@
  * Central configuration for the game
  */
 
+// Accessibility
+export {
+  COLORBLIND_FILTERS,
+  COLORBLIND_PALETTES,
+  GAME_SPEED_LABELS,
+  getAccessibilityFilter,
+  getColorPalette,
+  HIGH_CONTRAST_COLORS,
+  REDUCED_MOTION_CLASS,
+  REDUCED_MOTION_STYLES,
+} from './accessibility';
+
 // Character definitions
 export {
   getCharacter,
@@ -40,3 +52,12 @@ export {
   PHYSICS,
   VISUAL,
 } from './visual-constants';
+
+// Weather constants
+export {
+  WEATHER_CONFIGS,
+  WEATHER_PERFORMANCE,
+  getEffectiveParticleCount,
+  getWeatherConfig,
+  type WeatherConfig,
+} from './weather';

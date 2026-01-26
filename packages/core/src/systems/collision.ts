@@ -8,6 +8,7 @@ import type { With } from 'miniplex';
 import { world, queries, spawn } from '../world';
 import { checkCollision } from '../utils/collision';
 import { isTutorialActive } from '@otter-river-rush/state';
+import { triggerHitAnimation, triggerCollectAnimation, triggerDeathAnimation } from './animation';
 
 /**
  * Collision handlers interface
@@ -49,7 +50,7 @@ export function updateCollision(
   // Check collectible collisions
   for (const collectible of queries.collectibles) {
     if (collectible.collider && checkCollision(player as any, collectible as any)) {
-      handleCollect(player, collectible, handlers);
+      handleCollect(collectible, handlers);
     }
   }
 }
@@ -69,20 +70,14 @@ function handleObstacleHit(
   if (player.health) {
     player.health -= 1;
 
-    // Update animation
-    if (player.animation) {
-      player.animation.current = 'hit';
-      setTimeout(() => {
-        if (player.animation) player.animation.current = 'walk';
-      }, 500);
-    }
-
     // Game over if no health
     if (player.health <= 0) {
+      // Trigger death animation (permanent state)
+      triggerDeathAnimation();
       handlers.onGameOver?.();
-      if (player.animation) {
-        player.animation.current = 'death';
-      }
+    } else {
+      // Trigger hit animation (one-shot, returns to swim)
+      triggerHitAnimation();
     }
   }
 
@@ -104,7 +99,6 @@ function handleObstacleHit(
  * Handle collectible collection
  */
 function handleCollect(
-  player: With<Entity, 'player'>,
   collectible: With<Entity, 'collectible'>,
   handlers: CollisionHandlers
 ): void {
@@ -115,13 +109,8 @@ function handleCollect(
     handlers.onCollectGem?.(collectible.collectible!.value);
   }
 
-  // Play collect animation briefly
-  if (player.animation) {
-    player.animation.current = 'collect';
-    setTimeout(() => {
-      if (player.animation) player.animation.current = 'walk';
-    }, 300);
-  }
+  // Trigger collect animation (one-shot, returns to swim)
+  triggerCollectAnimation();
 
   // Mark collected
   world.addComponent(collectible, 'collected', true);

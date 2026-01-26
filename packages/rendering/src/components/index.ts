@@ -6,9 +6,15 @@
  * - EntityRenderer: Renders ECS entities as GLB models
  * - RiverEnvironment: Environment with water, terrain, lighting
  * - GameLoop: Fixed timestep game loop component
+ * - WeatherEffects: Biome-specific particle weather effects
  */
 
 export { EntityRenderer } from './EntityRenderer';
 export { GameCanvas, type GameCanvasProps } from './GameCanvas';
 export { GameLoop, useGameLoop, type GameLoopProps } from './GameLoop';
 export { RiverEnvironment } from './RiverEnvironment';
+export {
+  WeatherEffects,
+  RainStreaks,
+  BiomeWeather,
+} from './WeatherEffects';

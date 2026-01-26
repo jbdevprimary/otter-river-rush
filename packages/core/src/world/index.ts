@@ -92,8 +92,17 @@ export const spawn = {
       },
       animation: {
         current: 'idle',
+        previous: undefined,
+        startTime: Date.now(),
+        isOneShot: false,
+        fadeDuration: 0.15,
         urls: {
           idle: char.modelPath,
+          swim: char.modelPath,
+          hit: char.modelPath,
+          collect: char.modelPath,
+          dodge: char.modelPath,
+          death: char.modelPath,
         },
       },
       collider: { width: 0.8, height: 1.2, depth: 0.8 },

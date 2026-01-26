@@ -1,192 +1,255 @@
 /**
  * Main App Component
  * Otter River Rush Web Application - React Three Fiber
+ *
+ * Uses a fixed timestep game loop for deterministic physics:
+ * - Fixed timestep of 16.67ms (60 FPS target)
+ * - Accumulator pattern for consistent physics updates
+ * - Interpolation for smooth rendering between physics steps
+ * - Handles variable frame rates gracefully
  */
 
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { PerspectiveCamera, useGLTF } from '@react-three/drei';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
-import { Suspense, useCallback, useEffect, useRef, useMemo, useState } from 'react';
-import * as THREE from 'three';
-
+import { ensureAudioContext, initAudio, playMusic } from '@otter-river-rush/audio';
+import { BIOME_COLORS, getCharacter, VISUAL } from '@otter-river-rush/config';
 import {
-  initAudio,
-  ensureAudioContext,
-  playCoinPickup,
-  playGemPickup,
-  playHit,
-  playNearMiss,
-  playMusic,
-  stopMusic,
-} from '@otter-river-rush/audio';
-import { getCharacter, VISUAL, BIOME_COLORS } from '@otter-river-rush/config';
-import type { BiomeType } from '@otter-river-rush/types';
-import {
-  type CollisionHandlers,
   createInputState,
   createSpawnerState,
+  queries,
   setupKeyboardInput,
   setupTouchInput,
   spawn,
-  updateAnimation,
-  updateCleanup,
-  updateCollision,
-  updateMovement,
-  updateParticles,
-  updatePlayerInput,
-  updateSpawner,
-  queries,
 } from '@otter-river-rush/core';
+import { AnimatedWaterMaterial, BiomeWeather } from '@otter-river-rush/rendering';
 import { useGameStore } from '@otter-river-rush/state';
+import type { BiomeType, Entity } from '@otter-river-rush/types';
 import {
+  AccessibilityProvider,
   AchievementNotification,
   CharacterSelect,
   FloatingText,
   type FloatingTextItem,
   HUD,
   Menu,
+  MilestoneNotification,
   PauseMenu,
 } from '@otter-river-rush/ui';
-import type { Entity } from '@otter-river-rush/types';
+import { PerspectiveCamera, useGLTF } from '@react-three/drei';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Bloom, EffectComposer } from '@react-three/postprocessing';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import * as THREE from 'three';
+import {
+  CollectionBurst,
+  type CollectionBurstRef,
+  ImpactFlash,
+  type ImpactFlashRef,
+  PlayerTrail,
+  SpeedLines,
+} from './effects';
+
+import {
+  type CollectionCallback,
+  createInterpolationState,
+  type DamageCallback,
+  FixedTimestepGameLoop,
+  type InterpolationState,
+  lerpNumber,
+  type NearMissCallback,
+} from './game-loop';
 
 // Default otter model (fallback) - uses Vite's base URL for GitHub Pages
 const BASE_URL = `${import.meta.env.BASE_URL ?? '/'}assets`;
 const DEFAULT_OTTER_MODEL = `${BASE_URL}/models/player/otter-player/model.glb`;
 
 // ============================================================================
-// Near-miss event callback type for floating text
+// Animation name mapping - maps our animation states to potential GLB clip names
 // ============================================================================
-type NearMissCallback = (position: { x: number; y: number; z: number }, bonus: number) => void;
+const ANIMATION_NAME_MAPPINGS: Record<string, string[]> = {
+  idle: ['idle', 'Idle', 'IDLE', 'stand', 'Stand', 'rest', 'Rest'],
+  swim: ['swim', 'Swim', 'SWIM', 'swimming', 'Swimming', 'run', 'Run', 'walk', 'Walk', 'move', 'Move'],
+  hit: ['hit', 'Hit', 'HIT', 'damage', 'Damage', 'hurt', 'Hurt', 'pain', 'Pain'],
+  collect: ['collect', 'Collect', 'pickup', 'Pickup', 'grab', 'Grab', 'happy', 'Happy', 'celebrate'],
+  dodge: ['dodge', 'Dodge', 'lean', 'Lean', 'tilt', 'Tilt', 'turn', 'Turn', 'swerve'],
+  death: ['death', 'Death', 'DEATH', 'die', 'Die', 'dead', 'Dead', 'fall', 'Fall'],
+};
 
-// ============================================================================
-// Game Loop Component - runs game systems via useFrame
-// ============================================================================
-interface GameLoopProps {
-  spawnerStateRef: React.RefObject<ReturnType<typeof createSpawnerState>>;
-  inputStateRef: React.RefObject<ReturnType<typeof createInputState>>;
-  onNearMissRef: React.RefObject<NearMissCallback | null>;
-}
+/**
+ * Find an animation clip by name, trying various common naming conventions
+ */
+function findAnimationClip(
+  animations: THREE.AnimationClip[],
+  stateName: string
+): THREE.AnimationClip | null {
+  if (animations.length === 0) return null;
 
-function GameLoop({ spawnerStateRef, inputStateRef, onNearMissRef }: GameLoopProps) {
-  const lastTimeRef = useRef<number>(0);
+  const possibleNames = ANIMATION_NAME_MAPPINGS[stateName] || [stateName];
 
-  useFrame((state) => {
-    const time = state.clock.elapsedTime * 1000; // Convert to ms
+  // Try to find exact or partial match
+  for (const name of possibleNames) {
+    // Exact match
+    const exact = animations.find((clip) => clip.name === name);
+    if (exact) return exact;
 
-    if (!lastTimeRef.current) {
-      lastTimeRef.current = time;
-    }
+    // Partial match (contains)
+    const partial = animations.find(
+      (clip) => clip.name.toLowerCase().includes(name.toLowerCase())
+    );
+    if (partial) return partial;
+  }
 
-    const deltaTime = (time - lastTimeRef.current) / 1000; // Convert to seconds
-    lastTimeRef.current = time;
-
-    const gameState = useGameStore.getState();
-    const currentStatus = gameState.status;
-    const currentMode = gameState.mode;
-
-    // Run game systems only when playing
-    if (currentStatus === 'playing') {
-      if (inputStateRef.current) {
-        updatePlayerInput(inputStateRef.current, deltaTime);
-      }
-      updateMovement(deltaTime);
-      updateAnimation(currentStatus);
-      if (spawnerStateRef.current) {
-        // Pass game mode to spawner - zen mode skips obstacle spawning
-        updateSpawner(spawnerStateRef.current, time, true, currentMode);
-      }
-
-      const handlers: CollisionHandlers = {
-        onObstacleHit: () => {
-          playHit();
-        },
-        onCollectCoin: (value) => {
-          playCoinPickup();
-          useGameStore.getState().collectCoin(value);
-        },
-        onCollectGem: (value) => {
-          playGemPickup();
-          useGameStore.getState().collectGem(value);
-        },
-        onGameOver: () => {
-          stopMusic();
-          useGameStore.getState().endGame();
-        },
-        onNearMiss: (event) => {
-          // Play near-miss sound
-          playNearMiss();
-          // Add bonus points to score
-          useGameStore.getState().addNearMissBonus(event.bonus);
-          // Trigger floating text callback
-          if (onNearMissRef.current) {
-            onNearMissRef.current(event.position, event.bonus);
-          }
-        },
-      };
-      // Pass game mode to collision - zen mode skips damage
-      updateCollision(currentStatus, handlers, currentMode);
-
-      updateParticles(deltaTime * 1000);
-      updateCleanup();
-
-      // Update distance (score progression)
-      useGameStore.getState().updateDistance(deltaTime * VISUAL.camera.zoom * 0.5);
-
-      // Update biome based on distance traveled
-      useGameStore.getState().updateBiome();
-
-      // Check if combo has timed out (2 seconds of no collections)
-      useGameStore.getState().checkComboTimeout();
-    }
-  });
-
-  return null;
+  // Fallback: return first animation as default
+  return animations[0];
 }
 
 // ============================================================================
 // Entity Model Component - renders a single GLB model for an entity
+// Supports interpolation for smooth rendering between physics steps
+// Handles animation state changes with crossfade transitions
 // ============================================================================
 interface EntityModelProps {
   entity: Entity;
   modelUrl: string;
   scale: number;
+  interpolationStateRef?: React.RefObject<InterpolationState>;
+  entityKey?: string;
 }
 
-function EntityModel({ entity, modelUrl, scale }: EntityModelProps) {
+function EntityModel({
+  entity,
+  modelUrl,
+  scale,
+  interpolationStateRef,
+  entityKey,
+}: EntityModelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const { scene, animations } = useGLTF(modelUrl);
 
   // Clone the scene for this instance
   const clonedScene = useMemo(() => scene.clone(), [scene]);
 
-  // Set up animation mixer
-  const mixer = useMemo(() => {
-    if (animations.length > 0) {
-      const m = new THREE.AnimationMixer(clonedScene);
-      const action = m.clipAction(animations[0]);
-      action.play();
-      return m;
+  // Animation state tracking
+  const mixerRef = useRef<THREE.AnimationMixer | null>(null);
+  const actionsRef = useRef<Map<string, THREE.AnimationAction>>(new Map());
+  const currentAnimationRef = useRef<string>('idle');
+
+  // Initialize animation mixer and prepare all animation actions
+  useEffect(() => {
+    if (animations.length === 0) {
+      mixerRef.current = null;
+      return;
     }
-    return null;
+
+    const mixer = new THREE.AnimationMixer(clonedScene);
+    mixerRef.current = mixer;
+
+    // Create actions for all available animations
+    actionsRef.current.clear();
+    for (const clip of animations) {
+      const action = mixer.clipAction(clip);
+      actionsRef.current.set(clip.name, action);
+    }
+
+    // Start with idle or first animation
+    const initialClip = findAnimationClip(animations, 'idle') || animations[0];
+    if (initialClip) {
+      const initialAction = mixer.clipAction(initialClip);
+      initialAction.play();
+      currentAnimationRef.current = 'idle';
+    }
+
+    return () => {
+      mixer.stopAllAction();
+      actionsRef.current.clear();
+    };
   }, [clonedScene, animations]);
 
-  // Update animation mixer each frame
+  // Update animation mixer and handle animation state changes
   useFrame((_, delta) => {
-    if (mixer) {
-      mixer.update(delta);
+    const mixer = mixerRef.current;
+    if (!mixer) return;
+
+    // Update mixer
+    mixer.update(delta);
+
+    // Check if entity animation state changed
+    if (entity.animation && entity.animation.current !== currentAnimationRef.current) {
+      const targetState = entity.animation.current;
+      const fadeDuration = entity.animation.fadeDuration ?? 0.15;
+
+      // Find the target animation clip
+      const targetClip = findAnimationClip(animations, targetState);
+      if (!targetClip) return;
+
+      // Get or create the target action
+      let targetAction = actionsRef.current.get(targetClip.name);
+      if (!targetAction) {
+        targetAction = mixer.clipAction(targetClip);
+        actionsRef.current.set(targetClip.name, targetAction);
+      }
+
+      // Find current playing action
+      const currentClip = findAnimationClip(animations, currentAnimationRef.current);
+      const currentAction = currentClip ? actionsRef.current.get(currentClip.name) : null;
+
+      // Configure target action based on animation type
+      const isOneShot = entity.animation.isOneShot ?? false;
+      if (isOneShot) {
+        // One-shot animations: play once then stop
+        targetAction.setLoop(THREE.LoopOnce, 1);
+        targetAction.clampWhenFinished = true;
+      } else {
+        // Looping animations
+        targetAction.setLoop(THREE.LoopRepeat, Infinity);
+        targetAction.clampWhenFinished = false;
+      }
+
+      // Crossfade from current to target
+      if (currentAction && currentAction !== targetAction) {
+        // Reset target action to start
+        targetAction.reset();
+        targetAction.setEffectiveTimeScale(1);
+        targetAction.setEffectiveWeight(1);
+
+        // Crossfade
+        targetAction.crossFadeFrom(currentAction, fadeDuration, true);
+        targetAction.play();
+      } else {
+        // No current action, just play
+        targetAction.reset();
+        targetAction.play();
+      }
+
+      currentAnimationRef.current = targetState;
     }
   });
 
-  // Update position each frame
+  // Update position each frame with interpolation for smooth rendering
   // Game coords: X=lanes, Y=forward/back (river flow), Z=height
   // Three.js coords: X=lateral, Y=height, Z=depth
   // Transform: Game (x, y, z) -> Three.js (x, z, y)
   useFrame(() => {
     if (groupRef.current && entity.position) {
+      let x = entity.position.x;
+      let y = entity.position.y;
+      let z = entity.position.z;
+
+      // Apply interpolation if available for smooth rendering between physics steps
+      if (interpolationStateRef?.current && entityKey) {
+        const prevPos = interpolationStateRef.current.previousPositions.get(entityKey);
+        const alpha = interpolationStateRef.current.alpha;
+
+        if (prevPos && alpha > 0 && alpha < 1) {
+          // Interpolate between previous and current position
+          x = lerpNumber(prevPos.x, entity.position.x, alpha);
+          y = lerpNumber(prevPos.y, entity.position.y, alpha);
+          z = lerpNumber(prevPos.z, entity.position.z, alpha);
+        }
+      }
+
       groupRef.current.position.set(
-        entity.position.x,  // X stays X (lanes/lateral)
-        entity.position.z,  // Game Z -> Three.js Y (height)
-        entity.position.y   // Game Y -> Three.js Z (depth/forward)
+        x, // X stays X (lanes/lateral)
+        z, // Game Z -> Three.js Y (height)
+        y // Game Y -> Three.js Z (depth/forward)
       );
     }
 
@@ -204,9 +267,13 @@ function EntityModel({ entity, modelUrl, scale }: EntityModelProps) {
 }
 
 // ============================================================================
-// Entity Renderer Component - renders all ECS entities
+// Entity Renderer Component - renders all ECS entities with interpolation
 // ============================================================================
-function EntityRenderer() {
+interface EntityRendererProps {
+  interpolationStateRef: React.RefObject<InterpolationState>;
+}
+
+function EntityRenderer({ interpolationStateRef }: EntityRendererProps) {
   const movingEntities = useRef<Entity[]>([]);
   const obstacleEntities = useRef<Entity[]>([]);
   const collectibleEntities = useRef<Entity[]>([]);
@@ -225,9 +292,16 @@ function EntityRenderer() {
         const modelUrl = entity.model?.url ?? (entity.player ? DEFAULT_OTTER_MODEL : null);
         if (!modelUrl) return null;
         const scale = entity.player ? VISUAL.scales.otter : (entity.model?.scale ?? 1);
+        const entityKey = entity.player ? 'player' : undefined;
         return (
           <Suspense key={entity.player ? 'player' : `entity-${Math.random()}`} fallback={null}>
-            <EntityModel entity={entity} modelUrl={modelUrl} scale={scale} />
+            <EntityModel
+              entity={entity}
+              modelUrl={modelUrl}
+              scale={scale}
+              interpolationStateRef={interpolationStateRef}
+              entityKey={entityKey}
+            />
           </Suspense>
         );
       })}
@@ -238,7 +312,13 @@ function EntityRenderer() {
         const scale = entity.model?.scale ?? 1;
         return (
           <Suspense key={`obstacle-${idx}-${entity.position?.y ?? 0}`} fallback={null}>
-            <EntityModel entity={entity} modelUrl={modelUrl} scale={scale} />
+            <EntityModel
+              entity={entity}
+              modelUrl={modelUrl}
+              scale={scale}
+              interpolationStateRef={interpolationStateRef}
+              entityKey={`obstacle-${idx}`}
+            />
           </Suspense>
         );
       })}
@@ -249,7 +329,13 @@ function EntityRenderer() {
         const scale = entity.model?.scale ?? 1;
         return (
           <Suspense key={`collectible-${idx}-${entity.position?.y ?? 0}`} fallback={null}>
-            <EntityModel entity={entity} modelUrl={modelUrl} scale={scale} />
+            <EntityModel
+              entity={entity}
+              modelUrl={modelUrl}
+              scale={scale}
+              interpolationStateRef={interpolationStateRef}
+              entityKey={`collectible-${idx}`}
+            />
           </Suspense>
         );
       })}
@@ -326,64 +412,68 @@ function RiverEnvironment({ biome = 'forest', biomeProgress = 0 }: RiverEnvironm
   const riverLength = 50;
   const bankWidth = 6;
 
-  // Animate water texture offset for flow effect
-  useFrame((_, delta) => {
-    if (waterRef.current) {
-      const material = waterRef.current.material as THREE.MeshStandardMaterial;
-      if (material.map) {
-        material.map.offset.y -= delta * 0.3;
-      }
-    }
-  });
+  // Compute foam color from water color (lighter version)
+  const foamColor = useMemo(() => {
+    const color = new THREE.Color(colors.water);
+    color.lerp(new THREE.Color('#ffffff'), 0.7);
+    return `#${color.getHexString()}`;
+  }, [colors.water]);
 
   // Tree positions along banks
-  const treePositions = useMemo(() => [
-    // Left side trees
-    { x: -6, y: -5, scale: 1.2 },
-    { x: -7, y: 0, scale: 1.0 },
-    { x: -5.5, y: 5, scale: 1.4 },
-    { x: -6.5, y: 10, scale: 0.9 },
-    { x: -7, y: 15, scale: 1.1 },
-    { x: -5.5, y: 20, scale: 1.3 },
-    { x: -6, y: 25, scale: 1.0 },
-    { x: -7, y: 30, scale: 1.2 },
-    // Right side trees
-    { x: 6, y: -3, scale: 1.1 },
-    { x: 7, y: 2, scale: 0.9 },
-    { x: 5.5, y: 7, scale: 1.3 },
-    { x: 6.5, y: 12, scale: 1.0 },
-    { x: 7, y: 17, scale: 1.2 },
-    { x: 5.5, y: 22, scale: 1.1 },
-    { x: 6, y: 27, scale: 1.4 },
-    { x: 7, y: 32, scale: 0.9 },
-  ], []);
+  const treePositions = useMemo(
+    () => [
+      // Left side trees
+      { x: -6, y: -5, scale: 1.2 },
+      { x: -7, y: 0, scale: 1.0 },
+      { x: -5.5, y: 5, scale: 1.4 },
+      { x: -6.5, y: 10, scale: 0.9 },
+      { x: -7, y: 15, scale: 1.1 },
+      { x: -5.5, y: 20, scale: 1.3 },
+      { x: -6, y: 25, scale: 1.0 },
+      { x: -7, y: 30, scale: 1.2 },
+      // Right side trees
+      { x: 6, y: -3, scale: 1.1 },
+      { x: 7, y: 2, scale: 0.9 },
+      { x: 5.5, y: 7, scale: 1.3 },
+      { x: 6.5, y: 12, scale: 1.0 },
+      { x: 7, y: 17, scale: 1.2 },
+      { x: 5.5, y: 22, scale: 1.1 },
+      { x: 6, y: 27, scale: 1.4 },
+      { x: 7, y: 32, scale: 0.9 },
+    ],
+    []
+  );
 
   // Mountain positions
-  const mountainPositions = useMemo(() => [
-    { x: -15, y: 40, height: 12, width: 16 },
-    { x: -8, y: 45, height: 8, width: 12 },
-    { x: 0, y: 50, height: 15, width: 20 },
-    { x: 10, y: 42, height: 10, width: 14 },
-    { x: 18, y: 48, height: 13, width: 18 },
-  ], []);
+  const mountainPositions = useMemo(
+    () => [
+      { x: -15, y: 40, height: 12, width: 16 },
+      { x: -8, y: 45, height: 8, width: 12 },
+      { x: 0, y: 50, height: 15, width: 20 },
+      { x: 10, y: 42, height: 10, width: 14 },
+      { x: 18, y: 48, height: 13, width: 18 },
+    ],
+    []
+  );
 
   return (
     <group>
-      {/* River/Water Surface */}
+      {/* River/Water Surface - Animated shader with waves and flow */}
       <mesh
         ref={waterRef}
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, -0.1, riverLength / 2 - 10]}
       >
-        <planeGeometry args={[riverWidth, riverLength, 32, 32]} />
-        <meshStandardMaterial
-          color={colors.water}
-          roughness={0.1}
-          metalness={0.9}
-          transparent
-          opacity={0.9}
-          emissive={colors.water}
-          emissiveIntensity={0.1}
+        <planeGeometry args={[riverWidth, riverLength, 64, 64]} />
+        <AnimatedWaterMaterial
+          waterColor={colors.water}
+          foamColor={foamColor}
+          waveHeight={0.06}
+          waveFrequency={0.4}
+          waveSpeed={1.2}
+          flowSpeed={0.12}
+          fresnelPower={2.0}
+          opacity={0.88}
         />
       </mesh>
 
@@ -471,13 +561,7 @@ function SceneSetup() {
   return (
     <>
       {/* Camera - BEHIND the player, looking FORWARD down the river */}
-      <PerspectiveCamera
-        makeDefault
-        position={[0, 4, -10]}
-        fov={50}
-        near={0.1}
-        far={1000}
-      />
+      <PerspectiveCamera makeDefault position={[0, 4, -10]} fov={50} near={0.1} far={1000} />
 
       {/* Ambient Light */}
       <ambientLight
@@ -537,15 +621,45 @@ function AudioInitializer() {
 }
 
 // ============================================================================
+// Hook: Detect reduced motion preference
+// ============================================================================
+function useReducedMotion(): boolean {
+  const [reducedMotion, setReducedMotion] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handleChange = (event: MediaQueryListEvent) => {
+      setReducedMotion(event.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  return reducedMotion;
+}
+
+// ============================================================================
 // Main App Component
 // ============================================================================
 export function App() {
   const status = useGameStore((state) => state.status);
   const currentBiome = useGameStore((state) => state.currentBiome);
   const biomeProgress = useGameStore((state) => state.biomeProgress);
+  const accessibilityReducedMotion = useGameStore(
+    (state) => state.accessibility?.reducedMotion ?? false
+  );
   const spawnerStateRef = useRef(createSpawnerState());
   const inputStateRef = useRef(createInputState());
+  const interpolationStateRef = useRef(createInterpolationState());
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Accessibility: detect reduced motion preference (system OR user setting)
+  const systemReducedMotion = useReducedMotion();
+  const reducedMotion = systemReducedMotion || accessibilityReducedMotion;
 
   // Floating text state for near-miss indicators
   const [floatingTexts, setFloatingTexts] = useState<FloatingTextItem[]>([]);
@@ -553,6 +667,52 @@ export function App() {
 
   // Near-miss callback ref - passed to GameLoop to trigger floating text
   const onNearMissRef = useRef<NearMissCallback | null>(null);
+
+  // Collection callback ref - triggers burst effect
+  const onCollectionRef = useRef<CollectionCallback | null>(null);
+
+  // Damage callback ref - triggers impact flash
+  const onDamageRef = useRef<DamageCallback | null>(null);
+
+  // Effect refs for imperative control
+  const collectionBurstRef = useRef<CollectionBurstRef>(null);
+  const impactFlashRef = useRef<ImpactFlashRef>(null);
+
+  // Get distance for speed effects
+  const distance = useGameStore((state) => state.distance);
+
+  // Calculate speed multiplier based on distance (same logic as game-store)
+  const speedMultiplier = useMemo(() => {
+    const intervals = Math.floor(distance / 500); // DIFFICULTY.speedIncreaseDistanceInterval
+    const multiplier = 1 + intervals * 0.1; // DIFFICULTY.speedIncreasePerInterval
+    return Math.min(multiplier, 2.0); // DIFFICULTY.maxSpeedMultiplier
+  }, [distance]);
+
+  // Set up collection callback
+  useEffect(() => {
+    onCollectionRef.current = (position, type) => {
+      if (collectionBurstRef.current) {
+        collectionBurstRef.current.burst(position.x, position.y, position.z, type);
+      }
+    };
+
+    return () => {
+      onCollectionRef.current = null;
+    };
+  }, []);
+
+  // Set up damage callback
+  useEffect(() => {
+    onDamageRef.current = () => {
+      if (impactFlashRef.current) {
+        impactFlashRef.current.flash();
+      }
+    };
+
+    return () => {
+      onDamageRef.current = null;
+    };
+  }, []);
 
   // Set up near-miss callback
   useEffect(() => {
@@ -643,17 +803,18 @@ export function App() {
   }, [status]);
 
   return (
-    <div
-      ref={containerRef}
-      style={{
-        width: '100vw',
-        height: '100vh',
-        position: 'relative',
-        overflow: 'hidden',
-        touchAction: 'none', // Prevent browser gestures (pull-to-refresh, etc.)
-      }}
-    >
-      <Canvas
+    <AccessibilityProvider>
+      <div
+        ref={containerRef}
+        style={{
+          width: '100vw',
+          height: '100vh',
+          position: 'relative',
+          overflow: 'hidden',
+          touchAction: 'none', // Prevent browser gestures (pull-to-refresh, etc.)
+        }}
+      >
+        <Canvas
         shadows
         gl={{
           antialias: true,
@@ -666,26 +827,49 @@ export function App() {
           {/* Scene setup (camera, lights, fog) */}
           <SceneSetup />
 
-          {/* Game loop (runs ECS systems) */}
-          <GameLoop
+          {/* Fixed timestep game loop (runs ECS systems with deterministic physics) */}
+          <FixedTimestepGameLoop
             spawnerStateRef={spawnerStateRef}
             inputStateRef={inputStateRef}
             onNearMissRef={onNearMissRef}
+            onCollectionRef={onCollectionRef}
+            onDamageRef={onDamageRef}
+            interpolationStateRef={interpolationStateRef}
           />
 
           {/* 3D Environment - dynamic biome based on distance */}
           <RiverEnvironment biome={currentBiome} biomeProgress={biomeProgress} />
 
-          {/* Entity renderer for player, obstacles, collectibles */}
-          <EntityRenderer />
+          {/* Weather effects - biome-specific particles (rain/snow/dust/spray) */}
+          <BiomeWeather
+            biome={currentBiome}
+            biomeProgress={biomeProgress}
+            reducedMotion={reducedMotion}
+            particleQuality="medium"
+          />
+
+          {/* Entity renderer for player, obstacles, collectibles with interpolation */}
+          <EntityRenderer interpolationStateRef={interpolationStateRef} />
+
+          {/* Visual Effects - player trail and speed lines */}
+          <PlayerTrail
+            isPlaying={status === 'playing'}
+            reducedMotion={reducedMotion}
+          />
+          <SpeedLines
+            speedMultiplier={speedMultiplier}
+            threshold={1.5}
+            isPlaying={status === 'playing'}
+            reducedMotion={reducedMotion}
+          />
+          <CollectionBurst
+            ref={collectionBurstRef}
+            reducedMotion={reducedMotion}
+          />
 
           {/* Post-processing effects */}
           <EffectComposer>
-            <Bloom
-              intensity={0.5}
-              luminanceThreshold={0.9}
-              luminanceSmoothing={0.9}
-            />
+            <Bloom intensity={0.5} luminanceThreshold={0.9} luminanceSmoothing={0.9} />
           </EffectComposer>
         </Suspense>
       </Canvas>
@@ -703,10 +887,20 @@ export function App() {
       {/* Achievement notifications - always visible */}
       <AchievementNotification />
 
-      {/* Floating text for near-miss indicators */}
-      {floatingTexts.length > 0 && (
-        <FloatingText items={floatingTexts} onComplete={handleFloatingTextComplete} />
-      )}
-    </div>
+      {/* Milestone notifications - shown during gameplay */}
+      <MilestoneNotification />
+
+        {/* Floating text for near-miss indicators */}
+        {floatingTexts.length > 0 && (
+          <FloatingText items={floatingTexts} onComplete={handleFloatingTextComplete} />
+        )}
+
+        {/* Impact flash overlay - outside Canvas for 2D effect */}
+        <ImpactFlash
+          ref={impactFlashRef}
+          reducedMotion={reducedMotion}
+        />
+      </div>
+    </AccessibilityProvider>
   );
 }

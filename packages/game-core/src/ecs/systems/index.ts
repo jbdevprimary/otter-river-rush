@@ -8,7 +8,15 @@ export { updateCleanup } from './cleanup';
 export { updateSpawner, createSpawnerState } from './spawner';
 export type { SpawnerState } from './spawner';
 export { updateParticles } from './particles';
-export { updateAnimation } from './animation';
+export {
+  updateAnimation,
+  triggerAnimation,
+  triggerHitAnimation,
+  triggerCollectAnimation,
+  triggerDeathAnimation,
+  setAnimation,
+  resetAnimationState,
+} from './animation';
 export { updateCollision, resetNearMissTracking } from './collision';
 export type { CollisionHandlers, NearMissEvent } from './collision';
 export { setupKeyboardInput, setupTouchInput, updatePlayerInput, createInputState } from './input';

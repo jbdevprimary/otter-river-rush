@@ -8,6 +8,7 @@ import { addScore, isHighScore, useGameStore } from '@otter-river-rush/state';
 import type { GameMode } from '@otter-river-rush/types';
 import { type CSSProperties, useEffect, useState } from 'react';
 import { Leaderboard } from './Leaderboard';
+import { Settings } from './Settings';
 
 interface MenuProps {
   type: 'menu' | 'game_over';
@@ -103,6 +104,21 @@ const styles = {
     boxShadow: '0 0 10px rgba(16, 185, 129, 0.5)',
   } satisfies CSSProperties,
 
+  timeTrialModeButtonActive: {
+    width: '135px',
+    height: '50px',
+    backgroundColor: '#f59e0b',
+    color: '#ffffff',
+    border: '2px solid #fbbf24',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    fontFamily: 'monospace',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+    boxShadow: '0 0 10px rgba(245, 158, 11, 0.5)',
+  } satisfies CSSProperties,
+
   title: {
     color: UI_COLORS.menu.text,
     fontSize: '64px',
@@ -173,6 +189,25 @@ const styles = {
     transition: 'all 0.15s ease',
   } satisfies CSSProperties,
 
+  settingsButton: {
+    width: '280px',
+    height: '60px',
+    backgroundColor: '#334155',
+    color: '#ffffff',
+    border: '2px solid #475569',
+    borderRadius: '10px',
+    fontSize: '24px',
+    fontWeight: 'bold',
+    fontFamily: 'monospace',
+    cursor: 'pointer',
+    marginTop: '15px',
+    transition: 'all 0.15s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '10px',
+  } satisfies CSSProperties,
+
   controls: {
     color: '#94a3b8',
     fontSize: '16px',
@@ -231,6 +266,7 @@ export function Menu({ type }: MenuProps) {
 function MainMenu() {
   const selectedChar = useGameStore((state) => state.getSelectedCharacter());
   const [selectedMode, setSelectedMode] = useState<GameMode>('classic');
+  const [showSettings, setShowSettings] = useState(false);
 
   const handlePlay = () => {
     useGameStore.getState().startGame(selectedMode);
@@ -240,9 +276,19 @@ function MainMenu() {
     useGameStore.getState().goToCharacterSelect();
   };
 
+  const handleOpenSettings = () => {
+    setShowSettings(true);
+  };
+
+  const handleCloseSettings = () => {
+    setShowSettings(false);
+  };
+
   const getModeButtonStyle = (mode: GameMode) => {
     if (selectedMode === mode) {
-      return mode === 'zen' ? styles.zenModeButtonActive : styles.modeButtonActive;
+      if (mode === 'zen') return styles.zenModeButtonActive;
+      if (mode === 'time_trial') return styles.timeTrialModeButtonActive;
+      return styles.modeButtonActive;
     }
     return styles.modeButton;
   };
@@ -281,6 +327,25 @@ function MainMenu() {
             </button>
             <button
               type="button"
+              style={getModeButtonStyle('time_trial')}
+              onClick={() => setSelectedMode('time_trial')}
+              onMouseEnter={(e) => {
+                if (selectedMode !== 'time_trial') {
+                  e.currentTarget.style.backgroundColor = '#475569';
+                  e.currentTarget.style.borderColor = '#64748b';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selectedMode !== 'time_trial') {
+                  e.currentTarget.style.backgroundColor = '#334155';
+                  e.currentTarget.style.borderColor = '#475569';
+                }
+              }}
+            >
+              TIME TRIAL
+            </button>
+            <button
+              type="button"
               style={getModeButtonStyle('zen')}
               onClick={() => setSelectedMode('zen')}
               onMouseEnter={(e) => {
@@ -302,7 +367,9 @@ function MainMenu() {
           <p style={{ ...styles.modeLabel, marginTop: '8px', fontSize: '12px', color: '#64748b' }}>
             {selectedMode === 'zen'
               ? 'No obstacles - just relax and collect!'
-              : 'Avoid obstacles and survive!'}
+              : selectedMode === 'time_trial'
+                ? '60 seconds - race for high score!'
+                : 'Avoid obstacles and survive!'}
           </p>
         </div>
 
@@ -338,8 +405,29 @@ function MainMenu() {
           SELECT OTTER
         </button>
 
+        <button
+          type="button"
+          style={styles.settingsButton}
+          onClick={handleOpenSettings}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#475569';
+            e.currentTarget.style.borderColor = '#64748b';
+            e.currentTarget.style.transform = 'scale(1.05)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#334155';
+            e.currentTarget.style.borderColor = '#475569';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+        >
+          SETTINGS
+        </button>
+
         <p style={styles.controls}>{'<- -> or A D to move\nAvoid rocks, collect coins!'}</p>
       </div>
+
+      {/* Settings Modal */}
+      <Settings isOpen={showSettings} onClose={handleCloseSettings} />
     </div>
   );
 }

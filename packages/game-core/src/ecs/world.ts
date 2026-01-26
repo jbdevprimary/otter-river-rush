@@ -4,14 +4,14 @@
  */
 
 import { World } from 'miniplex';
-import type { Entity } from '../types';
-import { VISUAL, PHYSICS, getLaneX, getModelScale, getDefaultCharacter, type OtterCharacter } from '../config';
+import type { Entity, PowerUpType } from '../types';
+import { GAME_CONFIG, VISUAL, PHYSICS, getLaneX, getModelScale, getDefaultCharacter, type OtterCharacter } from '../config';
 import {
   getObstacleUrlVariants,
   getCoinUrlVariants,
   getGemUrlVariants,
   getDecorationUrlVariants,
-  ModelUrls,
+  getPowerUpUrl,
 } from '../assets';
 
 /**
@@ -92,8 +92,17 @@ export const spawn = {
       },
       animation: {
         current: 'idle',
+        previous: undefined,
+        startTime: Date.now(),
+        isOneShot: false,
+        fadeDuration: 0.15,
         urls: {
           idle: char.modelPath,
+          swim: char.modelPath,
+          hit: char.modelPath,
+          collect: char.modelPath,
+          dodge: char.modelPath,
+          death: char.modelPath,
         },
       },
       collider: { width: 0.8, height: 1.2, depth: 0.8 },
@@ -152,18 +161,35 @@ export const spawn = {
     });
   },
 
-  powerUp: (x: number, y: number) =>
-    world.add({
-      collectible: { type: 'gem', value: 100 },
-      powerUp: { type: 'shield', duration: 5000 },
+  /**
+   * Spawn a power-up entity
+   * @param x X position
+   * @param y Y position
+   * @param type Power-up type (defaults to 'shield')
+   */
+  powerUp: (x: number, y: number, type: PowerUpType = 'shield') => {
+    // Get power-up asset and duration based on type
+    const asset = getPowerUpUrl(type);
+    const durations: Record<PowerUpType, number> = {
+      shield: GAME_CONFIG.SHIELD_DURATION,
+      ghost: GAME_CONFIG.GHOST_DURATION,
+      magnet: GAME_CONFIG.MAGNET_DURATION,
+      multiplier: GAME_CONFIG.MULTIPLIER_DURATION,
+      slowMotion: GAME_CONFIG.SLOW_MOTION_DURATION,
+    };
+
+    return world.add({
+      collectible: { type: 'special', value: 0 }, // Power-ups don't give direct score
+      powerUp: { type, duration: durations[type] },
       position: { x, y, z: VISUAL.layers.collectibles },
       velocity: { x: 0, y: -PHYSICS.scrollSpeed, z: 0 },
       model: {
-        url: ModelUrls.collectibles.heart,
-        scale: getModelScale('gem') * 1.5,
+        url: asset.url,
+        scale: asset.scale ?? getModelScale('gem') * 1.5,
       },
       collider: { width: 0.8, height: 0.8, depth: 0.8 },
-    }),
+    });
+  },
 
   decoration: (x: number, y: number, variant: number = 0) => {
     // Use AssetRegistry for decoration variants - single source of truth

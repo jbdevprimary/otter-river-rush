@@ -36,8 +36,33 @@ export interface ModelComponent {
   mesh?: unknown;
 }
 
+/**
+ * Animation state type for otter animations
+ * - idle: Standing still
+ * - swim: Default moving animation
+ * - hit: Taking damage from obstacle
+ * - collect: Picking up a collectible
+ * - dodge: Lane change animation
+ * - death: Game over animation
+ */
+export type AnimationState = 'idle' | 'swim' | 'hit' | 'collect' | 'dodge' | 'death';
+
 export interface AnimationComponent {
-  current: string;
+  /** Current animation state to play */
+  current: AnimationState;
+  /** Previous animation state (for transition detection) */
+  previous?: AnimationState;
+  /** Timestamp when current animation started */
+  startTime?: number;
+  /** Duration of current animation (for one-shot animations like hit, collect) */
+  duration?: number;
+  /** Whether current animation is a one-shot (should return to default after) */
+  isOneShot?: boolean;
+  /** Animation to return to after one-shot completes */
+  returnTo?: AnimationState;
+  /** Crossfade duration in seconds */
+  fadeDuration?: number;
+  /** Optional URL mapping for animation clips */
   urls?: Record<string, string>;
 }
 

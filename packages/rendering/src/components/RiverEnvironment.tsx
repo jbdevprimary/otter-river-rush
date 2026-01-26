@@ -17,9 +17,9 @@
  */
 
 import { useRef, useMemo } from 'react';
-import { useFrame } from '@react-three/fiber';
 import { BIOME_COLORS, VISUAL } from '@otter-river-rush/config';
 import * as THREE from 'three';
+import { AnimatedWaterMaterial } from '../shaders';
 
 interface RiverEnvironmentProps {
   biome?: keyof typeof BIOME_COLORS;
@@ -27,7 +27,6 @@ interface RiverEnvironmentProps {
 
 export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
   const waterRef = useRef<THREE.Mesh>(null);
-  const waterMaterialRef = useRef<THREE.MeshStandardMaterial>(null);
 
   const colors = BIOME_COLORS[biome];
 
@@ -35,6 +34,13 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
   const riverWidth = 8;
   const riverLength = 50;
   const bankWidth = 6;
+
+  // Compute foam color from water color (lighter version for fresnel edges)
+  const foamColor = useMemo(() => {
+    const color = new THREE.Color(colors.water);
+    color.lerp(new THREE.Color('#ffffff'), 0.7);
+    return `#${color.getHexString()}`;
+  }, [colors.water]);
 
   // Tree positions (memoized for performance)
   const treePositions = useMemo(
@@ -73,14 +79,6 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
     []
   );
 
-  // Animate water flow
-  useFrame(() => {
-    if (waterMaterialRef.current?.normalMap) {
-      // Flow water texture toward player (negative Z in Three.js)
-      waterMaterialRef.current.normalMap.offset.y -= 0.005;
-    }
-  });
-
   return (
     <>
       {/* Lighting */}
@@ -97,7 +95,7 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
         intensity={VISUAL.lighting.directional.fill.intensity}
       />
 
-      {/* River/Water Surface */}
+      {/* River/Water Surface - Animated shader with waves and flow */}
       {/* Game (0, riverLength/2-10, -0.1) -> Three.js (0, -0.1, riverLength/2-10) */}
       <mesh
         ref={waterRef}
@@ -105,14 +103,16 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
         position={[0, -0.1, riverLength / 2 - 10]}
         receiveShadow
       >
-        <planeGeometry args={[riverWidth, riverLength, 32, 32]} />
-        <meshStandardMaterial
-          ref={waterMaterialRef}
-          color={colors.water}
-          roughness={0.1}
-          metalness={0.9}
-          transparent
-          opacity={0.8}
+        <planeGeometry args={[riverWidth, riverLength, 64, 64]} />
+        <AnimatedWaterMaterial
+          waterColor={colors.water}
+          foamColor={foamColor}
+          waveHeight={0.06}
+          waveFrequency={0.4}
+          waveSpeed={1.2}
+          flowSpeed={0.12}
+          fresnelPower={2.0}
+          opacity={0.88}
         />
       </mesh>
 

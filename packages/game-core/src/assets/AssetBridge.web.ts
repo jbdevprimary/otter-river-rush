@@ -14,6 +14,7 @@ import {
   getCoinVariants,
   getGemVariants,
   getDecorationVariants,
+  getPowerUpAsset,
 } from './AssetRegistry';
 
 // Use Vite's base URL for GitHub Pages subdirectory deployment
@@ -72,6 +73,9 @@ export const ModelUrls = {
   decorations: Object.fromEntries(
     Object.entries(ModelAssets.decorations).map(([k, v]) => [k, resolveAssetUrl(v)])
   ) as Record<keyof typeof ModelAssets.decorations, string>,
+  powerUps: Object.fromEntries(
+    Object.entries(ModelAssets.powerUps).map(([k, v]) => [k, resolveAssetUrl(v)])
+  ) as Record<keyof typeof ModelAssets.powerUps, string>,
 } as const;
 
 /**
@@ -159,4 +163,20 @@ export function getDecorationUrlVariants(): ResolvedAsset[] {
     url: resolveAssetUrl(asset),
     scale: asset.scale ?? 1.0,
   }));
+}
+
+/**
+ * Power-up types
+ */
+export type PowerUpVariant = 'shield' | 'magnet' | 'ghost' | 'multiplier' | 'slowMotion';
+
+/**
+ * Get power-up asset with resolved URL for spawn functions
+ */
+export function getPowerUpUrl(type: PowerUpVariant): ResolvedAsset {
+  const asset = getPowerUpAsset(type);
+  return {
+    url: resolveAssetUrl(asset),
+    scale: asset.scale ?? 1.0,
+  };
 }

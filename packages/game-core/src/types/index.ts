@@ -24,6 +24,7 @@ export type {
 // Entity types
 export type {
   AnimationComponent,
+  AnimationState,
   CollectibleComponent,
   ColliderComponent,
   Entity,

@@ -49,6 +49,7 @@ export const GAME_CONFIG = {
   MULTIPLIER_VALUE: 2,
   SLOW_MOTION_DURATION: 5000,
   SLOW_MOTION_FACTOR: 0.5,
+  POWER_UP_SPAWN_CHANCE: 0.05, // 5% chance when spawning collectibles
 
   // Particles
   PARTICLE_LIFETIME: 1000,
