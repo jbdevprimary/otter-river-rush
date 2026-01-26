@@ -50,22 +50,6 @@ export const WEATHER_CONFIGS: Record<BiomeType, WeatherConfig> = {
   },
 
   /**
-   * Mountain: Snow
-   * Slow-falling snow particles with gentle drift
-   */
-  mountain: {
-    particleCount: 200,
-    color: '#ffffff',
-    opacity: 0.8,
-    size: 0.08,
-    speed: { x: 0.5, y: -0.8, z: 0.3 },
-    spread: { x: 15, y: 25, z: 10 },
-    turbulence: 0.3,
-    active: true,
-    description: 'Gentle snowfall with soft drifting motion',
-  },
-
-  /**
    * Canyon: Dust/Sand
    * Horizontal-drifting dust particles simulating desert winds
    */
@@ -82,19 +66,51 @@ export const WEATHER_CONFIGS: Record<BiomeType, WeatherConfig> = {
   },
 
   /**
-   * Rapids: Water spray/mist
-   * Fast chaotic particles simulating water spray from turbulent rapids
+   * Arctic: Snow
+   * Slow-falling snow particles with gentle drift
    */
-  rapids: {
-    particleCount: 300,
-    color: '#e0f7ff',
-    opacity: 0.7,
-    size: 0.04,
-    speed: { x: 0, y: 1.5, z: 0.8 },
-    spread: { x: 10, y: 15, z: 6 },
-    turbulence: 1.2,
+  arctic: {
+    particleCount: 200,
+    color: '#ffffff',
+    opacity: 0.8,
+    size: 0.08,
+    speed: { x: 0.5, y: -0.8, z: 0.3 },
+    spread: { x: 15, y: 25, z: 10 },
+    turbulence: 0.3,
     active: true,
-    description: 'Fast chaotic water spray from rapids',
+    description: 'Gentle snowfall with soft drifting motion',
+  },
+
+  /**
+   * Tropical: Falling leaves/petals
+   * Colorful particles gently floating downward
+   */
+  tropical: {
+    particleCount: 80,
+    color: '#ff69b4',
+    opacity: 0.7,
+    size: 0.1,
+    speed: { x: 0.8, y: -1.2, z: 0.4 },
+    spread: { x: 14, y: 22, z: 9 },
+    turbulence: 0.6,
+    active: true,
+    description: 'Colorful tropical petals drifting gently',
+  },
+
+  /**
+   * Volcanic: Embers/Ash
+   * Rising particles simulating volcanic ash and embers
+   */
+  volcanic: {
+    particleCount: 250,
+    color: '#ff4500',
+    opacity: 0.8,
+    size: 0.06,
+    speed: { x: 0.3, y: 2, z: 0.2 },
+    spread: { x: 12, y: 18, z: 8 },
+    turbulence: 0.8,
+    active: true,
+    description: 'Rising embers and volcanic ash particles',
   },
 };
 

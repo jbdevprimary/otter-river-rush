@@ -95,9 +95,10 @@ export function calculateCollectibleSpawnInterval(distance: number): number {
  */
 export const BIOME_THRESHOLDS: Record<BiomeType, number> = {
   forest: 0,
-  mountain: 1000,
-  canyon: 2000,
-  rapids: 3000,
+  canyon: 500,
+  arctic: 1000,
+  tropical: 1500,
+  volcanic: 2000,
 };
 
 /**
@@ -644,25 +645,31 @@ export const useGameStore = create<GameState>()(
           let currentBiome: BiomeType = 'forest';
           let biomeProgress = 0;
 
-          if (distance >= BIOME_THRESHOLDS.rapids) {
-            currentBiome = 'rapids';
+          if (distance >= BIOME_THRESHOLDS.volcanic) {
+            currentBiome = 'volcanic';
             biomeProgress = 1; // Past all transitions
+          } else if (distance >= BIOME_THRESHOLDS.tropical) {
+            currentBiome = 'tropical';
+            const progressToVolcanic =
+              (distance - BIOME_THRESHOLDS.tropical) /
+              (BIOME_THRESHOLDS.volcanic - BIOME_THRESHOLDS.tropical);
+            biomeProgress = Math.min(progressToVolcanic, 1);
+          } else if (distance >= BIOME_THRESHOLDS.arctic) {
+            currentBiome = 'arctic';
+            const progressToTropical =
+              (distance - BIOME_THRESHOLDS.arctic) /
+              (BIOME_THRESHOLDS.tropical - BIOME_THRESHOLDS.arctic);
+            biomeProgress = Math.min(progressToTropical, 1);
           } else if (distance >= BIOME_THRESHOLDS.canyon) {
             currentBiome = 'canyon';
-            const progressToRapids =
+            const progressToArctic =
               (distance - BIOME_THRESHOLDS.canyon) /
-              (BIOME_THRESHOLDS.rapids - BIOME_THRESHOLDS.canyon);
-            biomeProgress = Math.min(progressToRapids, 1);
-          } else if (distance >= BIOME_THRESHOLDS.mountain) {
-            currentBiome = 'mountain';
-            const progressToCanyon =
-              (distance - BIOME_THRESHOLDS.mountain) /
-              (BIOME_THRESHOLDS.canyon - BIOME_THRESHOLDS.mountain);
-            biomeProgress = Math.min(progressToCanyon, 1);
+              (BIOME_THRESHOLDS.arctic - BIOME_THRESHOLDS.canyon);
+            biomeProgress = Math.min(progressToArctic, 1);
           } else {
             currentBiome = 'forest';
-            const progressToMountain = distance / BIOME_THRESHOLDS.mountain;
-            biomeProgress = Math.min(progressToMountain, 1);
+            const progressToCanyon = distance / BIOME_THRESHOLDS.canyon;
+            biomeProgress = Math.min(progressToCanyon, 1);
           }
 
           return { currentBiome, biomeProgress };

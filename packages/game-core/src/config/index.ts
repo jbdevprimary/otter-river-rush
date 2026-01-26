@@ -61,3 +61,18 @@ export {
   getWeatherConfig,
   type WeatherConfig,
 } from './weather';
+
+// Biome assets
+export {
+  BIOME_ASSETS,
+  getAllModelPaths,
+  getAllTexturePaths,
+  getBiomeAssets,
+  getRandomDecoration,
+  getRandomPlant,
+  getRandomRock,
+  getRandomTree,
+  type BiomeAssets,
+  type ModelAsset,
+  type PBRTexture,
+} from './biome-assets';

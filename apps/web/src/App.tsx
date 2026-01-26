@@ -371,7 +371,7 @@ function lerpColor(color1: string, color2: string, t: number): string {
 // Helper: Get the next biome in progression
 // ============================================================================
 function getNextBiome(biome: BiomeType): BiomeType | null {
-  const biomeOrder: BiomeType[] = ['forest', 'mountain', 'canyon', 'rapids'];
+  const biomeOrder: BiomeType[] = ['forest', 'canyon', 'arctic', 'tropical', 'volcanic'];
   const currentIndex = biomeOrder.indexOf(biome);
   if (currentIndex < biomeOrder.length - 1) {
     return biomeOrder[currentIndex + 1];

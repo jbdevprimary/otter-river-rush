@@ -51,8 +51,8 @@ export type GameStatus =
 export type GameMode = 'classic' | 'time_trial' | 'zen' | 'daily_challenge';
 export type Difficulty = 'easy' | 'normal' | 'hard' | 'expert';
 
-// Biome types
-export type BiomeType = 'forest' | 'mountain' | 'canyon' | 'rapids';
+// Biome types - expanded for visual variety
+export type BiomeType = 'forest' | 'canyon' | 'arctic' | 'tropical' | 'volcanic';
 
 export interface BiomeData {
   name: string;

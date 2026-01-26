@@ -4,9 +4,10 @@
  *
  * Weather types:
  * - Forest: Light rain (occasional vertical streaks)
- * - Mountain: Snow particles (slow falling dots)
  * - Canyon: Dust/sand (horizontal drift)
- * - Rapids: Heavy spray/mist (fast chaotic particles)
+ * - Arctic: Snow particles (slow falling dots)
+ * - Tropical: Flower petals (gentle floating)
+ * - Volcanic: Embers/ash (rising particles)
  *
  * Performance: Limits particle count for mobile (200-500 max)
  * Accessibility: Respects reducedMotion setting
@@ -29,6 +30,8 @@ interface WeatherConfig {
   spread: { x: number; y: number; z: number };
   turbulence: number;
   active: boolean;
+  /** Whether particles rise (true) or fall (false) */
+  rising?: boolean;
 }
 
 const WEATHER_CONFIGS: Record<BiomeType, WeatherConfig> = {
@@ -42,16 +45,6 @@ const WEATHER_CONFIGS: Record<BiomeType, WeatherConfig> = {
     turbulence: 0.1,
     active: true,
   },
-  mountain: {
-    particleCount: 200,
-    color: '#ffffff',
-    opacity: 0.8,
-    size: 0.08,
-    speed: { x: 0.5, y: -0.8, z: 0.3 },
-    spread: { x: 15, y: 25, z: 10 },
-    turbulence: 0.3,
-    active: true,
-  },
   canyon: {
     particleCount: 100,
     color: '#d4a574',
@@ -62,15 +55,36 @@ const WEATHER_CONFIGS: Record<BiomeType, WeatherConfig> = {
     turbulence: 0.5,
     active: true,
   },
-  rapids: {
-    particleCount: 300,
-    color: '#e0f7ff',
-    opacity: 0.7,
-    size: 0.04,
-    speed: { x: 0, y: 1.5, z: 0.8 },
-    spread: { x: 10, y: 15, z: 6 },
-    turbulence: 1.2,
+  arctic: {
+    particleCount: 200,
+    color: '#ffffff',
+    opacity: 0.8,
+    size: 0.08,
+    speed: { x: 0.5, y: -0.8, z: 0.3 },
+    spread: { x: 15, y: 25, z: 10 },
+    turbulence: 0.3,
     active: true,
+  },
+  tropical: {
+    particleCount: 80,
+    color: '#ff69b4',
+    opacity: 0.7,
+    size: 0.1,
+    speed: { x: 0.8, y: -1.2, z: 0.4 },
+    spread: { x: 14, y: 22, z: 9 },
+    turbulence: 0.6,
+    active: true,
+  },
+  volcanic: {
+    particleCount: 250,
+    color: '#ff4500',
+    opacity: 0.8,
+    size: 0.06,
+    speed: { x: 0.3, y: 2, z: 0.2 },
+    spread: { x: 12, y: 18, z: 8 },
+    turbulence: 0.8,
+    active: true,
+    rising: true,
   },
 };
 
@@ -158,10 +172,10 @@ export function WeatherEffects({
       }
 
       // Respawn particles that go out of bounds
-      const outOfBoundsY =
-        biome === 'rapids'
-          ? posArray[i3 + 1] > config.spread.y // Rapids go upward
-          : posArray[i3 + 1] < -10; // Others fall down
+      const isRising = config.rising === true;
+      const outOfBoundsY = isRising
+        ? posArray[i3 + 1] > config.spread.y // Rising particles go upward
+        : posArray[i3 + 1] < -10; // Falling particles go down
 
       const outOfBoundsX =
         Math.abs(posArray[i3]) > config.spread.x / 2 + 2;
@@ -173,11 +187,11 @@ export function WeatherEffects({
         // Respawn at appropriate position based on biome
         posArray[i3] = (Math.random() - 0.5) * config.spread.x;
 
-        if (biome === 'rapids') {
-          // Rapids spray comes from below
+        if (isRising) {
+          // Rising particles (volcanic embers) come from below
           posArray[i3 + 1] = -2;
         } else {
-          // Other weather falls from above
+          // Falling particles (rain, snow, dust) start from above
           posArray[i3 + 1] = config.spread.y - 5;
         }
 

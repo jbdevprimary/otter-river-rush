@@ -18,28 +18,34 @@ export const BIOME_COLORS: Record<
   }
 > = {
   forest: {
-    water: '#1e40af',
+    water: '#4a9079',
     terrain: '#166534',
-    fog: '#0f172a',
-    sky: '#1e3a8a',
-  },
-  mountain: {
-    water: '#0c4a6e',
-    terrain: '#475569',
-    fog: '#1e3a8a',
-    sky: '#0c4a6e',
+    fog: '#8fbc8f',
+    sky: '#87ceeb',
   },
   canyon: {
-    water: '#78350f',
+    water: '#8b7355',
     terrain: '#92400e',
-    fog: '#451a03',
-    sky: '#78350f',
+    fog: '#d2691e',
+    sky: '#ff7f50',
   },
-  rapids: {
-    water: '#701a75',
-    terrain: '#581c87',
-    fog: '#3b0764',
-    sky: '#701a75',
+  arctic: {
+    water: '#4682b4',
+    terrain: '#e6f3ff',
+    fog: '#b0e0e6',
+    sky: '#e6f3ff',
+  },
+  tropical: {
+    water: '#40e0d0',
+    terrain: '#228b22',
+    fog: '#98fb98',
+    sky: '#00bfff',
+  },
+  volcanic: {
+    water: '#ff4500',
+    terrain: '#2f1010',
+    fog: '#8b0000',
+    sky: '#2f1010',
   },
 };
 
