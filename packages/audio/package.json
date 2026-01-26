@@ -9,9 +9,10 @@
     "typecheck": "tsc --build --force"
   },
   "dependencies": {
-    "@babylonjs/core": "^8.46.2"
+    "howler": "^2.2.4"
   },
   "devDependencies": {
+    "@types/howler": "^2.2.12",
     "typescript": "^5.9.3"
   }
 }

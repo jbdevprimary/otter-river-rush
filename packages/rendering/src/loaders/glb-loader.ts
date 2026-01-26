@@ -1,19 +1,17 @@
 /**
- * GLB Model Loader
- * Utilities for loading GLB models in Babylon.js with animation support
+ * GLB Model Loader Utilities
+ * Utilities for loading GLB models in Three.js / React Three Fiber
+ * Uses @react-three/drei's useGLTF under the hood for caching
+ *
+ * NOTE: For R3F components, prefer using useGLTF directly from @react-three/drei
+ * These utilities are for imperative loading outside of React components
  */
 
-import {
-  type AbstractMesh,
-  type AnimationGroup,
-  type Scene,
-  SceneLoader,
-  type Skeleton,
-} from '@babylonjs/core';
-import '@babylonjs/loaders/glTF';
+import * as THREE from 'three';
+import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
 export interface LoadGLBOptions {
-  scene: Scene;
   url: string;
   name?: string;
   scaling?: number;
@@ -21,113 +19,160 @@ export interface LoadGLBOptions {
 }
 
 export interface GLBResult {
-  meshes: AbstractMesh[];
-  rootMesh: AbstractMesh;
-  animationGroups: AnimationGroup[];
-  skeletons: Skeleton[];
+  scene: THREE.Group;
+  animations: THREE.AnimationClip[];
+  mixer: THREE.AnimationMixer | null;
   dispose: () => void;
   /** Play an animation by name or index */
   playAnimation: (
     nameOrIndex: string | number,
     loop?: boolean,
     speed?: number
-  ) => AnimationGroup | null;
+  ) => THREE.AnimationAction | null;
   /** Stop all animations */
   stopAllAnimations: () => void;
 }
 
+// Singleton loader instances
+let gltfLoader: GLTFLoader | null = null;
+let dracoLoader: DRACOLoader | null = null;
+
+/**
+ * Get or create the GLTF loader with DRACO support
+ */
+function getLoader(): GLTFLoader {
+  if (!gltfLoader) {
+    gltfLoader = new GLTFLoader();
+
+    // Set up DRACO loader for compressed models
+    dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    dracoLoader.setDecoderConfig({ type: 'js' });
+    gltfLoader.setDRACOLoader(dracoLoader);
+  }
+  return gltfLoader;
+}
+
 /**
  * Load a GLB model with full animation support
+ * For use outside of React components (imperative loading)
  */
 export async function loadGLB(options: LoadGLBOptions): Promise<GLBResult> {
-  const { scene, url, name, scaling = 1, onProgress } = options;
+  const { url, name, scaling = 1, onProgress } = options;
 
-  // Split URL into root path and filename for Babylon's SceneLoader
-  const lastSlash = url.lastIndexOf('/');
-  const rootUrl = lastSlash >= 0 ? url.substring(0, lastSlash + 1) : '';
-  const filename = lastSlash >= 0 ? url.substring(lastSlash + 1) : url;
+  console.log(`[GLB Loader] Loading: ${url}`);
 
-  console.log(`[GLB Loader] Loading: rootUrl="${rootUrl}" filename="${filename}"`);
+  const loader = getLoader();
 
-  const result = await SceneLoader.ImportMeshAsync(
-    '',
-    rootUrl,
-    filename,
-    scene,
-    onProgress ? (event) => onProgress({ loaded: event.loaded, total: event.total }) : undefined,
-    '.glb'
-  );
+  return new Promise((resolve, reject) => {
+    loader.load(
+      url,
+      (gltf: GLTF) => {
+        const scene = gltf.scene;
 
-  const rootMesh = result.meshes[0];
-  if (name) {
-    rootMesh.name = name;
-  }
+        if (name) {
+          scene.name = name;
+        }
 
-  // Apply scaling
-  if (scaling !== 1) {
-    rootMesh.scaling.setAll(scaling);
-  }
+        // Apply scaling
+        if (scaling !== 1) {
+          scene.scale.setScalar(scaling);
+        }
 
-  const animationGroups = result.animationGroups || [];
-  const skeletons = result.skeletons || [];
+        const animations = gltf.animations || [];
+        const mixer = animations.length > 0 ? new THREE.AnimationMixer(scene) : null;
+        const actions: THREE.AnimationAction[] = [];
 
-  // Stop all animations initially
-  for (const ag of animationGroups) {
-    ag.stop();
-  }
+        // Create actions for all animations
+        if (mixer) {
+          for (const clip of animations) {
+            const action = mixer.clipAction(clip);
+            actions.push(action);
+          }
+        }
 
-  return {
-    meshes: result.meshes as AbstractMesh[],
-    rootMesh: rootMesh as AbstractMesh,
-    animationGroups,
-    skeletons,
-    dispose: () => {
-      // Stop and dispose animations
-      animationGroups.forEach((ag) => {
-        ag.stop();
-        ag.dispose();
-      });
-      // Dispose meshes
-      for (const mesh of result.meshes) {
-        mesh.dispose();
+        resolve({
+          scene,
+          animations,
+          mixer,
+          dispose: () => {
+            // Stop all animations
+            if (mixer) {
+              mixer.stopAllAction();
+            }
+            // Dispose scene and children
+            scene.traverse((child) => {
+              if ((child as THREE.Mesh).isMesh) {
+                const mesh = child as THREE.Mesh;
+                mesh.geometry?.dispose();
+                if (Array.isArray(mesh.material)) {
+                  mesh.material.forEach((mat) => mat.dispose());
+                } else {
+                  mesh.material?.dispose();
+                }
+              }
+            });
+          },
+          playAnimation: (nameOrIndex: string | number, loop = true, speed = 1.0) => {
+            if (!mixer) return null;
+
+            // Stop all current animations
+            for (const action of actions) {
+              action.stop();
+            }
+
+            let targetAction: THREE.AnimationAction | undefined;
+
+            if (typeof nameOrIndex === 'number') {
+              targetAction = actions[nameOrIndex];
+            } else {
+              // Find by name (case-insensitive partial match)
+              const searchName = nameOrIndex.toLowerCase();
+              const clipIndex = animations.findIndex((clip) =>
+                clip.name.toLowerCase().includes(searchName)
+              );
+              if (clipIndex >= 0) {
+                targetAction = actions[clipIndex];
+              }
+            }
+
+            if (targetAction) {
+              targetAction.setLoop(
+                loop ? THREE.LoopRepeat : THREE.LoopOnce,
+                loop ? Infinity : 1
+              );
+              targetAction.timeScale = speed;
+              targetAction.reset().fadeIn(0.2).play();
+              return targetAction;
+            }
+
+            return null;
+          },
+          stopAllAnimations: () => {
+            if (mixer) {
+              mixer.stopAllAction();
+            }
+          },
+        });
+      },
+      (event) => {
+        if (onProgress) {
+          onProgress({ loaded: event.loaded, total: event.total });
+        }
+      },
+      (error) => {
+        console.error('[GLB Loader] Failed to load:', url, error);
+        reject(error);
       }
-    },
-    playAnimation: (nameOrIndex: string | number, loop = true, speed = 1.0) => {
-      // Stop all current animations first
-      for (const ag of animationGroups) {
-        ag.stop();
-      }
-
-      let targetAnim: AnimationGroup | undefined;
-
-      if (typeof nameOrIndex === 'number') {
-        targetAnim = animationGroups[nameOrIndex];
-      } else {
-        // Find by name (case-insensitive partial match)
-        const searchName = nameOrIndex.toLowerCase();
-        targetAnim = animationGroups.find((ag) => ag.name.toLowerCase().includes(searchName));
-      }
-
-      if (targetAnim) {
-        targetAnim.start(loop, speed, targetAnim.from, targetAnim.to, false);
-        return targetAnim;
-      }
-
-      return null;
-    },
-    stopAllAnimations: () => {
-      for (const ag of animationGroups) {
-        ag.stop();
-      }
-    },
-  };
+    );
+  });
 }
 
 /**
  * Preload multiple GLB models
+ * Returns a map of URL -> GLBResult
  */
 export async function preloadGLBs(
-  scene: Scene,
   urls: string[],
   onProgress?: (loaded: number, total: number) => void
 ): Promise<Map<string, GLBResult>> {
@@ -135,16 +180,87 @@ export async function preloadGLBs(
   let loaded = 0;
 
   for (const url of urls) {
-    const result = await loadGLB({
-      scene,
-      url,
-      onProgress: () => {
-        loaded++;
-        onProgress?.(loaded, urls.length);
-      },
-    });
-    results.set(url, result);
+    try {
+      const result = await loadGLB({
+        url,
+        onProgress: () => {
+          loaded++;
+          onProgress?.(loaded, urls.length);
+        },
+      });
+      results.set(url, result);
+    } catch (error) {
+      console.error(`[GLB Loader] Failed to preload: ${url}`, error);
+    }
   }
 
   return results;
+}
+
+/**
+ * Clone a GLB result for instancing
+ * Use this when you need multiple instances of the same model
+ */
+export function cloneGLBResult(original: GLBResult): GLBResult {
+  const clonedScene = original.scene.clone();
+  const mixer = original.animations.length > 0 ? new THREE.AnimationMixer(clonedScene) : null;
+  const actions: THREE.AnimationAction[] = [];
+
+  if (mixer) {
+    for (const clip of original.animations) {
+      const action = mixer.clipAction(clip);
+      actions.push(action);
+    }
+  }
+
+  return {
+    scene: clonedScene,
+    animations: original.animations,
+    mixer,
+    dispose: () => {
+      if (mixer) {
+        mixer.stopAllAction();
+      }
+      // Note: Don't dispose geometry/materials as they're shared with original
+      // The cloned scene only references the original's geometry and materials
+    },
+    playAnimation: (nameOrIndex: string | number, loop = true, speed = 1.0) => {
+      if (!mixer) return null;
+
+      for (const action of actions) {
+        action.stop();
+      }
+
+      let targetAction: THREE.AnimationAction | undefined;
+
+      if (typeof nameOrIndex === 'number') {
+        targetAction = actions[nameOrIndex];
+      } else {
+        const searchName = nameOrIndex.toLowerCase();
+        const clipIndex = original.animations.findIndex((clip) =>
+          clip.name.toLowerCase().includes(searchName)
+        );
+        if (clipIndex >= 0) {
+          targetAction = actions[clipIndex];
+        }
+      }
+
+      if (targetAction) {
+        targetAction.setLoop(
+          loop ? THREE.LoopRepeat : THREE.LoopOnce,
+          loop ? Infinity : 1
+        );
+        targetAction.timeScale = speed;
+        targetAction.reset().fadeIn(0.2).play();
+        return targetAction;
+      }
+
+      return null;
+    },
+    stopAllAnimations: () => {
+      if (mixer) {
+        mixer.stopAllAction();
+      }
+    },
+  };
 }

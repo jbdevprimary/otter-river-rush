@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Otter River Rush - A Babylon.js + Reactylon endless runner game",
+  "description": "Otter River Rush - A React Three Fiber endless runner game",
   "author": "jbcom",
   "license": "MIT",
   "repository": {
@@ -23,7 +23,9 @@
     "preview": "pnpm --filter @otter-river-rush/web preview",
     "test": "pnpm --filter client test",
     "test:e2e": "pnpm --filter client test:e2e",
-    "lint": "pnpm -r lint",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
     "type-check": "pnpm -r typecheck",
     "generate:models": "pnpm --filter dev-tools tsx src/generators/meshy-models.ts",
     "generate:animations": "pnpm --filter dev-tools tsx src/generators/otter-animations.ts",
@@ -79,6 +81,7 @@
   "devDependencies": {
     "@ai-sdk/anthropic": "^2.0.38",
     "@ai-sdk/openai": "^2.0.56",
+    "@biomejs/biome": "^2.3.11",
     "@capacitor/android": "^7.4.4",
     "@capacitor/cli": "^7.4.4",
     "@capacitor/core": "^7.4.4",
@@ -90,8 +93,6 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@types/three": "^0.181.0",
-    "@typescript-eslint/eslint-plugin": "^8.46.2",
-    "@typescript-eslint/parser": "^8.46.2",
     "@vitest/coverage-v8": "^4.0.4",
     "@vitest/ui": "^4.0.4",
     "ai": "^5.0.81",
@@ -100,16 +101,10 @@
     "daisyui": "^5.3.10",
     "electron": "^39.0.0",
     "electron-builder": "^26.0.12",
-    "eslint": "^9.38.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
-    "husky": "^9.1.7",
     "jsdom": "^27.0.1",
-    "lint-staged": "^16.2.6",
     "openai": "^6.7.0",
     "playwright": "^1.56.1",
     "postcss": "^8.5.6",
-    "prettier": "^3.6.2",
     "rollup-plugin-visualizer": "^6.0.5",
     "sharp": "^0.34.4",
     "tailwindcss": "^4.1.16",
@@ -122,14 +117,5 @@
     "vitest": "^4.0.4",
     "wait-on": "^9.0.1",
     "workbox-window": "^7.3.0"
-  },
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "*.{css,html,json,md}": [
-      "prettier --write"
-    ]
   }
 }

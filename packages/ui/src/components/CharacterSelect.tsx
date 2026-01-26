@@ -1,358 +1,413 @@
 /**
- * Character Selection Screen
- * Babylon.js GUI-based character picker with names, traits, and unlock status
+ * Character Selection Screen - React/HTML Overlay
+ * Character picker with names, traits, and unlock status
  */
 
-import {
-  AdvancedDynamicTexture,
-  Button,
-  Control,
-  Rectangle,
-  StackPanel,
-  TextBlock,
-} from '@babylonjs/gui';
 import { OTTER_CHARACTERS, type OtterCharacter } from '@otter-river-rush/config';
 import { useGameStore } from '@otter-river-rush/state';
-import { useEffect, useRef } from 'react';
-import { useScene } from 'reactylon';
+import type { CSSProperties } from 'react';
+
+const styles = {
+  overlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(10, 22, 40, 0.95)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 200,
+    fontFamily: "'Nunito', sans-serif",
+    padding: '20px',
+    boxSizing: 'border-box',
+  } satisfies CSSProperties,
+
+  title: {
+    fontFamily: "'Fredoka One', 'Nunito', sans-serif",
+    fontSize: '48px',
+    color: '#ffffff',
+    margin: 0,
+    marginBottom: '10px',
+    textShadow: '0 0 10px #4A90D9',
+  } satisfies CSSProperties,
+
+  subtitle: {
+    fontSize: '20px',
+    color: '#88ccff',
+    margin: 0,
+    marginBottom: '30px',
+  } satisfies CSSProperties,
+
+  cardsContainer: {
+    display: 'flex',
+    gap: '20px',
+    marginBottom: '30px',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    maxWidth: '920px',
+  } satisfies CSSProperties,
+
+  infoPanel: {
+    width: '600px',
+    maxWidth: '100%',
+    padding: '20px',
+    backgroundColor: 'rgba(30, 58, 95, 0.8)',
+    border: '2px solid #4A90D9',
+    borderRadius: '15px',
+    marginBottom: '20px',
+    textAlign: 'center',
+  } satisfies CSSProperties,
+
+  infoText: {
+    color: '#ffffff',
+    fontSize: '18px',
+    lineHeight: '1.5',
+    margin: 0,
+    whiteSpace: 'pre-line',
+  } satisfies CSSProperties,
+
+  buttonsContainer: {
+    display: 'flex',
+    gap: '20px',
+    marginBottom: '20px',
+  } satisfies CSSProperties,
+
+  backButton: {
+    width: '150px',
+    height: '50px',
+    backgroundColor: '#666666',
+    color: '#ffffff',
+    border: 'none',
+    borderRadius: '10px',
+    fontSize: '20px',
+    fontFamily: "'Fredoka One', 'Nunito', sans-serif",
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+  } satisfies CSSProperties,
+
+  playButton: {
+    width: '200px',
+    height: '50px',
+    backgroundColor: '#4A90D9',
+    color: '#ffffff',
+    border: 'none',
+    borderRadius: '10px',
+    fontSize: '22px',
+    fontFamily: "'Fredoka One', 'Nunito', sans-serif",
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+  } satisfies CSSProperties,
+
+  statsText: {
+    fontSize: '14px',
+    color: '#88ccff',
+    margin: 0,
+  } satisfies CSSProperties,
+};
 
 export function CharacterSelect() {
-  const scene = useScene();
-  const guiRef = useRef<AdvancedDynamicTexture | null>(null);
   const { selectedCharacterId, selectCharacter, startGame, returnToMenu, progress } =
     useGameStore();
 
-  useEffect(() => {
-    if (!scene) return;
+  const selectedChar = OTTER_CHARACTERS.find((c) => c.id === selectedCharacterId);
 
-    // Create fullscreen GUI
-    const gui = AdvancedDynamicTexture.CreateFullscreenUI('CharacterSelectUI', true, scene);
-    guiRef.current = gui;
+  const handleBack = () => {
+    returnToMenu();
+  };
 
-    // Main container
-    const mainPanel = new Rectangle('mainPanel');
-    mainPanel.width = '100%';
-    mainPanel.height = '100%';
-    mainPanel.thickness = 0;
-    mainPanel.background = 'rgba(10, 22, 40, 0.95)';
-    gui.addControl(mainPanel);
+  const handlePlay = () => {
+    startGame('classic');
+  };
 
-    // Title
-    const title = new TextBlock('title', 'SELECT YOUR OTTER');
-    title.fontFamily = 'Fredoka One, Nunito, sans-serif';
-    title.fontSize = 48;
-    title.color = '#ffffff';
-    title.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-    title.top = '-280px';
-    title.shadowColor = '#4A90D9';
-    title.shadowBlur = 10;
-    mainPanel.addControl(title);
+  return (
+    <div style={styles.overlay}>
+      <h1 style={styles.title}>SELECT YOUR OTTER</h1>
+      <p style={styles.subtitle}>Each otter has unique abilities!</p>
 
-    // Subtitle
-    const subtitle = new TextBlock('subtitle', 'Each otter has unique abilities!');
-    subtitle.fontFamily = 'Nunito, sans-serif';
-    subtitle.fontSize = 20;
-    subtitle.color = '#88ccff';
-    subtitle.top = '-230px';
-    mainPanel.addControl(subtitle);
+      <div style={styles.cardsContainer}>
+        {OTTER_CHARACTERS.map((character) => {
+          const isUnlocked = progress.unlockedCharacters.includes(character.id);
+          const isSelected = character.id === selectedCharacterId;
 
-    // Character cards container (horizontal layout)
-    const cardsPanel = new StackPanel('cardsPanel');
-    cardsPanel.isVertical = false;
-    cardsPanel.height = '380px';
-    cardsPanel.width = '900px';
-    cardsPanel.spacing = 20;
-    cardsPanel.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-    cardsPanel.top = '20px';
-    mainPanel.addControl(cardsPanel);
+          return (
+            <CharacterCard
+              key={character.id}
+              character={character}
+              isUnlocked={isUnlocked}
+              isSelected={isSelected}
+              onSelect={() => {
+                if (isUnlocked) {
+                  selectCharacter(character.id);
+                }
+              }}
+            />
+          );
+        })}
+      </div>
 
-    // Create character cards
-    OTTER_CHARACTERS.forEach((character) => {
-      const isUnlocked = progress.unlockedCharacters.includes(character.id);
-      const isSelected = character.id === selectedCharacterId;
+      {selectedChar && (
+        <div style={styles.infoPanel}>
+          <p style={styles.infoText}>
+            {`${selectedChar.name} - ${selectedChar.title}\n${selectedChar.personality}`}
+          </p>
+        </div>
+      )}
 
-      const card = createCharacterCard(character, isUnlocked, isSelected, () => {
-        if (isUnlocked) {
-          selectCharacter(character.id);
-          // Refresh the UI to show new selection
-          refreshCards();
-        }
-      });
-      cardsPanel.addControl(card);
-    });
+      <div style={styles.buttonsContainer}>
+        <button
+          type="button"
+          style={styles.backButton}
+          onClick={handleBack}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#888888';
+            e.currentTarget.style.transform = 'scale(1.05)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#666666';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+        >
+          BACK
+        </button>
 
-    // Refresh cards function to update selection state
-    const refreshCards = () => {
-      // Clear and recreate cards
-      cardsPanel.clearControls();
-      const currentSelection = useGameStore.getState().selectedCharacterId;
+        <button
+          type="button"
+          style={styles.playButton}
+          onClick={handlePlay}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#5ba3ec';
+            e.currentTarget.style.transform = 'scale(1.05)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#4A90D9';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+        >
+          START GAME
+        </button>
+      </div>
 
-      OTTER_CHARACTERS.forEach((character) => {
-        const isUnlocked = progress.unlockedCharacters.includes(character.id);
-        const isSelected = character.id === currentSelection;
-
-        const card = createCharacterCard(character, isUnlocked, isSelected, () => {
-          if (isUnlocked) {
-            selectCharacter(character.id);
-            refreshCards();
-          }
-        });
-        cardsPanel.addControl(card);
-      });
-    };
-
-    // Selected character info panel
-    const infoPanel = new Rectangle('infoPanel');
-    infoPanel.width = '600px';
-    infoPanel.height = '100px';
-    infoPanel.top = '230px';
-    infoPanel.thickness = 2;
-    infoPanel.color = '#4A90D9';
-    infoPanel.background = 'rgba(30, 58, 95, 0.8)';
-    infoPanel.cornerRadius = 15;
-    mainPanel.addControl(infoPanel);
-
-    const selectedChar = OTTER_CHARACTERS.find((c) => c.id === selectedCharacterId);
-    if (selectedChar) {
-      const infoText = new TextBlock('infoText');
-      infoText.text = `${selectedChar.name} - ${selectedChar.title}\n${selectedChar.personality}`;
-      infoText.fontFamily = 'Nunito, sans-serif';
-      infoText.fontSize = 18;
-      infoText.color = '#ffffff';
-      infoText.textWrapping = true;
-      infoText.lineSpacing = '8px';
-      infoPanel.addControl(infoText);
-    }
-
-    // Buttons panel
-    const buttonsPanel = new StackPanel('buttonsPanel');
-    buttonsPanel.isVertical = false;
-    buttonsPanel.height = '60px';
-    buttonsPanel.top = '320px';
-    buttonsPanel.spacing = 20;
-    mainPanel.addControl(buttonsPanel);
-
-    // Back button
-    const backBtn = Button.CreateSimpleButton('backBtn', 'BACK');
-    backBtn.width = '150px';
-    backBtn.height = '50px';
-    backBtn.color = '#ffffff';
-    backBtn.background = '#666666';
-    backBtn.cornerRadius = 10;
-    backBtn.thickness = 0;
-    backBtn.fontFamily = 'Fredoka One, Nunito, sans-serif';
-    backBtn.fontSize = 20;
-    backBtn.isPointerBlocker = true;
-    backBtn.onPointerClickObservable.add(() => {
-      returnToMenu();
-    });
-    buttonsPanel.addControl(backBtn);
-
-    // Play button
-    const playBtn = Button.CreateSimpleButton('playBtn', 'START GAME');
-    playBtn.width = '200px';
-    playBtn.height = '50px';
-    playBtn.color = '#ffffff';
-    playBtn.background = '#4A90D9';
-    playBtn.cornerRadius = 10;
-    playBtn.thickness = 0;
-    playBtn.fontFamily = 'Fredoka One, Nunito, sans-serif';
-    playBtn.fontSize = 22;
-    playBtn.isPointerBlocker = true;
-    playBtn.onPointerClickObservable.add(() => {
-      startGame('classic');
-    });
-
-    // Hover effects
-    playBtn.onPointerEnterObservable.add(() => {
-      playBtn.background = '#5ba3ec';
-      playBtn.scaleX = 1.05;
-      playBtn.scaleY = 1.05;
-    });
-    playBtn.onPointerOutObservable.add(() => {
-      playBtn.background = '#4A90D9';
-      playBtn.scaleX = 1;
-      playBtn.scaleY = 1;
-    });
-    buttonsPanel.addControl(playBtn);
-
-    // Progress stats
-    const statsText = new TextBlock('stats');
-    statsText.text = `Total Distance: ${Math.floor(progress.totalDistance)}m | Coins: ${progress.totalCoins} | High Score: ${progress.highScore}`;
-    statsText.fontFamily = 'Nunito, sans-serif';
-    statsText.fontSize = 14;
-    statsText.color = '#88ccff';
-    statsText.top = '370px';
-    mainPanel.addControl(statsText);
-
-    return () => {
-      gui.dispose();
-      guiRef.current = null;
-    };
-  }, [scene, selectedCharacterId, progress, returnToMenu, selectCharacter, startGame]);
-
-  return null;
+      <p style={styles.statsText}>
+        Total Distance: {Math.floor(progress.totalDistance)}m | Coins: {progress.totalCoins} | High
+        Score: {progress.highScore}
+      </p>
+    </div>
+  );
 }
 
-/**
- * Create a character card
- */
-function createCharacterCard(
-  character: OtterCharacter,
-  isUnlocked: boolean,
-  isSelected: boolean,
-  onSelect: () => void
-): Rectangle {
-  const card = new Rectangle(`card-${character.id}`);
-  card.width = '200px';
-  card.height = '350px';
-  card.thickness = isSelected ? 4 : 2;
-  card.color = isSelected ? '#FFD700' : isUnlocked ? '#4A90D9' : '#444444';
-  card.background = isSelected
-    ? 'rgba(74, 144, 217, 0.4)'
-    : isUnlocked
-      ? 'rgba(30, 58, 95, 0.6)'
-      : 'rgba(30, 30, 30, 0.8)';
-  card.cornerRadius = 15;
-  card.paddingTop = '10px';
+interface CharacterCardProps {
+  character: OtterCharacter;
+  isUnlocked: boolean;
+  isSelected: boolean;
+  onSelect: () => void;
+}
 
-  if (isUnlocked) {
-    card.onPointerUpObservable.add(onSelect);
-    card.onPointerEnterObservable.add(() => {
-      if (!isSelected) {
-        card.background = 'rgba(74, 144, 217, 0.3)';
-      }
-    });
-    card.onPointerOutObservable.add(() => {
-      if (!isSelected) {
-        card.background = 'rgba(30, 58, 95, 0.6)';
-      }
+function CharacterCard({ character, isUnlocked, isSelected, onSelect }: CharacterCardProps) {
+  const cardStyles: CSSProperties = {
+    width: '200px',
+    height: '350px',
+    padding: '10px',
+    boxSizing: 'border-box',
+    border: `${isSelected ? 4 : 2}px solid ${isSelected ? '#FFD700' : isUnlocked ? '#4A90D9' : '#444444'}`,
+    borderRadius: '15px',
+    backgroundColor: isSelected
+      ? 'rgba(74, 144, 217, 0.4)'
+      : isUnlocked
+        ? 'rgba(30, 58, 95, 0.6)'
+        : 'rgba(30, 30, 30, 0.8)',
+    cursor: isUnlocked ? 'pointer' : 'default',
+    transition: 'all 0.15s ease',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  };
+
+  const nameStyles: CSSProperties = {
+    fontFamily: "'Fredoka One', sans-serif",
+    fontSize: '24px',
+    color: isUnlocked ? '#ffffff' : '#666666',
+    margin: 0,
+    marginTop: '10px',
+  };
+
+  const titleStyles: CSSProperties = {
+    fontSize: '12px',
+    color: isUnlocked ? character.theme.accentColor : '#444444',
+    margin: 0,
+    marginTop: '5px',
+  };
+
+  const portraitStyles: CSSProperties = {
+    width: '100px',
+    height: '100px',
+    borderRadius: '50%',
+    border: `3px solid ${isUnlocked ? character.theme.primaryColor : '#333333'}`,
+    backgroundColor: isUnlocked ? character.theme.secondaryColor : '#222222',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: '15px',
+  };
+
+  const initialStyles: CSSProperties = {
+    fontFamily: "'Fredoka One', sans-serif",
+    fontSize: '48px',
+    color: isUnlocked ? character.theme.primaryColor : '#444444',
+    margin: 0,
+  };
+
+  const traitsContainerStyles: CSSProperties = {
+    marginTop: '15px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '4px',
+    flex: 1,
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (isUnlocked && !isSelected) {
+      e.currentTarget.style.backgroundColor = 'rgba(74, 144, 217, 0.3)';
+    }
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (isUnlocked && !isSelected) {
+      e.currentTarget.style.backgroundColor = 'rgba(30, 58, 95, 0.6)';
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      style={cardStyles}
+      onClick={onSelect}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      disabled={!isUnlocked}
+      aria-label={`Select ${character.name}${!isUnlocked ? ' (locked)' : ''}`}
+    >
+      <p style={nameStyles}>{character.name}</p>
+      <p style={titleStyles}>{character.title}</p>
+
+      <div style={portraitStyles}>
+        <span style={initialStyles}>{character.name[0]}</span>
+      </div>
+
+      <div style={traitsContainerStyles}>
+        {isUnlocked ? (
+          <TraitsList traits={character.traits} />
+        ) : (
+          <LockedDisplay hint={character.unlock.hint} />
+        )}
+      </div>
+    </button>
+  );
+}
+
+interface TraitsListProps {
+  traits: OtterCharacter['traits'];
+}
+
+function TraitsList({ traits }: TraitsListProps) {
+  const traitTextStyle = (isPositive: boolean): CSSProperties => ({
+    fontSize: '11px',
+    color: isPositive ? '#99ff99' : '#ff9999',
+    margin: 0,
+  });
+
+  const traitsToShow: Array<{ id: string; text: string; isPositive: boolean }> = [];
+
+  if (traits.scrollSpeedMod !== 1.0) {
+    const isPositive = traits.scrollSpeedMod < 1;
+    const percent = Math.round((traits.scrollSpeedMod - 1) * 100);
+    traitsToShow.push({
+      id: 'speed',
+      text: `Speed ${percent > 0 ? '+' : ''}${percent}%`,
+      isPositive,
     });
   }
 
-  // Character name
-  const nameText = new TextBlock(`name-${character.id}`, character.name);
-  nameText.fontFamily = 'Fredoka One, sans-serif';
-  nameText.fontSize = 24;
-  nameText.color = isUnlocked ? '#ffffff' : '#666666';
-  nameText.top = '-140px';
-  nameText.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-  card.addControl(nameText);
-
-  // Title
-  const titleText = new TextBlock(`title-${character.id}`, character.title);
-  titleText.fontFamily = 'Nunito, sans-serif';
-  titleText.fontSize = 12;
-  titleText.color = isUnlocked ? character.theme.accentColor : '#444444';
-  titleText.top = '-115px';
-  card.addControl(titleText);
-
-  // Thumbnail placeholder (colored circle representing the otter)
-  const portrait = new Rectangle(`portrait-${character.id}`);
-  portrait.width = '100px';
-  portrait.height = '100px';
-  portrait.cornerRadius = 50;
-  portrait.thickness = 3;
-  portrait.color = isUnlocked ? character.theme.primaryColor : '#333333';
-  portrait.background = isUnlocked ? character.theme.secondaryColor : '#222222';
-  portrait.top = '-30px';
-  card.addControl(portrait);
-
-  // Otter initial in portrait
-  const initial = new TextBlock(`initial-${character.id}`, character.name[0]);
-  initial.fontFamily = 'Fredoka One, sans-serif';
-  initial.fontSize = 48;
-  initial.color = isUnlocked ? character.theme.primaryColor : '#444444';
-  initial.top = '-30px';
-  card.addControl(initial);
-
-  // Traits panel
-  const traitsPanel = new StackPanel(`traits-${character.id}`);
-  traitsPanel.isVertical = true;
-  traitsPanel.top = '70px';
-  traitsPanel.spacing = 4;
-  card.addControl(traitsPanel);
-
-  if (isUnlocked) {
-    // Show traits
-    const traits = character.traits;
-
-    // Speed trait
-    if (traits.scrollSpeedMod !== 1.0) {
-      const speedText = new TextBlock();
-      speedText.text =
-        traits.scrollSpeedMod > 1
-          ? `Speed +${Math.round((traits.scrollSpeedMod - 1) * 100)}%`
-          : `Speed ${Math.round((traits.scrollSpeedMod - 1) * 100)}%`;
-      speedText.fontSize = 11;
-      speedText.color = traits.scrollSpeedMod > 1 ? '#ff9999' : '#99ff99';
-      speedText.height = '16px';
-      traitsPanel.addControl(speedText);
-    }
-
-    // Lane change
-    if (traits.laneChangeSpeed !== 1.0) {
-      const laneText = new TextBlock();
-      laneText.text =
-        traits.laneChangeSpeed > 1
-          ? `Agility +${Math.round((traits.laneChangeSpeed - 1) * 100)}%`
-          : `Agility ${Math.round((traits.laneChangeSpeed - 1) * 100)}%`;
-      laneText.fontSize = 11;
-      laneText.color = traits.laneChangeSpeed > 1 ? '#99ff99' : '#ff9999';
-      laneText.height = '16px';
-      traitsPanel.addControl(laneText);
-    }
-
-    // Coin bonus
-    if (traits.coinValueMod !== 1.0) {
-      const coinText = new TextBlock();
-      coinText.text =
-        traits.coinValueMod > 1 ? `Coins x${traits.coinValueMod}` : `Coins x${traits.coinValueMod}`;
-      coinText.fontSize = 11;
-      coinText.color = traits.coinValueMod > 1 ? '#ffdd44' : '#ff9999';
-      coinText.height = '16px';
-      traitsPanel.addControl(coinText);
-    }
-
-    // Gem bonus
-    if (traits.gemValueMod !== 1.0) {
-      const gemText = new TextBlock();
-      gemText.text =
-        traits.gemValueMod > 1 ? `Gems x${traits.gemValueMod}` : `Gems x${traits.gemValueMod}`;
-      gemText.fontSize = 11;
-      gemText.color = traits.gemValueMod > 1 ? '#ff44ff' : '#ff9999';
-      gemText.height = '16px';
-      traitsPanel.addControl(gemText);
-    }
-
-    // Health
-    if (traits.startingHealth !== 3) {
-      const healthText = new TextBlock();
-      healthText.text = `Hearts: ${traits.startingHealth}`;
-      healthText.fontSize = 11;
-      healthText.color = traits.startingHealth > 3 ? '#99ff99' : '#ff9999';
-      healthText.height = '16px';
-      traitsPanel.addControl(healthText);
-    }
-  } else {
-    // Show unlock requirement
-    const lockText = new TextBlock();
-    lockText.text = 'LOCKED';
-    lockText.fontFamily = 'Fredoka One, sans-serif';
-    lockText.fontSize = 16;
-    lockText.color = '#666666';
-    lockText.height = '24px';
-    traitsPanel.addControl(lockText);
-
-    const hintText = new TextBlock();
-    hintText.text = character.unlock.hint ?? 'Keep playing!';
-    hintText.fontSize = 10;
-    hintText.color = '#555555';
-    hintText.textWrapping = true;
-    hintText.height = '40px';
-    hintText.width = '180px';
-    traitsPanel.addControl(hintText);
+  if (traits.laneChangeSpeed !== 1.0) {
+    const isPositive = traits.laneChangeSpeed > 1;
+    const percent = Math.round((traits.laneChangeSpeed - 1) * 100);
+    traitsToShow.push({
+      id: 'agility',
+      text: `Agility ${percent > 0 ? '+' : ''}${percent}%`,
+      isPositive,
+    });
   }
 
-  return card;
+  if (traits.coinValueMod !== 1.0) {
+    const isPositive = traits.coinValueMod > 1;
+    traitsToShow.push({
+      id: 'coins',
+      text: `Coins x${traits.coinValueMod}`,
+      isPositive,
+    });
+  }
+
+  if (traits.gemValueMod !== 1.0) {
+    const isPositive = traits.gemValueMod > 1;
+    traitsToShow.push({
+      id: 'gems',
+      text: `Gems x${traits.gemValueMod}`,
+      isPositive,
+    });
+  }
+
+  if (traits.startingHealth !== 3) {
+    const isPositive = traits.startingHealth > 3;
+    traitsToShow.push({
+      id: 'health',
+      text: `Hearts: ${traits.startingHealth}`,
+      isPositive,
+    });
+  }
+
+  return (
+    <>
+      {traitsToShow.map((trait) => (
+        <p key={trait.id} style={traitTextStyle(trait.isPositive)}>
+          {trait.text}
+        </p>
+      ))}
+    </>
+  );
+}
+
+interface LockedDisplayProps {
+  hint?: string;
+}
+
+function LockedDisplay({ hint }: LockedDisplayProps) {
+  return (
+    <>
+      <p
+        style={{
+          fontFamily: "'Fredoka One', sans-serif",
+          fontSize: '16px',
+          color: '#666666',
+          margin: 0,
+        }}
+      >
+        LOCKED
+      </p>
+      <p
+        style={{
+          fontSize: '10px',
+          color: '#555555',
+          margin: 0,
+          marginTop: '8px',
+          textAlign: 'center',
+          maxWidth: '180px',
+        }}
+      >
+        {hint ?? 'Keep playing!'}
+      </p>
+    </>
+  );
 }

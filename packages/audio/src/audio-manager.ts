@@ -1,9 +1,9 @@
 /**
  * Audio Manager for Otter River Rush
- * Uses Babylon.js Sound for audio playback
+ * Uses Howler.js for cross-platform audio playback (web + React Native via expo-av bridge)
  */
 
-import { Sound, Scene, Engine } from '@babylonjs/core';
+import { Howl, Howler } from 'howler';
 
 // Use Vite's base URL for GitHub Pages subdirectory deployment
 const BASE_URL = `${import.meta.env.BASE_URL ?? '/'}assets`;
@@ -33,13 +33,21 @@ export type MusicTrack = keyof typeof AUDIO_PATHS.music;
 export type SFXSound = keyof typeof AUDIO_PATHS.sfx;
 export type AmbientSound = keyof typeof AUDIO_PATHS.ambient;
 
+/** Optional configuration for audio initialization */
+export interface AudioConfig {
+  musicVolume?: number;
+  sfxVolume?: number;
+  ambientVolume?: number;
+}
+
 interface AudioManagerState {
   initialized: boolean;
   musicVolume: number;
   sfxVolume: number;
   ambientVolume: number;
-  currentMusic: Sound | null;
-  scene: Scene | null;
+  muted: boolean;
+  currentMusic: Howl | null;
+  currentMusicId: number | null;
 }
 
 const state: AudioManagerState = {
@@ -47,24 +55,33 @@ const state: AudioManagerState = {
   musicVolume: 0.5,
   sfxVolume: 0.7,
   ambientVolume: 0.3,
+  muted: false,
   currentMusic: null,
-  scene: null,
+  currentMusicId: null,
 };
 
 // Preloaded sounds cache
-const soundCache: Map<string, Sound> = new Map();
+const soundCache: Map<string, Howl> = new Map();
 
 /**
- * Initialize the audio manager with a Babylon.js scene
+ * Initialize the audio manager
+ * No longer requires a Scene parameter - Howler.js works standalone
  */
-export function initAudio(scene: Scene): void {
+export function initAudio(config?: AudioConfig): void {
   if (state.initialized) return;
 
-  state.scene = scene;
-  state.initialized = true;
+  // Apply optional config
+  if (config?.musicVolume !== undefined) {
+    state.musicVolume = Math.max(0, Math.min(1, config.musicVolume));
+  }
+  if (config?.sfxVolume !== undefined) {
+    state.sfxVolume = Math.max(0, Math.min(1, config.sfxVolume));
+  }
+  if (config?.ambientVolume !== undefined) {
+    state.ambientVolume = Math.max(0, Math.min(1, config.ambientVolume));
+  }
 
-  // Enable audio engine
-  Engine.audioEngine?.unlock();
+  state.initialized = true;
 
   // Preload frequently used sounds
   preloadSFX();
@@ -74,16 +91,12 @@ export function initAudio(scene: Scene): void {
  * Preload all SFX sounds for instant playback
  */
 function preloadSFX(): void {
-  if (!state.scene) return;
-
-  Object.entries(AUDIO_PATHS.sfx).forEach(([name, path]) => {
-    const sound = new Sound(
-      `sfx_${name}`,
-      path,
-      state.scene!,
-      null,
-      { autoplay: false, volume: state.sfxVolume }
-    );
+  Object.entries(AUDIO_PATHS.sfx).forEach(([, path]) => {
+    const sound = new Howl({
+      src: [path],
+      volume: state.sfxVolume,
+      preload: true,
+    });
     soundCache.set(path, sound);
   });
 }
@@ -92,24 +105,25 @@ function preloadSFX(): void {
  * Play a sound effect
  */
 export function playSFX(name: SFXSound): void {
-  if (!state.scene || !state.initialized) return;
+  if (!state.initialized) return;
 
   const path = AUDIO_PATHS.sfx[name];
   let sound = soundCache.get(path);
 
   if (sound) {
-    sound.setVolume(state.sfxVolume);
+    sound.volume(state.sfxVolume);
     sound.play();
   } else {
     // Create and play if not cached
-    sound = new Sound(
-      `sfx_${name}`,
-      path,
-      state.scene,
-      () => sound?.play(),
-      { autoplay: false, volume: state.sfxVolume }
-    );
+    sound = new Howl({
+      src: [path],
+      volume: state.sfxVolume,
+    });
     soundCache.set(path, sound);
+    // Play once loaded
+    sound.once('load', () => {
+      sound!.play();
+    });
   }
 }
 
@@ -117,19 +131,24 @@ export function playSFX(name: SFXSound): void {
  * Play background music
  */
 export function playMusic(track: MusicTrack, loop: boolean = true): void {
-  if (!state.scene || !state.initialized) return;
+  if (!state.initialized) return;
 
   // Stop current music
   stopMusic();
 
   const path = AUDIO_PATHS.music[track];
-  state.currentMusic = new Sound(
-    `music_${track}`,
-    path,
-    state.scene,
-    () => state.currentMusic?.play(),
-    { autoplay: false, loop, volume: state.musicVolume }
-  );
+  const music = new Howl({
+    src: [path],
+    loop,
+    volume: state.musicVolume,
+  });
+
+  state.currentMusic = music;
+
+  // Play once loaded
+  music.once('load', () => {
+    state.currentMusicId = music.play();
+  });
 }
 
 /**
@@ -138,8 +157,9 @@ export function playMusic(track: MusicTrack, loop: boolean = true): void {
 export function stopMusic(): void {
   if (state.currentMusic) {
     state.currentMusic.stop();
-    state.currentMusic.dispose();
+    state.currentMusic.unload();
     state.currentMusic = null;
+    state.currentMusicId = null;
   }
 }
 
@@ -147,14 +167,18 @@ export function stopMusic(): void {
  * Pause current music
  */
 export function pauseMusic(): void {
-  state.currentMusic?.pause();
+  if (state.currentMusic && state.currentMusicId !== null) {
+    state.currentMusic.pause(state.currentMusicId);
+  }
 }
 
 /**
  * Resume current music
  */
 export function resumeMusic(): void {
-  state.currentMusic?.play();
+  if (state.currentMusic && state.currentMusicId !== null) {
+    state.currentMusic.play(state.currentMusicId);
+  }
 }
 
 /**
@@ -163,7 +187,7 @@ export function resumeMusic(): void {
 export function setMusicVolume(volume: number): void {
   state.musicVolume = Math.max(0, Math.min(1, volume));
   if (state.currentMusic) {
-    state.currentMusic.setVolume(state.musicVolume);
+    state.currentMusic.volume(state.musicVolume);
   }
 }
 
@@ -173,11 +197,27 @@ export function setMusicVolume(volume: number): void {
 export function setSFXVolume(volume: number): void {
   state.sfxVolume = Math.max(0, Math.min(1, volume));
   // Update all cached SFX volumes
-  soundCache.forEach((sound) => {
-    if (sound.name.startsWith('sfx_')) {
-      sound.setVolume(state.sfxVolume);
+  Object.values(AUDIO_PATHS.sfx).forEach((path) => {
+    const sound = soundCache.get(path);
+    if (sound) {
+      sound.volume(state.sfxVolume);
     }
   });
+}
+
+/**
+ * Set global mute state
+ */
+export function setMuted(muted: boolean): void {
+  state.muted = muted;
+  Howler.mute(muted);
+}
+
+/**
+ * Get current mute state
+ */
+export function isMuted(): boolean {
+  return state.muted;
 }
 
 /**
@@ -220,8 +260,7 @@ export function playConfirm(): void {
  */
 export function disposeAudio(): void {
   stopMusic();
-  soundCache.forEach((sound) => sound.dispose());
+  soundCache.forEach((sound) => sound.unload());
   soundCache.clear();
   state.initialized = false;
-  state.scene = null;
 }

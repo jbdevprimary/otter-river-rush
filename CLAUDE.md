@@ -5,12 +5,15 @@ This file provides guidance to Claude Code when working with this repository.
 ## Project Overview
 
 **Otter River Rush** is a 3-lane endless river runner game built with:
-- **Babylon.js 8.x** + **Reactylon** for 3D rendering
+- **React Three Fiber (R3F)** + **@react-three/drei** for 3D rendering
 - **React 19** for UI
 - **Miniplex ECS** for entity management
+- **Zustand** for state management
 - **Meshy AI** for 3D asset generation
-- **Vite** for bundling
+- **Vite** for web bundling
+- **Expo** for mobile (React Native)
 - **pnpm** workspaces for monorepo management
+- **Biome** for linting and formatting
 
 ## Quick Start
 
@@ -33,19 +36,23 @@ pnpm --filter @otter-river-rush/content-gen gen:all
 ```
 otter-river-rush/
 ├── apps/
-│   └── web/                    # Main web application
-│       ├── public/
-│       │   └── assets/
-│       │       └── models/     # Meshy-generated GLB models
-│       └── src/
+│   ├── web/                    # Web application (Vite + R3F)
+│   │   ├── public/
+│   │   │   └── assets/
+│   │   │       └── models/     # Meshy-generated GLB models
+│   │   └── src/
+│   └── mobile/                 # Mobile application (Expo + R3F Native)
+│       └── App.tsx
 ├── packages/
+│   ├── audio/                  # Howler.js audio system
 │   ├── config/                 # Game configuration (physics, visual, lanes)
 │   ├── content-gen/            # Meshy 3D asset generation pipeline
 │   ├── core/                   # Miniplex ECS world, spawn functions
-│   ├── rendering/              # Babylon.js + Reactylon components
+│   ├── game-core/              # Shared game logic (platform-agnostic)
+│   ├── rendering/              # React Three Fiber components
 │   ├── state/                  # Zustand game state management
 │   ├── types/                  # TypeScript type definitions
-│   └── ui/                     # React UI components (menus, HUD)
+│   └── ui/                     # React HTML overlay components
 └── docs/                       # Architecture documentation
 ```
 
@@ -71,10 +78,12 @@ Miniplex ECS world with spawn functions:
 - Model paths reference `/assets/models/...`
 
 ### @otter-river-rush/rendering
-Babylon.js + Reactylon rendering:
-- `EntityRenderer.tsx` - Renders ECS entities with GLB models
-- `GameCanvas.tsx` - Main canvas component
-- Uses model caching and cloning for performance
+React Three Fiber rendering:
+- `GameCanvas.tsx` - R3F Canvas wrapper with camera and lighting
+- `EntityRenderer.tsx` - Renders ECS entities using useGLTF from @react-three/drei
+- `RiverEnvironment.tsx` - Procedural river, banks, and scenery
+- Uses useFrame hook for animation loop
+- GLB model loading via @react-three/drei useGLTF
 
 ### @otter-river-rush/config
 Game constants:
@@ -88,13 +97,15 @@ Game constants:
 - **Y axis**: Forward/backward (scroll direction)
 - **Z axis**: Height (depth layers)
 
-Babylon.js uses Y-up, so in EntityRenderer:
+Three.js uses Y-up, so in R3F components:
 ```typescript
-mesh.position.set(
+// Game coords: X=lanes, Y=forward, Z=height
+// Three.js coords: X=lateral, Y=height, Z=depth
+<mesh position={[
   entity.position.x,  // X stays X
-  entity.position.z,  // Game Z -> Babylon Y
-  entity.position.y   // Game Y -> Babylon Z
-);
+  entity.position.z,  // Game Z -> Three.js Y (height)
+  entity.position.y   // Game Y -> Three.js Z (depth)
+]} />
 ```
 
 ## Generated 3D Assets
@@ -183,11 +194,18 @@ interface Entity {
 
 ## Testing
 
-Use Chrome MCP for end-to-end testing:
-1. Navigate to `http://localhost:3004` (or available port)
+### Web (Chrome MCP)
+1. Navigate to `http://localhost:3000` (or available port)
 2. Click "PLAY GAME" to start
 3. Use arrow keys or A/D to move lanes
 4. Avoid rocks, collect coins
+
+### Mobile (Expo)
+```bash
+cd apps/mobile
+npx expo start
+# Scan QR code with Expo Go app
+```
 
 ## Related Repositories
 

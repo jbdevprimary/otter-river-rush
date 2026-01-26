@@ -1,9 +1,11 @@
 /**
  * Entity type definitions for ECS
- * Compatible with Miniplex ECS
+ * Platform-agnostic - mesh references use unknown type
+ * Platform packages can cast to their specific mesh types
+ *
+ * @deprecated Import from @otter-river-rush/game-core/types instead
  */
 
-import type { AbstractMesh, TransformNode } from '@babylonjs/core';
 import type { CollectibleType, PowerUpType } from '../game';
 
 // Re-export types for convenience
@@ -28,7 +30,10 @@ export interface VelocityComponent {
 export interface ModelComponent {
   url?: string;
   scale: number;
-  mesh?: AbstractMesh | TransformNode;
+  // Platform-agnostic mesh reference - platforms cast to their specific type
+  // Babylon.js: AbstractMesh | TransformNode
+  // Three.js: Object3D
+  mesh?: unknown;
 }
 
 export interface AnimationComponent {
@@ -60,6 +65,9 @@ export interface ParticleComponent {
 
 // Entity type
 export interface Entity {
+  // Unique identifier (managed by ECS or manually assigned)
+  id?: string;
+
   // Core components
   position?: PositionComponent;
   velocity?: VelocityComponent;
@@ -83,6 +91,7 @@ export interface Entity {
   handling?: number;
   invincible?: boolean;
   ghost?: boolean;
+  characterId?: string;
 
   // Obstacle-specific
   variant?: number;
@@ -91,8 +100,9 @@ export interface Entity {
   collected?: boolean;
   destroyed?: boolean;
 
-  // Rendering
-  three?: AbstractMesh | TransformNode; // Babylon.js mesh reference
+  // Platform-agnostic rendering reference
+  // Platforms cast to their specific type (AbstractMesh, Object3D, etc.)
+  three?: unknown;
 }
 
 // Entity queries (for Miniplex)

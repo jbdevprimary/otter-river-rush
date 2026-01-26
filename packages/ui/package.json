@@ -18,9 +18,6 @@
     "@otter-river-rush/types": "workspace:*",
     "@otter-river-rush/state": "workspace:*",
     "@otter-river-rush/config": "workspace:*",
-    "@babylonjs/core": "^8.46.2",
-    "@babylonjs/gui": "^8.46.2",
-    "reactylon": "^3.5.2",
     "react": "^19.2.3"
   },
   "devDependencies": {
