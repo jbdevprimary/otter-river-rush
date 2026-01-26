@@ -1,8 +1,8 @@
 # System Patterns - Otter River Rush
 
-**Version**: 2.1.0  
-**Last Updated**: 2025-10-28  
-**Status**: Mobile-First Architecture
+**Version**: 3.0.0
+**Last Updated**: 2026-01-26
+**Status**: Unified Expo Architecture (web + iOS + Android)
 
 ---
 
@@ -686,5 +686,5 @@ Resume prompt (manual resume)
 
 ---
 
-**Last Updated**: 2025-10-28  
-**Architecture**: Mobile-First, React Three Fiber, Miniplex ECS, GLB Models
+**Last Updated**: 2026-01-26
+**Architecture**: Unified Expo, React Three Fiber, Miniplex ECS, NativeWind, GLB Models
