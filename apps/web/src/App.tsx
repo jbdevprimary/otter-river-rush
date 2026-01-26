@@ -11,6 +11,7 @@ import * as THREE from 'three';
 
 import {
   initAudio,
+  ensureAudioContext,
   playCoinPickup,
   playGemPickup,
   playHit,
@@ -422,8 +423,10 @@ function AudioInitializer() {
   const initialized = useRef(false);
 
   useEffect(() => {
-    const handleInteraction = () => {
+    const handleInteraction = async () => {
       if (!initialized.current) {
+        // Initialize Tone.js audio context (must happen on user interaction)
+        await ensureAudioContext();
         initAudio();
         initialized.current = true;
         window.removeEventListener('click', handleInteraction);
