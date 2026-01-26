@@ -51,32 +51,59 @@ export const ModelAssets = {
   },
 
   obstacles: {
-    // CC0 Kenney rocks
-    cliffRock: {
-      path: 'models/obstacle/rocks/cliff_block_rock.glb',
+    // Shared rocks (used across biomes)
+    rockSmallC: {
+      path: 'models/environment/shared/rock_smallC.glb',
       source: 'kenney' as const,
-      scale: 0.8,
+      scale: 1.5,
     },
-    cliffRockHalf: {
-      path: 'models/obstacle/rocks/cliff_blockHalf_rock.glb',
+    rockSmallD: {
+      path: 'models/environment/shared/rock_smallD.glb',
       source: 'kenney' as const,
-      scale: 0.8,
+      scale: 1.5,
     },
-    cliffRockQuarter: {
-      path: 'models/obstacle/rocks/cliff_blockQuarter_rock.glb',
+    rockSmallE: {
+      path: 'models/environment/shared/rock_smallE.glb',
       source: 'kenney' as const,
-      scale: 0.8,
+      scale: 1.5,
     },
-    // CC0 Kenney stumps
+    // Canyon/volcanic large rocks
+    rockLargeA: {
+      path: 'models/environment/canyon/rock_largeA.glb',
+      source: 'kenney' as const,
+      scale: 1.2,
+    },
+    rockLargeB: {
+      path: 'models/environment/canyon/rock_largeB.glb',
+      source: 'kenney' as const,
+      scale: 1.2,
+    },
+    rockTallA: {
+      path: 'models/environment/canyon/rock_tallA.glb',
+      source: 'kenney' as const,
+      scale: 1.0,
+    },
+    // Stumps
     stumpRound: {
-      path: 'models/obstacle/stumps/stump_round.glb',
+      path: 'models/environment/shared/stump_round.glb',
       source: 'kenney' as const,
-      scale: 0.6,
+      scale: 1.0,
     },
     stumpOld: {
-      path: 'models/obstacle/stumps/stump_old.glb',
+      path: 'models/environment/shared/stump_old.glb',
       source: 'kenney' as const,
-      scale: 0.6,
+      scale: 1.0,
+    },
+    // Forest logs
+    log: {
+      path: 'models/environment/forest/log.glb',
+      source: 'kenney' as const,
+      scale: 1.2,
+    },
+    logLarge: {
+      path: 'models/environment/forest/log_large.glb',
+      source: 'kenney' as const,
+      scale: 1.0,
     },
   },
 
@@ -155,37 +182,53 @@ export const ModelAssets = {
   },
 
   decorations: {
-    // CC0 Kenney plants
+    // Water decorations (shared)
     lilyLarge: {
-      path: 'models/decoration/plants/lily_large.glb',
+      path: 'models/environment/shared/lily_large.glb',
       source: 'kenney' as const,
-      scale: 0.5,
+      scale: 1.0,
     },
     lilySmall: {
-      path: 'models/decoration/plants/lily_small.glb',
+      path: 'models/environment/shared/lily_small.glb',
       source: 'kenney' as const,
-      scale: 0.4,
+      scale: 0.8,
+    },
+    // Forest plants
+    grass: {
+      path: 'models/environment/forest/grass.glb',
+      source: 'kenney' as const,
+      scale: 1.0,
     },
     grassLarge: {
-      path: 'models/decoration/plants/grass_large.glb',
+      path: 'models/environment/forest/grass_large.glb',
       source: 'kenney' as const,
-      scale: 0.5,
+      scale: 1.0,
     },
-    plantBush: {
-      path: 'models/decoration/plants/plant_bush.glb',
+    mushroomRed: {
+      path: 'models/environment/forest/mushroom_red.glb',
       source: 'kenney' as const,
-      scale: 0.6,
+      scale: 1.2,
     },
-    // CC0 Kenney flowers
+    mushroomTan: {
+      path: 'models/environment/forest/mushroom_tan.glb',
+      source: 'kenney' as const,
+      scale: 1.2,
+    },
+    // Flowers
     flowerYellow: {
-      path: 'models/decoration/flowers/flower_yellowA.glb',
+      path: 'models/environment/forest/flower_yellowA.glb',
       source: 'kenney' as const,
-      scale: 0.4,
+      scale: 1.0,
     },
     flowerPurple: {
-      path: 'models/decoration/flowers/flower_purpleA.glb',
+      path: 'models/environment/forest/flower_purpleA.glb',
       source: 'kenney' as const,
-      scale: 0.4,
+      scale: 1.0,
+    },
+    flowerRed: {
+      path: 'models/environment/tropical/flower_redA.glb',
+      source: 'kenney' as const,
+      scale: 1.0,
     },
   },
 } as const;

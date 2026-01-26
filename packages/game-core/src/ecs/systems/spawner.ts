@@ -2,6 +2,7 @@
  * Spawner System
  * Spawns obstacles and collectibles at intervals
  * Supports dynamic spawn rate scaling based on difficulty progression
+ * Uses biome-specific assets for visual variety
  */
 
 import { PHYSICS, VISUAL, getLaneX } from '../../config';
@@ -10,8 +11,31 @@ import {
   calculateObstacleSpawnInterval,
   useGameStore,
 } from '../../store';
-import type { GameMode, Lane, PowerUpType } from '../../types';
+import type { BiomeType, GameMode, Lane, PowerUpType } from '../../types';
 import { spawn } from '../world';
+
+/**
+ * Obstacle variants per biome
+ * Each biome uses different obstacle models for visual variety
+ */
+const BIOME_OBSTACLE_VARIANTS: Record<BiomeType, number[]> = {
+  forest: [0, 1, 2, 6, 7, 8, 9], // Small rocks, stumps, logs
+  canyon: [0, 1, 2, 3, 4, 5], // Various rock sizes
+  arctic: [0, 1, 2], // Small rocks only (icy)
+  tropical: [0, 1, 2, 6, 7], // Small rocks, stumps
+  volcanic: [3, 4, 5], // Large/tall rocks
+};
+
+/**
+ * Decoration variants per biome
+ */
+const BIOME_DECORATION_VARIANTS: Record<BiomeType, number[]> = {
+  forest: [0, 1, 2, 3, 4, 5, 6, 7], // Lily pads, grass, mushrooms, flowers
+  canyon: [0, 1], // Just lily pads (sparse)
+  arctic: [0, 1], // Lily pads only
+  tropical: [0, 1, 2, 3, 8], // Lily pads, grass, red flowers
+  volcanic: [0, 1], // Sparse decorations
+};
 
 /**
  * Power-up types available for spawning
@@ -58,12 +82,17 @@ export function updateSpawner(
 ): void {
   if (!isPlaying) return;
 
-  // Get current distance for difficulty scaling
-  const distance = useGameStore.getState().distance;
+  // Get current distance and biome for difficulty scaling and visual variety
+  const { distance, currentBiome } = useGameStore.getState();
+  const biome: BiomeType = currentBiome ?? 'forest';
 
   // Calculate dynamic spawn intervals based on distance
   const obstacleInterval = calculateObstacleSpawnInterval(distance);
   const collectibleInterval = calculateCollectibleSpawnInterval(distance);
+
+  // Get biome-specific variants
+  const obstacleVariants = BIOME_OBSTACLE_VARIANTS[biome];
+  const decorationVariants = BIOME_DECORATION_VARIANTS[biome];
 
   // DEBUG: Log spawner state every second
   const win =
@@ -75,12 +104,13 @@ export function updateSpawner(
     );
   }
 
-  // Spawn obstacles (7 Kenney CC0 variants) - skip in zen mode
+  // Spawn obstacles (biome-specific variants) - skip in zen mode
   // Uses dynamic interval that decreases from 2s to 1s over 3000m
   if (gameMode !== 'zen' && now - state.lastObstacleSpawn > obstacleInterval * 1000) {
     const laneIndex = Math.floor(Math.random() * 3) as Lane;
     const lane = getLaneX(laneIndex);
-    const variant = Math.floor(Math.random() * 7);
+    // Pick a random variant from the biome's available obstacles
+    const variant = obstacleVariants[Math.floor(Math.random() * obstacleVariants.length)];
     spawn.rock(lane, VISUAL.positions.spawnY, variant);
     state.lastObstacleSpawn = now;
   }
@@ -107,12 +137,13 @@ export function updateSpawner(
     state.lastCollectibleSpawn = now;
   }
 
-  // Spawn decorations (lily pads, reeds, etc.)
+  // Spawn decorations (lily pads, reeds, mushrooms, flowers - biome-specific)
   // Decoration spawn rate remains constant
   if (now - state.lastDecorationSpawn > PHYSICS.spawnInterval.decorations * 1000) {
     // Decorations spawn at random X positions (not locked to lanes)
     const x = (Math.random() - 0.5) * 6; // Random position across the river
-    const variant = Math.floor(Math.random() * 6); // 6 decoration variants
+    // Pick a random variant from the biome's available decorations
+    const variant = decorationVariants[Math.floor(Math.random() * decorationVariants.length)];
     spawn.decoration(x, VISUAL.positions.spawnY, variant);
     state.lastDecorationSpawn = now;
   }
