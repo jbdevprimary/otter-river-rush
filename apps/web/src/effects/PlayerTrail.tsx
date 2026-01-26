@@ -95,9 +95,9 @@ export function PlayerTrail({
 
     const now = Date.now();
     const currentPos = new THREE.Vector3(
-      player.position.x,
-      player.position.z, // Game Z -> Three.js Y
-      player.position.y  // Game Y -> Three.js Z
+      -player.position.x, // Negate X (camera behind player inverts left/right)
+      player.position.z,  // Game Z -> Three.js Y
+      player.position.y   // Game Y -> Three.js Z
     );
 
     // Only add point if player has moved

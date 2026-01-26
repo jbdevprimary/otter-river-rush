@@ -247,7 +247,7 @@ function EntityModel({
       }
 
       groupRef.current.position.set(
-        x, // X stays X (lanes/lateral)
+        -x, // Negate X (camera behind player inverts left/right)
         z, // Game Z -> Three.js Y (height)
         y // Game Y -> Three.js Z (depth/forward)
       );
@@ -692,7 +692,7 @@ export function App() {
   useEffect(() => {
     onCollectionRef.current = (position, type) => {
       if (collectionBurstRef.current) {
-        collectionBurstRef.current.burst(position.x, position.y, position.z, type);
+        collectionBurstRef.current.burst(-position.x, position.y, position.z, type);
       }
     };
 
@@ -719,9 +719,9 @@ export function App() {
     onNearMissRef.current = (position, bonus) => {
       // Convert 3D world position to approximate screen percentage
       // The player is typically at Y position around 0-5, and X between -2 and 2
-      // Map X from [-3, 3] to [20%, 80%] of screen
+      // Map X from [-3, 3] to [20%, 80%] of screen (negated due to camera orientation)
       // Map Y from [-5, 20] to [80%, 20%] of screen (inverted because screen Y is top-down)
-      const screenX = Math.max(20, Math.min(80, 50 + (position.x / 3) * 30));
+      const screenX = Math.max(20, Math.min(80, 50 + (-position.x / 3) * 30));
       const screenY = Math.max(20, Math.min(80, 60 - (position.y / 15) * 30));
 
       const newFloatingText: FloatingTextItem = {
