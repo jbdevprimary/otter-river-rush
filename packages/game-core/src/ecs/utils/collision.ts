@@ -61,3 +61,48 @@ export function isWithinRadius(
   const dy = entity.position.y - y;
   return Math.sqrt(dx * dx + dy * dy) <= radius;
 }
+
+/**
+ * Near-miss detection constants
+ */
+export const NEAR_MISS_ZONE = 0.3; // Units to expand collider for near-miss detection
+export const NEAR_MISS_BONUS = 50; // Points awarded for near-miss
+
+/**
+ * Check if entity A is within the near-miss zone of entity B
+ * Near-miss zone is the area around the collision box expanded by NEAR_MISS_ZONE
+ * Returns true if A is in the near-miss zone but NOT colliding with B
+ */
+export function checkNearMiss(
+  a: With<Entity, 'position' | 'collider'>,
+  b: With<Entity, 'position' | 'collider'>
+): boolean {
+  // First check if there's an actual collision - if so, not a near-miss
+  if (checkCollision(a, b)) {
+    return false;
+  }
+
+  // Create expanded bounding box for near-miss detection
+  const aBox = {
+    minX: a.position.x - a.collider.width / 2,
+    maxX: a.position.x + a.collider.width / 2,
+    minY: a.position.y - a.collider.height / 2,
+    maxY: a.position.y + a.collider.height / 2,
+  };
+
+  // Expand B's collider by NEAR_MISS_ZONE on all sides
+  const bBoxExpanded = {
+    minX: b.position.x - b.collider.width / 2 - NEAR_MISS_ZONE,
+    maxX: b.position.x + b.collider.width / 2 + NEAR_MISS_ZONE,
+    minY: b.position.y - b.collider.height / 2 - NEAR_MISS_ZONE,
+    maxY: b.position.y + b.collider.height / 2 + NEAR_MISS_ZONE,
+  };
+
+  // Check if A is within the expanded zone
+  return (
+    aBox.minX < bBoxExpanded.maxX &&
+    aBox.maxX > bBoxExpanded.minX &&
+    aBox.minY < bBoxExpanded.maxY &&
+    aBox.maxY > bBoxExpanded.minY
+  );
+}

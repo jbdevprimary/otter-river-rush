@@ -16,7 +16,8 @@ export type SFXSound =
   | 'bonus'
   | 'hit'
   | 'click'
-  | 'confirm';
+  | 'confirm'
+  | 'nearMiss';
 export type AmbientSound = 'waterDrip1' | 'waterDrip2';
 
 /** Optional configuration for audio initialization */
@@ -77,6 +78,7 @@ export const AUDIO_PATHS = {
     hit: '',
     click: '',
     confirm: '',
+    nearMiss: '',
   },
   ambient: {
     waterDrip1: '',
@@ -334,6 +336,9 @@ export function playSFX(name: SFXSound): void {
     case 'confirm':
       playConfirm();
       break;
+    case 'nearMiss':
+      playNearMiss();
+      break;
   }
 }
 
@@ -356,6 +361,30 @@ function playBonusSound(): void {
       '16n',
       now + i * 0.04,
       (0.3 + i * 0.1) * state.sfxVolume
+    );
+  });
+}
+
+/**
+ * Play near-miss sound - exciting close call effect
+ * Quick ascending swoosh sound indicating a close dodge
+ */
+export function playNearMiss(): void {
+  if (!state.initialized || state.muted || !coinSynth) return;
+
+  if (Tone.getContext().state !== 'running') {
+    Tone.start();
+  }
+
+  const now = Tone.now();
+  // Quick ascending "whoosh" with a triumphant feel
+  const notes = ['D5', 'F#5', 'A5', 'D6'];
+  notes.forEach((note, i) => {
+    coinSynth!.triggerAttackRelease(
+      note,
+      '32n',
+      now + i * 0.025,
+      (0.4 + i * 0.1) * state.sfxVolume
     );
   });
 }

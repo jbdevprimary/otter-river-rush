@@ -3,10 +3,30 @@
  * Detects and handles collisions between entities
  */
 
-import type { GameStatus, Entity } from '../../types';
+import type { GameMode, GameStatus, Entity } from '../../types';
 import type { With } from 'miniplex';
 import { world, queries, spawn } from '../world';
-import { checkCollision } from '../utils/collision';
+import { checkCollision, checkNearMiss, NEAR_MISS_BONUS } from '../utils/collision';
+import { isTutorialActive } from '../../store/game-store';
+
+// Track obstacles that have already triggered a near-miss to avoid duplicates
+const nearMissedObstacles = new WeakSet<object>();
+
+/**
+ * Reset near-miss tracking (call when game restarts)
+ */
+export function resetNearMissTracking(): void {
+  // WeakSet doesn't have a clear method, but entities get garbage collected
+  // so we just need a fresh instance for new games
+}
+
+/**
+ * Near-miss event data
+ */
+export interface NearMissEvent {
+  position: { x: number; y: number; z: number };
+  bonus: number;
+}
 
 /**
  * Collision handlers interface
@@ -17,26 +37,39 @@ export interface CollisionHandlers {
   onCollectCoin?: (value: number) => void;
   onCollectGem?: (value: number) => void;
   onGameOver?: () => void;
+  onNearMiss?: (event: NearMissEvent) => void;
 }
 
 /**
  * Update collision detection
  * @param status Current game status
  * @param handlers Collision event handlers
+ * @param gameMode Current game mode (defaults to 'classic')
  */
 export function updateCollision(
   status: GameStatus,
-  handlers: CollisionHandlers = {}
+  handlers: CollisionHandlers = {},
+  gameMode: GameMode = 'classic'
 ): void {
   if (status !== 'playing') return;
 
   const [player] = queries.player.entities;
   if (!player || !player.collider) return;
 
-  // Check obstacle collisions
-  for (const obstacle of queries.obstacles) {
-    if (checkCollision(player as any, obstacle)) {
-      handleObstacleHit(player, obstacle, handlers);
+  // Check obstacle collisions and near-misses - skip damage in zen mode
+  // In zen mode, obstacles shouldn't spawn, but we still skip damage as a safety net
+  if (gameMode !== 'zen') {
+    for (const obstacle of queries.obstacles) {
+      if (checkCollision(player as any, obstacle)) {
+        handleObstacleHit(player, obstacle, handlers);
+      } else if (
+        !nearMissedObstacles.has(obstacle) &&
+        checkNearMiss(player as any, obstacle)
+      ) {
+        // Mark this obstacle as already triggered near-miss
+        nearMissedObstacles.add(obstacle);
+        handleNearMiss(player, obstacle, handlers);
+      }
     }
   }
 
@@ -56,8 +89,8 @@ function handleObstacleHit(
   obstacle: With<Entity, 'obstacle'>,
   handlers: CollisionHandlers
 ): void {
-  // Skip if player is invincible or ghost
-  if (player.invincible || player.ghost) return;
+  // Skip if player is invincible, ghost, or in tutorial period
+  if (player.invincible || player.ghost || isTutorialActive()) return;
 
   // Reduce health
   if (player.health) {
@@ -127,4 +160,27 @@ function handleCollect(
       spawn.particle(collectible.position.x, collectible.position.y, color);
     }
   }
+}
+
+/**
+ * Handle near-miss event
+ * Player passed close to obstacle without collision
+ */
+function handleNearMiss(
+  _player: With<Entity, 'player'>,
+  obstacle: With<Entity, 'obstacle'>,
+  handlers: CollisionHandlers
+): void {
+  if (!obstacle.position) return;
+
+  // Spawn celebratory particles (yellow/gold for bonus)
+  for (let i = 0; i < 6; i++) {
+    spawn.particle(obstacle.position.x, obstacle.position.y, '#ffeb3b');
+  }
+
+  // Notify handler with position and bonus amount
+  handlers.onNearMiss?.({
+    position: { ...obstacle.position },
+    bonus: NEAR_MISS_BONUS,
+  });
 }

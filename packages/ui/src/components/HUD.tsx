@@ -4,8 +4,14 @@
  */
 
 import { UI_COLORS } from '@otter-river-rush/config';
-import { useGameStore } from '@otter-river-rush/state';
-import type { CSSProperties } from 'react';
+import {
+  useGameStore,
+  getTutorialTimeRemaining,
+  getComboTimeRemaining,
+  getComboMultiplier,
+  useAchievementChecker,
+} from '@otter-river-rush/state';
+import { useState, useEffect, type CSSProperties } from 'react';
 
 const styles = {
   container: {
@@ -32,6 +38,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-end',
+    marginTop: '40px', // Space for pause button
   } satisfies CSSProperties,
 
   scoreText: {
@@ -66,6 +73,99 @@ const styles = {
     marginTop: '4px',
     minHeight: '30px',
   } satisfies CSSProperties,
+
+  comboContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    minWidth: '120px',
+  } satisfies CSSProperties,
+
+  comboTimerContainer: {
+    width: '100%',
+    height: '6px',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: '3px',
+    overflow: 'hidden',
+    marginTop: '4px',
+  } satisfies CSSProperties,
+
+  comboTimerBar: {
+    height: '100%',
+    backgroundColor: UI_COLORS.combo,
+    borderRadius: '3px',
+    transition: 'width 0.1s linear',
+  } satisfies CSSProperties,
+
+  comboMultiplier: {
+    color: '#10b981',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    textShadow: '1px 1px 2px #000000',
+    margin: 0,
+    marginTop: '2px',
+  } satisfies CSSProperties,
+
+  tutorialBanner: {
+    position: 'fixed',
+    top: '80px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    padding: '12px 24px',
+    backgroundColor: 'rgba(16, 185, 129, 0.9)',
+    borderRadius: '8px',
+    border: '2px solid #34d399',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+    zIndex: 101,
+  } satisfies CSSProperties,
+
+  tutorialText: {
+    color: '#ffffff',
+    fontSize: '18px',
+    fontWeight: 'bold',
+    textShadow: '1px 1px 2px #000000',
+    margin: 0,
+    textAlign: 'center',
+  } satisfies CSSProperties,
+
+  tutorialSubtext: {
+    color: '#d1fae5',
+    fontSize: '12px',
+    margin: 0,
+    marginTop: '4px',
+    textAlign: 'center',
+  } satisfies CSSProperties,
+
+  pauseButton: {
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    width: '48px',
+    height: '48px',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    border: '2px solid rgba(255, 255, 255, 0.3)',
+    borderRadius: '12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    pointerEvents: 'auto',
+    zIndex: 102,
+    touchAction: 'manipulation',
+    WebkitTapHighlightColor: 'transparent',
+  } satisfies CSSProperties,
+
+  pauseIcon: {
+    display: 'flex',
+    gap: '4px',
+  } satisfies CSSProperties,
+
+  pauseBar: {
+    width: '6px',
+    height: '20px',
+    backgroundColor: '#ffffff',
+    borderRadius: '2px',
+  } satisfies CSSProperties,
 };
 
 export function HUD() {
@@ -73,23 +173,140 @@ export function HUD() {
   const distance = useGameStore((state) => state.distance);
   const lives = useGameStore((state) => state.lives);
   const combo = useGameStore((state) => state.combo);
+  const comboTimer = useGameStore((state) => state.comboTimer);
+  const mode = useGameStore((state) => state.mode);
+  const gameStartTime = useGameStore((state) => state.gameStartTime);
+
+  const isZenMode = mode === 'zen';
+
+  // Check for achievements during gameplay
+  useAchievementChecker();
+
+  // Track combo timer remaining with periodic updates
+  const [comboTimeLeft, setComboTimeLeft] = useState(0);
+
+  useEffect(() => {
+    if (comboTimer === null || combo === 0) {
+      setComboTimeLeft(0);
+      return;
+    }
+
+    // Update combo timer every 50ms for smooth animation
+    const interval = setInterval(() => {
+      const remaining = getComboTimeRemaining(comboTimer);
+      setComboTimeLeft(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+      }
+    }, 50);
+
+    // Set initial value
+    setComboTimeLeft(getComboTimeRemaining(comboTimer));
+
+    return () => clearInterval(interval);
+  }, [comboTimer, combo]);
+
+  // Track tutorial time remaining with periodic updates
+  const [tutorialTimeLeft, setTutorialTimeLeft] = useState(() => getTutorialTimeRemaining());
+
+  useEffect(() => {
+    // Only run timer if game has started and tutorial period is potentially active
+    if (gameStartTime === null) {
+      setTutorialTimeLeft(0);
+      return;
+    }
+
+    // Update immediately
+    setTutorialTimeLeft(getTutorialTimeRemaining());
+
+    // Update every 100ms for smooth countdown
+    const interval = setInterval(() => {
+      const remaining = getTutorialTimeRemaining();
+      setTutorialTimeLeft(remaining);
+
+      // Stop interval when tutorial ends
+      if (remaining <= 0) {
+        clearInterval(interval);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [gameStartTime]);
 
   // Generate hearts based on lives
   const heartsDisplay = lives > 0 ? '\u2665 '.repeat(lives).trim() : '\u2661';
 
-  return (
-    <div style={styles.container}>
-      {/* Left side - Score & Distance */}
-      <div style={styles.leftPanel}>
-        <p style={styles.scoreText}>SCORE: {score}</p>
-        <p style={styles.distanceText}>DISTANCE: {Math.floor(distance)}m</p>
-      </div>
+  const handlePause = () => {
+    useGameStore.getState().pauseGame();
+  };
 
-      {/* Right side - Lives & Combo */}
-      <div style={styles.rightPanel}>
-        <p style={styles.livesText}>{heartsDisplay}</p>
-        <p style={styles.comboText}>{combo > 1 ? `COMBO x${combo}` : ''}</p>
+  return (
+    <>
+      {/* Pause Button - Mobile-first, touch-friendly */}
+      <button
+        style={styles.pauseButton}
+        onClick={handlePause}
+        aria-label="Pause game"
+      >
+        <div style={styles.pauseIcon}>
+          <div style={styles.pauseBar} />
+          <div style={styles.pauseBar} />
+        </div>
+      </button>
+
+      {/* Tutorial Banner - shown during tutorial period */}
+      {tutorialTimeLeft > 0 && !isZenMode && (
+        <div style={styles.tutorialBanner}>
+          <p style={styles.tutorialText}>TUTORIAL - {tutorialTimeLeft}s</p>
+          <p style={styles.tutorialSubtext}>You are invincible! Learn the controls.</p>
+        </div>
+      )}
+
+      <div style={styles.container}>
+        {/* Left side - Score & Distance */}
+        <div style={styles.leftPanel}>
+          <p style={styles.scoreText}>SCORE: {score}</p>
+          <p style={styles.distanceText}>DISTANCE: {Math.floor(distance)}m</p>
+          {isZenMode && (
+            <p style={{ ...styles.distanceText, color: '#10b981', marginTop: '8px' }}>ZEN MODE</p>
+          )}
+        </div>
+
+        {/* Right side - Lives & Combo */}
+        <div style={styles.rightPanel}>
+          {/* Hide lives display in zen mode */}
+          {!isZenMode && <p style={styles.livesText}>{heartsDisplay}</p>}
+
+          {/* Combo display with timer bar */}
+          {combo > 0 && (
+            <div style={styles.comboContainer}>
+              <p style={styles.comboText}>COMBO x{combo}</p>
+              {/* Show multiplier when 10+ combo */}
+              {getComboMultiplier(combo) > 1 && (
+                <p style={styles.comboMultiplier}>
+                  {getComboMultiplier(combo)}x SCORE
+                </p>
+              )}
+              {/* Combo timer bar */}
+              <div style={styles.comboTimerContainer}>
+                <div
+                  style={{
+                    ...styles.comboTimerBar,
+                    width: `${comboTimeLeft * 100}%`,
+                    backgroundColor:
+                      comboTimeLeft < 0.3
+                        ? '#ef4444' // Red when low
+                        : comboTimeLeft < 0.6
+                          ? '#fbbf24' // Yellow when medium
+                          : UI_COLORS.combo, // Normal color
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

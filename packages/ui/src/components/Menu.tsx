@@ -4,8 +4,10 @@
  */
 
 import { UI_COLORS } from '@otter-river-rush/config';
-import { useGameStore } from '@otter-river-rush/state';
-import type { CSSProperties } from 'react';
+import { addScore, isHighScore, useGameStore } from '@otter-river-rush/state';
+import type { GameMode } from '@otter-river-rush/types';
+import { type CSSProperties, useEffect, useState } from 'react';
+import { Leaderboard } from './Leaderboard';
 
 interface MenuProps {
   type: 'menu' | 'game_over';
@@ -31,6 +33,74 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     width: '400px',
+  } satisfies CSSProperties,
+
+  modeSelectionContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: '10px',
+    marginBottom: '10px',
+    width: '100%',
+  } satisfies CSSProperties,
+
+  modeLabel: {
+    color: '#94a3b8',
+    fontSize: '14px',
+    margin: 0,
+    marginBottom: '10px',
+    textTransform: 'uppercase',
+    letterSpacing: '2px',
+  } satisfies CSSProperties,
+
+  modeButtonsRow: {
+    display: 'flex',
+    gap: '10px',
+    justifyContent: 'center',
+  } satisfies CSSProperties,
+
+  modeButton: {
+    width: '135px',
+    height: '50px',
+    backgroundColor: '#334155',
+    color: '#94a3b8',
+    border: '2px solid #475569',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    fontFamily: 'monospace',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+  } satisfies CSSProperties,
+
+  modeButtonActive: {
+    width: '135px',
+    height: '50px',
+    backgroundColor: '#3b82f6',
+    color: '#ffffff',
+    border: '2px solid #60a5fa',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    fontFamily: 'monospace',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+    boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)',
+  } satisfies CSSProperties,
+
+  zenModeButtonActive: {
+    width: '135px',
+    height: '50px',
+    backgroundColor: '#10b981',
+    color: '#ffffff',
+    border: '2px solid #34d399',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    fontFamily: 'monospace',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+    boxShadow: '0 0 10px rgba(16, 185, 129, 0.5)',
   } satisfies CSSProperties,
 
   title: {
@@ -136,6 +206,16 @@ const styles = {
     marginBottom: '30px',
     textShadow: `0 0 20px ${UI_COLORS.combo}`,
   } satisfies CSSProperties,
+
+  newHighScoreText: {
+    color: '#22c55e',
+    fontSize: '18px',
+    fontWeight: 'bold',
+    margin: 0,
+    marginBottom: '10px',
+    textShadow: '0 0 10px rgba(34, 197, 94, 0.5)',
+    animation: 'pulse 1.5s ease-in-out infinite',
+  } satisfies CSSProperties,
 };
 
 export function Menu({ type }: MenuProps) {
@@ -150,13 +230,21 @@ export function Menu({ type }: MenuProps) {
 
 function MainMenu() {
   const selectedChar = useGameStore((state) => state.getSelectedCharacter());
+  const [selectedMode, setSelectedMode] = useState<GameMode>('classic');
 
   const handlePlay = () => {
-    useGameStore.getState().startGame('classic');
+    useGameStore.getState().startGame(selectedMode);
   };
 
   const handleSelectOtter = () => {
     useGameStore.getState().goToCharacterSelect();
+  };
+
+  const getModeButtonStyle = (mode: GameMode) => {
+    if (selectedMode === mode) {
+      return mode === 'zen' ? styles.zenModeButtonActive : styles.modeButtonActive;
+    }
+    return styles.modeButton;
   };
 
   return (
@@ -167,6 +255,56 @@ function MainMenu() {
         <p style={{ ...styles.charInfo, color: selectedChar.theme.accentColor }}>
           Playing as: {selectedChar.name}
         </p>
+
+        {/* Mode Selection */}
+        <div style={styles.modeSelectionContainer}>
+          <p style={styles.modeLabel}>Select Mode</p>
+          <div style={styles.modeButtonsRow}>
+            <button
+              type="button"
+              style={getModeButtonStyle('classic')}
+              onClick={() => setSelectedMode('classic')}
+              onMouseEnter={(e) => {
+                if (selectedMode !== 'classic') {
+                  e.currentTarget.style.backgroundColor = '#475569';
+                  e.currentTarget.style.borderColor = '#64748b';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selectedMode !== 'classic') {
+                  e.currentTarget.style.backgroundColor = '#334155';
+                  e.currentTarget.style.borderColor = '#475569';
+                }
+              }}
+            >
+              CLASSIC
+            </button>
+            <button
+              type="button"
+              style={getModeButtonStyle('zen')}
+              onClick={() => setSelectedMode('zen')}
+              onMouseEnter={(e) => {
+                if (selectedMode !== 'zen') {
+                  e.currentTarget.style.backgroundColor = '#475569';
+                  e.currentTarget.style.borderColor = '#64748b';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selectedMode !== 'zen') {
+                  e.currentTarget.style.backgroundColor = '#334155';
+                  e.currentTarget.style.borderColor = '#475569';
+                }
+              }}
+            >
+              ZEN
+            </button>
+          </div>
+          <p style={{ ...styles.modeLabel, marginTop: '8px', fontSize: '12px', color: '#64748b' }}>
+            {selectedMode === 'zen'
+              ? 'No obstacles - just relax and collect!'
+              : 'Avoid obstacles and survive!'}
+          </p>
+        </div>
 
         <button
           type="button"
@@ -211,8 +349,26 @@ interface GameOverMenuProps {
 }
 
 function GameOverMenu({ finalScore }: GameOverMenuProps) {
+  const mode = useGameStore((state) => state.mode);
+  const distance = useGameStore((state) => state.distance);
+  const selectedCharacterId = useGameStore((state) => state.selectedCharacterId);
+  const [highlightRank, setHighlightRank] = useState<number | null>(null);
+  const [scoreSaved, setScoreSaved] = useState(false);
+
+  // Save score to leaderboard when game over screen appears
+  useEffect(() => {
+    if (scoreSaved) return;
+
+    // Check if score qualifies for leaderboard
+    if (isHighScore(finalScore)) {
+      const rank = addScore(finalScore, distance, selectedCharacterId, mode);
+      setHighlightRank(rank);
+    }
+    setScoreSaved(true);
+  }, [finalScore, distance, selectedCharacterId, mode, scoreSaved]);
+
   const handlePlayAgain = () => {
-    useGameStore.getState().startGame('classic');
+    useGameStore.getState().startGame(mode);
   };
 
   const handleMainMenu = () => {
@@ -221,10 +377,14 @@ function GameOverMenu({ finalScore }: GameOverMenuProps) {
 
   return (
     <div style={styles.overlay}>
-      <div style={styles.container}>
+      <div style={{ ...styles.container, maxHeight: '90vh', overflowY: 'auto' }}>
         <h1 style={styles.gameOverTitle}>GAME OVER</h1>
         <p style={styles.scoreLabel}>FINAL SCORE</p>
         <p style={styles.scoreValue}>{finalScore}</p>
+
+        {highlightRank !== null && (
+          <p style={styles.newHighScoreText}>NEW HIGH SCORE! Rank #{highlightRank}</p>
+        )}
 
         <button
           type="button"
@@ -257,6 +417,9 @@ function GameOverMenu({ finalScore }: GameOverMenuProps) {
         >
           MAIN MENU
         </button>
+
+        {/* Leaderboard Display */}
+        <Leaderboard highlightRank={highlightRank} />
       </div>
     </div>
   );

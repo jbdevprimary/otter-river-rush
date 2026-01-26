@@ -33,6 +33,7 @@ export { PHYSICS_CONFIG } from './physics-constants';
 
 // Visual constants
 export {
+  DIFFICULTY,
   FLOW,
   getLaneX,
   getModelScale,

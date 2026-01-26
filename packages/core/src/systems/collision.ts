@@ -3,10 +3,11 @@
  * Detects and handles collisions between entities
  */
 
-import type { GameStatus, Entity } from '@otter-river-rush/types';
+import type { GameMode, GameStatus, Entity } from '@otter-river-rush/types';
 import type { With } from 'miniplex';
 import { world, queries, spawn } from '../world';
 import { checkCollision } from '../utils/collision';
+import { isTutorialActive } from '@otter-river-rush/state';
 
 /**
  * Collision handlers interface
@@ -23,20 +24,25 @@ export interface CollisionHandlers {
  * Update collision detection
  * @param status Current game status
  * @param handlers Collision event handlers
+ * @param gameMode Current game mode (defaults to 'classic')
  */
 export function updateCollision(
   status: GameStatus,
-  handlers: CollisionHandlers = {}
+  handlers: CollisionHandlers = {},
+  gameMode: GameMode = 'classic'
 ): void {
   if (status !== 'playing') return;
 
   const [player] = queries.player.entities;
   if (!player || !player.collider) return;
 
-  // Check obstacle collisions
-  for (const obstacle of queries.obstacles) {
-    if (checkCollision(player as any, obstacle)) {
-      handleObstacleHit(player, obstacle, handlers);
+  // Check obstacle collisions - skip damage in zen mode
+  // In zen mode, obstacles shouldn't spawn, but we still skip damage as a safety net
+  if (gameMode !== 'zen') {
+    for (const obstacle of queries.obstacles) {
+      if (checkCollision(player as any, obstacle)) {
+        handleObstacleHit(player, obstacle, handlers);
+      }
     }
   }
 
@@ -56,8 +62,8 @@ function handleObstacleHit(
   obstacle: With<Entity, 'obstacle'>,
   handlers: CollisionHandlers
 ): void {
-  // Skip if player is invincible or ghost
-  if (player.invincible || player.ghost) return;
+  // Skip if player is invincible, ghost, or in tutorial period
+  if (player.invincible || player.ghost || isTutorialActive()) return;
 
   // Reduce health
   if (player.health) {

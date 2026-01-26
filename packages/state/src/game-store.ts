@@ -40,6 +40,10 @@ export interface GameState {
   // Current character traits (applied at game start)
   activeTraits: OtterCharacter['traits'] | null;
 
+  // Tutorial tracking (timestamp when game started, null if not a fresh game start)
+  // Only set on initial game start from menu, not on respawn
+  gameStartTime: number | null;
+
   // Player stats (current session)
   score: number;
   distance: number;
@@ -115,6 +119,7 @@ export const useGameStore = create<GameState>()(
       mode: 'classic',
       selectedCharacterId: 'rusty',
       activeTraits: null,
+      gameStartTime: null,
       score: 0,
       distance: 0,
       coins: 0,
@@ -152,6 +157,7 @@ export const useGameStore = create<GameState>()(
           status: 'playing',
           mode,
           activeTraits: character.traits,
+          gameStartTime: Date.now(), // Track when game started for tutorial
           score: 0,
           distance: 0,
           coins: 0,
@@ -179,6 +185,7 @@ export const useGameStore = create<GameState>()(
         set({
           status: 'menu',
           activeTraits: null,
+          gameStartTime: null,
           score: 0,
           distance: 0,
           coins: 0,
@@ -288,6 +295,7 @@ export const useGameStore = create<GameState>()(
           status: 'menu',
           mode: 'classic',
           activeTraits: null,
+          gameStartTime: null,
           score: 0,
           distance: 0,
           coins: 0,
@@ -310,3 +318,35 @@ export const useGameStore = create<GameState>()(
     }
   )
 );
+
+/**
+ * Tutorial duration in milliseconds (30 seconds)
+ */
+export const TUTORIAL_DURATION_MS = 30000;
+
+/**
+ * Check if the tutorial period is currently active
+ * Tutorial is active for the first 30 seconds after game start
+ * Only applies to fresh game starts from menu, not respawns
+ * @returns true if tutorial invincibility is active
+ */
+export function isTutorialActive(): boolean {
+  const state = useGameStore.getState();
+  if (state.gameStartTime === null) return false;
+
+  const elapsed = Date.now() - state.gameStartTime;
+  return elapsed < TUTORIAL_DURATION_MS;
+}
+
+/**
+ * Get remaining tutorial time in seconds
+ * @returns remaining seconds, or 0 if tutorial is not active
+ */
+export function getTutorialTimeRemaining(): number {
+  const state = useGameStore.getState();
+  if (state.gameStartTime === null) return 0;
+
+  const elapsed = Date.now() - state.gameStartTime;
+  const remaining = TUTORIAL_DURATION_MS - elapsed;
+  return remaining > 0 ? Math.ceil(remaining / 1000) : 0;
+}

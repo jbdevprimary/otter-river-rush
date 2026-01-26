@@ -20,6 +20,7 @@ export {
   playHit,
   playClick,
   playConfirm,
+  playNearMiss,
   disposeAudio,
   AUDIO_PATHS,
   type AudioConfig,

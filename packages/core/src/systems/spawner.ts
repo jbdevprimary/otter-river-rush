@@ -4,7 +4,7 @@
  */
 
 import { PHYSICS, VISUAL, getLaneX } from '@otter-river-rush/config';
-import type { Lane } from '@otter-river-rush/types';
+import type { GameMode, Lane } from '@otter-river-rush/types';
 import { spawn } from '../world';
 
 export interface SpawnerState {
@@ -29,11 +29,13 @@ export function createSpawnerState(): SpawnerState {
  * @param state Spawner state
  * @param now Current timestamp (milliseconds)
  * @param isPlaying Whether game is actively playing
+ * @param gameMode Current game mode (defaults to 'classic')
  */
 export function updateSpawner(
   state: SpawnerState,
   now: number,
-  isPlaying: boolean
+  isPlaying: boolean,
+  gameMode: GameMode = 'classic'
 ): void {
   if (!isPlaying) return;
 
@@ -41,11 +43,11 @@ export function updateSpawner(
   const win = window as typeof window & { __lastSpawnerLog?: number };
   if (!win.__lastSpawnerLog || now - win.__lastSpawnerLog > 1000) {
     win.__lastSpawnerLog = now;
-    console.log(`[Spawner] now=${now} lastObs=${state.lastObstacleSpawn} interval=${PHYSICS.spawnInterval.obstacles * 1000} diff=${now - state.lastObstacleSpawn}`);
+    console.log(`[Spawner] mode=${gameMode} now=${now} lastObs=${state.lastObstacleSpawn} interval=${PHYSICS.spawnInterval.obstacles * 1000} diff=${now - state.lastObstacleSpawn}`);
   }
 
-  // Spawn obstacles (7 Kenney CC0 variants)
-  if (now - state.lastObstacleSpawn > PHYSICS.spawnInterval.obstacles * 1000) {
+  // Spawn obstacles (7 Kenney CC0 variants) - skip in zen mode
+  if (gameMode !== 'zen' && now - state.lastObstacleSpawn > PHYSICS.spawnInterval.obstacles * 1000) {
     const laneIndex = Math.floor(Math.random() * 3) as Lane;
     const lane = getLaneX(laneIndex);
     const variant = Math.floor(Math.random() * 7);

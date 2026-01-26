@@ -11,5 +11,5 @@ export { updateParticles } from './particles';
 export { updateAnimation } from './animation';
 export { updateCollision } from './collision';
 export type { CollisionHandlers } from './collision';
-export { setupKeyboardInput, updatePlayerInput, createInputState } from './input';
+export { setupKeyboardInput, setupTouchInput, updatePlayerInput, createInputState } from './input';
 export type { InputState } from './input';

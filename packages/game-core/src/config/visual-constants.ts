@@ -135,6 +135,26 @@ export const PHYSICS = {
 } as const;
 
 /**
+ * Difficulty Progression Constants
+ * Controls how difficulty scales with distance traveled
+ */
+export const DIFFICULTY = {
+  // Speed scaling
+  speedIncreasePerInterval: 0.1, // +10% speed increase per interval
+  speedIncreaseDistanceInterval: 500, // Every 500 meters
+  maxSpeedMultiplier: 2.0, // Cap at 2x base speed
+
+  // Spawn rate scaling
+  baseObstacleSpawnInterval: 2, // Starting interval (seconds)
+  minObstacleSpawnInterval: 1, // Minimum interval at max difficulty (seconds)
+  spawnRateMaxDistance: 3000, // Distance at which spawn rate reaches minimum
+
+  // Collectible spawn scaling (slower increase than obstacles)
+  baseCollectibleSpawnInterval: 3,
+  minCollectibleSpawnInterval: 1.5,
+} as const;
+
+/**
  * Helper: Get lane X position
  */
 export function getLaneX(lane: Lane): number {

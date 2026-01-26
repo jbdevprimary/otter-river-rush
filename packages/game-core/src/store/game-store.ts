@@ -3,11 +3,107 @@
  * Central state management for the game
  */
 
-import { getCharacter, getDefaultCharacter, type OtterCharacter } from '../config';
+import {
+  DIFFICULTY,
+  GAME_CONFIG,
+  getCharacter,
+  getDefaultCharacter,
+  PHYSICS,
+  type OtterCharacter,
+} from '../config';
 import { resetWorld } from '../ecs';
-import type { GameMode, GameStatus, PowerUpType } from '../types';
+import type { BiomeType, GameMode, GameStatus, PowerUpType } from '../types';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+
+// Lazy import to avoid circular dependency - will be loaded at runtime
+let achievementStoreModule: typeof import('./achievement-store') | null = null;
+const getAchievementStore = async () => {
+  if (!achievementStoreModule) {
+    achievementStoreModule = await import('./achievement-store');
+  }
+  return achievementStoreModule.useAchievementStore;
+};
+
+/**
+ * Calculate the combo multiplier based on current combo count.
+ * At 10x combo, score multiplier becomes 2x.
+ * Formula: 1 + floor(combo/10)
+ */
+export function getComboMultiplier(combo: number): number {
+  return 1 + Math.floor(combo / 10);
+}
+
+/**
+ * Calculate the remaining combo time as a ratio (0-1).
+ * Returns 0 if no combo is active, 1 if combo was just triggered.
+ */
+export function getComboTimeRemaining(comboTimer: number | null): number {
+  if (comboTimer === null) return 0;
+  const elapsed = Date.now() - comboTimer;
+  const remaining = Math.max(0, GAME_CONFIG.COMBO_TIMEOUT - elapsed);
+  return remaining / GAME_CONFIG.COMBO_TIMEOUT;
+}
+
+/**
+ * Check if combo has expired based on the timer timestamp.
+ */
+export function isComboExpired(comboTimer: number | null): boolean {
+  if (comboTimer === null) return true;
+  return Date.now() - comboTimer > GAME_CONFIG.COMBO_TIMEOUT;
+}
+
+/**
+ * Calculate the speed multiplier based on distance traveled
+ * Speed increases by 10% every 500m, capped at 2x base speed
+ */
+export function calculateSpeedMultiplier(distance: number): number {
+  const intervals = Math.floor(distance / DIFFICULTY.speedIncreaseDistanceInterval);
+  const multiplier = 1 + intervals * DIFFICULTY.speedIncreasePerInterval;
+  return Math.min(multiplier, DIFFICULTY.maxSpeedMultiplier);
+}
+
+/**
+ * Calculate the current scroll speed based on distance
+ */
+export function calculateScrollSpeed(distance: number): number {
+  return PHYSICS.scrollSpeed * calculateSpeedMultiplier(distance);
+}
+
+/**
+ * Calculate the obstacle spawn interval based on distance
+ * Spawn rate increases (interval decreases) from 2s to 1s over 3000m
+ */
+export function calculateObstacleSpawnInterval(distance: number): number {
+  const progress = Math.min(distance / DIFFICULTY.spawnRateMaxDistance, 1);
+  const intervalRange = DIFFICULTY.baseObstacleSpawnInterval - DIFFICULTY.minObstacleSpawnInterval;
+  return DIFFICULTY.baseObstacleSpawnInterval - progress * intervalRange;
+}
+
+/**
+ * Calculate the collectible spawn interval based on distance
+ * Spawn rate increases (interval decreases) from 3s to 1.5s over 3000m
+ */
+export function calculateCollectibleSpawnInterval(distance: number): number {
+  const progress = Math.min(distance / DIFFICULTY.spawnRateMaxDistance, 1);
+  const intervalRange = DIFFICULTY.baseCollectibleSpawnInterval - DIFFICULTY.minCollectibleSpawnInterval;
+  return DIFFICULTY.baseCollectibleSpawnInterval - progress * intervalRange;
+}
+
+/**
+ * Biome distance thresholds (in meters)
+ */
+export const BIOME_THRESHOLDS: Record<BiomeType, number> = {
+  forest: 0,
+  mountain: 1000,
+  canyon: 2000,
+  rapids: 3000,
+};
+
+/**
+ * Transition distance for smooth color lerping between biomes
+ */
+export const BIOME_TRANSITION_DISTANCE = 100;
 
 export interface PowerUpState {
   shield: boolean;
@@ -39,13 +135,23 @@ export interface GameState {
   // Current character traits (applied at game start)
   activeTraits: OtterCharacter['traits'] | null;
 
+  // Tutorial tracking (timestamp when game started, null if not a fresh game start)
+  // Only set on initial game start from menu, not on respawn
+  gameStartTime: number | null;
+
   // Player stats (current session)
   score: number;
   distance: number;
   coins: number;
   gems: number;
   combo: number;
+  comboTimer: number | null; // Timestamp of last collection, null if no active combo
   lives: number;
+  nearMissCount: number;
+
+  // Biome tracking
+  currentBiome: BiomeType;
+  biomeProgress: number; // 0-1 progress through transition to next biome
 
   // Power-ups
   powerUps: PowerUpState;
@@ -76,7 +182,9 @@ export interface GameState {
   collectGem: (value: number) => void;
   incrementCombo: () => void;
   resetCombo: () => void;
+  checkComboTimeout: () => void;
   loseLife: () => void;
+  addNearMissBonus: (bonus: number) => void;
 
   activatePowerUp: (type: PowerUpType, duration?: number) => void;
   deactivatePowerUp: (type: PowerUpType) => void;
@@ -84,6 +192,8 @@ export interface GameState {
   updateSettings: (
     settings: Partial<Pick<GameState, 'soundEnabled' | 'musicEnabled' | 'volume'>>
   ) => void;
+
+  updateBiome: () => void;
 
   reset: () => void;
 }
@@ -114,12 +224,17 @@ export const useGameStore = create<GameState>()(
       mode: 'classic',
       selectedCharacterId: 'rusty',
       activeTraits: null,
+      gameStartTime: null,
       score: 0,
       distance: 0,
       coins: 0,
       gems: 0,
       combo: 0,
+      comboTimer: null,
       lives: 3,
+      nearMissCount: 0,
+      currentBiome: 'forest',
+      biomeProgress: 0,
       powerUps: { ...initialPowerUps },
       soundEnabled: true,
       musicEnabled: true,
@@ -147,16 +262,26 @@ export const useGameStore = create<GameState>()(
         // Reset the ECS world to clear all entities
         resetWorld();
 
+        // Start achievement tracking session
+        getAchievementStore().then((store) => {
+          store.getState().startSession();
+        });
+
         set(() => ({
           status: 'playing',
           mode,
           activeTraits: character.traits,
+          gameStartTime: Date.now(), // Track when game started for tutorial
           score: 0,
           distance: 0,
           coins: 0,
           gems: 0,
           combo: 0,
+          comboTimer: null,
           lives: character.traits.startingHealth,
+          nearMissCount: 0,
+          currentBiome: 'forest',
+          biomeProgress: 0,
           powerUps: { ...initialPowerUps },
         }));
       },
@@ -196,6 +321,21 @@ export const useGameStore = create<GameState>()(
 
           newProgress.unlockedCharacters = unlockedCharacters;
 
+          // End achievement tracking session and check for achievements
+          getAchievementStore().then((store) => {
+            store.getState().endSession({
+              distance: state.distance,
+              coins: state.coins,
+              gems: state.gems,
+              score: state.score,
+              gamesPlayed: newProgress.gamesPlayed,
+              totalCoins: newProgress.totalCoins,
+              totalGems: newProgress.totalGems,
+              totalDistance: newProgress.totalDistance,
+              charactersUnlocked: newProgress.unlockedCharacters.length,
+            });
+          });
+
           return {
             status: 'game_over',
             progress: newProgress,
@@ -210,12 +350,16 @@ export const useGameStore = create<GameState>()(
         set({
           status: 'menu',
           activeTraits: null,
+          gameStartTime: null,
           score: 0,
           distance: 0,
           coins: 0,
           gems: 0,
           combo: 0,
+          comboTimer: null,
           lives: 3,
+          currentBiome: 'forest',
+          biomeProgress: 0,
           powerUps: { ...initialPowerUps },
         });
       },
@@ -230,46 +374,102 @@ export const useGameStore = create<GameState>()(
         })),
 
       updateDistance: (meters) =>
-        set((state) => ({
-          distance: state.distance + meters,
-        })),
+        set((state) => {
+          const newDistance = state.distance + meters;
+
+          // Update achievement tracking
+          getAchievementStore().then((store) => {
+            store.getState().updateDistance(newDistance);
+          });
+
+          return { distance: newDistance };
+        }),
 
       collectCoin: (value) =>
         set((state) => {
           // Apply character coin multiplier
-          const multiplier = state.activeTraits?.coinValueMod ?? 1;
-          const adjustedValue = Math.round(value * multiplier);
+          const charMultiplier = state.activeTraits?.coinValueMod ?? 1;
+          // Apply combo multiplier (1x base, 2x at 10+ combo, 3x at 20+ combo, etc.)
+          const comboMultiplier = getComboMultiplier(state.combo);
+          const adjustedValue = Math.round(value * charMultiplier);
+          const newCoins = state.coins + adjustedValue;
+          const scoreGain = adjustedValue * 10 * comboMultiplier;
+
+          // Update achievement tracking
+          getAchievementStore().then((store) => {
+            store.getState().updateCoins(newCoins);
+          });
+
           return {
-            coins: state.coins + adjustedValue,
-            score: state.score + adjustedValue * 10,
+            coins: newCoins,
+            score: state.score + scoreGain,
+            combo: state.combo + 1,
+            comboTimer: Date.now(), // Reset combo timer on collection
           };
         }),
 
       collectGem: (value) =>
         set((state) => {
           // Apply character gem multiplier
-          const multiplier = state.activeTraits?.gemValueMod ?? 1;
-          const adjustedValue = Math.round(value * multiplier);
+          const charMultiplier = state.activeTraits?.gemValueMod ?? 1;
+          // Apply combo multiplier (1x base, 2x at 10+ combo, 3x at 20+ combo, etc.)
+          const comboMultiplier = getComboMultiplier(state.combo);
+          const adjustedValue = Math.round(value * charMultiplier);
+          const newGems = state.gems + adjustedValue;
+          const scoreGain = adjustedValue * 50 * comboMultiplier;
+
+          // Update achievement tracking
+          getAchievementStore().then((store) => {
+            store.getState().updateGems(newGems);
+          });
+
           return {
-            gems: state.gems + adjustedValue,
-            score: state.score + adjustedValue * 50,
+            gems: newGems,
+            score: state.score + scoreGain,
+            combo: state.combo + 1,
+            comboTimer: Date.now(), // Reset combo timer on collection
           };
         }),
 
       incrementCombo: () =>
-        set((state) => ({
-          combo: state.combo + 1,
-        })),
+        set((state) => {
+          const newCombo = state.combo + 1;
 
-      resetCombo: () => set({ combo: 0 }),
+          // Update achievement tracking
+          getAchievementStore().then((store) => {
+            store.getState().updateCombo(newCombo);
+          });
+
+          return { combo: newCombo, comboTimer: Date.now() };
+        }),
+
+      resetCombo: () => set({ combo: 0, comboTimer: null }),
+
+      /**
+       * Check if combo has timed out and reset if needed.
+       * Should be called in the game loop.
+       */
+      checkComboTimeout: () => {
+        const state = get();
+        if (state.combo > 0 && isComboExpired(state.comboTimer)) {
+          set({ combo: 0, comboTimer: null });
+        }
+      },
 
       loseLife: () => {
         const state = get();
         const newLives = state.lives - 1;
+
+        // Record damage for achievement tracking
+        getAchievementStore().then((store) => {
+          store.getState().recordDamage();
+        });
+
         if (newLives <= 0) {
           get().endGame();
         } else {
-          set({ lives: newLives });
+          // Reset combo when hit
+          set({ lives: newLives, combo: 0, comboTimer: null });
         }
       },
 
@@ -316,17 +516,60 @@ export const useGameStore = create<GameState>()(
 
       updateSettings: (settings) => set(() => ({ ...settings })),
 
+      addNearMissBonus: (bonus) =>
+        set((state) => ({
+          score: state.score + bonus,
+          nearMissCount: state.nearMissCount + 1,
+        })),
+
+      updateBiome: () =>
+        set((state) => {
+          const distance = state.distance;
+
+          // Determine current biome based on distance thresholds
+          let currentBiome: BiomeType = 'forest';
+          let biomeProgress = 0;
+
+          if (distance >= BIOME_THRESHOLDS.rapids) {
+            currentBiome = 'rapids';
+            biomeProgress = 1; // Past all transitions
+          } else if (distance >= BIOME_THRESHOLDS.canyon) {
+            currentBiome = 'canyon';
+            const progressToRapids =
+              (distance - BIOME_THRESHOLDS.canyon) /
+              (BIOME_THRESHOLDS.rapids - BIOME_THRESHOLDS.canyon);
+            biomeProgress = Math.min(progressToRapids, 1);
+          } else if (distance >= BIOME_THRESHOLDS.mountain) {
+            currentBiome = 'mountain';
+            const progressToCanyon =
+              (distance - BIOME_THRESHOLDS.mountain) /
+              (BIOME_THRESHOLDS.canyon - BIOME_THRESHOLDS.mountain);
+            biomeProgress = Math.min(progressToCanyon, 1);
+          } else {
+            currentBiome = 'forest';
+            const progressToMountain = distance / BIOME_THRESHOLDS.mountain;
+            biomeProgress = Math.min(progressToMountain, 1);
+          }
+
+          return { currentBiome, biomeProgress };
+        }),
+
       reset: () =>
         set({
           status: 'menu',
           mode: 'classic',
           activeTraits: null,
+          gameStartTime: null,
           score: 0,
           distance: 0,
           coins: 0,
           gems: 0,
           combo: 0,
+          comboTimer: null,
           lives: 3,
+          nearMissCount: 0,
+          currentBiome: 'forest',
+          biomeProgress: 0,
           powerUps: { ...initialPowerUps },
         }),
     }),
@@ -343,3 +586,35 @@ export const useGameStore = create<GameState>()(
     }
   )
 );
+
+/**
+ * Tutorial duration in milliseconds (30 seconds)
+ */
+export const TUTORIAL_DURATION_MS = 30000;
+
+/**
+ * Check if the tutorial period is currently active
+ * Tutorial is active for the first 30 seconds after game start
+ * Only applies to fresh game starts from menu, not respawns
+ * @returns true if tutorial invincibility is active
+ */
+export function isTutorialActive(): boolean {
+  const state = useGameStore.getState();
+  if (state.gameStartTime === null) return false;
+
+  const elapsed = Date.now() - state.gameStartTime;
+  return elapsed < TUTORIAL_DURATION_MS;
+}
+
+/**
+ * Get remaining tutorial time in seconds
+ * @returns remaining seconds, or 0 if tutorial is not active
+ */
+export function getTutorialTimeRemaining(): number {
+  const state = useGameStore.getState();
+  if (state.gameStartTime === null) return 0;
+
+  const elapsed = Date.now() - state.gameStartTime;
+  const remaining = TUTORIAL_DURATION_MS - elapsed;
+  return remaining > 0 ? Math.ceil(remaining / 1000) : 0;
+}

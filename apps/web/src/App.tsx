@@ -6,7 +6,7 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { PerspectiveCamera, useGLTF } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
-import { Suspense, useEffect, useRef, useMemo } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useMemo, useState } from 'react';
 import * as THREE from 'three';
 
 import {
@@ -15,15 +15,18 @@ import {
   playCoinPickup,
   playGemPickup,
   playHit,
+  playNearMiss,
   playMusic,
   stopMusic,
 } from '@otter-river-rush/audio';
 import { getCharacter, VISUAL, BIOME_COLORS } from '@otter-river-rush/config';
+import type { BiomeType } from '@otter-river-rush/types';
 import {
   type CollisionHandlers,
   createInputState,
   createSpawnerState,
   setupKeyboardInput,
+  setupTouchInput,
   spawn,
   updateAnimation,
   updateCleanup,
@@ -35,7 +38,15 @@ import {
   queries,
 } from '@otter-river-rush/core';
 import { useGameStore } from '@otter-river-rush/state';
-import { CharacterSelect, HUD, Menu } from '@otter-river-rush/ui';
+import {
+  AchievementNotification,
+  CharacterSelect,
+  FloatingText,
+  type FloatingTextItem,
+  HUD,
+  Menu,
+  PauseMenu,
+} from '@otter-river-rush/ui';
 import type { Entity } from '@otter-river-rush/types';
 
 // Default otter model (fallback) - uses Vite's base URL for GitHub Pages
@@ -43,14 +54,20 @@ const BASE_URL = `${import.meta.env.BASE_URL ?? '/'}assets`;
 const DEFAULT_OTTER_MODEL = `${BASE_URL}/models/player/otter-player/model.glb`;
 
 // ============================================================================
+// Near-miss event callback type for floating text
+// ============================================================================
+type NearMissCallback = (position: { x: number; y: number; z: number }, bonus: number) => void;
+
+// ============================================================================
 // Game Loop Component - runs game systems via useFrame
 // ============================================================================
 interface GameLoopProps {
   spawnerStateRef: React.RefObject<ReturnType<typeof createSpawnerState>>;
   inputStateRef: React.RefObject<ReturnType<typeof createInputState>>;
+  onNearMissRef: React.RefObject<NearMissCallback | null>;
 }
 
-function GameLoop({ spawnerStateRef, inputStateRef }: GameLoopProps) {
+function GameLoop({ spawnerStateRef, inputStateRef, onNearMissRef }: GameLoopProps) {
   const lastTimeRef = useRef<number>(0);
 
   useFrame((state) => {
@@ -63,7 +80,9 @@ function GameLoop({ spawnerStateRef, inputStateRef }: GameLoopProps) {
     const deltaTime = (time - lastTimeRef.current) / 1000; // Convert to seconds
     lastTimeRef.current = time;
 
-    const currentStatus = useGameStore.getState().status;
+    const gameState = useGameStore.getState();
+    const currentStatus = gameState.status;
+    const currentMode = gameState.mode;
 
     // Run game systems only when playing
     if (currentStatus === 'playing') {
@@ -73,7 +92,8 @@ function GameLoop({ spawnerStateRef, inputStateRef }: GameLoopProps) {
       updateMovement(deltaTime);
       updateAnimation(currentStatus);
       if (spawnerStateRef.current) {
-        updateSpawner(spawnerStateRef.current, time, true);
+        // Pass game mode to spawner - zen mode skips obstacle spawning
+        updateSpawner(spawnerStateRef.current, time, true, currentMode);
       }
 
       const handlers: CollisionHandlers = {
@@ -92,14 +112,31 @@ function GameLoop({ spawnerStateRef, inputStateRef }: GameLoopProps) {
           stopMusic();
           useGameStore.getState().endGame();
         },
+        onNearMiss: (event) => {
+          // Play near-miss sound
+          playNearMiss();
+          // Add bonus points to score
+          useGameStore.getState().addNearMissBonus(event.bonus);
+          // Trigger floating text callback
+          if (onNearMissRef.current) {
+            onNearMissRef.current(event.position, event.bonus);
+          }
+        },
       };
-      updateCollision(currentStatus, handlers);
+      // Pass game mode to collision - zen mode skips damage
+      updateCollision(currentStatus, handlers, currentMode);
 
       updateParticles(deltaTime * 1000);
       updateCleanup();
 
       // Update distance (score progression)
       useGameStore.getState().updateDistance(deltaTime * VISUAL.camera.zoom * 0.5);
+
+      // Update biome based on distance traveled
+      useGameStore.getState().updateBiome();
+
+      // Check if combo has timed out (2 seconds of no collections)
+      useGameStore.getState().checkComboTimeout();
     }
   });
 
@@ -221,14 +258,67 @@ function EntityRenderer() {
 }
 
 // ============================================================================
+// Helper: Lerp between two hex colors
+// ============================================================================
+function lerpColor(color1: string, color2: string, t: number): string {
+  // Parse hex colors
+  const c1 = parseInt(color1.replace('#', ''), 16);
+  const c2 = parseInt(color2.replace('#', ''), 16);
+
+  const r1 = (c1 >> 16) & 0xff;
+  const g1 = (c1 >> 8) & 0xff;
+  const b1 = c1 & 0xff;
+
+  const r2 = (c2 >> 16) & 0xff;
+  const g2 = (c2 >> 8) & 0xff;
+  const b2 = c2 & 0xff;
+
+  // Linear interpolation
+  const r = Math.round(r1 + (r2 - r1) * t);
+  const g = Math.round(g1 + (g2 - g1) * t);
+  const b = Math.round(b1 + (b2 - b1) * t);
+
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
+
+// ============================================================================
+// Helper: Get the next biome in progression
+// ============================================================================
+function getNextBiome(biome: BiomeType): BiomeType | null {
+  const biomeOrder: BiomeType[] = ['forest', 'mountain', 'canyon', 'rapids'];
+  const currentIndex = biomeOrder.indexOf(biome);
+  if (currentIndex < biomeOrder.length - 1) {
+    return biomeOrder[currentIndex + 1];
+  }
+  return null;
+}
+
+// ============================================================================
 // River Environment Component - creates the water/river visual
 // ============================================================================
 interface RiverEnvironmentProps {
-  biome?: keyof typeof BIOME_COLORS;
+  biome?: BiomeType;
+  biomeProgress?: number; // 0-1 progress through transition to next biome
 }
 
-function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
-  const colors = BIOME_COLORS[biome];
+function RiverEnvironment({ biome = 'forest', biomeProgress = 0 }: RiverEnvironmentProps) {
+  // Get colors for current biome and interpolate if transitioning
+  const currentColors = BIOME_COLORS[biome];
+  const nextBiome = getNextBiome(biome);
+  const nextColors = nextBiome ? BIOME_COLORS[nextBiome] : currentColors;
+
+  // Interpolate colors during transition
+  const colors = useMemo(() => {
+    if (biomeProgress <= 0 || !nextBiome) {
+      return currentColors;
+    }
+    return {
+      water: lerpColor(currentColors.water, nextColors.water, biomeProgress),
+      terrain: lerpColor(currentColors.terrain, nextColors.terrain, biomeProgress),
+      fog: lerpColor(currentColors.fog, nextColors.fog, biomeProgress),
+      sky: lerpColor(currentColors.sky, nextColors.sky, biomeProgress),
+    };
+  }, [biome, biomeProgress, currentColors, nextColors, nextBiome]);
   const waterRef = useRef<THREE.Mesh>(null);
 
   // River dimensions
@@ -451,16 +541,85 @@ function AudioInitializer() {
 // ============================================================================
 export function App() {
   const status = useGameStore((state) => state.status);
+  const currentBiome = useGameStore((state) => state.currentBiome);
+  const biomeProgress = useGameStore((state) => state.biomeProgress);
   const spawnerStateRef = useRef(createSpawnerState());
   const inputStateRef = useRef(createInputState());
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Setup input on mount
+  // Floating text state for near-miss indicators
+  const [floatingTexts, setFloatingTexts] = useState<FloatingTextItem[]>([]);
+  const floatingTextIdRef = useRef(0);
+
+  // Near-miss callback ref - passed to GameLoop to trigger floating text
+  const onNearMissRef = useRef<NearMissCallback | null>(null);
+
+  // Set up near-miss callback
+  useEffect(() => {
+    onNearMissRef.current = (position, bonus) => {
+      // Convert 3D world position to approximate screen percentage
+      // The player is typically at Y position around 0-5, and X between -2 and 2
+      // Map X from [-3, 3] to [20%, 80%] of screen
+      // Map Y from [-5, 20] to [80%, 20%] of screen (inverted because screen Y is top-down)
+      const screenX = Math.max(20, Math.min(80, 50 + (position.x / 3) * 30));
+      const screenY = Math.max(20, Math.min(80, 60 - (position.y / 15) * 30));
+
+      const newFloatingText: FloatingTextItem = {
+        id: `nearmiss-${floatingTextIdRef.current++}`,
+        text: `CLOSE! +${bonus}`,
+        x: screenX,
+        y: screenY,
+        color: '#ffeb3b', // Yellow for near-miss
+      };
+
+      setFloatingTexts((prev) => [...prev, newFloatingText]);
+    };
+
+    return () => {
+      onNearMissRef.current = null;
+    };
+  }, []);
+
+  // Remove completed floating text
+  const handleFloatingTextComplete = useCallback((id: string) => {
+    setFloatingTexts((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  // Setup keyboard input on mount
   useEffect(() => {
     const cleanup = setupKeyboardInput(inputStateRef.current);
     return () => {
       cleanup();
     };
   }, []);
+
+  // Setup touch/swipe input on mount
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const cleanup = setupTouchInput(inputStateRef.current, containerRef.current);
+    return () => {
+      cleanup();
+    };
+  }, []);
+
+  // Handle ESC key for pause/resume during gameplay
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      const currentStatus = useGameStore.getState().status;
+      if (currentStatus === 'playing') {
+        useGameStore.getState().pauseGame();
+      } else if (currentStatus === 'paused') {
+        useGameStore.getState().resumeGame();
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   // Spawn player when game starts with selected character
   useEffect(() => {
@@ -484,7 +643,16 @@ export function App() {
   }, [status]);
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <div
+      ref={containerRef}
+      style={{
+        width: '100vw',
+        height: '100vh',
+        position: 'relative',
+        overflow: 'hidden',
+        touchAction: 'none', // Prevent browser gestures (pull-to-refresh, etc.)
+      }}
+    >
       <Canvas
         shadows
         gl={{
@@ -502,10 +670,11 @@ export function App() {
           <GameLoop
             spawnerStateRef={spawnerStateRef}
             inputStateRef={inputStateRef}
+            onNearMissRef={onNearMissRef}
           />
 
-          {/* 3D Environment */}
-          <RiverEnvironment biome="forest" />
+          {/* 3D Environment - dynamic biome based on distance */}
+          <RiverEnvironment biome={currentBiome} biomeProgress={biomeProgress} />
 
           {/* Entity renderer for player, obstacles, collectibles */}
           <EntityRenderer />
@@ -525,10 +694,19 @@ export function App() {
       <AudioInitializer />
 
       {/* UI Overlay - rendered outside Canvas */}
-      {status === 'playing' && <HUD />}
+      {(status === 'playing' || status === 'paused') && <HUD />}
+      {status === 'paused' && <PauseMenu />}
       {status === 'menu' && <Menu type="menu" />}
       {status === 'character_select' && <CharacterSelect />}
       {status === 'game_over' && <Menu type="game_over" />}
+
+      {/* Achievement notifications - always visible */}
+      <AchievementNotification />
+
+      {/* Floating text for near-miss indicators */}
+      {floatingTexts.length > 0 && (
+        <FloatingText items={floatingTexts} onComplete={handleFloatingTextComplete} />
+      )}
     </div>
   );
 }
