@@ -25,6 +25,9 @@ export * from './data';
 // Validation Schemas
 export * from './schemas';
 
+// Seeded Random utilities
+export * from './utils';
+
 // Re-export key items from submodules
 // Note: Use granular imports to avoid namespace conflicts
 export { world, spawn, queries, resetWorld } from './ecs';

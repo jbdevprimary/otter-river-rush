@@ -3,6 +3,7 @@
  * Spawns obstacles and collectibles at intervals
  * Supports dynamic spawn rate scaling based on difficulty progression
  * Uses biome-specific assets for visual variety
+ * Uses seeded RNG for deterministic, reproducible game generation
  */
 
 import { PHYSICS, VISUAL, getLaneX } from '../../config';
@@ -12,6 +13,7 @@ import {
   useGameStore,
 } from '../../store';
 import type { BiomeType, GameMode, Lane, PowerUpType } from '../../types';
+import { getGameRNG } from '../../utils';
 import { spawn } from '../world';
 
 /**
@@ -41,13 +43,6 @@ const BIOME_DECORATION_VARIANTS: Record<BiomeType, number[]> = {
  * Power-up types available for spawning
  */
 const POWER_UP_TYPES: PowerUpType[] = ['shield', 'magnet', 'ghost', 'multiplier', 'slowMotion'];
-
-/**
- * Get a random power-up type
- */
-function getRandomPowerUpType(): PowerUpType {
-  return POWER_UP_TYPES[Math.floor(Math.random() * POWER_UP_TYPES.length)];
-}
 
 export interface SpawnerState {
   lastObstacleSpawn: number;
@@ -94,23 +89,16 @@ export function updateSpawner(
   const obstacleVariants = BIOME_OBSTACLE_VARIANTS[biome];
   const decorationVariants = BIOME_DECORATION_VARIANTS[biome];
 
-  // DEBUG: Log spawner state every second
-  const win =
-    typeof window !== 'undefined' ? (window as typeof window & { __lastSpawnerLog?: number }) : null;
-  if (win && (!win.__lastSpawnerLog || now - win.__lastSpawnerLog > 1000)) {
-    win.__lastSpawnerLog = now;
-    console.log(
-      `[Spawner] mode=${gameMode} dist=${distance.toFixed(0)}m obsInterval=${obstacleInterval.toFixed(2)}s colInterval=${collectibleInterval.toFixed(2)}s`
-    );
-  }
+  // Get the seeded RNG for deterministic spawning
+  const rng = getGameRNG();
 
   // Spawn obstacles (biome-specific variants) - skip in zen mode
   // Uses dynamic interval that decreases from 2s to 1s over 3000m
   if (gameMode !== 'zen' && now - state.lastObstacleSpawn > obstacleInterval * 1000) {
-    const laneIndex = Math.floor(Math.random() * 3) as Lane;
+    const laneIndex = rng.int(0, 2) as Lane;
     const lane = getLaneX(laneIndex);
     // Pick a random variant from the biome's available obstacles
-    const variant = obstacleVariants[Math.floor(Math.random() * obstacleVariants.length)];
+    const variant = rng.pick(obstacleVariants);
     spawn.rock(lane, VISUAL.positions.spawnY, variant);
     state.lastObstacleSpawn = now;
   }
@@ -118,20 +106,20 @@ export function updateSpawner(
   // Spawn collectibles (Kenney CC0 coins, crystals, hearts)
   // Uses dynamic interval that decreases from 3s to 1.5s over 3000m
   if (now - state.lastCollectibleSpawn > collectibleInterval * 1000) {
-    const laneIndex = Math.floor(Math.random() * 3) as Lane;
+    const laneIndex = rng.int(0, 2) as Lane;
     const lane = getLaneX(laneIndex);
-    const roll = Math.random();
+    const roll = rng.random();
     if (roll > 0.95) {
       // 5% chance for power-up (random type from 5 available)
-      const powerUpType = getRandomPowerUpType();
+      const powerUpType = rng.pick(POWER_UP_TYPES);
       spawn.powerUp(lane, VISUAL.positions.spawnY, powerUpType);
     } else if (roll > 0.7) {
       // 25% chance for gem/crystal
-      const variant = Math.floor(Math.random() * 3);
+      const variant = rng.int(0, 2);
       spawn.gem(lane, VISUAL.positions.spawnY, variant);
     } else {
       // 70% chance for coin (gold/silver/bronze)
-      const variant = Math.floor(Math.random() * 3);
+      const variant = rng.int(0, 2);
       spawn.coin(lane, VISUAL.positions.spawnY, variant);
     }
     state.lastCollectibleSpawn = now;
@@ -141,9 +129,9 @@ export function updateSpawner(
   // Decoration spawn rate remains constant
   if (now - state.lastDecorationSpawn > PHYSICS.spawnInterval.decorations * 1000) {
     // Decorations spawn at random X positions (not locked to lanes)
-    const x = (Math.random() - 0.5) * 6; // Random position across the river
+    const x = rng.float(-3, 3); // Random position across the river
     // Pick a random variant from the biome's available decorations
-    const variant = decorationVariants[Math.floor(Math.random() * decorationVariants.length)];
+    const variant = rng.pick(decorationVariants);
     spawn.decoration(x, VISUAL.positions.spawnY, variant);
     state.lastDecorationSpawn = now;
   }

@@ -56,13 +56,19 @@ let hitSynth: Tone.MembraneSynth | null = null;
 let uiSynth: Tone.Synth | null = null;
 let ambientSynth: Tone.FMSynth | null = null;
 let noiseSynth: Tone.NoiseSynth | null = null;
+let melodySynth: Tone.PolySynth | null = null;
+let bassSynth: Tone.Synth | null = null;
+let splashSynth: Tone.NoiseSynth | null = null;
+let riverFilter: Tone.AutoFilter | null = null;
 
 // Effects for audio processing
 let masterGain: Tone.Gain | null = null;
 let sfxGain: Tone.Gain | null = null;
 let musicGain: Tone.Gain | null = null;
+let ambientGain: Tone.Gain | null = null;
 let reverb: Tone.Reverb | null = null;
 let delay: Tone.FeedbackDelay | null = null;
+let chorusEffect: Tone.Chorus | null = null;
 
 // Legacy paths for backwards compatibility (not used with procedural audio)
 export const AUDIO_PATHS = {
@@ -121,11 +127,12 @@ export function initAudio(config?: AudioConfig): void {
   masterGain = new Tone.Gain(1).toDestination();
   sfxGain = new Tone.Gain(state.sfxVolume).connect(masterGain);
   musicGain = new Tone.Gain(state.musicVolume).connect(masterGain);
+  ambientGain = new Tone.Gain(state.ambientVolume).connect(masterGain);
 
   // Create effects
   reverb = new Tone.Reverb({
-    decay: 1.5,
-    wet: 0.3,
+    decay: 2.5,
+    wet: 0.35,
   }).connect(sfxGain);
 
   delay = new Tone.FeedbackDelay({
@@ -133,6 +140,14 @@ export function initAudio(config?: AudioConfig): void {
     feedback: 0.2,
     wet: 0.15,
   }).connect(sfxGain);
+
+  // Chorus for lush water/ambient sounds
+  chorusEffect = new Tone.Chorus({
+    frequency: 1.5,
+    delayTime: 3.5,
+    depth: 0.7,
+    wet: 0.5,
+  }).connect(musicGain).start();
 
   // Coin pickup synth - bright, bell-like chimes
   coinSynth = new Tone.PolySynth(Tone.Synth, {
@@ -188,40 +203,93 @@ export function initAudio(config?: AudioConfig): void {
     },
   }).connect(sfxGain);
 
-  // Ambient water synth
+  // Ambient water synth - ethereal pad for atmosphere
   ambientSynth = new Tone.FMSynth({
-    harmonicity: 3,
-    modulationIndex: 10,
+    harmonicity: 2,
+    modulationIndex: 5,
     envelope: {
-      attack: 0.5,
-      decay: 0.5,
-      sustain: 0.8,
-      release: 1,
+      attack: 1.0,
+      decay: 0.8,
+      sustain: 0.9,
+      release: 2,
     },
     modulation: {
       type: 'sine',
     },
-  }).connect(musicGain);
+  }).connect(chorusEffect);
 
-  // Noise synth for water/ambient sounds
+  // Noise synth for continuous water/river sounds
   noiseSynth = new Tone.NoiseSynth({
     noise: {
       type: 'pink',
     },
     envelope: {
-      attack: 0.5,
+      attack: 2.0,
       decay: 0.5,
       sustain: 1,
-      release: 1,
+      release: 2,
+    },
+  }).connect(ambientGain);
+
+  // Melody synth for playful game music - marimba/xylophone-like
+  melodySynth = new Tone.PolySynth(Tone.Synth, {
+    oscillator: {
+      type: 'sine',
+    },
+    envelope: {
+      attack: 0.01,
+      decay: 0.5,
+      sustain: 0.1,
+      release: 1.0,
+    },
+  }).connect(chorusEffect);
+
+  // Bass synth for warm, flowing bass line
+  bassSynth = new Tone.Synth({
+    oscillator: {
+      type: 'triangle',
+    },
+    envelope: {
+      attack: 0.1,
+      decay: 0.3,
+      sustain: 0.6,
+      release: 0.5,
     },
   }).connect(musicGain);
+
+  // Splash synth for water interaction sounds
+  splashSynth = new Tone.NoiseSynth({
+    noise: {
+      type: 'white',
+    },
+    envelope: {
+      attack: 0.001,
+      decay: 0.2,
+      sustain: 0,
+      release: 0.3,
+    },
+  }).connect(reverb);
 
   state.initialized = true;
 }
 
 /**
+ * Play a subtle water splash sound
+ * Used when collecting items or near-misses in the water
+ */
+export function playSplash(intensity: number = 0.5): void {
+  if (!state.initialized || state.muted || !splashSynth) return;
+
+  if (Tone.getContext().state !== 'running') {
+    Tone.start();
+  }
+
+  splashSynth.triggerAttackRelease('8n', Tone.now(), intensity * 0.3 * state.sfxVolume);
+}
+
+/**
  * Play a procedurally generated coin pickup sound
- * Creates an ascending arpeggio of bell-like tones
+ * Creates an ascending arpeggio of bell-like tones with a subtle splash
  */
 export function playCoinPickup(): void {
   if (!state.initialized || state.muted || !coinSynth) return;
@@ -237,6 +305,9 @@ export function playCoinPickup(): void {
   coinSynth.triggerAttackRelease('E6', '32n', now + 0.03, 0.6 * state.sfxVolume);
   coinSynth.triggerAttackRelease('G6', '32n', now + 0.06, 0.7 * state.sfxVolume);
   coinSynth.triggerAttackRelease('C7', '16n', now + 0.09, 0.8 * state.sfxVolume);
+
+  // Add subtle splash
+  playSplash(0.3);
 }
 
 /**
@@ -418,82 +489,145 @@ export function playMusic(track: MusicTrack, _loop: boolean = true): void {
 }
 
 /**
- * Procedural gameplay music - flowing water with melodic elements
+ * Procedural gameplay music - playful, flowing music with water ambience
+ * Features:
+ * - Continuous filtered water/river sound
+ * - Playful pentatonic melody patterns
+ * - Warm, pulsing bass line
+ * - Occasional splashy accents
  */
 function startGameplayMusic(): void {
-  if (!noiseSynth || !ambientSynth || !musicGain) return;
+  if (!noiseSynth || !ambientSynth || !melodySynth || !bassSynth || !musicGain || !ambientGain) return;
 
-  // Start filtered pink noise for water ambience
-  const filter = new Tone.AutoFilter({
-    frequency: '4n',
-    baseFrequency: 200,
-    octaves: 4,
+  // Create and store river filter for continuous water sound
+  riverFilter = new Tone.AutoFilter({
+    frequency: 0.3, // Slow modulation for flowing water effect
+    baseFrequency: 150,
+    octaves: 3,
   })
-    .connect(musicGain)
+    .connect(ambientGain)
     .start();
 
+  // Start continuous river/water ambient sound
   noiseSynth.disconnect();
-  noiseSynth.connect(filter);
-  noiseSynth.triggerAttack(Tone.now(), 0.15 * state.musicVolume);
+  noiseSynth.connect(riverFilter);
+  noiseSynth.triggerAttack(Tone.now(), 0.25 * state.ambientVolume);
 
-  // Add melodic pattern
-  const pentatonic = ['C4', 'D4', 'E4', 'G4', 'A4', 'C5', 'D5', 'E5'];
+  // Pentatonic scale for playful, non-dissonant melodies
+  const melodyNotes = ['C5', 'D5', 'E5', 'G5', 'A5', 'C6', 'D6'];
+  const bassNotes = ['C2', 'D2', 'E2', 'G2', 'A2'];
 
+  // Create a sequence of melodic patterns that loop
+  let melodyIndex = 0;
+  const melodyPatterns = [
+    ['C5', 'E5', 'G5', 'E5'],
+    ['D5', 'G5', 'A5', 'G5'],
+    ['E5', 'A5', 'C6', 'A5'],
+    ['G5', 'C6', 'D6', 'C6'],
+  ];
+
+  // Main music loop with playful melody
   state.currentMusicLoop = new Tone.Loop((time) => {
-    if (!ambientSynth || state.muted) return;
+    if (state.muted) return;
 
-    // Randomly play notes from pentatonic scale
-    if (Math.random() > 0.6) {
-      const note = pentatonic[Math.floor(Math.random() * pentatonic.length)];
-      ambientSynth.triggerAttackRelease(note, '2n', time, 0.1 * state.musicVolume);
+    // Playful melody notes (play every beat with some variation)
+    if (melodySynth && Math.random() > 0.3) {
+      const pattern = melodyPatterns[melodyIndex % melodyPatterns.length];
+      const noteIndex = Math.floor((Tone.getTransport().position.toString().split(':')[1] as unknown as number) % 4);
+      const note = pattern[noteIndex] || melodyNotes[Math.floor(Math.random() * melodyNotes.length)];
+      melodySynth.triggerAttackRelease(note, '8n', time, 0.2 * state.musicVolume);
     }
-  }, '4n').start(0);
 
+    // Occasional harmony note
+    if (ambientSynth && Math.random() > 0.8) {
+      const harmonyNote = melodyNotes[Math.floor(Math.random() * 4)]; // Lower notes
+      ambientSynth.triggerAttackRelease(harmonyNote, '2n', time, 0.08 * state.musicVolume);
+    }
+  }, '8n').start(0);
+
+  // Bass pattern loop - warm, pulsing foundation (auto-starts)
+  new Tone.Loop((time) => {
+    if (state.muted || !bassSynth) return;
+    const bassNote = bassNotes[Math.floor(Math.random() * bassNotes.length)];
+    bassSynth.triggerAttackRelease(bassNote, '2n', time, 0.15 * state.musicVolume);
+  }, '2n').start(0);
+
+  // Change melody pattern periodically for variety (auto-starts)
+  new Tone.Loop(() => {
+    melodyIndex = (melodyIndex + 1) % melodyPatterns.length;
+  }, '4m').start(0);
+
+  // Set tempo for a playful, energetic feel
+  Tone.getTransport().bpm.value = 120;
   Tone.getTransport().start();
 }
 
 /**
- * Ambient background - gentle water sounds
+ * Ambient background - gentle, peaceful river sounds for menu
+ * Creates a calming atmosphere with soft water sounds and occasional gentle tones
  */
 function startAmbientMusic(): void {
-  if (!noiseSynth || !musicGain) return;
+  if (!noiseSynth || !ambientSynth || !musicGain || !ambientGain) return;
 
-  const filter = new Tone.AutoFilter({
-    frequency: '2n',
-    baseFrequency: 100,
-    octaves: 2,
+  // Gentle water ambient
+  riverFilter = new Tone.AutoFilter({
+    frequency: 0.1, // Very slow modulation for calm water
+    baseFrequency: 80,
+    octaves: 1.5,
   })
-    .connect(musicGain)
+    .connect(ambientGain)
     .start();
 
   noiseSynth.disconnect();
-  noiseSynth.connect(filter);
-  noiseSynth.triggerAttack(Tone.now(), 0.1 * state.musicVolume);
+  noiseSynth.connect(riverFilter);
+  noiseSynth.triggerAttack(Tone.now(), 0.2 * state.ambientVolume);
 
+  // Occasional gentle ambient tones
+  const ambientNotes = ['C3', 'E3', 'G3', 'C4', 'E4'];
+
+  state.currentMusicLoop = new Tone.Loop((time) => {
+    if (state.muted || !ambientSynth) return;
+
+    // Very occasional gentle tones
+    if (Math.random() > 0.85) {
+      const note = ambientNotes[Math.floor(Math.random() * ambientNotes.length)];
+      ambientSynth.triggerAttackRelease(note, '1n', time, 0.05 * state.musicVolume);
+    }
+  }, '2n').start(0);
+
+  Tone.getTransport().bpm.value = 60; // Slow, calm tempo
   Tone.getTransport().start();
 }
 
 /**
- * Game over music - somber descending tones
+ * Game over music - somber, reflective descending tones
  */
 function startGameOverMusic(): void {
-  if (!ambientSynth) return;
+  if (!ambientSynth || !melodySynth) return;
 
   const now = Tone.now();
-  const notes = ['E4', 'D4', 'C4', 'B3', 'A3'];
 
+  // Sad, descending melody
+  const notes = ['E5', 'D5', 'C5', 'B4', 'A4', 'G4'];
   notes.forEach((note, i) => {
-    ambientSynth!.triggerAttackRelease(
+    melodySynth!.triggerAttackRelease(
       note,
-      '2n',
-      now + i * 0.5,
-      0.3 * state.musicVolume
+      '4n',
+      now + i * 0.4,
+      0.25 * state.musicVolume
     );
   });
+
+  // Low, somber chord underneath
+  setTimeout(() => {
+    if (ambientSynth) {
+      ambientSynth.triggerAttackRelease('A3', '2n', Tone.now(), 0.15 * state.musicVolume);
+    }
+  }, 800);
 }
 
 /**
- * Stop current music
+ * Stop current music and ambient sounds
  */
 export function stopMusic(): void {
   if (state.currentMusicLoop) {
@@ -506,7 +640,14 @@ export function stopMusic(): void {
     noiseSynth.triggerRelease(Tone.now());
   }
 
+  if (riverFilter) {
+    riverFilter.stop();
+    riverFilter.dispose();
+    riverFilter = null;
+  }
+
   Tone.getTransport().stop();
+  Tone.getTransport().cancel(); // Clear all scheduled events
   state.currentMusicTrack = null;
 }
 
@@ -576,12 +717,17 @@ export function disposeAudio(): void {
   uiSynth?.dispose();
   ambientSynth?.dispose();
   noiseSynth?.dispose();
+  melodySynth?.dispose();
+  bassSynth?.dispose();
+  splashSynth?.dispose();
 
   // Dispose effects
   reverb?.dispose();
   delay?.dispose();
+  chorusEffect?.dispose();
   sfxGain?.dispose();
   musicGain?.dispose();
+  ambientGain?.dispose();
   masterGain?.dispose();
 
   // Reset references
@@ -591,10 +737,15 @@ export function disposeAudio(): void {
   uiSynth = null;
   ambientSynth = null;
   noiseSynth = null;
+  melodySynth = null;
+  bassSynth = null;
+  splashSynth = null;
   reverb = null;
   delay = null;
+  chorusEffect = null;
   sfxGain = null;
   musicGain = null;
+  ambientGain = null;
   masterGain = null;
 
   state.initialized = false;

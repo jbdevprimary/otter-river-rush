@@ -33,7 +33,7 @@ import {
   MilestoneNotification,
   PauseMenu,
 } from '@otter-river-rush/ui';
-import { PerspectiveCamera, useGLTF } from '@react-three/drei';
+import { PerspectiveCamera, useGLTF, useTexture } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Bloom, EffectComposer } from '@react-three/postprocessing';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -380,7 +380,71 @@ function getNextBiome(biome: BiomeType): BiomeType | null {
 }
 
 // ============================================================================
-// River Environment Component - creates the water/river visual
+// PBR Texture paths by biome
+// ============================================================================
+const BIOME_TEXTURES: Record<BiomeType, { terrain: string; riverbank: string }> = {
+  forest: {
+    terrain: `${BASE_URL}/textures/terrain/grass/Grass001_1K-JPG`,
+    riverbank: `${BASE_URL}/textures/riverbed/Gravel001_1K-JPG`,
+  },
+  canyon: {
+    terrain: `${BASE_URL}/textures/terrain/rock/Rock001_1K-JPG`,
+    riverbank: `${BASE_URL}/textures/riverbed/Gravel001_1K-JPG`,
+  },
+  arctic: {
+    terrain: `${BASE_URL}/textures/terrain/grass/Grass001_1K-JPG`, // Will tint white
+    riverbank: `${BASE_URL}/textures/riverbed/Gravel001_1K-JPG`,
+  },
+  tropical: {
+    terrain: `${BASE_URL}/textures/terrain/grass/Grass001_1K-JPG`,
+    riverbank: `${BASE_URL}/textures/riverbed/Gravel001_1K-JPG`,
+  },
+  volcanic: {
+    terrain: `${BASE_URL}/textures/terrain/rock/Rock001_1K-JPG`,
+    riverbank: `${BASE_URL}/textures/riverbed/Gravel001_1K-JPG`,
+  },
+};
+
+// ============================================================================
+// PBR Terrain Material Component - loads and applies AmbientCG textures
+// ============================================================================
+interface PBRTerrainProps {
+  texturePath: string;
+  color?: string;
+  repeatX?: number;
+  repeatY?: number;
+}
+
+function PBRTerrainMaterial({ texturePath, color, repeatX = 4, repeatY = 8 }: PBRTerrainProps) {
+  // Load PBR textures
+  const textures = useTexture({
+    map: `${texturePath}_Color.jpg`,
+    normalMap: `${texturePath}_NormalGL.jpg`,
+    roughnessMap: `${texturePath}_Roughness.jpg`,
+  });
+
+  // Configure texture repeat and wrapping
+  useMemo(() => {
+    Object.values(textures).forEach((texture) => {
+      if (texture instanceof THREE.Texture) {
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(repeatX, repeatY);
+      }
+    });
+  }, [textures, repeatX, repeatY]);
+
+  return (
+    <meshStandardMaterial
+      {...textures}
+      color={color}
+      roughness={0.9}
+      metalness={0.0}
+    />
+  );
+}
+
+// ============================================================================
+// River Environment Component - creates the water/river visual with PBR
 // ============================================================================
 interface RiverEnvironmentProps {
   biome?: BiomeType;
@@ -410,7 +474,12 @@ function RiverEnvironment({ biome = 'forest', biomeProgress = 0 }: RiverEnvironm
   // River dimensions
   const riverWidth = 8;
   const riverLength = 50;
-  const bankWidth = 6;
+  const bankWidth = 8;
+  const slopeWidth = 1.5; // Width of sloped transition to water
+  const riverCenterZ = riverLength / 2 - 10;
+
+  // Get texture paths for current biome
+  const texturePaths = BIOME_TEXTURES[biome];
 
   // Compute foam color from water color (lighter version)
   const foamColor = useMemo(() => {
@@ -422,24 +491,24 @@ function RiverEnvironment({ biome = 'forest', biomeProgress = 0 }: RiverEnvironm
   // Tree positions along banks
   const treePositions = useMemo(
     () => [
-      // Left side trees
-      { x: -6, y: -5, scale: 1.2 },
-      { x: -7, y: 0, scale: 1.0 },
-      { x: -5.5, y: 5, scale: 1.4 },
-      { x: -6.5, y: 10, scale: 0.9 },
-      { x: -7, y: 15, scale: 1.1 },
-      { x: -5.5, y: 20, scale: 1.3 },
-      { x: -6, y: 25, scale: 1.0 },
-      { x: -7, y: 30, scale: 1.2 },
+      // Left side trees (pushed further out for wider banks)
+      { x: -7, y: -5, scale: 1.2 },
+      { x: -8, y: 0, scale: 1.0 },
+      { x: -6.5, y: 5, scale: 1.4 },
+      { x: -7.5, y: 10, scale: 0.9 },
+      { x: -8, y: 15, scale: 1.1 },
+      { x: -6.5, y: 20, scale: 1.3 },
+      { x: -7, y: 25, scale: 1.0 },
+      { x: -8, y: 30, scale: 1.2 },
       // Right side trees
-      { x: 6, y: -3, scale: 1.1 },
-      { x: 7, y: 2, scale: 0.9 },
-      { x: 5.5, y: 7, scale: 1.3 },
-      { x: 6.5, y: 12, scale: 1.0 },
-      { x: 7, y: 17, scale: 1.2 },
-      { x: 5.5, y: 22, scale: 1.1 },
-      { x: 6, y: 27, scale: 1.4 },
-      { x: 7, y: 32, scale: 0.9 },
+      { x: 7, y: -3, scale: 1.1 },
+      { x: 8, y: 2, scale: 0.9 },
+      { x: 6.5, y: 7, scale: 1.3 },
+      { x: 7.5, y: 12, scale: 1.0 },
+      { x: 8, y: 17, scale: 1.2 },
+      { x: 6.5, y: 22, scale: 1.1 },
+      { x: 7, y: 27, scale: 1.4 },
+      { x: 8, y: 32, scale: 0.9 },
     ],
     []
   );
@@ -456,13 +525,72 @@ function RiverEnvironment({ biome = 'forest', biomeProgress = 0 }: RiverEnvironm
     []
   );
 
+  // Create sloped bank geometry that transitions to water
+  const slopedBankGeometry = useMemo(() => {
+    const geometry = new THREE.BufferGeometry();
+    const segments = 32;
+    const positions: number[] = [];
+    const normals: number[] = [];
+    const uvs: number[] = [];
+    const indices: number[] = [];
+
+    // Create vertices along the slope
+    for (let i = 0; i <= segments; i++) {
+      const z = -10 + (riverLength * i) / segments;
+      const u = i / segments;
+
+      // Outer edge (flat, at ground level)
+      positions.push(slopeWidth, 0, z);
+      normals.push(0, 1, 0);
+      uvs.push(0, u * 8);
+
+      // Inner edge (at water level)
+      positions.push(0, -0.3, z);
+      normals.push(0.3, 0.95, 0); // Angled normal for slope
+      uvs.push(1, u * 8);
+    }
+
+    // Create indices for triangles
+    for (let i = 0; i < segments; i++) {
+      const a = i * 2;
+      const b = i * 2 + 1;
+      const c = (i + 1) * 2;
+      const d = (i + 1) * 2 + 1;
+
+      indices.push(a, b, c);
+      indices.push(b, d, c);
+    }
+
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    geometry.setIndex(indices);
+
+    return geometry;
+  }, [riverLength]);
+
   return (
     <group>
+      {/* Riverbed - visible under transparent water */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, -0.5, riverCenterZ]}
+      >
+        <planeGeometry args={[riverWidth, riverLength]} />
+        <Suspense fallback={<meshStandardMaterial color="#5a4a3a" roughness={1} />}>
+          <PBRTerrainMaterial
+            texturePath={texturePaths.riverbank}
+            repeatX={2}
+            repeatY={6}
+          />
+        </Suspense>
+      </mesh>
+
       {/* River/Water Surface - Animated shader with waves and flow */}
       <mesh
         ref={waterRef}
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -0.1, riverLength / 2 - 10]}
+        position={[0, -0.15, riverCenterZ]}
       >
         <planeGeometry args={[riverWidth, riverLength, 64, 64]} />
         <AnimatedWaterMaterial
@@ -473,26 +601,62 @@ function RiverEnvironment({ biome = 'forest', biomeProgress = 0 }: RiverEnvironm
           waveSpeed={1.2}
           flowSpeed={0.12}
           fresnelPower={2.0}
-          opacity={0.88}
+          opacity={0.85}
         />
       </mesh>
 
-      {/* Left Riverbank */}
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[-(riverWidth / 2 + bankWidth / 2), 0, riverLength / 2 - 10]}
-      >
-        <planeGeometry args={[bankWidth, riverLength]} />
-        <meshStandardMaterial color={colors.terrain} roughness={1} />
+      {/* Left sloped bank transition */}
+      <mesh position={[-(riverWidth / 2), 0, 0]}>
+        <primitive object={slopedBankGeometry} attach="geometry" />
+        <Suspense fallback={<meshStandardMaterial color={colors.terrain} roughness={1} />}>
+          <PBRTerrainMaterial
+            texturePath={texturePaths.terrain}
+            color={colors.terrain}
+            repeatX={1}
+            repeatY={6}
+          />
+        </Suspense>
       </mesh>
 
-      {/* Right Riverbank */}
+      {/* Right sloped bank transition (mirrored) */}
+      <mesh position={[riverWidth / 2, 0, 0]} scale={[-1, 1, 1]}>
+        <primitive object={slopedBankGeometry.clone()} attach="geometry" />
+        <Suspense fallback={<meshStandardMaterial color={colors.terrain} roughness={1} />}>
+          <PBRTerrainMaterial
+            texturePath={texturePaths.terrain}
+            color={colors.terrain}
+            repeatX={1}
+            repeatY={6}
+          />
+        </Suspense>
+      </mesh>
+
+      {/* Left flat Riverbank */}
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[riverWidth / 2 + bankWidth / 2, 0, riverLength / 2 - 10]}
+        position={[-(riverWidth / 2 + slopeWidth + bankWidth / 2), 0, riverCenterZ]}
       >
         <planeGeometry args={[bankWidth, riverLength]} />
-        <meshStandardMaterial color={colors.terrain} roughness={1} />
+        <Suspense fallback={<meshStandardMaterial color={colors.terrain} roughness={1} />}>
+          <PBRTerrainMaterial
+            texturePath={texturePaths.terrain}
+            color={colors.terrain}
+          />
+        </Suspense>
+      </mesh>
+
+      {/* Right flat Riverbank */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[riverWidth / 2 + slopeWidth + bankWidth / 2, 0, riverCenterZ]}
+      >
+        <planeGeometry args={[bankWidth, riverLength]} />
+        <Suspense fallback={<meshStandardMaterial color={colors.terrain} roughness={1} />}>
+          <PBRTerrainMaterial
+            texturePath={texturePaths.terrain}
+            color={colors.terrain}
+          />
+        </Suspense>
       </mesh>
 
       {/* Trees */}
@@ -500,13 +664,13 @@ function RiverEnvironment({ biome = 'forest', biomeProgress = 0 }: RiverEnvironm
         <group key={`tree-${i}`}>
           {/* Trunk */}
           <mesh position={[pos.x, pos.scale, pos.y]}>
-            <cylinderGeometry args={[0.2 * pos.scale, 0.2 * pos.scale, 2 * pos.scale, 8]} />
-            <meshStandardMaterial color="#5D4037" />
+            <cylinderGeometry args={[0.2 * pos.scale, 0.25 * pos.scale, 2 * pos.scale, 8]} />
+            <meshStandardMaterial color="#5D4037" roughness={0.9} />
           </mesh>
           {/* Foliage */}
           <mesh position={[pos.x, 3.5 * pos.scale, pos.y]}>
             <coneGeometry args={[pos.scale, 3 * pos.scale, 8]} />
-            <meshStandardMaterial color={colors.terrain} />
+            <meshStandardMaterial color={colors.terrain} roughness={0.8} />
           </mesh>
         </group>
       ))}
@@ -515,7 +679,7 @@ function RiverEnvironment({ biome = 'forest', biomeProgress = 0 }: RiverEnvironm
       {mountainPositions.map((m, i) => (
         <mesh key={`mountain-${i}`} position={[m.x, m.height / 2 - 2, m.y]}>
           <coneGeometry args={[m.width / 2, m.height, 8]} />
-          <meshStandardMaterial color="#475569" />
+          <meshStandardMaterial color="#475569" roughness={0.95} />
         </mesh>
       ))}
 
@@ -525,16 +689,16 @@ function RiverEnvironment({ biome = 'forest', biomeProgress = 0 }: RiverEnvironm
         <meshBasicMaterial color={colors.sky} side={THREE.DoubleSide} />
       </mesh>
 
-      {/* Lane Markers */}
+      {/* Lane Markers (subtle guide lines on water) */}
       {VISUAL.lanes.positions.map((laneX, i) => (
-        <mesh key={`lane-${i}`} position={[laneX, 0.01, riverLength / 2 - 10]}>
+        <mesh key={`lane-${i}`} position={[laneX, -0.1, riverCenterZ]}>
           <boxGeometry args={[0.08, 0.02, riverLength]} />
           <meshStandardMaterial
             color="#ffffff"
             transparent
-            opacity={0.2}
+            opacity={0.15}
             emissive="#ffffff"
-            emissiveIntensity={0.3}
+            emissiveIntensity={0.2}
           />
         </mesh>
       ))}
