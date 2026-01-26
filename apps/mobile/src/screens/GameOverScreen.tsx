@@ -2,16 +2,12 @@
  * GameOverScreen - Game over screen for mobile app
  *
  * Shows final score, stats, and options to play again or return to menu.
+ * Uses NativeWind (Tailwind) for styling with brand colors.
  */
 
 import { useGameStore } from '@otter-river-rush/game-core/store';
 import React from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 export function GameOverScreen() {
   const score = useGameStore((state) => state.score);
@@ -29,202 +25,89 @@ export function GameOverScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-brand-background items-center justify-center p-6">
       {/* Game Over Title */}
-      <View style={styles.titleContainer}>
-        <Text style={styles.gameOverText}>GAME OVER</Text>
+      <View className="items-center mb-6">
+        <Text className="text-5xl font-bold text-brand-danger tracking-widest">
+          GAME OVER
+        </Text>
         {isNewHighScore && (
-          <Text style={styles.newHighScore}>NEW HIGH SCORE!</Text>
+          <Text className="text-xl font-bold text-brand-gold mt-2">
+            NEW HIGH SCORE!
+          </Text>
         )}
       </View>
 
       {/* Score Display */}
-      <View style={styles.scoreContainer}>
-        <Text style={styles.scoreLabel}>SCORE</Text>
-        <Text style={styles.scoreValue}>{score.toLocaleString()}</Text>
+      <View className="items-center mb-8">
+        <Text className="text-base text-slate-500 tracking-widest">SCORE</Text>
+        <Text className="text-6xl font-bold text-white">
+          {score.toLocaleString()}
+        </Text>
       </View>
 
       {/* Stats Grid */}
-      <View style={styles.statsGrid}>
-        <View style={styles.statBox}>
-          <Text style={styles.statValue}>{Math.floor(distance)}m</Text>
-          <Text style={styles.statLabel}>Distance</Text>
+      <View className="flex-row justify-around w-full max-w-[320px] mb-8">
+        <View className="items-center bg-black/30 p-4 rounded-xl min-w-[90px]">
+          <Text className="text-2xl font-bold text-white">
+            {Math.floor(distance)}m
+          </Text>
+          <Text className="text-xs text-slate-500 mt-1">Distance</Text>
         </View>
-        <View style={styles.statBox}>
-          <Text style={[styles.statValue, styles.coinValue]}>{coins}</Text>
-          <Text style={styles.statLabel}>Coins</Text>
+        <View className="items-center bg-black/30 p-4 rounded-xl min-w-[90px]">
+          <Text className="text-2xl font-bold text-brand-gold">{coins}</Text>
+          <Text className="text-xs text-slate-500 mt-1">Coins</Text>
         </View>
-        <View style={styles.statBox}>
-          <Text style={[styles.statValue, styles.gemValue]}>{gems}</Text>
-          <Text style={styles.statLabel}>Gems</Text>
+        <View className="items-center bg-black/30 p-4 rounded-xl min-w-[90px]">
+          <Text className="text-2xl font-bold text-purple-500">{gems}</Text>
+          <Text className="text-xs text-slate-500 mt-1">Gems</Text>
         </View>
       </View>
 
       {/* Progress Info */}
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressTitle}>TOTAL PROGRESS</Text>
-        <View style={styles.progressRow}>
-          <Text style={styles.progressLabel}>Games Played:</Text>
-          <Text style={styles.progressValue}>{progress.gamesPlayed}</Text>
+      <View className="bg-black/30 p-4 rounded-xl w-full max-w-[280px] mb-8">
+        <Text className="text-sm font-bold text-brand-primary text-center mb-3 tracking-widest">
+          TOTAL PROGRESS
+        </Text>
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-sm text-slate-500">Games Played:</Text>
+          <Text className="text-sm font-bold text-white">
+            {progress.gamesPlayed}
+          </Text>
         </View>
-        <View style={styles.progressRow}>
-          <Text style={styles.progressLabel}>Total Distance:</Text>
-          <Text style={styles.progressValue}>
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-sm text-slate-500">Total Distance:</Text>
+          <Text className="text-sm font-bold text-white">
             {Math.floor(progress.totalDistance)}m
           </Text>
         </View>
-        <View style={styles.progressRow}>
-          <Text style={styles.progressLabel}>Total Coins:</Text>
-          <Text style={styles.progressValue}>{progress.totalCoins}</Text>
+        <View className="flex-row justify-between">
+          <Text className="text-sm text-slate-500">Total Coins:</Text>
+          <Text className="text-sm font-bold text-white">
+            {progress.totalCoins}
+          </Text>
         </View>
       </View>
 
       {/* Action Buttons */}
-      <View style={styles.buttonsContainer}>
+      <View className="w-full max-w-[280px]">
         <Pressable
-          style={[styles.button, styles.playAgainButton]}
+          className="bg-brand-success py-4 px-8 rounded-xl mb-3 items-center active:opacity-80"
           onPress={handlePlayAgain}
         >
-          <Text style={styles.playAgainButtonText}>PLAY AGAIN</Text>
+          <Text className="text-xl font-bold text-white tracking-widest">
+            PLAY AGAIN
+          </Text>
         </Pressable>
         <Pressable
-          style={[styles.button, styles.menuButton]}
+          className="bg-transparent py-4 px-8 rounded-xl items-center border-2 border-slate-500 active:opacity-80"
           onPress={returnToMenu}
         >
-          <Text style={styles.menuButtonText}>MAIN MENU</Text>
+          <Text className="text-base font-semibold text-slate-500 tracking-widest">
+            MAIN MENU
+          </Text>
         </Pressable>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1e3a5f',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  titleContainer: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  gameOverText: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#FF6B6B',
-    letterSpacing: 4,
-  },
-  newHighScore: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    marginTop: 8,
-  },
-  scoreContainer: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  scoreLabel: {
-    fontSize: 16,
-    color: '#888888',
-    letterSpacing: 2,
-  },
-  scoreValue: {
-    fontSize: 56,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    maxWidth: 320,
-    marginBottom: 32,
-  },
-  statBox: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    padding: 16,
-    borderRadius: 12,
-    minWidth: 90,
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  coinValue: {
-    color: '#FFD700',
-  },
-  gemValue: {
-    color: '#9C27B0',
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#888888',
-    marginTop: 4,
-  },
-  progressContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    padding: 16,
-    borderRadius: 12,
-    width: '100%',
-    maxWidth: 280,
-    marginBottom: 32,
-  },
-  progressTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#4FC3F7',
-    textAlign: 'center',
-    marginBottom: 12,
-    letterSpacing: 2,
-  },
-  progressRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  progressLabel: {
-    fontSize: 14,
-    color: '#888888',
-  },
-  progressValue: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  buttonsContainer: {
-    width: '100%',
-    maxWidth: 280,
-  },
-  button: {
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
-    marginBottom: 12,
-    alignItems: 'center',
-  },
-  playAgainButton: {
-    backgroundColor: '#4CAF50',
-  },
-  playAgainButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    letterSpacing: 2,
-  },
-  menuButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: '#888888',
-  },
-  menuButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#888888',
-    letterSpacing: 2,
-  },
-});

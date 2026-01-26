@@ -2,11 +2,12 @@
  * GameHUD - Heads-up display for mobile game
  *
  * Shows score, distance, coins, lives, and touch controls.
+ * Uses NativeWind (Tailwind) for styling with brand colors.
  */
 
 import { useGameStore } from '@otter-river-rush/game-core/store';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
@@ -44,9 +45,12 @@ function TouchControls() {
   return (
     <GestureDetector gesture={swipeGesture}>
       {/* @ts-expect-error React 19 + Reanimated type compatibility */}
-      <Animated.View style={[styles.touchArea, animatedStyle]}>
-        <View style={styles.swipeIndicator}>
-          <Text style={styles.swipeText}>SWIPE TO MOVE</Text>
+      <Animated.View
+        style={animatedStyle}
+        className="flex-1 justify-center items-center"
+      >
+        <View className="opacity-30">
+          <Text className="text-white text-sm">SWIPE TO MOVE</Text>
         </View>
       </Animated.View>
     </GestureDetector>
@@ -63,27 +67,33 @@ function StatsDisplay() {
   const lives = useGameStore((state) => state.lives);
 
   return (
-    <View style={styles.statsContainer}>
-      <View style={styles.statRow}>
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>SCORE</Text>
-          <Text style={styles.statValue}>{score.toLocaleString()}</Text>
+    <View className="bg-black/50 rounded-xl p-3">
+      <View className="flex-row justify-between mb-2">
+        <View className="flex-row items-center">
+          <Text className="text-slate-400 text-xs mr-2">SCORE</Text>
+          <Text className="text-white text-lg font-bold">
+            {score.toLocaleString()}
+          </Text>
         </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>DISTANCE</Text>
-          <Text style={styles.statValue}>{Math.floor(distance)}m</Text>
+        <View className="flex-row items-center">
+          <Text className="text-slate-400 text-xs mr-2">DISTANCE</Text>
+          <Text className="text-white text-lg font-bold">
+            {Math.floor(distance)}m
+          </Text>
         </View>
       </View>
-      <View style={styles.statRow}>
-        <View style={styles.statItem}>
-          <Text style={styles.coinIcon}>$</Text>
-          <Text style={styles.statValue}>{coins}</Text>
+      <View className="flex-row justify-between">
+        <View className="flex-row items-center">
+          <Text className="text-brand-gold text-xl font-bold mr-1">$</Text>
+          <Text className="text-white text-lg font-bold">{coins}</Text>
         </View>
-        <View style={styles.livesContainer}>
+        <View className="flex-row">
           {Array.from({ length: 3 }).map((_, i) => (
             <Text
               key={i}
-              style={[styles.heartIcon, i >= lives && styles.heartEmpty]}
+              className={`text-xl ml-1 ${
+                i < lives ? 'text-brand-danger' : 'text-brand-danger/30'
+              }`}
             >
               {i < lives ? 'O' : 'X'}
             </Text>
@@ -109,12 +119,18 @@ function LaneButtons() {
   };
 
   return (
-    <View style={styles.laneButtons}>
-      <Pressable style={styles.laneButton} onPress={handleMoveLeft}>
-        <Text style={styles.laneButtonText}>{'<'}</Text>
+    <View className="flex-row justify-between px-8 pb-8">
+      <Pressable
+        className="w-20 h-20 bg-white/20 rounded-full justify-center items-center border-2 border-white/40 active:bg-white/30"
+        onPress={handleMoveLeft}
+      >
+        <Text className="text-white text-3xl font-bold">{'<'}</Text>
       </Pressable>
-      <Pressable style={styles.laneButton} onPress={handleMoveRight}>
-        <Text style={styles.laneButtonText}>{'>'}</Text>
+      <Pressable
+        className="w-20 h-20 bg-white/20 rounded-full justify-center items-center border-2 border-white/40 active:bg-white/30"
+        onPress={handleMoveRight}
+      >
+        <Text className="text-white text-3xl font-bold">{'>'}</Text>
       </Pressable>
     </View>
   );
@@ -125,92 +141,10 @@ function LaneButtons() {
  */
 export function GameHUD() {
   return (
-    <View style={styles.container} pointerEvents="box-none">
+    <View className="absolute inset-0 justify-between p-4" pointerEvents="box-none">
       <StatsDisplay />
       <TouchControls />
       <LaneButtons />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'space-between',
-    padding: 16,
-  },
-  statsContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 12,
-    padding: 12,
-  },
-  statRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statLabel: {
-    color: '#aaaaaa',
-    fontSize: 12,
-    marginRight: 8,
-  },
-  statValue: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  coinIcon: {
-    color: '#FFD700',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginRight: 4,
-  },
-  livesContainer: {
-    flexDirection: 'row',
-  },
-  heartIcon: {
-    color: '#FF4444',
-    fontSize: 20,
-    marginLeft: 4,
-  },
-  heartEmpty: {
-    opacity: 0.3,
-  },
-  touchArea: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  swipeIndicator: {
-    opacity: 0.3,
-  },
-  swipeText: {
-    color: '#ffffff',
-    fontSize: 14,
-  },
-  laneButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 32,
-    paddingBottom: 32,
-  },
-  laneButton: {
-    width: 80,
-    height: 80,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-  },
-  laneButtonText: {
-    color: '#ffffff',
-    fontSize: 32,
-    fontWeight: 'bold',
-  },
-});

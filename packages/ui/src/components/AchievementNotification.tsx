@@ -1,38 +1,39 @@
 /**
- * Achievement Notification Component
+ * Achievement Notification Component - Cross-platform React Native/Web
  * Displays achievement unlock popups with animations
+ * Uses NativeWind styling
  */
 
 import { useAchievementStore } from '@otter-river-rush/state';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 
 /**
  * Rarity-based color configurations
  */
-const RARITY_COLORS: Record<string, { bg: string; border: string; glow: string; text: string }> = {
+const RARITY_COLORS: Record<
+  string,
+  { bg: string; border: string; text: string }
+> = {
   common: {
-    bg: 'rgba(71, 85, 105, 0.95)',
-    border: '#64748b',
-    glow: 'rgba(100, 116, 139, 0.5)',
-    text: '#e2e8f0',
+    bg: 'bg-slate-600/95',
+    border: 'border-slate-500',
+    text: 'text-slate-200',
   },
   rare: {
-    bg: 'rgba(30, 64, 175, 0.95)',
-    border: '#3b82f6',
-    glow: 'rgba(59, 130, 246, 0.5)',
-    text: '#93c5fd',
+    bg: 'bg-blue-800/95',
+    border: 'border-blue-500',
+    text: 'text-blue-200',
   },
   epic: {
-    bg: 'rgba(88, 28, 135, 0.95)',
-    border: '#a855f7',
-    glow: 'rgba(168, 85, 247, 0.5)',
-    text: '#d8b4fe',
+    bg: 'bg-purple-800/95',
+    border: 'border-purple-500',
+    text: 'text-purple-200',
   },
   legendary: {
-    bg: 'rgba(161, 98, 7, 0.95)',
-    border: '#f59e0b',
-    glow: 'rgba(245, 158, 11, 0.6)',
-    text: '#fcd34d',
+    bg: 'bg-amber-700/95',
+    border: 'border-amber-500',
+    text: 'text-amber-200',
   },
 };
 
@@ -40,122 +41,27 @@ const RARITY_COLORS: Record<string, { bg: string; border: string; glow: string; 
  * Icon mapping for achievement types
  */
 const ICON_MAP: Record<string, string> = {
-  wave: '\u{1F30A}', // Wave emoji
-  river: '\u{1F3CA}', // Swimmer emoji
-  medal: '\u{1F3C5}', // Medal emoji
-  trophy: '\u{1F3C6}', // Trophy emoji
-  coin: '\u{1FA99}', // Coin emoji
-  coins: '\u{1F4B0}', // Money bag emoji
-  treasure: '\u{1F4B0}', // Money bag emoji
-  crown: '\u{1F451}', // Crown emoji
-  gem: '\u{1F48E}', // Gem emoji
-  gems: '\u{1F48E}', // Gem emoji
-  diamond: '\u{1F48E}', // Diamond emoji
-  fire: '\u{1F525}', // Fire emoji
-  flame: '\u{1F525}', // Fire emoji
-  inferno: '\u{1F525}', // Fire emoji
-  star: '\u{2B50}', // Star emoji
-  shield: '\u{1F6E1}', // Shield emoji
-  heart: '\u{2764}', // Heart emoji
-  sparkle: '\u{2728}', // Sparkles emoji
-  calendar: '\u{1F4C5}', // Calendar emoji
-  team: '\u{1F9A6}', // Otter emoji
-  default: '\u{1F3C6}', // Default trophy
-};
-
-const styles = {
-  container: {
-    position: 'fixed',
-    top: '80px',
-    right: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
-    zIndex: 300,
-    pointerEvents: 'none',
-  } satisfies CSSProperties,
-
-  notification: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '16px 20px',
-    borderRadius: '12px',
-    fontFamily: 'monospace',
-    minWidth: '280px',
-    maxWidth: '350px',
-    transform: 'translateX(0)',
-    opacity: 1,
-    transition: 'transform 0.3s ease-out, opacity 0.3s ease-out',
-    pointerEvents: 'auto',
-    cursor: 'pointer',
-  } satisfies CSSProperties,
-
-  notificationEntering: {
-    transform: 'translateX(100%)',
-    opacity: 0,
-  } satisfies CSSProperties,
-
-  notificationExiting: {
-    transform: 'translateX(100%)',
-    opacity: 0,
-  } satisfies CSSProperties,
-
-  iconContainer: {
-    fontSize: '32px',
-    lineHeight: 1,
-    flexShrink: 0,
-  } satisfies CSSProperties,
-
-  content: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-    overflow: 'hidden',
-  } satisfies CSSProperties,
-
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    marginBottom: '2px',
-  } satisfies CSSProperties,
-
-  label: {
-    fontSize: '10px',
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
-    opacity: 0.8,
-    margin: 0,
-  } satisfies CSSProperties,
-
-  name: {
-    fontSize: '16px',
-    fontWeight: 'bold',
-    margin: 0,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-  } satisfies CSSProperties,
-
-  description: {
-    fontSize: '12px',
-    opacity: 0.9,
-    margin: 0,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-  } satisfies CSSProperties,
-
-  rarityBadge: {
-    fontSize: '9px',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-    padding: '2px 6px',
-    borderRadius: '4px',
-    fontWeight: 'bold',
-  } satisfies CSSProperties,
+  wave: '\u{1F30A}',
+  river: '\u{1F3CA}',
+  medal: '\u{1F3C5}',
+  trophy: '\u{1F3C6}',
+  coin: '\u{1FA99}',
+  coins: '\u{1F4B0}',
+  treasure: '\u{1F4B0}',
+  crown: '\u{1F451}',
+  gem: '\u{1F48E}',
+  gems: '\u{1F48E}',
+  diamond: '\u{1F48E}',
+  fire: '\u{1F525}',
+  flame: '\u{1F525}',
+  inferno: '\u{1F525}',
+  star: '\u{2B50}',
+  shield: '\u{1F6E1}',
+  heart: '\u{2764}',
+  sparkle: '\u{2728}',
+  calendar: '\u{1F4C5}',
+  team: '\u{1F9A6}',
+  default: '\u{1F3C6}',
 };
 
 interface NotificationItemProps {
@@ -167,9 +73,15 @@ interface NotificationItemProps {
   onDismiss: (id: string) => void;
 }
 
-function NotificationItem({ id, name, description, icon, rarity, onDismiss }: NotificationItemProps) {
+function NotificationItem({
+  id,
+  name,
+  description,
+  icon,
+  rarity,
+  onDismiss,
+}: NotificationItemProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [isExiting, setIsExiting] = useState(false);
 
   const colors = RARITY_COLORS[rarity] || RARITY_COLORS.common;
   const iconEmoji = ICON_MAP[icon] || ICON_MAP.default;
@@ -180,8 +92,7 @@ function NotificationItem({ id, name, description, icon, rarity, onDismiss }: No
 
     // Auto dismiss after 5 seconds
     const dismissTimer = setTimeout(() => {
-      setIsExiting(true);
-      setTimeout(() => onDismiss(id), 300);
+      onDismiss(id);
     }, 5000);
 
     return () => {
@@ -191,39 +102,53 @@ function NotificationItem({ id, name, description, icon, rarity, onDismiss }: No
   }, [id, onDismiss]);
 
   const handleClick = useCallback(() => {
-    setIsExiting(true);
-    setTimeout(() => onDismiss(id), 300);
+    onDismiss(id);
   }, [id, onDismiss]);
 
-  const notificationStyle: CSSProperties = {
-    ...styles.notification,
-    backgroundColor: colors.bg,
-    border: `2px solid ${colors.border}`,
-    boxShadow: `0 4px 20px ${colors.glow}, 0 0 40px ${colors.glow}`,
-    color: colors.text,
-    ...((!isVisible || isExiting) && styles.notificationEntering),
+  const rarityBadgeColors = {
+    common: 'bg-slate-500',
+    rare: 'bg-blue-500',
+    epic: 'bg-purple-500',
+    legendary: 'bg-amber-500',
   };
 
   return (
-    <div style={notificationStyle} onClick={handleClick} role="alert" aria-live="polite">
-      <div style={styles.iconContainer}>{iconEmoji}</div>
-      <div style={styles.content}>
-        <div style={styles.header}>
-          <p style={styles.label}>Achievement Unlocked!</p>
-          <span
-            style={{
-              ...styles.rarityBadge,
-              backgroundColor: colors.border,
-              color: rarity === 'legendary' ? '#1a1a1a' : '#ffffff',
-            }}
+    <Pressable
+      className={`flex-row items-center gap-3 px-5 py-4 rounded-xl border-2 min-w-[280px] max-w-[350px] ${colors.bg} ${colors.border} ${
+        isVisible ? 'opacity-100' : 'opacity-0'
+      }`}
+      onPress={handleClick}
+      accessibilityRole="alert"
+    >
+      <Text className="text-[32px]">{iconEmoji}</Text>
+      <View className="flex-1 flex-col gap-1 overflow-hidden">
+        <View className="flex-row items-center gap-2 mb-0.5">
+          <Text className={`text-[10px] uppercase tracking-wider opacity-80 ${colors.text}`}>
+            Achievement Unlocked!
+          </Text>
+          <View
+            className={`px-1.5 py-0.5 rounded ${rarityBadgeColors[rarity]}`}
           >
-            {rarity}
-          </span>
-        </div>
-        <p style={styles.name}>{name}</p>
-        <p style={styles.description}>{description}</p>
-      </div>
-    </div>
+            <Text
+              className={`text-[9px] uppercase tracking-tight font-bold ${
+                rarity === 'legendary' ? 'text-slate-900' : 'text-white'
+              }`}
+            >
+              {rarity}
+            </Text>
+          </View>
+        </View>
+        <Text
+          className={`text-base font-bold ${colors.text}`}
+          numberOfLines={1}
+        >
+          {name}
+        </Text>
+        <Text className={`text-xs opacity-90 ${colors.text}`} numberOfLines={1}>
+          {description}
+        </Text>
+      </View>
+    </Pressable>
   );
 }
 
@@ -232,26 +157,31 @@ function NotificationItem({ id, name, description, icon, rarity, onDismiss }: No
  * Renders all pending achievement notifications
  */
 export function AchievementNotification() {
-  const pendingNotifications = useAchievementStore((state) => state.pendingNotifications);
-  const dismissNotification = useAchievementStore((state) => state.dismissNotification);
+  const pendingNotifications = useAchievementStore(
+    (state) => state.pendingNotifications
+  );
+  const dismissNotification = useAchievementStore(
+    (state) => state.dismissNotification
+  );
 
   if (pendingNotifications.length === 0) {
     return null;
   }
 
   return (
-    <div style={styles.container}>
+    <View className="absolute top-20 right-5 flex-col gap-3 z-[300] pointer-events-none">
       {pendingNotifications.map((notification) => (
-        <NotificationItem
-          key={notification.id}
-          id={notification.id}
-          name={notification.name}
-          description={notification.description}
-          icon={notification.icon}
-          rarity={notification.rarity}
-          onDismiss={dismissNotification}
-        />
+        <View key={notification.id} className="pointer-events-auto">
+          <NotificationItem
+            id={notification.id}
+            name={notification.name}
+            description={notification.description}
+            icon={notification.icon}
+            rarity={notification.rarity}
+            onDismiss={dismissNotification}
+          />
+        </View>
       ))}
-    </div>
+    </View>
   );
 }

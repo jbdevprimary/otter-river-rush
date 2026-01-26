@@ -84,17 +84,26 @@ export const PARTICLE_COLORS = {
 };
 
 /**
- * UI colors
+ * UI colors for HUD and menu elements
  */
 export const UI_COLORS = {
-  score: '#ffffff',
-  combo: '#fbbf24',
+  score: '#ffd700',
+  distance: '#94a3b8',
   health: '#ef4444',
-  distance: '#3b82f6',
+  combo: '#10b981',
+  text: '#ffffff',
+  textMuted: '#94a3b8',
+  primary: '#3b82f6',
+  secondary: '#6b7280',
+  success: '#22c55e',
+  warning: '#f59e0b',
+  danger: '#ef4444',
+  // Menu-specific colors
   menu: {
-    background: '#0f172a',
     text: '#ffffff',
     accent: '#3b82f6',
+    background: '#0f172a',
+    surface: '#1e293b',
   },
 };
 

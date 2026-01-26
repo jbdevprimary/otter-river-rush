@@ -9,16 +9,18 @@
  * - Game Z (height) -> Three.js Y
  */
 
-import { useRef, useEffect, useState, Suspense } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { useGLTF, useAnimations } from '@react-three/drei';
 import { VISUAL } from '@otter-river-rush/config';
 import { queries } from '@otter-river-rush/core';
 import type { Entity } from '@otter-river-rush/types';
+import { useAnimations, useGLTF } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
-// Default otter model (fallback) - uses Vite's base URL for GitHub Pages
-const BASE_URL = `${import.meta.env.BASE_URL ?? '/'}assets`;
+// Default otter model (fallback)
+// For Metro web, assets are served from public/ at root
+// For native, assets will use require() via AssetBridge
+const BASE_URL = '';
 const DEFAULT_OTTER_MODEL = `${BASE_URL}/models/player/otter-player/model.glb`;
 
 /**

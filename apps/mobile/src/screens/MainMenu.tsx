@@ -1,18 +1,13 @@
 /**
  * MainMenu - Main menu screen for mobile app
  *
- * Shows title, play button, and settings.
+ * Uses NativeWind (Tailwind) for styling with brand colors.
  */
 
 import { useGameStore } from '@otter-river-rush/game-core/store';
 import type { GameMode } from '@otter-river-rush/game-core/types';
 import React from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 export function MainMenu() {
   const startGame = useGameStore((state) => state.startGame);
@@ -23,181 +18,91 @@ export function MainMenu() {
   };
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-brand-background items-center justify-center p-6">
       {/* Title */}
-      <View style={styles.titleContainer}>
-        <Text style={styles.titleOtter}>OTTER</Text>
-        <Text style={styles.titleRiver}>RIVER</Text>
-        <Text style={styles.titleRush}>RUSH</Text>
+      <View className="items-center mb-8">
+        <Text className="text-5xl font-bold text-brand-gold tracking-widest">
+          OTTER
+        </Text>
+        <Text className="text-4xl font-semibold text-brand-secondary tracking-[8px] -mt-2">
+          RIVER
+        </Text>
+        <Text className="text-6xl font-bold text-white tracking-[12px] -mt-2">
+          RUSH
+        </Text>
       </View>
 
       {/* High Score Display */}
       {progress.highScore > 0 && (
-        <View style={styles.highScoreContainer}>
-          <Text style={styles.highScoreLabel}>HIGH SCORE</Text>
-          <Text style={styles.highScoreValue}>
+        <View className="items-center mb-8">
+          <Text className="text-sm text-slate-400 tracking-widest">
+            HIGH SCORE
+          </Text>
+          <Text className="text-3xl font-bold text-brand-gold">
             {progress.highScore.toLocaleString()}
           </Text>
         </View>
       )}
 
       {/* Menu Buttons */}
-      <View style={styles.menuButtons}>
+      <View className="w-full max-w-[280px] mb-12">
         <Pressable
-          style={[styles.button, styles.playButton]}
+          className="bg-brand-success py-4 px-8 rounded-xl mb-4 items-center active:opacity-80"
           onPress={() => handlePlay('classic')}
         >
-          <Text style={styles.playButtonText}>PLAY</Text>
+          <Text className="text-3xl font-bold text-white tracking-widest">
+            PLAY
+          </Text>
         </Pressable>
 
         <Pressable
-          style={[styles.button, styles.secondaryButton]}
+          className="bg-transparent py-4 px-8 rounded-xl mb-4 items-center border-2 border-brand-secondary active:opacity-80"
           onPress={() => handlePlay('time_trial')}
         >
-          <Text style={styles.secondaryButtonText}>TIME TRIAL</Text>
+          <Text className="text-lg font-semibold text-brand-secondary tracking-widest">
+            TIME TRIAL
+          </Text>
         </Pressable>
 
         <Pressable
-          style={[styles.button, styles.secondaryButton]}
+          className="bg-transparent py-4 px-8 rounded-xl mb-4 items-center border-2 border-brand-secondary active:opacity-80"
           onPress={() => handlePlay('zen')}
         >
-          <Text style={styles.secondaryButtonText}>ZEN MODE</Text>
+          <Text className="text-lg font-semibold text-brand-secondary tracking-widest">
+            ZEN MODE
+          </Text>
         </Pressable>
       </View>
 
       {/* Stats */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statItem}>
-          <Text style={styles.statValue}>{progress.gamesPlayed}</Text>
-          <Text style={styles.statLabel}>Games</Text>
+      <View className="flex-row justify-around w-full max-w-[320px] mb-8">
+        <View className="items-center">
+          <Text className="text-xl font-bold text-white">
+            {progress.gamesPlayed}
+          </Text>
+          <Text className="text-xs text-slate-400 mt-1">Games</Text>
         </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statValue}>
+        <View className="items-center">
+          <Text className="text-xl font-bold text-white">
             {Math.floor(progress.totalDistance)}m
           </Text>
-          <Text style={styles.statLabel}>Distance</Text>
+          <Text className="text-xs text-slate-400 mt-1">Distance</Text>
         </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statValue}>{progress.totalCoins}</Text>
-          <Text style={styles.statLabel}>Coins</Text>
+        <View className="items-center">
+          <Text className="text-xl font-bold text-white">
+            {progress.totalCoins}
+          </Text>
+          <Text className="text-xs text-slate-400 mt-1">Coins</Text>
         </View>
       </View>
 
       {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Swipe to move lanes</Text>
-        <Text style={styles.footerText}>Collect coins, avoid obstacles!</Text>
+      <View className="absolute bottom-12 items-center">
+        <Text className="text-sm text-slate-400 mt-1">Swipe to move lanes</Text>
+        <Text className="text-sm text-slate-400 mt-1">
+          Collect coins, avoid obstacles!
+        </Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1e3a5f',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  titleContainer: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  titleOtter: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    letterSpacing: 4,
-  },
-  titleRiver: {
-    fontSize: 36,
-    fontWeight: '600',
-    color: '#4FC3F7',
-    letterSpacing: 8,
-    marginTop: -8,
-  },
-  titleRush: {
-    fontSize: 56,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    letterSpacing: 12,
-    marginTop: -8,
-  },
-  highScoreContainer: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  highScoreLabel: {
-    fontSize: 14,
-    color: '#aaaaaa',
-    letterSpacing: 2,
-  },
-  highScoreValue: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFD700',
-  },
-  menuButtons: {
-    width: '100%',
-    maxWidth: 280,
-    marginBottom: 48,
-  },
-  button: {
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
-    marginBottom: 16,
-    alignItems: 'center',
-  },
-  playButton: {
-    backgroundColor: '#4CAF50',
-  },
-  playButtonText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    letterSpacing: 4,
-  },
-  secondaryButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: '#4FC3F7',
-  },
-  secondaryButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#4FC3F7',
-    letterSpacing: 2,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    maxWidth: 320,
-    marginBottom: 32,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#888888',
-    marginTop: 4,
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 48,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 14,
-    color: '#666666',
-    marginTop: 4,
-  },
-});

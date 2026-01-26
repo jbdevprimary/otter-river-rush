@@ -7,7 +7,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./components": "./src/components/index.ts",
-    "./loaders": "./src/loaders/index.ts"
+    "./loaders": "./src/loaders/index.ts",
+    "./shaders": "./src/shaders/index.ts"
   },
   "scripts": {
     "build": "tsc",

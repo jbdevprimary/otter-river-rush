@@ -3,13 +3,13 @@
  * Detects and handles collisions between entities
  */
 
-import type { GameMode, GameStatus, Entity, PowerUpType } from '../../types';
 import type { With } from 'miniplex';
-import { world, queries, spawn } from '../world';
-import { checkCollision, checkNearMiss, NEAR_MISS_BONUS } from '../utils/collision';
-import { isTutorialActive, isPowerUpActive, useGameStore } from '../../store/game-store';
 import { GAME_CONFIG } from '../../config';
-import { triggerHitAnimation, triggerCollectAnimation, triggerDeathAnimation } from './animation';
+import { isPowerUpActive, isTutorialActive, useGameStore } from '../../store/game-store';
+import type { Entity, GameMode, GameStatus, PowerUpType } from '../../types';
+import { checkCollision, checkNearMiss, NEAR_MISS_BONUS } from '../utils/collision';
+import { queries, spawn, world } from '../world';
+import { triggerCollectAnimation, triggerDeathAnimation, triggerHitAnimation } from './animation';
 
 // Track obstacles that have already triggered a near-miss to avoid duplicates
 const nearMissedObstacles = new WeakSet<object>();
@@ -41,6 +41,7 @@ export interface CollisionHandlers {
   onCollectPowerUp?: (type: PowerUpType) => void;
   onGameOver?: () => void;
   onNearMiss?: (event: NearMissEvent) => void;
+  onAudioTrigger?: (soundId: string) => void;
 }
 
 /**
@@ -158,6 +159,32 @@ function handleObstacleHit(
   // Reduce health
   if (player.health) {
     player.health -= 1;
+
+    // Trigger hit sound ("Ooph")
+    handlers.onAudioTrigger?.('hit_sfx');
+
+    // Bounce Logic
+    if (player.position && player.velocity && obstacle.position) {
+      const LANE_WIDTH = 2; // Should import from config, but safe constant here
+      const x = player.position.x;
+      const atLeftBank = x <= -LANE_WIDTH;
+      const atRightBank = x >= LANE_WIDTH;
+
+      let bounceDir = 0;
+      if (atLeftBank) {
+        bounceDir = 1; // Bounce right
+      } else if (atRightBank) {
+        bounceDir = -1; // Bounce left
+      } else {
+        // 50/50 chance if not at bank
+        bounceDir = Math.random() > 0.5 ? 1 : -1;
+      }
+
+      // Apply bounce velocity
+      player.velocity.x += bounceDir * 5; // Strong lateral push
+      // Also slight backward push or slow down? 
+      // User just asked for left/right bounce.
+    }
 
     // Game over if no health
     if (player.health <= 0) {

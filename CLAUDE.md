@@ -4,16 +4,16 @@ This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-**Otter River Rush** is a 3-lane endless river runner game built with:
-- **React Three Fiber (R3F)** + **@react-three/drei** for 3D rendering
+**Otter River Rush** is a 3-lane endless river runner game built with a unified Expo architecture:
+- **Expo** for all platforms (web, iOS, Android) via Metro bundler
+- **React Three Fiber (R3F)** + **expo-three** for 3D rendering
 - **React 19** for UI
 - **Miniplex ECS** for entity management
 - **Zustand** for state management
 - **Meshy AI** for 3D asset generation
-- **Vite** for web bundling
-- **Expo** for mobile (React Native)
 - **pnpm** workspaces for monorepo management
 - **Biome** for linting and formatting
+- **EAS Build** for native app builds
 
 ## Quick Start
 
@@ -21,14 +21,20 @@ This file provides guidance to Claude Code when working with this repository.
 # Install dependencies
 pnpm install
 
-# Start development server
+# Start Expo development server (all platforms)
 pnpm dev
 
-# Build for production
-pnpm build
+# Start web specifically
+pnpm dev:web
 
-# Generate 3D assets with Meshy
-pnpm --filter @otter-river-rush/content-gen gen:all
+# Start on Android
+pnpm dev:android
+
+# Start on iOS
+pnpm dev:ios
+
+# Build web for production
+pnpm build:web
 ```
 
 ## Project Structure
@@ -36,15 +42,16 @@ pnpm --filter @otter-river-rush/content-gen gen:all
 ```
 otter-river-rush/
 ├── apps/
-│   ├── web/                    # Web application (Vite + R3F)
-│   │   ├── public/
-│   │   │   └── assets/
-│   │   │       └── models/     # Meshy-generated GLB models
-│   │   └── src/
-│   └── mobile/                 # Mobile application (Expo + R3F Native)
-│       └── App.tsx
+│   └── mobile/                 # Unified Expo app (web + iOS + Android)
+│       ├── app/                # Expo Router screens
+│       ├── assets/             # All game assets (models, textures, audio)
+│       ├── src/
+│       │   ├── components/     # R3F rendering components
+│       │   └── screens/        # UI screens
+│       ├── app.json            # Expo configuration
+│       └── eas.json            # EAS Build configuration
 ├── packages/
-│   ├── audio/                  # Howler.js audio system
+│   ├── audio/                  # Audio system (platform-agnostic)
 │   ├── config/                 # Game configuration (physics, visual, lanes)
 │   ├── content-gen/            # Meshy 3D asset generation pipeline
 │   ├── core/                   # Miniplex ECS world, spawn functions
@@ -52,44 +59,65 @@ otter-river-rush/
 │   ├── rendering/              # React Three Fiber components
 │   ├── state/                  # Zustand game state management
 │   ├── types/                  # TypeScript type definitions
-│   └── ui/                     # React HTML overlay components
+│   └── ui/                     # React UI components
 └── docs/                       # Architecture documentation
+```
+
+## Unified Expo Architecture
+
+The project uses a single Expo app (`apps/mobile`) that targets all platforms:
+
+- **Web**: Uses Metro bundler with `expo export --platform web`
+- **iOS**: Built via EAS Build or local Xcode
+- **Android**: Built via EAS Build or local Gradle
+
+This replaces the previous dual-app architecture (Vite for web + Expo for mobile).
+
+### Key Configuration Files
+
+- `apps/mobile/app.json` - Expo configuration for all platforms
+- `apps/mobile/eas.json` - EAS Build profiles for native builds
+- `apps/mobile/metro.config.js` - Metro bundler configuration
+
+### Web Configuration
+
+Web is configured in `app.json`:
+```json
+{
+  "expo": {
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
 ```
 
 ## Key Packages
 
-### @otter-river-rush/content-gen
-Meshy AI 3D asset generation pipeline:
-- `src/api/meshy-client.ts` - API client with SSE streaming
-- `src/tasks/definitions/text-to-3d.json` - Task definition
-- `src/assets/prompts.ts` - 16 asset prompts
-- `src/cli.ts` - CLI for generating assets
-
-**Important Meshy API details:**
-- Uses v2 text-to-3d endpoint: `POST /openapi/v2/text-to-3d`
-- Valid `art_style` values: `pbr`, `realistic`, `sculpture` (NOT `cartoon`)
-- Response paths are at root level (`model_urls.glb`, NOT `result.model_urls.glb`)
-- Uses SSE streaming to poll task progress
-
-### @otter-river-rush/core
-Miniplex ECS world with spawn functions:
-- `world.ts` - World instance and queries
-- `spawn.otter()`, `spawn.rock()`, `spawn.coin()`, etc.
-- Model paths reference `/assets/models/...`
+### @otter-river-rush/game-core
+Platform-agnostic game logic:
+- ECS systems (movement, collision, spawning)
+- Game state management
+- Scoring and progression
 
 ### @otter-river-rush/rendering
-React Three Fiber rendering:
-- `GameCanvas.tsx` - R3F Canvas wrapper with camera and lighting
-- `EntityRenderer.tsx` - Renders ECS entities using useGLTF from @react-three/drei
-- `RiverEnvironment.tsx` - Procedural river, banks, and scenery
-- Uses useFrame hook for animation loop
-- GLB model loading via @react-three/drei useGLTF
+React Three Fiber rendering components:
+- `EntityRenderer.tsx` - Renders ECS entities
+- Platform-specific optimizations via expo-three
 
 ### @otter-river-rush/config
 Game constants:
 - `PHYSICS` - Scroll speed, lane change speed
 - `VISUAL` - Camera position, layers, model scales
 - `getLaneX()` - Convert lane (-1, 0, 1) to X position
+
+### @otter-river-rush/content-gen
+Meshy AI 3D asset generation pipeline:
+- `src/api/meshy-client.ts` - API client with SSE streaming
+- `src/assets/prompts.ts` - Asset prompts
+- `src/cli.ts` - CLI for generating assets
 
 ## Coordinate System
 
@@ -108,54 +136,55 @@ Three.js uses Y-up, so in R3F components:
 ]} />
 ```
 
-## Generated 3D Assets
+## Assets
 
-All models are Meshy-generated GLB files in `apps/web/public/assets/models/`:
+All assets are located in `apps/mobile/assets/`:
 
-| Category | Asset | Path |
-|----------|-------|------|
-| Player | Otter | `/assets/models/player/otter-player/model.glb` |
-| Obstacle | Large Rock | `/assets/models/obstacle/rock-large/model.glb` |
-| Obstacle | Medium Rock | `/assets/models/obstacle/rock-medium/model.glb` |
-| Obstacle | Small Rock | `/assets/models/obstacle/rock-small/model.glb` |
-| Obstacle | Floating Log | `/assets/models/obstacle/log-floating/model.glb` |
-| Obstacle | Branch | `/assets/models/obstacle/branch-floating/model.glb` |
-| Collectible | Gold Coin | `/assets/models/collectible/coin-gold/model.glb` |
-| Collectible | Blue Gem | `/assets/models/collectible/gem-blue/model.glb` |
-| Collectible | Green Gem | `/assets/models/collectible/gem-green/model.glb` |
-| Collectible | Purple Gem | `/assets/models/collectible/gem-purple/model.glb` |
-| Collectible | Small Fish | `/assets/models/collectible/fish-small/model.glb` |
-| Collectible | Golden Fish | `/assets/models/collectible/fish-golden/model.glb` |
-| Decoration | Lily Pad | `/assets/models/decoration/lily-pad/model.glb` |
-| Decoration | Cattail | `/assets/models/decoration/cattail/model.glb` |
-| Decoration | Reed Cluster | `/assets/models/decoration/reed-cluster/model.glb` |
-| Decoration | Rubber Duck | `/assets/models/decoration/duck-rubber/model.glb` |
-
-Asset manifest: `apps/web/public/assets/models/manifest.json`
+| Category | Location |
+|----------|----------|
+| 3D Models | `assets/models/` |
+| Textures | `assets/textures/` |
+| Audio | `assets/audio/` |
+| Manifest | `assets/models/manifest.json` |
 
 ## Environment Variables
 
 Required in `.env`:
 ```
 MESHY_API_KEY=msy_xxx  # Meshy AI API key for 3D generation
+EXPO_TOKEN=xxx         # Expo token for EAS builds
 ```
 
 ## Common Commands
 
 ```bash
 # Development
-pnpm dev                                    # Start dev server (default port 3000)
-pnpm build                                  # Build all packages
-pnpm test                                   # Run tests
+pnpm dev                 # Start Expo dev server
+pnpm dev:web             # Start web specifically
+pnpm dev:android         # Start Android
+pnpm dev:ios             # Start iOS
+
+# Building
+pnpm build               # Build all packages
+pnpm build:web           # Export web bundle
+
+# Testing
+pnpm test                # Run all tests
+pnpm lint                # Run linter
+pnpm type-check          # Type check all packages
 
 # Content Generation
-pnpm --filter @otter-river-rush/content-gen gen:all       # Generate all assets
-pnpm --filter @otter-river-rush/content-gen gen otter     # Generate specific asset
-
-# Linting
-pnpm lint                                   # Run ESLint
-pnpm format                                 # Format with Prettier
+pnpm --filter @otter-river-rush/content-gen gen:all   # Generate all assets
 ```
+
+## CI/CD
+
+The project uses GitHub Actions with:
+- `integration.yml` - Lint, type-check, and test on PR/push
+- `mobile-primary.yml` - Primary workflow for building and deploying
+- `build-platforms.yml` - Multi-platform builds via EAS
+
+Web deployments go to GitHub Pages. Native builds use EAS Build.
 
 ## Architecture Notes
 
@@ -170,15 +199,8 @@ interface Entity {
   collider?: { width: number; height: number; depth: number };
   collectible?: { type: 'coin' | 'gem'; value: number };
   obstacle?: boolean;
-  // ...
 }
 ```
-
-### Rendering Pipeline
-1. Miniplex world manages entities
-2. EntityRenderer syncs ECS state with Babylon.js meshes
-3. Models are preloaded and cloned per entity
-4. Sync runs at ~60fps via setInterval
 
 ### Game Loop
 1. Systems update entity positions based on velocity
@@ -186,25 +208,27 @@ interface Entity {
 3. Spawner creates new entities as player progresses
 4. Entities removed when they scroll off screen
 
-## Known Issues / TODOs
-
-- WebGPU texture size mismatch warnings on some browsers (cosmetic, doesn't affect gameplay)
-- Decoration entities (lily pads, etc.) not yet spawned during gameplay
-- Could add sound effects and music
-
 ## Testing
 
-### Web (Chrome MCP)
-1. Navigate to `http://localhost:3000` (or available port)
-2. Click "PLAY GAME" to start
-3. Use arrow keys or A/D to move lanes
-4. Avoid rocks, collect coins
+### Web
+```bash
+pnpm dev:web
+# Navigate to http://localhost:8081 (Expo web port)
+# Use arrow keys or A/D to move lanes
+# Avoid rocks, collect coins
+```
 
-### Mobile (Expo)
+### Mobile (Expo Go)
+```bash
+pnpm dev
+# Scan QR code with Expo Go app
+```
+
+### Native Builds (EAS)
 ```bash
 cd apps/mobile
-npx expo start
-# Scan QR code with Expo Go app
+eas build --platform android --profile preview
+eas build --platform ios --profile preview
 ```
 
 ## Related Repositories

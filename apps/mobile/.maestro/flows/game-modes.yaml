@@ -1,0 +1,29 @@
+appId: com.ottergames.riverrush
+name: Game Mode Selection
+tags:
+  - menu
+  - modes
+---
+- launchApp:
+    clearState: true
+
+# Verify all game modes are present
+- assertVisible: "PLAY"
+- assertVisible: "TIME TRIAL"
+- assertVisible: "ZEN MODE"
+
+# Test Time Trial mode
+- tapOn: "TIME TRIAL"
+- assertVisible:
+    text: "SCORE"
+    timeout: 5000
+
+# Restart app to test another mode
+- launchApp:
+    clearState: true
+
+# Test Zen mode
+- tapOn: "ZEN MODE"
+- assertVisible:
+    text: "SCORE"
+    timeout: 5000

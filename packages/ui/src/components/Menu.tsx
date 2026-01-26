@@ -1,257 +1,18 @@
 /**
- * Menu Component - React/HTML Overlay
- * Main menu and game over screens positioned as an absolute overlay
+ * Menu Component - Cross-platform React Native/Web
+ * Main menu and game over screens using NativeWind styling
  */
 
-import { UI_COLORS } from '@otter-river-rush/config';
 import { addScore, isHighScore, useGameStore } from '@otter-river-rush/state';
 import type { GameMode } from '@otter-river-rush/types';
-import { type CSSProperties, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Leaderboard } from './Leaderboard';
 import { Settings } from './Settings';
 
 interface MenuProps {
   type: 'menu' | 'game_over';
 }
-
-const styles = {
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(15, 23, 42, 0.85)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 200,
-    fontFamily: 'monospace',
-  } satisfies CSSProperties,
-
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    width: '400px',
-  } satisfies CSSProperties,
-
-  modeSelectionContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginTop: '10px',
-    marginBottom: '10px',
-    width: '100%',
-  } satisfies CSSProperties,
-
-  modeLabel: {
-    color: '#94a3b8',
-    fontSize: '14px',
-    margin: 0,
-    marginBottom: '10px',
-    textTransform: 'uppercase',
-    letterSpacing: '2px',
-  } satisfies CSSProperties,
-
-  modeButtonsRow: {
-    display: 'flex',
-    gap: '10px',
-    justifyContent: 'center',
-  } satisfies CSSProperties,
-
-  modeButton: {
-    width: '135px',
-    height: '50px',
-    backgroundColor: '#334155',
-    color: '#94a3b8',
-    border: '2px solid #475569',
-    borderRadius: '8px',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    transition: 'all 0.15s ease',
-  } satisfies CSSProperties,
-
-  modeButtonActive: {
-    width: '135px',
-    height: '50px',
-    backgroundColor: '#3b82f6',
-    color: '#ffffff',
-    border: '2px solid #60a5fa',
-    borderRadius: '8px',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    transition: 'all 0.15s ease',
-    boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)',
-  } satisfies CSSProperties,
-
-  zenModeButtonActive: {
-    width: '135px',
-    height: '50px',
-    backgroundColor: '#10b981',
-    color: '#ffffff',
-    border: '2px solid #34d399',
-    borderRadius: '8px',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    transition: 'all 0.15s ease',
-    boxShadow: '0 0 10px rgba(16, 185, 129, 0.5)',
-  } satisfies CSSProperties,
-
-  timeTrialModeButtonActive: {
-    width: '135px',
-    height: '50px',
-    backgroundColor: '#f59e0b',
-    color: '#ffffff',
-    border: '2px solid #fbbf24',
-    borderRadius: '8px',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    transition: 'all 0.15s ease',
-    boxShadow: '0 0 10px rgba(245, 158, 11, 0.5)',
-  } satisfies CSSProperties,
-
-  title: {
-    color: UI_COLORS.menu.text,
-    fontSize: '64px',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    lineHeight: '1.1',
-    margin: 0,
-    marginBottom: '20px',
-    textShadow: `0 0 15px ${UI_COLORS.menu.accent}`,
-    whiteSpace: 'pre-line',
-  } satisfies CSSProperties,
-
-  subtitle: {
-    color: UI_COLORS.menu.accent,
-    fontSize: '20px',
-    margin: 0,
-    marginBottom: '20px',
-  } satisfies CSSProperties,
-
-  charInfo: {
-    fontSize: '18px',
-    margin: 0,
-    marginBottom: '20px',
-  } satisfies CSSProperties,
-
-  button: {
-    width: '280px',
-    height: '60px',
-    backgroundColor: UI_COLORS.menu.accent,
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '10px',
-    fontSize: '24px',
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    marginTop: '15px',
-    transition: 'all 0.15s ease',
-  } satisfies CSSProperties,
-
-  secondaryButton: {
-    width: '280px',
-    height: '60px',
-    backgroundColor: '#6366f1',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '10px',
-    fontSize: '24px',
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    marginTop: '15px',
-    transition: 'all 0.15s ease',
-  } satisfies CSSProperties,
-
-  menuButton: {
-    width: '280px',
-    height: '60px',
-    backgroundColor: '#475569',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '10px',
-    fontSize: '24px',
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    marginTop: '15px',
-    transition: 'all 0.15s ease',
-  } satisfies CSSProperties,
-
-  settingsButton: {
-    width: '280px',
-    height: '60px',
-    backgroundColor: '#334155',
-    color: '#ffffff',
-    border: '2px solid #475569',
-    borderRadius: '10px',
-    fontSize: '24px',
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    marginTop: '15px',
-    transition: 'all 0.15s ease',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '10px',
-  } satisfies CSSProperties,
-
-  controls: {
-    color: '#94a3b8',
-    fontSize: '16px',
-    textAlign: 'center',
-    marginTop: '30px',
-    lineHeight: '1.5',
-    whiteSpace: 'pre-line',
-  } satisfies CSSProperties,
-
-  gameOverTitle: {
-    color: UI_COLORS.health,
-    fontSize: '56px',
-    fontWeight: 'bold',
-    margin: 0,
-    marginBottom: '20px',
-    textShadow: '3px 3px 10px #000000',
-  } satisfies CSSProperties,
-
-  scoreLabel: {
-    color: '#94a3b8',
-    fontSize: '20px',
-    margin: 0,
-    marginTop: '20px',
-  } satisfies CSSProperties,
-
-  scoreValue: {
-    color: UI_COLORS.combo,
-    fontSize: '72px',
-    fontWeight: 'bold',
-    margin: 0,
-    marginBottom: '30px',
-    textShadow: `0 0 20px ${UI_COLORS.combo}`,
-  } satisfies CSSProperties,
-
-  newHighScoreText: {
-    color: '#22c55e',
-    fontSize: '18px',
-    fontWeight: 'bold',
-    margin: 0,
-    marginBottom: '10px',
-    textShadow: '0 0 10px rgba(34, 197, 94, 0.5)',
-    animation: 'pulse 1.5s ease-in-out infinite',
-  } satisfies CSSProperties,
-};
 
 export function Menu({ type }: MenuProps) {
   const score = useGameStore((state) => state.score);
@@ -284,151 +45,117 @@ function MainMenu() {
     setShowSettings(false);
   };
 
-  const getModeButtonStyle = (mode: GameMode) => {
+  const getModeButtonClasses = (mode: GameMode) => {
+    const base =
+      'flex-1 min-w-[100px] max-w-[135px] h-[50px] rounded-lg items-center justify-center border-2';
     if (selectedMode === mode) {
-      if (mode === 'zen') return styles.zenModeButtonActive;
-      if (mode === 'time_trial') return styles.timeTrialModeButtonActive;
-      return styles.modeButtonActive;
+      if (mode === 'zen') {
+        return `${base} bg-emerald-500 border-emerald-400`;
+      }
+      if (mode === 'time_trial') {
+        return `${base} bg-amber-500 border-amber-400`;
+      }
+      return `${base} bg-brand-primary border-blue-400`;
     }
-    return styles.modeButton;
+    return `${base} bg-slate-700 border-slate-600 active:bg-slate-600`;
+  };
+
+  const getModeButtonTextClasses = (mode: GameMode) => {
+    if (selectedMode === mode) {
+      return 'text-white text-base font-bold font-mono';
+    }
+    return 'text-slate-400 text-base font-bold font-mono';
   };
 
   return (
-    <div style={styles.overlay}>
-      <div style={styles.container}>
-        <h1 style={styles.title}>{'OTTER\nRIVER\nRUSH'}</h1>
-        <p style={styles.subtitle}>A 3-lane river adventure!</p>
-        <p style={{ ...styles.charInfo, color: selectedChar.theme.accentColor }}>
+    <View className="absolute inset-0 bg-brand-background/85 justify-center items-center z-[200] font-mono">
+      <View className="flex-col items-center w-[90%] max-w-[400px] p-5">
+        <Text className="text-white text-5xl font-bold text-center leading-tight mb-5">
+          {'OTTER\nRIVER\nRUSH'}
+        </Text>
+        <Text className="text-brand-primary text-lg mb-5">
+          A 3-lane river adventure!
+        </Text>
+        <Text
+          className="text-lg mb-5"
+          style={{ color: selectedChar.theme.accentColor }}
+        >
           Playing as: {selectedChar.name}
-        </p>
+        </Text>
 
         {/* Mode Selection */}
-        <div style={styles.modeSelectionContainer}>
-          <p style={styles.modeLabel}>Select Mode</p>
-          <div style={styles.modeButtonsRow}>
-            <button
-              type="button"
-              style={getModeButtonStyle('classic')}
-              onClick={() => setSelectedMode('classic')}
-              onMouseEnter={(e) => {
-                if (selectedMode !== 'classic') {
-                  e.currentTarget.style.backgroundColor = '#475569';
-                  e.currentTarget.style.borderColor = '#64748b';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (selectedMode !== 'classic') {
-                  e.currentTarget.style.backgroundColor = '#334155';
-                  e.currentTarget.style.borderColor = '#475569';
-                }
-              }}
+        <View className="flex-col items-center mt-2.5 mb-2.5 w-full">
+          <Text className="text-slate-400 text-xs uppercase tracking-widest mb-2.5">
+            Select Mode
+          </Text>
+          <View className="flex-row gap-2.5 justify-center flex-wrap w-full">
+            <Pressable
+              className={getModeButtonClasses('classic')}
+              onPress={() => setSelectedMode('classic')}
             >
-              CLASSIC
-            </button>
-            <button
-              type="button"
-              style={getModeButtonStyle('time_trial')}
-              onClick={() => setSelectedMode('time_trial')}
-              onMouseEnter={(e) => {
-                if (selectedMode !== 'time_trial') {
-                  e.currentTarget.style.backgroundColor = '#475569';
-                  e.currentTarget.style.borderColor = '#64748b';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (selectedMode !== 'time_trial') {
-                  e.currentTarget.style.backgroundColor = '#334155';
-                  e.currentTarget.style.borderColor = '#475569';
-                }
-              }}
+              <Text className={getModeButtonTextClasses('classic')}>
+                CLASSIC
+              </Text>
+            </Pressable>
+            <Pressable
+              className={getModeButtonClasses('time_trial')}
+              onPress={() => setSelectedMode('time_trial')}
             >
-              TIME TRIAL
-            </button>
-            <button
-              type="button"
-              style={getModeButtonStyle('zen')}
-              onClick={() => setSelectedMode('zen')}
-              onMouseEnter={(e) => {
-                if (selectedMode !== 'zen') {
-                  e.currentTarget.style.backgroundColor = '#475569';
-                  e.currentTarget.style.borderColor = '#64748b';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (selectedMode !== 'zen') {
-                  e.currentTarget.style.backgroundColor = '#334155';
-                  e.currentTarget.style.borderColor = '#475569';
-                }
-              }}
+              <Text className={getModeButtonTextClasses('time_trial')}>
+                TIME TRIAL
+              </Text>
+            </Pressable>
+            <Pressable
+              className={getModeButtonClasses('zen')}
+              onPress={() => setSelectedMode('zen')}
             >
-              ZEN
-            </button>
-          </div>
-          <p style={{ ...styles.modeLabel, marginTop: '8px', fontSize: '12px', color: '#64748b' }}>
+              <Text className={getModeButtonTextClasses('zen')}>ZEN</Text>
+            </Pressable>
+          </View>
+          <Text className="text-slate-500 text-xs mt-2 text-center">
             {selectedMode === 'zen'
               ? 'No obstacles - just relax and collect!'
               : selectedMode === 'time_trial'
                 ? '60 seconds - race for high score!'
                 : 'Avoid obstacles and survive!'}
-          </p>
-        </div>
+          </Text>
+        </View>
 
-        <button
-          type="button"
-          style={styles.button}
-          onClick={handlePlay}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#60a5fa';
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = UI_COLORS.menu.accent;
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
+        <Pressable
+          className="w-full max-w-[280px] h-[60px] bg-brand-primary rounded-xl items-center justify-center mt-4 active:bg-blue-400 active:scale-105"
+          onPress={handlePlay}
         >
-          PLAY GAME
-        </button>
+          <Text className="text-white text-2xl font-bold font-mono">
+            PLAY GAME
+          </Text>
+        </Pressable>
 
-        <button
-          type="button"
-          style={styles.secondaryButton}
-          onClick={handleSelectOtter}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#818cf8';
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#6366f1';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
+        <Pressable
+          className="w-full max-w-[280px] h-[60px] bg-indigo-500 rounded-xl items-center justify-center mt-4 active:bg-indigo-400 active:scale-105"
+          onPress={handleSelectOtter}
         >
-          SELECT OTTER
-        </button>
+          <Text className="text-white text-2xl font-bold font-mono">
+            SELECT OTTER
+          </Text>
+        </Pressable>
 
-        <button
-          type="button"
-          style={styles.settingsButton}
-          onClick={handleOpenSettings}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#475569';
-            e.currentTarget.style.borderColor = '#64748b';
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#334155';
-            e.currentTarget.style.borderColor = '#475569';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
+        <Pressable
+          className="w-full max-w-[280px] h-[60px] bg-slate-700 border-2 border-slate-600 rounded-xl items-center justify-center mt-4 active:bg-slate-600 active:scale-105"
+          onPress={handleOpenSettings}
         >
-          SETTINGS
-        </button>
+          <Text className="text-white text-2xl font-bold font-mono">
+            SETTINGS
+          </Text>
+        </Pressable>
 
-        <p style={styles.controls}>{'<- -> or A D to move\nAvoid rocks, collect coins!'}</p>
-      </div>
+        <Text className="text-slate-400 text-base text-center mt-8 leading-6">
+          {'<- -> or A D to move\nAvoid rocks, collect coins!'}
+        </Text>
+      </View>
 
       {/* Settings Modal */}
       <Settings isOpen={showSettings} onClose={handleCloseSettings} />
-    </div>
+    </View>
   );
 }
 
@@ -464,51 +191,46 @@ function GameOverMenu({ finalScore }: GameOverMenuProps) {
   };
 
   return (
-    <div style={styles.overlay}>
-      <div style={{ ...styles.container, maxHeight: '90vh', overflowY: 'auto' }}>
-        <h1 style={styles.gameOverTitle}>GAME OVER</h1>
-        <p style={styles.scoreLabel}>FINAL SCORE</p>
-        <p style={styles.scoreValue}>{finalScore}</p>
+    <View className="absolute inset-0 bg-brand-background/85 justify-center items-center z-[200] font-mono">
+      <ScrollView
+        className="w-[90%] max-w-[400px] max-h-[90vh] p-5"
+        contentContainerStyle={{ alignItems: 'center' }}
+      >
+        <Text className="text-brand-danger text-5xl font-bold mb-5">
+          GAME OVER
+        </Text>
+        <Text className="text-slate-400 text-xl mt-5">FINAL SCORE</Text>
+        <Text className="text-brand-gold text-6xl font-bold mb-8">
+          {finalScore}
+        </Text>
 
         {highlightRank !== null && (
-          <p style={styles.newHighScoreText}>NEW HIGH SCORE! Rank #{highlightRank}</p>
+          <Text className="text-brand-success text-lg font-bold mb-2.5">
+            NEW HIGH SCORE! Rank #{highlightRank}
+          </Text>
         )}
 
-        <button
-          type="button"
-          style={styles.button}
-          onClick={handlePlayAgain}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#60a5fa';
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = UI_COLORS.menu.accent;
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
+        <Pressable
+          className="w-full max-w-[280px] h-[60px] bg-brand-primary rounded-xl items-center justify-center mt-4 active:bg-blue-400 active:scale-105"
+          onPress={handlePlayAgain}
         >
-          PLAY AGAIN
-        </button>
+          <Text className="text-white text-2xl font-bold font-mono">
+            PLAY AGAIN
+          </Text>
+        </Pressable>
 
-        <button
-          type="button"
-          style={styles.menuButton}
-          onClick={handleMainMenu}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#64748b';
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#475569';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
+        <Pressable
+          className="w-full max-w-[280px] h-[60px] bg-slate-600 rounded-xl items-center justify-center mt-4 active:bg-slate-500 active:scale-105"
+          onPress={handleMainMenu}
         >
-          MAIN MENU
-        </button>
+          <Text className="text-white text-2xl font-bold font-mono">
+            MAIN MENU
+          </Text>
+        </Pressable>
 
         {/* Leaderboard Display */}
         <Leaderboard highlightRank={highlightRank} />
-      </div>
-    </div>
+      </ScrollView>
+    </View>
   );
 }

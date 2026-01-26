@@ -1,4 +1,5 @@
 const { getDefaultConfig } = require('expo/metro-config');
+const { withNativeWind } = require('nativewind/metro');
 const path = require('path');
 
 // Find the project and workspace directories
@@ -23,7 +24,19 @@ config.resolver.disableHierarchicalLookup = true;
 // 4. Add support for additional file extensions
 config.resolver.sourceExts = [...config.resolver.sourceExts, 'mjs', 'cjs'];
 
-// 5. Handle workspace packages
+// 5. Add asset extensions for 3D models and media
+config.resolver.assetExts = [
+  ...config.resolver.assetExts,
+  'glb',
+  'gltf',
+  'obj',
+  'mtl',
+  'ogg',
+  'mp3',
+  'wav',
+];
+
+// 6. Handle workspace packages
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   // Resolve workspace packages to their source
   if (moduleName.startsWith('@otter-river-rush/')) {
@@ -42,4 +55,17 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   return context.resolveRequest(context, moduleName, platform);
 };
 
-module.exports = config;
+// 7. Configure server for web static assets
+config.server = {
+  ...config.server,
+  // Serve static files from public directory for web
+  rewriteRequestUrl: (url) => {
+    // Skip bundle and Metro-specific URLs
+    if (url.includes('.bundle') || url.includes('.map') || url.includes('hot') || url.includes('symbolicate')) {
+      return url;
+    }
+    return url;
+  },
+};
+
+module.exports = withNativeWind(config, { input: './global.css' });

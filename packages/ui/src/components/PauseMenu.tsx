@@ -1,81 +1,11 @@
 /**
- * PauseMenu Component - React/HTML Overlay
+ * PauseMenu Component - Cross-platform React Native/Web
  * Displayed when game is paused, with Resume and Quit options
+ * Uses NativeWind styling
  */
 
-import { UI_COLORS } from '@otter-river-rush/config';
 import { useGameStore } from '@otter-river-rush/state';
-import type { CSSProperties } from 'react';
-
-const styles = {
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(15, 23, 42, 0.75)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 200,
-    fontFamily: 'monospace',
-  } satisfies CSSProperties,
-
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    width: '400px',
-  } satisfies CSSProperties,
-
-  title: {
-    color: UI_COLORS.menu.text,
-    fontSize: '56px',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    margin: 0,
-    marginBottom: '40px',
-    textShadow: `0 0 15px ${UI_COLORS.menu.accent}`,
-  } satisfies CSSProperties,
-
-  button: {
-    width: '280px',
-    height: '60px',
-    backgroundColor: UI_COLORS.menu.accent,
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '10px',
-    fontSize: '24px',
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    marginTop: '15px',
-    transition: 'all 0.15s ease',
-  } satisfies CSSProperties,
-
-  menuButton: {
-    width: '280px',
-    height: '60px',
-    backgroundColor: '#475569',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '10px',
-    fontSize: '24px',
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    marginTop: '15px',
-    transition: 'all 0.15s ease',
-  } satisfies CSSProperties,
-
-  hint: {
-    color: '#94a3b8',
-    fontSize: '16px',
-    textAlign: 'center',
-    marginTop: '30px',
-  } satisfies CSSProperties,
-};
+import { Pressable, Text, View } from 'react-native';
 
 export function PauseMenu() {
   const handleResume = () => {
@@ -87,44 +17,34 @@ export function PauseMenu() {
   };
 
   return (
-    <div style={styles.overlay}>
-      <div style={styles.container}>
-        <h1 style={styles.title}>PAUSED</h1>
+    <View className="absolute inset-0 bg-brand-background/75 justify-center items-center z-[200] font-mono">
+      <View className="flex-col items-center w-[400px]">
+        <Text className="text-white text-6xl font-bold text-center mb-10">
+          PAUSED
+        </Text>
 
-        <button
-          type="button"
-          style={styles.button}
-          onClick={handleResume}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#60a5fa';
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = UI_COLORS.menu.accent;
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
+        <Pressable
+          className="w-[280px] h-[60px] bg-brand-primary rounded-xl items-center justify-center mt-4 active:bg-blue-400 active:scale-105"
+          onPress={handleResume}
         >
-          RESUME
-        </button>
+          <Text className="text-white text-2xl font-bold font-mono">
+            RESUME
+          </Text>
+        </Pressable>
 
-        <button
-          type="button"
-          style={styles.menuButton}
-          onClick={handleQuit}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#64748b';
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#475569';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
+        <Pressable
+          className="w-[280px] h-[60px] bg-slate-600 rounded-xl items-center justify-center mt-4 active:bg-slate-500 active:scale-105"
+          onPress={handleQuit}
         >
-          QUIT TO MENU
-        </button>
+          <Text className="text-white text-2xl font-bold font-mono">
+            QUIT TO MENU
+          </Text>
+        </Pressable>
 
-        <p style={styles.hint}>Press ESC to resume</p>
-      </div>
-    </div>
+        <Text className="text-slate-400 text-base text-center mt-8">
+          Press ESC to resume
+        </Text>
+      </View>
+    </View>
   );
 }

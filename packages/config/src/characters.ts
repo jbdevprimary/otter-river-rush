@@ -7,8 +7,8 @@
  * - Special abilities
  */
 
-// Use Vite's base URL for GitHub Pages subdirectory deployment
-const BASE_URL = `${import.meta.env.BASE_URL ?? '/'}assets`;
+// For Metro web, assets are served from public/ at root
+const BASE_URL = '';
 
 export interface OtterCharacter {
   id: string;

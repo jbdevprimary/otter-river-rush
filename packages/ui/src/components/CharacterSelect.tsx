@@ -1,112 +1,12 @@
 /**
- * Character Selection Screen - React/HTML Overlay
+ * Character Selection Screen - Cross-platform React Native/Web
  * Character picker with names, traits, and unlock status
+ * Uses NativeWind styling
  */
 
 import { OTTER_CHARACTERS, type OtterCharacter } from '@otter-river-rush/config';
 import { useGameStore } from '@otter-river-rush/state';
-import type { CSSProperties } from 'react';
-
-const styles = {
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(10, 22, 40, 0.95)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 200,
-    fontFamily: "'Nunito', sans-serif",
-    padding: '20px',
-    boxSizing: 'border-box',
-  } satisfies CSSProperties,
-
-  title: {
-    fontFamily: "'Fredoka One', 'Nunito', sans-serif",
-    fontSize: '48px',
-    color: '#ffffff',
-    margin: 0,
-    marginBottom: '10px',
-    textShadow: '0 0 10px #4A90D9',
-  } satisfies CSSProperties,
-
-  subtitle: {
-    fontSize: '20px',
-    color: '#88ccff',
-    margin: 0,
-    marginBottom: '30px',
-  } satisfies CSSProperties,
-
-  cardsContainer: {
-    display: 'flex',
-    gap: '20px',
-    marginBottom: '30px',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    maxWidth: '920px',
-  } satisfies CSSProperties,
-
-  infoPanel: {
-    width: '600px',
-    maxWidth: '100%',
-    padding: '20px',
-    backgroundColor: 'rgba(30, 58, 95, 0.8)',
-    border: '2px solid #4A90D9',
-    borderRadius: '15px',
-    marginBottom: '20px',
-    textAlign: 'center',
-  } satisfies CSSProperties,
-
-  infoText: {
-    color: '#ffffff',
-    fontSize: '18px',
-    lineHeight: '1.5',
-    margin: 0,
-    whiteSpace: 'pre-line',
-  } satisfies CSSProperties,
-
-  buttonsContainer: {
-    display: 'flex',
-    gap: '20px',
-    marginBottom: '20px',
-  } satisfies CSSProperties,
-
-  backButton: {
-    width: '150px',
-    height: '50px',
-    backgroundColor: '#666666',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '10px',
-    fontSize: '20px',
-    fontFamily: "'Fredoka One', 'Nunito', sans-serif",
-    cursor: 'pointer',
-    transition: 'all 0.15s ease',
-  } satisfies CSSProperties,
-
-  playButton: {
-    width: '200px',
-    height: '50px',
-    backgroundColor: '#4A90D9',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '10px',
-    fontSize: '22px',
-    fontFamily: "'Fredoka One', 'Nunito', sans-serif",
-    cursor: 'pointer',
-    transition: 'all 0.15s ease',
-  } satisfies CSSProperties,
-
-  statsText: {
-    fontSize: '14px',
-    color: '#88ccff',
-    margin: 0,
-  } satisfies CSSProperties,
-};
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 export function CharacterSelect() {
   const { selectedCharacterId, selectCharacter, startGame, returnToMenu, progress } =
@@ -123,78 +23,71 @@ export function CharacterSelect() {
   };
 
   return (
-    <div style={styles.overlay}>
-      <h1 style={styles.title}>SELECT YOUR OTTER</h1>
-      <p style={styles.subtitle}>Each otter has unique abilities!</p>
+    <View className="absolute inset-0 bg-brand-background/95 flex-col items-center justify-center z-[200] p-5">
+      <Text className="text-white text-5xl font-bold mb-2.5">
+        SELECT YOUR OTTER
+      </Text>
+      <Text className="text-blue-300 text-xl mb-8">
+        Each otter has unique abilities!
+      </Text>
 
-      <div style={styles.cardsContainer}>
-        {OTTER_CHARACTERS.map((character) => {
-          const isUnlocked = progress.unlockedCharacters.includes(character.id);
-          const isSelected = character.id === selectedCharacterId;
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 10 }}
+        className="mb-8"
+      >
+        <View className="flex-row gap-5 justify-center max-w-[920px]">
+          {OTTER_CHARACTERS.map((character) => {
+            const isUnlocked = progress.unlockedCharacters.includes(character.id);
+            const isSelected = character.id === selectedCharacterId;
 
-          return (
-            <CharacterCard
-              key={character.id}
-              character={character}
-              isUnlocked={isUnlocked}
-              isSelected={isSelected}
-              onSelect={() => {
-                if (isUnlocked) {
-                  selectCharacter(character.id);
-                }
-              }}
-            />
-          );
-        })}
-      </div>
+            return (
+              <CharacterCard
+                key={character.id}
+                character={character}
+                isUnlocked={isUnlocked}
+                isSelected={isSelected}
+                onSelect={() => {
+                  if (isUnlocked) {
+                    selectCharacter(character.id);
+                  }
+                }}
+              />
+            );
+          })}
+        </View>
+      </ScrollView>
 
       {selectedChar && (
-        <div style={styles.infoPanel}>
-          <p style={styles.infoText}>
+        <View className="w-[600px] max-w-full p-5 bg-blue-900/50 border-2 border-blue-500 rounded-2xl mb-5">
+          <Text className="text-white text-lg text-center leading-6">
             {`${selectedChar.name} - ${selectedChar.title}\n${selectedChar.personality}`}
-          </p>
-        </div>
+          </Text>
+        </View>
       )}
 
-      <div style={styles.buttonsContainer}>
-        <button
-          type="button"
-          style={styles.backButton}
-          onClick={handleBack}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#888888';
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#666666';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
+      <View className="flex-row gap-5 mb-5">
+        <Pressable
+          className="w-[150px] h-[50px] bg-slate-600 rounded-xl items-center justify-center active:bg-slate-500 active:scale-105"
+          onPress={handleBack}
         >
-          BACK
-        </button>
+          <Text className="text-white text-xl font-bold">BACK</Text>
+        </Pressable>
 
-        <button
-          type="button"
-          style={styles.playButton}
-          onClick={handlePlay}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#5ba3ec';
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#4A90D9';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
+        <Pressable
+          className="w-[200px] h-[50px] bg-blue-500 rounded-xl items-center justify-center active:bg-blue-400 active:scale-105"
+          onPress={handlePlay}
         >
-          START GAME
-        </button>
-      </div>
+          <Text className="text-white text-2xl font-bold">START GAME</Text>
+        </Pressable>
+      </View>
 
-      <p style={styles.statsText}>
-        Total Distance: {Math.floor(progress.totalDistance)}m | Coins: {progress.totalCoins} | High
-        Score: {progress.highScore}
-      </p>
-    </div>
+      <Text className="text-blue-300 text-sm">
+        Total Distance: {Math.floor(progress.totalDistance)}m | Coins:{' '}
+        {progress.totalCoins} | High Score: {progress.highScore}
+      </Text>
+    </View>
   );
 }
 
@@ -205,106 +98,75 @@ interface CharacterCardProps {
   onSelect: () => void;
 }
 
-function CharacterCard({ character, isUnlocked, isSelected, onSelect }: CharacterCardProps) {
-  const cardStyles: CSSProperties = {
-    width: '200px',
-    height: '350px',
-    padding: '10px',
-    boxSizing: 'border-box',
-    border: `${isSelected ? 4 : 2}px solid ${isSelected ? '#FFD700' : isUnlocked ? '#4A90D9' : '#444444'}`,
-    borderRadius: '15px',
-    backgroundColor: isSelected
-      ? 'rgba(74, 144, 217, 0.4)'
-      : isUnlocked
-        ? 'rgba(30, 58, 95, 0.6)'
-        : 'rgba(30, 30, 30, 0.8)',
-    cursor: isUnlocked ? 'pointer' : 'default',
-    transition: 'all 0.15s ease',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  };
+function CharacterCard({
+  character,
+  isUnlocked,
+  isSelected,
+  onSelect,
+}: CharacterCardProps) {
+  const borderColor = isSelected
+    ? 'border-brand-gold'
+    : isUnlocked
+      ? 'border-blue-500'
+      : 'border-slate-700';
 
-  const nameStyles: CSSProperties = {
-    fontFamily: "'Fredoka One', sans-serif",
-    fontSize: '24px',
-    color: isUnlocked ? '#ffffff' : '#666666',
-    margin: 0,
-    marginTop: '10px',
-  };
-
-  const titleStyles: CSSProperties = {
-    fontSize: '12px',
-    color: isUnlocked ? character.theme.accentColor : '#444444',
-    margin: 0,
-    marginTop: '5px',
-  };
-
-  const portraitStyles: CSSProperties = {
-    width: '100px',
-    height: '100px',
-    borderRadius: '50%',
-    border: `3px solid ${isUnlocked ? character.theme.primaryColor : '#333333'}`,
-    backgroundColor: isUnlocked ? character.theme.secondaryColor : '#222222',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: '15px',
-  };
-
-  const initialStyles: CSSProperties = {
-    fontFamily: "'Fredoka One', sans-serif",
-    fontSize: '48px',
-    color: isUnlocked ? character.theme.primaryColor : '#444444',
-    margin: 0,
-  };
-
-  const traitsContainerStyles: CSSProperties = {
-    marginTop: '15px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '4px',
-    flex: 1,
-  };
-
-  const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (isUnlocked && !isSelected) {
-      e.currentTarget.style.backgroundColor = 'rgba(74, 144, 217, 0.3)';
-    }
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (isUnlocked && !isSelected) {
-      e.currentTarget.style.backgroundColor = 'rgba(30, 58, 95, 0.6)';
-    }
-  };
+  const bgColor = isSelected
+    ? 'bg-blue-500/40'
+    : isUnlocked
+      ? 'bg-blue-900/60'
+      : 'bg-slate-800/80';
 
   return (
-    <button
-      type="button"
-      style={cardStyles}
-      onClick={onSelect}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+    <Pressable
+      className={`w-[200px] h-[350px] p-2.5 rounded-2xl flex-col items-center ${borderColor} ${bgColor} ${
+        isSelected ? 'border-4' : 'border-2'
+      } ${isUnlocked ? 'active:bg-blue-500/30' : ''}`}
+      onPress={onSelect}
       disabled={!isUnlocked}
-      aria-label={`Select ${character.name}${!isUnlocked ? ' (locked)' : ''}`}
+      accessibilityLabel={`Select ${character.name}${!isUnlocked ? ' (locked)' : ''}`}
     >
-      <p style={nameStyles}>{character.name}</p>
-      <p style={titleStyles}>{character.title}</p>
+      <Text
+        className={`text-2xl font-bold mt-2.5 ${
+          isUnlocked ? 'text-white' : 'text-slate-600'
+        }`}
+      >
+        {character.name}
+      </Text>
+      <Text
+        className="text-xs mt-1.5"
+        style={{ color: isUnlocked ? character.theme.accentColor : '#444444' }}
+      >
+        {character.title}
+      </Text>
 
-      <div style={portraitStyles}>
-        <span style={initialStyles}>{character.name[0]}</span>
-      </div>
+      {/* Portrait */}
+      <View
+        className={`w-[100px] h-[100px] rounded-full mt-4 items-center justify-center border-[3px]`}
+        style={{
+          borderColor: isUnlocked ? character.theme.primaryColor : '#333333',
+          backgroundColor: isUnlocked
+            ? character.theme.secondaryColor
+            : '#222222',
+        }}
+      >
+        <Text
+          className="text-5xl font-bold"
+          style={{
+            color: isUnlocked ? character.theme.primaryColor : '#444444',
+          }}
+        >
+          {character.name[0]}
+        </Text>
+      </View>
 
-      <div style={traitsContainerStyles}>
+      <View className="mt-4 flex-col items-center gap-1 flex-1">
         {isUnlocked ? (
           <TraitsList traits={character.traits} />
         ) : (
           <LockedDisplay hint={character.unlock.hint} />
         )}
-      </div>
-    </button>
+      </View>
+    </Pressable>
   );
 }
 
@@ -313,13 +175,8 @@ interface TraitsListProps {
 }
 
 function TraitsList({ traits }: TraitsListProps) {
-  const traitTextStyle = (isPositive: boolean): CSSProperties => ({
-    fontSize: '11px',
-    color: isPositive ? '#99ff99' : '#ff9999',
-    margin: 0,
-  });
-
-  const traitsToShow: Array<{ id: string; text: string; isPositive: boolean }> = [];
+  const traitsToShow: Array<{ id: string; text: string; isPositive: boolean }> =
+    [];
 
   if (traits.scrollSpeedMod !== 1.0) {
     const isPositive = traits.scrollSpeedMod < 1;
@@ -371,9 +228,14 @@ function TraitsList({ traits }: TraitsListProps) {
   return (
     <>
       {traitsToShow.map((trait) => (
-        <p key={trait.id} style={traitTextStyle(trait.isPositive)}>
+        <Text
+          key={trait.id}
+          className={`text-xs ${
+            trait.isPositive ? 'text-green-400' : 'text-red-400'
+          }`}
+        >
           {trait.text}
-        </p>
+        </Text>
       ))}
     </>
   );
@@ -386,28 +248,10 @@ interface LockedDisplayProps {
 function LockedDisplay({ hint }: LockedDisplayProps) {
   return (
     <>
-      <p
-        style={{
-          fontFamily: "'Fredoka One', sans-serif",
-          fontSize: '16px',
-          color: '#666666',
-          margin: 0,
-        }}
-      >
-        LOCKED
-      </p>
-      <p
-        style={{
-          fontSize: '10px',
-          color: '#555555',
-          margin: 0,
-          marginTop: '8px',
-          textAlign: 'center',
-          maxWidth: '180px',
-        }}
-      >
+      <Text className="text-slate-600 text-base font-bold">LOCKED</Text>
+      <Text className="text-slate-700 text-[10px] mt-2 text-center max-w-[180px]">
         {hint ?? 'Keep playing!'}
-      </p>
+      </Text>
     </>
   );
 }

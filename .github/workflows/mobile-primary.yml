@@ -1,7 +1,7 @@
 name: Mobile-First CI/CD
 
-# PRIMARY WORKFLOW - Mobile is the main platform
-# Web is just for testing/preview, Android APK is the production artifact
+# PRIMARY WORKFLOW - Unified Expo app for all platforms
+# Web, iOS, and Android all use Expo/Metro bundler
 
 on:
   push:
@@ -16,195 +16,101 @@ permissions:
   id-token: write
 
 jobs:
-  # Step 1: Build web bundle (base for both web and Android)
-  build-web:
-    name: Build Web Bundle
+  # Step 1: Lint, type-check, and test
+  validate:
+    name: Validate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-      
+
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'pnpm'
-      
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
-      - name: Unit & Integration tests
-        run: pnpm test
+
+      - name: Lint
+        run: pnpm lint
 
       - name: Type check
         run: pnpm type-check
 
-      - name: Build
-        run: pnpm build
+      - name: Unit & Integration tests
+        run: pnpm test
+
+  # Step 2: Build web using Expo
+  build-web:
+    name: Build Web (Expo)
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web with Expo
+        run: pnpm --filter @otter-river-rush/mobile expo export --platform web
 
       - name: Upload web dist
         uses: actions/upload-artifact@v5
         with:
           name: web-dist
-          path: apps/web/dist/**
+          path: apps/mobile/dist/**
           retention-days: 7
 
-  # Step 2: E2E tests (preview server)
-  e2e:
-    name: E2E Tests (Chromium only)
+  # Step 3: Build Android using EAS
+  android:
+    name: Android APK (EAS)
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Android APK with EAS
+        working-directory: apps/mobile
+        run: eas build --platform android --profile preview --non-interactive
+        continue-on-error: true  # EAS requires project configuration
+
+  # Step 4: Deploy web to GitHub Pages
+  deploy-pages:
+    name: Deploy Web (GitHub Pages)
     runs-on: ubuntu-latest
     needs: build-web
-    steps:
-      - uses: actions/checkout@v6
-      
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@v2
-        with:
-          chrome-version: stable
-      
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-      
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: 'pnpm'
-      
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      
-      - name: Download web dist
-        uses: actions/download-artifact@v6
-        with:
-          name: web-dist
-          path: apps/web/dist
-
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install chromium --with-deps
-
-      - name: Run E2E (smoke tests only, CI-safe)
-        run: pnpm test:e2e --project=chromium --grep="smoke"
-        continue-on-error: true
-
-      - name: Upload Playwright report
-        if: failure()
-        uses: actions/upload-artifact@v5
-        with:
-          name: playwright-report
-          path: apps/web/playwright-report/**
-          retention-days: 7
-
-  # Step 3: Android APK (PRIMARY ARTIFACT)
-  # TODO: Remove continue-on-error after Capacitor is configured for v2.0 monorepo
-  android:
-    name: Android APK (Production)
-    runs-on: macos-15
-    needs: e2e
-    continue-on-error: true  # v2.0: Capacitor not yet configured
-    steps:
-      - uses: actions/checkout@v6
-      
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-      
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: 'pnpm'
-      
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      
-      - name: Download web dist
-        uses: actions/download-artifact@v6
-        with:
-          name: web-dist
-          path: apps/web/dist
-
-      - name: Setup Java 21
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'gradle'
-      
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-      
-      - name: Accept Android licenses
-        run: yes | sdkmanager --licenses
-      
-      - name: Install Android SDK components
-        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;34.0.0"
-      
-      - name: Capacitor sync
-        run: pnpm exec cap sync android
-        working-directory: .
-      
-      - name: Build Debug APK
-        uses: gradle/actions/setup-gradle@v5
-        with:
-          gradle-version: wrapper
-          arguments: assembleDebug
-          build-root-directory: android
-          cache-read-only: false
-      
-      - name: Build Release APK
-        uses: gradle/actions/setup-gradle@v5
-        with:
-          gradle-version: wrapper
-          arguments: assembleRelease
-          build-root-directory: android
-          cache-read-only: false
-      
-      - name: Sign Release APK (if secrets available)
-        if: github.event_name == 'push' && env.ANDROID_KEYSTORE_BASE64 != ''
-        uses: r0adkll/sign-android-release@v1
-        with:
-          releaseDirectory: android/app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          alias: ${{ secrets.ANDROID_KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-      
-      - name: Upload Debug APK
-        uses: actions/upload-artifact@v5
-        with:
-          name: app-debug-apk
-          path: android/app/build/outputs/apk/debug/*.apk
-          retention-days: 30
-      
-      - name: Upload Release APK
-        uses: actions/upload-artifact@v5
-        with:
-          name: app-release-apk
-          path: android/app/build/outputs/apk/release/*.apk
-          retention-days: 90
-      
-      # Upload to Google Play only on manual dispatches (triggered by release-please workflow)
-      # This ensures APKs are only published when a release is created, not on every commit
-      - name: Upload to Google Play (if manual dispatch and signed)
-        if: github.event_name == 'workflow_dispatch' && env.GOOGLE_PLAY_JSON_KEY != ''
-        uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
-          packageName: com.ottergames.riverrush
-          releaseFiles: android/app/build/outputs/apk/release/*.apk
-          track: internal
-        env:
-          GOOGLE_PLAY_JSON_KEY: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
-
-  # Step 4: Deploy web to Pages (optional preview)
-  deploy-pages:
-    name: Deploy Web Preview (GitHub Pages)
-    runs-on: ubuntu-latest
-    needs: e2e
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: github-pages
@@ -215,16 +121,15 @@ jobs:
         with:
           name: web-dist
           path: dist
-      
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      
+
       - name: Upload to Pages
         uses: actions/upload-pages-artifact@v4
         with:
           path: dist
-      
+
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
-

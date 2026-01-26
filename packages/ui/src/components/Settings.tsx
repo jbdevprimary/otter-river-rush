@@ -1,10 +1,11 @@
 /**
- * Settings Component - React/HTML Overlay
+ * Settings Component - Cross-platform React Native/Web
  * Modal overlay for adjusting game audio settings
  * Mobile-first design with large touch targets (min 44px)
+ * Uses NativeWind styling
  */
 
-import { GAME_SPEED_LABELS, UI_COLORS } from '@otter-river-rush/config';
+import { GAME_SPEED_LABELS } from '@otter-river-rush/config';
 import {
   type ColorblindMode,
   type GameSpeedOption,
@@ -16,8 +17,8 @@ import {
   setMuted,
   playClick,
 } from '@otter-river-rush/audio';
-import type { CSSProperties } from 'react';
 import { useCallback, useEffect } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 interface SettingsProps {
   isOpen: boolean;
@@ -25,260 +26,6 @@ interface SettingsProps {
 }
 
 const STORAGE_KEY = 'otter-river-rush-settings';
-
-const styles = {
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(15, 23, 42, 0.9)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 300,
-    fontFamily: 'monospace',
-    padding: '20px',
-    boxSizing: 'border-box',
-  } satisfies CSSProperties,
-
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    width: '100%',
-    maxWidth: '400px',
-    maxHeight: '90vh',
-    overflowY: 'auto',
-    backgroundColor: '#1e293b',
-    borderRadius: '16px',
-    padding: '24px',
-    boxSizing: 'border-box',
-    border: `2px solid ${UI_COLORS.menu.accent}`,
-    boxShadow: `0 0 30px rgba(59, 130, 246, 0.3)`,
-  } satisfies CSSProperties,
-
-  title: {
-    color: UI_COLORS.menu.text,
-    fontSize: '36px',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    margin: 0,
-    marginBottom: '24px',
-    textShadow: `0 0 15px ${UI_COLORS.menu.accent}`,
-  } satisfies CSSProperties,
-
-  section: {
-    width: '100%',
-    marginBottom: '20px',
-  } satisfies CSSProperties,
-
-  sectionTitle: {
-    color: '#94a3b8',
-    fontSize: '14px',
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: '2px',
-    margin: 0,
-    marginBottom: '12px',
-  } satisfies CSSProperties,
-
-  settingRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: '16px',
-    minHeight: '44px',
-  } satisfies CSSProperties,
-
-  label: {
-    color: UI_COLORS.menu.text,
-    fontSize: '18px',
-    margin: 0,
-  } satisfies CSSProperties,
-
-  sliderContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    width: '60%',
-  } satisfies CSSProperties,
-
-  slider: {
-    flex: 1,
-    height: '44px',
-    appearance: 'none',
-    background: 'transparent',
-    cursor: 'pointer',
-    WebkitAppearance: 'none',
-  } satisfies CSSProperties,
-
-  sliderValue: {
-    color: UI_COLORS.menu.accent,
-    fontSize: '16px',
-    fontWeight: 'bold',
-    minWidth: '48px',
-    textAlign: 'right',
-  } satisfies CSSProperties,
-
-  toggle: {
-    width: '64px',
-    height: '44px',
-    borderRadius: '22px',
-    border: 'none',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    position: 'relative',
-    padding: 0,
-  } satisfies CSSProperties,
-
-  toggleKnob: {
-    position: 'absolute',
-    top: '4px',
-    width: '36px',
-    height: '36px',
-    borderRadius: '50%',
-    backgroundColor: '#ffffff',
-    transition: 'all 0.2s ease',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-  } satisfies CSSProperties,
-
-  closeButton: {
-    width: '100%',
-    height: '56px',
-    backgroundColor: UI_COLORS.menu.accent,
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '10px',
-    fontSize: '20px',
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    marginTop: '8px',
-    transition: 'all 0.15s ease',
-    minHeight: '44px',
-  } satisfies CSSProperties,
-
-  divider: {
-    width: '100%',
-    height: '1px',
-    backgroundColor: '#334155',
-    margin: '8px 0 20px 0',
-  } satisfies CSSProperties,
-
-  select: {
-    padding: '8px 12px',
-    backgroundColor: '#334155',
-    color: '#e2e8f0',
-    border: '1px solid #475569',
-    borderRadius: '6px',
-    fontSize: '14px',
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    minWidth: '150px',
-    minHeight: '44px',
-  } satisfies CSSProperties,
-
-  speedButtonsRow: {
-    display: 'flex',
-    gap: '6px',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-end',
-  } satisfies CSSProperties,
-
-  speedButton: {
-    padding: '8px 10px',
-    backgroundColor: '#334155',
-    color: '#94a3b8',
-    border: '1px solid #475569',
-    borderRadius: '6px',
-    fontSize: '11px',
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    transition: 'all 0.15s ease',
-    minHeight: '44px',
-    minWidth: '55px',
-  } satisfies CSSProperties,
-
-  speedButtonActive: {
-    backgroundColor: '#3b82f6',
-    color: '#ffffff',
-    borderColor: '#60a5fa',
-  } satisfies CSSProperties,
-
-  settingDescription: {
-    color: '#64748b',
-    fontSize: '11px',
-    margin: 0,
-    marginTop: '2px',
-  } satisfies CSSProperties,
-
-  labelWithDescription: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    flex: 1,
-  } satisfies CSSProperties,
-};
-
-// Custom slider styles injected as CSS
-const sliderStyles = `
-  .settings-slider {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 8px;
-    border-radius: 4px;
-    background: #334155;
-    outline: none;
-    margin: 18px 0;
-  }
-
-  .settings-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #3b82f6;
-    cursor: pointer;
-    border: 3px solid #ffffff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    transition: transform 0.1s ease;
-  }
-
-  .settings-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
-  }
-
-  .settings-slider::-webkit-slider-thumb:active {
-    transform: scale(1.05);
-  }
-
-  .settings-slider::-moz-range-thumb {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #3b82f6;
-    cursor: pointer;
-    border: 3px solid #ffffff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    transition: transform 0.1s ease;
-  }
-
-  .settings-slider::-moz-range-thumb:hover {
-    transform: scale(1.1);
-  }
-
-  .settings-slider::-moz-range-track {
-    height: 8px;
-    border-radius: 4px;
-    background: #334155;
-  }
-`;
 
 interface SettingsData {
   musicVolume: number;
@@ -289,6 +36,7 @@ interface SettingsData {
 
 function loadSettingsFromStorage(): SettingsData | null {
   try {
+    if (typeof localStorage === 'undefined') return null;
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       return JSON.parse(stored) as SettingsData;
@@ -301,10 +49,103 @@ function loadSettingsFromStorage(): SettingsData | null {
 
 function saveSettingsToStorage(settings: SettingsData): void {
   try {
+    if (typeof localStorage === 'undefined') return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   } catch {
     // Ignore storage errors
   }
+}
+
+/**
+ * Toggle Switch Component
+ */
+function Toggle({
+  enabled,
+  onToggle,
+  label,
+}: {
+  enabled: boolean;
+  onToggle: () => void;
+  label: string;
+}) {
+  return (
+    <Pressable
+      className={`w-16 h-11 rounded-full relative ${
+        enabled ? 'bg-brand-success' : 'bg-slate-500'
+      }`}
+      onPress={onToggle}
+      accessibilityLabel={label}
+      accessibilityRole="switch"
+    >
+      <View
+        className={`absolute top-1 w-9 h-9 bg-white rounded-full shadow ${
+          enabled ? 'left-6' : 'left-1'
+        }`}
+      />
+    </Pressable>
+  );
+}
+
+/**
+ * Volume Slider Component (simplified for cross-platform)
+ */
+function VolumeControl({
+  label,
+  value,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+  disabled: boolean;
+}) {
+  const increaseVolume = () => {
+    if (!disabled && value < 100) {
+      onChange(Math.min(100, value + 10));
+    }
+  };
+
+  const decreaseVolume = () => {
+    if (!disabled && value > 0) {
+      onChange(Math.max(0, value - 10));
+    }
+  };
+
+  return (
+    <View className="flex-row items-center justify-between w-full min-h-[44px] mb-4">
+      <Text className="text-white text-lg">{label}</Text>
+      <View className="flex-row items-center gap-3 w-[60%]">
+        <Pressable
+          className={`w-11 h-11 rounded-lg items-center justify-center ${
+            disabled ? 'bg-slate-700' : 'bg-slate-600 active:bg-slate-500'
+          }`}
+          onPress={decreaseVolume}
+          disabled={disabled}
+        >
+          <Text className="text-white text-2xl font-bold">-</Text>
+        </Pressable>
+        <View className="flex-1 h-2 bg-slate-700 rounded overflow-hidden">
+          <View
+            className={`h-full rounded ${disabled ? 'bg-slate-500' : 'bg-brand-primary'}`}
+            style={{ width: `${value}%` }}
+          />
+        </View>
+        <Pressable
+          className={`w-11 h-11 rounded-lg items-center justify-center ${
+            disabled ? 'bg-slate-700' : 'bg-slate-600 active:bg-slate-500'
+          }`}
+          onPress={increaseVolume}
+          disabled={disabled}
+        >
+          <Text className="text-white text-2xl font-bold">+</Text>
+        </Pressable>
+        <Text className="text-brand-primary text-base font-bold min-w-[48px] text-right">
+          {value}%
+        </Text>
+      </View>
+    </View>
+  );
 }
 
 export function Settings({ isOpen, onClose }: SettingsProps) {
@@ -321,15 +162,12 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
     });
   }, [accessibility.highContrast]);
 
-  const handleColorblindModeChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      playClick();
-      useGameStore.getState().updateAccessibility({
-        colorblindMode: e.target.value as ColorblindMode,
-      });
-    },
-    []
-  );
+  const handleColorblindModeChange = useCallback((mode: ColorblindMode) => {
+    playClick();
+    useGameStore.getState().updateAccessibility({
+      colorblindMode: mode,
+    });
+  }, []);
 
   const handleReducedMotionToggle = useCallback(() => {
     playClick();
@@ -346,6 +184,12 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
   }, []);
 
   const speedOptions: GameSpeedOption[] = [0.5, 0.75, 1];
+  const colorblindModes: ColorblindMode[] = [
+    'none',
+    'protanopia',
+    'deuteranopia',
+    'tritanopia',
+  ];
 
   // Sync audio manager with store on mount and changes
   useEffect(() => {
@@ -361,18 +205,17 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
       useGameStore.getState().updateSettings({
         soundEnabled: stored.soundEnabled,
         musicEnabled: stored.musicEnabled,
-        volume: stored.musicVolume, // Use music volume as the main volume
+        volume: stored.musicVolume,
       });
     }
   }, []);
 
   const handleMusicVolumeChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newVolume = Number(e.target.value) / 100;
+    (newValue: number) => {
+      const newVolume = newValue / 100;
       useGameStore.getState().updateSettings({ volume: newVolume });
       setMusicVolume(musicEnabled ? newVolume : 0);
 
-      // Save to localStorage
       saveSettingsToStorage({
         musicVolume: newVolume,
         sfxVolume: soundEnabled ? newVolume : 0,
@@ -384,12 +227,11 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
   );
 
   const handleSFXVolumeChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newVolume = Number(e.target.value) / 100;
+    (newValue: number) => {
+      const newVolume = newValue / 100;
       useGameStore.getState().updateSettings({ volume: newVolume });
       setSFXVolume(soundEnabled ? newVolume : 0);
 
-      // Save to localStorage
       saveSettingsToStorage({
         musicVolume: musicEnabled ? newVolume : 0,
         sfxVolume: newVolume,
@@ -406,7 +248,6 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
     useGameStore.getState().updateSettings({ musicEnabled: newEnabled });
     setMusicVolume(newEnabled ? volume : 0);
 
-    // Save to localStorage
     saveSettingsToStorage({
       musicVolume: volume,
       sfxVolume: volume,
@@ -421,12 +262,10 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
     setSFXVolume(newEnabled ? volume : 0);
     setMuted(!newEnabled && !musicEnabled);
 
-    // Play click after updating so new setting takes effect
     if (newEnabled) {
       playClick();
     }
 
-    // Save to localStorage
     saveSettingsToStorage({
       musicVolume: volume,
       sfxVolume: volume,
@@ -440,250 +279,205 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
     onClose();
   }, [onClose]);
 
-  // Handle ESC key to close
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        handleClose();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, handleClose]);
-
-  // Inject slider styles
-  useEffect(() => {
-    const styleId = 'settings-slider-styles';
-    if (!document.getElementById(styleId)) {
-      const styleElement = document.createElement('style');
-      styleElement.id = styleId;
-      styleElement.textContent = sliderStyles;
-      document.head.appendChild(styleElement);
-    }
-  }, []);
-
-  if (!isOpen) return null;
-
-  const getToggleStyle = (enabled: boolean): CSSProperties => ({
-    ...styles.toggle,
-    backgroundColor: enabled ? '#22c55e' : '#64748b',
-  });
-
-  const getToggleKnobStyle = (enabled: boolean): CSSProperties => ({
-    ...styles.toggleKnob,
-    left: enabled ? '24px' : '4px',
-  });
-
   // Calculate display values
   const musicVolumeDisplay = Math.round((musicEnabled ? volume : 0) * 100);
   const sfxVolumeDisplay = Math.round((soundEnabled ? volume : 0) * 100);
 
+  if (!isOpen) return null;
+
   return (
-    <div style={styles.overlay} onClick={handleClose}>
-      <div style={styles.container} onClick={(e) => e.stopPropagation()}>
-        <h1 style={styles.title}>SETTINGS</h1>
-
-        {/* Music Section */}
-        <div style={styles.section}>
-          <p style={styles.sectionTitle}>Music</p>
-
-          {/* Music On/Off Toggle */}
-          <div style={styles.settingRow}>
-            <p style={styles.label}>Music</p>
-            <button
-              type="button"
-              style={getToggleStyle(musicEnabled)}
-              onClick={handleMusicToggle}
-              aria-label={musicEnabled ? 'Disable music' : 'Enable music'}
-              aria-pressed={musicEnabled}
-            >
-              <div style={getToggleKnobStyle(musicEnabled)} />
-            </button>
-          </div>
-
-          {/* Music Volume Slider */}
-          <div style={styles.settingRow}>
-            <p style={styles.label}>Volume</p>
-            <div style={styles.sliderContainer}>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={musicVolumeDisplay}
-                onChange={handleMusicVolumeChange}
-                className="settings-slider"
-                style={styles.slider}
-                disabled={!musicEnabled}
-                aria-label="Music volume"
-              />
-              <span style={styles.sliderValue}>{musicVolumeDisplay}%</span>
-            </div>
-          </div>
-        </div>
-
-        <div style={styles.divider} />
-
-        {/* SFX Section */}
-        <div style={styles.section}>
-          <p style={styles.sectionTitle}>Sound Effects</p>
-
-          {/* SFX On/Off Toggle */}
-          <div style={styles.settingRow}>
-            <p style={styles.label}>SFX</p>
-            <button
-              type="button"
-              style={getToggleStyle(soundEnabled)}
-              onClick={handleSFXToggle}
-              aria-label={soundEnabled ? 'Disable sound effects' : 'Enable sound effects'}
-              aria-pressed={soundEnabled}
-            >
-              <div style={getToggleKnobStyle(soundEnabled)} />
-            </button>
-          </div>
-
-          {/* SFX Volume Slider */}
-          <div style={styles.settingRow}>
-            <p style={styles.label}>Volume</p>
-            <div style={styles.sliderContainer}>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={sfxVolumeDisplay}
-                onChange={handleSFXVolumeChange}
-                className="settings-slider"
-                style={styles.slider}
-                disabled={!soundEnabled}
-                aria-label="Sound effects volume"
-              />
-              <span style={styles.sliderValue}>{sfxVolumeDisplay}%</span>
-            </div>
-          </div>
-        </div>
-
-        <div style={styles.divider} />
-
-        {/* Accessibility Section */}
-        <div style={styles.section}>
-          <p style={styles.sectionTitle}>Accessibility</p>
-
-          {/* High Contrast Toggle */}
-          <div style={styles.settingRow}>
-            <div style={styles.labelWithDescription}>
-              <p style={styles.label}>High Contrast</p>
-              <p style={styles.settingDescription}>
-                Increase color contrast
-              </p>
-            </div>
-            <button
-              type="button"
-              style={getToggleStyle(accessibility.highContrast)}
-              onClick={handleHighContrastToggle}
-              aria-label={
-                accessibility.highContrast
-                  ? 'Disable high contrast'
-                  : 'Enable high contrast'
-              }
-              aria-pressed={accessibility.highContrast}
-            >
-              <div style={getToggleKnobStyle(accessibility.highContrast)} />
-            </button>
-          </div>
-
-          {/* Colorblind Mode Select */}
-          <div style={styles.settingRow}>
-            <div style={styles.labelWithDescription}>
-              <p style={styles.label}>Colorblind Mode</p>
-              <p style={styles.settingDescription}>
-                Adjust colors for visibility
-              </p>
-            </div>
-            <select
-              value={accessibility.colorblindMode}
-              onChange={handleColorblindModeChange}
-              style={styles.select}
-              aria-label="Select colorblind mode"
-            >
-              <option value="none">None</option>
-              <option value="protanopia">Protanopia</option>
-              <option value="deuteranopia">Deuteranopia</option>
-              <option value="tritanopia">Tritanopia</option>
-            </select>
-          </div>
-
-          {/* Reduced Motion Toggle */}
-          <div style={styles.settingRow}>
-            <div style={styles.labelWithDescription}>
-              <p style={styles.label}>Reduced Motion</p>
-              <p style={styles.settingDescription}>
-                Disable particles
-              </p>
-            </div>
-            <button
-              type="button"
-              style={getToggleStyle(accessibility.reducedMotion)}
-              onClick={handleReducedMotionToggle}
-              aria-label={
-                accessibility.reducedMotion
-                  ? 'Disable reduced motion'
-                  : 'Enable reduced motion'
-              }
-              aria-pressed={accessibility.reducedMotion}
-            >
-              <div style={getToggleKnobStyle(accessibility.reducedMotion)} />
-            </button>
-          </div>
-
-          {/* Game Speed Buttons */}
-          <div style={styles.settingRow}>
-            <div style={styles.labelWithDescription}>
-              <p style={styles.label}>Game Speed</p>
-              <p style={styles.settingDescription}>
-                Slow down gameplay
-              </p>
-            </div>
-            <div style={styles.speedButtonsRow}>
-              {speedOptions.map((speed) => (
-                <button
-                  key={speed}
-                  type="button"
-                  style={{
-                    ...styles.speedButton,
-                    ...(accessibility.gameSpeedMultiplier === speed
-                      ? styles.speedButtonActive
-                      : {}),
-                  }}
-                  onClick={() => handleGameSpeedChange(speed)}
-                  aria-pressed={accessibility.gameSpeedMultiplier === speed}
-                >
-                  {GAME_SPEED_LABELS[speed]}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          style={styles.closeButton}
-          onClick={handleClose}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#60a5fa';
-            e.currentTarget.style.transform = 'scale(1.02)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = UI_COLORS.menu.accent;
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
+    <Pressable
+      className="absolute inset-0 bg-brand-background/90 justify-center items-center z-[300] p-5"
+      onPress={handleClose}
+    >
+      <Pressable
+        className="flex-col items-center w-full max-w-[400px] max-h-[90vh] bg-brand-surface rounded-2xl p-6 border-2 border-brand-primary"
+        onPress={(e) => e.stopPropagation()}
+      >
+        <ScrollView
+          className="w-full"
+          contentContainerStyle={{ alignItems: 'center' }}
+          showsVerticalScrollIndicator={false}
         >
-          CLOSE
-        </button>
+          <Text className="text-white text-4xl font-bold text-center mb-6">
+            SETTINGS
+          </Text>
 
-        <p style={{ color: '#64748b', fontSize: '12px', marginTop: '16px', textAlign: 'center' }}>
-          Press ESC to close
-        </p>
-      </div>
-    </div>
+          {/* Music Section */}
+          <View className="w-full mb-5">
+            <Text className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-3">
+              Music
+            </Text>
+
+            <View className="flex-row items-center justify-between w-full min-h-[44px] mb-4">
+              <Text className="text-white text-lg">Music</Text>
+              <Toggle
+                enabled={musicEnabled}
+                onToggle={handleMusicToggle}
+                label={musicEnabled ? 'Disable music' : 'Enable music'}
+              />
+            </View>
+
+            <VolumeControl
+              label="Volume"
+              value={musicVolumeDisplay}
+              onChange={handleMusicVolumeChange}
+              disabled={!musicEnabled}
+            />
+          </View>
+
+          <View className="w-full h-px bg-slate-700 my-2" />
+
+          {/* SFX Section */}
+          <View className="w-full mb-5">
+            <Text className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-3">
+              Sound Effects
+            </Text>
+
+            <View className="flex-row items-center justify-between w-full min-h-[44px] mb-4">
+              <Text className="text-white text-lg">SFX</Text>
+              <Toggle
+                enabled={soundEnabled}
+                onToggle={handleSFXToggle}
+                label={soundEnabled ? 'Disable SFX' : 'Enable SFX'}
+              />
+            </View>
+
+            <VolumeControl
+              label="Volume"
+              value={sfxVolumeDisplay}
+              onChange={handleSFXVolumeChange}
+              disabled={!soundEnabled}
+            />
+          </View>
+
+          <View className="w-full h-px bg-slate-700 my-2" />
+
+          {/* Accessibility Section */}
+          <View className="w-full mb-5">
+            <Text className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-3">
+              Accessibility
+            </Text>
+
+            {/* High Contrast */}
+            <View className="flex-row items-center justify-between w-full min-h-[44px] mb-4">
+              <View className="flex-col flex-1">
+                <Text className="text-white text-lg">High Contrast</Text>
+                <Text className="text-slate-500 text-xs">
+                  Increase color contrast
+                </Text>
+              </View>
+              <Toggle
+                enabled={accessibility.highContrast}
+                onToggle={handleHighContrastToggle}
+                label={
+                  accessibility.highContrast
+                    ? 'Disable high contrast'
+                    : 'Enable high contrast'
+                }
+              />
+            </View>
+
+            {/* Colorblind Mode */}
+            <View className="flex-row items-center justify-between w-full min-h-[44px] mb-4">
+              <View className="flex-col flex-1">
+                <Text className="text-white text-lg">Colorblind Mode</Text>
+                <Text className="text-slate-500 text-xs">
+                  Adjust colors for visibility
+                </Text>
+              </View>
+            </View>
+            <View className="flex-row flex-wrap gap-2 mb-4">
+              {colorblindModes.map((mode) => (
+                <Pressable
+                  key={mode}
+                  className={`px-3 py-2 rounded-lg min-h-[44px] items-center justify-center ${
+                    accessibility.colorblindMode === mode
+                      ? 'bg-brand-primary'
+                      : 'bg-slate-700 active:bg-slate-600'
+                  }`}
+                  onPress={() => handleColorblindModeChange(mode)}
+                >
+                  <Text
+                    className={`text-sm font-bold capitalize ${
+                      accessibility.colorblindMode === mode
+                        ? 'text-white'
+                        : 'text-slate-400'
+                    }`}
+                  >
+                    {mode === 'none' ? 'None' : mode}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            {/* Reduced Motion */}
+            <View className="flex-row items-center justify-between w-full min-h-[44px] mb-4">
+              <View className="flex-col flex-1">
+                <Text className="text-white text-lg">Reduced Motion</Text>
+                <Text className="text-slate-500 text-xs">
+                  Disable particles
+                </Text>
+              </View>
+              <Toggle
+                enabled={accessibility.reducedMotion}
+                onToggle={handleReducedMotionToggle}
+                label={
+                  accessibility.reducedMotion
+                    ? 'Disable reduced motion'
+                    : 'Enable reduced motion'
+                }
+              />
+            </View>
+
+            {/* Game Speed */}
+            <View className="flex-row items-center justify-between w-full min-h-[44px] mb-4">
+              <View className="flex-col flex-1">
+                <Text className="text-white text-lg">Game Speed</Text>
+                <Text className="text-slate-500 text-xs">
+                  Slow down gameplay
+                </Text>
+              </View>
+            </View>
+            <View className="flex-row gap-2 justify-end flex-wrap">
+              {speedOptions.map((speed) => (
+                <Pressable
+                  key={speed}
+                  className={`px-3 py-2 rounded-lg min-h-[44px] min-w-[55px] items-center justify-center ${
+                    accessibility.gameSpeedMultiplier === speed
+                      ? 'bg-brand-primary'
+                      : 'bg-slate-700 active:bg-slate-600'
+                  }`}
+                  onPress={() => handleGameSpeedChange(speed)}
+                >
+                  <Text
+                    className={`text-xs font-bold ${
+                      accessibility.gameSpeedMultiplier === speed
+                        ? 'text-white'
+                        : 'text-slate-400'
+                    }`}
+                  >
+                    {GAME_SPEED_LABELS[speed]}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+
+          <Pressable
+            className="w-full h-14 bg-brand-primary rounded-xl items-center justify-center mt-2 active:bg-blue-400 active:scale-[1.02]"
+            onPress={handleClose}
+          >
+            <Text className="text-white text-xl font-bold font-mono">
+              CLOSE
+            </Text>
+          </Pressable>
+
+          <Text className="text-slate-500 text-xs text-center mt-4">
+            Press ESC to close
+          </Text>
+        </ScrollView>
+      </Pressable>
+    </Pressable>
   );
 }

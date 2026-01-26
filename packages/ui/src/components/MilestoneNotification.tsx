@@ -1,10 +1,12 @@
 /**
- * Milestone Notification Component
+ * Milestone Notification Component - Cross-platform React Native/Web
  * Displays distance milestone popups with celebration effects
+ * Uses NativeWind styling
  */
 
 import { useGameStore } from '@otter-river-rush/state';
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Text, View } from 'react-native';
 
 /**
  * Distance milestones to celebrate (in meters)
@@ -22,136 +24,42 @@ function isMajorMilestone(distance: number): boolean {
  * Get milestone styling based on distance
  */
 function getMilestoneStyle(distance: number): {
-  bg: string;
-  border: string;
-  glow: string;
-  text: string;
+  bgClass: string;
+  borderClass: string;
+  textClass: string;
   label: string;
 } {
   if (distance >= 5000) {
     return {
-      bg: 'rgba(161, 98, 7, 0.95)',
-      border: '#f59e0b',
-      glow: 'rgba(245, 158, 11, 0.6)',
-      text: '#fcd34d',
+      bgClass: 'bg-amber-700/95',
+      borderClass: 'border-amber-500',
+      textClass: 'text-amber-200',
       label: 'LEGENDARY!',
     };
   }
   if (distance >= 3000) {
     return {
-      bg: 'rgba(88, 28, 135, 0.95)',
-      border: '#a855f7',
-      glow: 'rgba(168, 85, 247, 0.5)',
-      text: '#d8b4fe',
+      bgClass: 'bg-purple-800/95',
+      borderClass: 'border-purple-500',
+      textClass: 'text-purple-200',
       label: 'EPIC!',
     };
   }
   if (distance >= 1000) {
     return {
-      bg: 'rgba(30, 64, 175, 0.95)',
-      border: '#3b82f6',
-      glow: 'rgba(59, 130, 246, 0.5)',
-      text: '#93c5fd',
+      bgClass: 'bg-blue-800/95',
+      borderClass: 'border-blue-500',
+      textClass: 'text-blue-200',
       label: 'AMAZING!',
     };
   }
   return {
-    bg: 'rgba(16, 185, 129, 0.95)',
-    border: '#10b981',
-    glow: 'rgba(16, 185, 129, 0.5)',
-    text: '#a7f3d0',
+    bgClass: 'bg-emerald-500/95',
+    borderClass: 'border-emerald-400',
+    textClass: 'text-emerald-100',
     label: 'NICE!',
   };
 }
-
-const styles = {
-  container: {
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    zIndex: 400,
-    pointerEvents: 'none',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '8px',
-  } satisfies CSSProperties,
-
-  notification: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: '20px 40px',
-    borderRadius: '16px',
-    fontFamily: 'monospace',
-    textAlign: 'center',
-    transform: 'scale(1) translateY(0)',
-    opacity: 1,
-    transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out',
-  } satisfies CSSProperties,
-
-  notificationEntering: {
-    transform: 'scale(0.3) translateY(40px)',
-    opacity: 0,
-  } satisfies CSSProperties,
-
-  notificationExiting: {
-    transform: 'scale(0.8) translateY(-20px)',
-    opacity: 0,
-  } satisfies CSSProperties,
-
-  labelText: {
-    fontSize: '14px',
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: '3px',
-    margin: 0,
-    marginBottom: '4px',
-  } satisfies CSSProperties,
-
-  distanceText: {
-    fontSize: '48px',
-    fontWeight: 'bold',
-    margin: 0,
-    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-  } satisfies CSSProperties,
-
-  majorDistanceText: {
-    fontSize: '64px',
-    fontWeight: 'bold',
-    margin: 0,
-    textShadow: '3px 3px 6px rgba(0, 0, 0, 0.3)',
-  } satisfies CSSProperties,
-
-  celebration: {
-    position: 'absolute',
-    fontSize: '24px',
-    animation: 'sparkle 0.6s ease-out forwards',
-  } satisfies CSSProperties,
-};
-
-// CSS keyframes for sparkle animation (injected once)
-const sparkleKeyframes = `
-@keyframes sparkle {
-  0% {
-    transform: scale(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.5) rotate(180deg);
-    opacity: 0;
-  }
-}
-@keyframes pulse {
-  0%, 100% {
-    transform: translate(-50%, -50%) scale(1);
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.05);
-  }
-}
-`;
 
 interface MilestoneItemProps {
   distance: number;
@@ -160,7 +68,6 @@ interface MilestoneItemProps {
 
 function MilestoneItem({ distance, onDismiss }: MilestoneItemProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [isExiting, setIsExiting] = useState(false);
   const isMajor = isMajorMilestone(distance);
   const milestoneStyle = getMilestoneStyle(distance);
 
@@ -170,8 +77,7 @@ function MilestoneItem({ distance, onDismiss }: MilestoneItemProps) {
 
     // Auto dismiss after 2 seconds
     const dismissTimer = setTimeout(() => {
-      setIsExiting(true);
-      setTimeout(onDismiss, 400);
+      onDismiss();
     }, 2000);
 
     return () => {
@@ -180,50 +86,34 @@ function MilestoneItem({ distance, onDismiss }: MilestoneItemProps) {
     };
   }, [onDismiss]);
 
-  const notificationStyle: CSSProperties = {
-    ...styles.notification,
-    backgroundColor: milestoneStyle.bg,
-    border: `3px solid ${milestoneStyle.border}`,
-    boxShadow: `0 8px 32px ${milestoneStyle.glow}, 0 0 60px ${milestoneStyle.glow}`,
-    color: milestoneStyle.text,
-    ...((!isVisible || isExiting) &&
-      (isExiting ? styles.notificationExiting : styles.notificationEntering)),
-    ...(isMajor && { animation: 'pulse 0.5s ease-in-out 2' }),
-  };
-
-  // Generate sparkle positions for major milestones
-  const sparkles = isMajor
-    ? [
-        { top: '-20px', left: '10%' },
-        { top: '-15px', right: '15%' },
-        { bottom: '-20px', left: '20%' },
-        { bottom: '-15px', right: '10%' },
-        { top: '50%', left: '-30px' },
-        { top: '50%', right: '-30px' },
-      ]
-    : [];
-
   return (
-    <div style={notificationStyle} role="alert" aria-live="polite">
-      <p style={styles.labelText}>{milestoneStyle.label}</p>
-      <p style={isMajor ? styles.majorDistanceText : styles.distanceText}>{distance}m!</p>
+    <View
+      className={`flex-col items-center px-10 py-5 rounded-2xl border-[3px] ${milestoneStyle.bgClass} ${milestoneStyle.borderClass} ${
+        isVisible ? 'opacity-100' : 'opacity-0'
+      }`}
+      accessibilityRole="alert"
+    >
+      <Text
+        className={`text-sm font-bold uppercase tracking-widest mb-1 ${milestoneStyle.textClass}`}
+      >
+        {milestoneStyle.label}
+      </Text>
+      <Text
+        className={`font-bold ${isMajor ? 'text-6xl' : 'text-5xl'} ${milestoneStyle.textClass}`}
+      >
+        {distance}m!
+      </Text>
 
       {/* Sparkle effects for major milestones */}
-      {isVisible &&
-        !isExiting &&
-        sparkles.map((pos, i) => (
-          <span
-            key={i}
-            style={{
-              ...styles.celebration,
-              ...pos,
-              animationDelay: `${i * 0.1}s`,
-            }}
-          >
-            {'\u2728'}
-          </span>
-        ))}
-    </div>
+      {isVisible && isMajor && (
+        <>
+          <Text className="absolute -top-5 left-[10%] text-2xl">{'\u2728'}</Text>
+          <Text className="absolute -top-4 right-[15%] text-2xl">{'\u2728'}</Text>
+          <Text className="absolute -bottom-5 left-[20%] text-2xl">{'\u2728'}</Text>
+          <Text className="absolute -bottom-4 right-[10%] text-2xl">{'\u2728'}</Text>
+        </>
+      )}
+    </View>
   );
 }
 
@@ -238,17 +128,6 @@ export function MilestoneNotification() {
   // Track which milestones have been shown in current game session
   const shownMilestonesRef = useRef<Set<number>>(new Set());
   const [activeMilestone, setActiveMilestone] = useState<number | null>(null);
-  const stylesInjectedRef = useRef(false);
-
-  // Inject keyframe styles once
-  useEffect(() => {
-    if (!stylesInjectedRef.current) {
-      const styleSheet = document.createElement('style');
-      styleSheet.textContent = sparkleKeyframes;
-      document.head.appendChild(styleSheet);
-      stylesInjectedRef.current = true;
-    }
-  }, []);
 
   // Reset shown milestones when game restarts
   useEffect(() => {
@@ -265,7 +144,10 @@ export function MilestoneNotification() {
     const currentDistance = Math.floor(distance);
 
     for (const milestone of MILESTONES) {
-      if (currentDistance >= milestone && !shownMilestonesRef.current.has(milestone)) {
+      if (
+        currentDistance >= milestone &&
+        !shownMilestonesRef.current.has(milestone)
+      ) {
         // Mark as shown and trigger notification
         shownMilestonesRef.current.add(milestone);
         setActiveMilestone(milestone);
@@ -285,12 +167,12 @@ export function MilestoneNotification() {
   }
 
   return (
-    <div style={styles.container}>
+    <View className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[400] pointer-events-none flex-col items-center gap-2">
       <MilestoneItem
         key={activeMilestone}
         distance={activeMilestone}
         onDismiss={handleDismiss}
       />
-    </div>
+    </View>
   );
 }

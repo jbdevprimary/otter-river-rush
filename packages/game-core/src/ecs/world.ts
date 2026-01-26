@@ -4,15 +4,15 @@
  */
 
 import { World } from 'miniplex';
-import type { Entity, PowerUpType } from '../types';
-import { GAME_CONFIG, VISUAL, PHYSICS, getLaneX, getModelScale, getDefaultCharacter, type OtterCharacter } from '../config';
 import {
-  getObstacleUrlVariants,
   getCoinUrlVariants,
-  getGemUrlVariants,
   getDecorationUrlVariants,
+  getGemUrlVariants,
+  getObstacleUrlVariants,
   getPowerUpUrl,
 } from '../assets';
+import { GAME_CONFIG, PHYSICS, VISUAL, getDefaultCharacter, getLaneX, getModelScale, type OtterCharacter } from '../config';
+import type { Entity, PowerUpType } from '../types';
 
 /**
  * Create the Miniplex world
@@ -105,7 +105,7 @@ export const spawn = {
           death: char.modelPath,
         },
       },
-      collider: { width: 0.8, height: 1.2, depth: 0.8 },
+      collider: { width: 0.8, height: 1.2, depth: 4.0 }, // Extended depth to prevent tunneling
       health: char.traits.startingHealth,
       characterId: char.id,
     });
@@ -123,7 +123,7 @@ export const spawn = {
         url: selected.url,
         scale: selected.scale ?? getModelScale('rock'),
       },
-      collider: { width: 1.2, height: 1.2, depth: 1.2 },
+      collider: { width: 1.2, height: 1.2, depth: 3.0 }, // Extended depth
       variant,
     });
   },
@@ -140,7 +140,7 @@ export const spawn = {
         url: selected.url,
         scale: selected.scale ?? getModelScale('coin'),
       },
-      collider: { width: 0.6, height: 0.6, depth: 0.6 },
+      collider: { width: 1.5, height: 0.6, depth: 3.0 }, // Wider and deeper for easier collection
     });
   },
 

@@ -1,9 +1,9 @@
 /**
- * HUD Component - React/HTML Overlay
- * Heads-up display positioned as an absolute overlay on top of the Canvas
+ * HUD Component - Cross-platform React Native/Web
+ * Heads-up display positioned as an absolute overlay
+ * Uses NativeWind styling
  */
 
-import { UI_COLORS } from '@otter-river-rush/config';
 import {
   useGameStore,
   getTutorialTimeRemaining,
@@ -15,297 +15,8 @@ import {
   TIME_TRIAL_DURATION_MS,
 } from '@otter-river-rush/state';
 import type { PowerUpType } from '@otter-river-rush/types';
-import { useState, useEffect, type CSSProperties } from 'react';
-
-const styles = {
-  container: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    padding: '20px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    pointerEvents: 'none',
-    zIndex: 100,
-    fontFamily: 'monospace',
-  } satisfies CSSProperties,
-
-  leftPanel: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-  } satisfies CSSProperties,
-
-  rightPanel: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    marginTop: '40px', // Space for pause button
-  } satisfies CSSProperties,
-
-  scoreText: {
-    color: UI_COLORS.score,
-    fontSize: '28px',
-    fontWeight: 'bold',
-    textShadow: '2px 2px 4px #000000',
-    margin: 0,
-  } satisfies CSSProperties,
-
-  distanceText: {
-    color: UI_COLORS.distance,
-    fontSize: '20px',
-    textShadow: '1px 1px 2px #000000',
-    margin: 0,
-    marginTop: '4px',
-  } satisfies CSSProperties,
-
-  livesText: {
-    color: UI_COLORS.health,
-    fontSize: '28px',
-    textShadow: '2px 2px 4px #000000',
-    margin: 0,
-  } satisfies CSSProperties,
-
-  comboText: {
-    color: UI_COLORS.combo,
-    fontSize: '24px',
-    fontWeight: 'bold',
-    textShadow: '1px 1px 3px #000000',
-    margin: 0,
-    marginTop: '4px',
-    minHeight: '30px',
-  } satisfies CSSProperties,
-
-  comboContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    minWidth: '120px',
-  } satisfies CSSProperties,
-
-  comboTimerContainer: {
-    width: '100%',
-    height: '6px',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: '3px',
-    overflow: 'hidden',
-    marginTop: '4px',
-  } satisfies CSSProperties,
-
-  comboTimerBar: {
-    height: '100%',
-    backgroundColor: UI_COLORS.combo,
-    borderRadius: '3px',
-    transition: 'width 0.1s linear',
-  } satisfies CSSProperties,
-
-  comboMultiplier: {
-    color: '#10b981',
-    fontSize: '14px',
-    fontWeight: 'bold',
-    textShadow: '1px 1px 2px #000000',
-    margin: 0,
-    marginTop: '2px',
-  } satisfies CSSProperties,
-
-  tutorialBanner: {
-    position: 'fixed',
-    top: '80px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    padding: '12px 24px',
-    backgroundColor: 'rgba(16, 185, 129, 0.9)',
-    borderRadius: '8px',
-    border: '2px solid #34d399',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-    zIndex: 101,
-  } satisfies CSSProperties,
-
-  tutorialText: {
-    color: '#ffffff',
-    fontSize: '18px',
-    fontWeight: 'bold',
-    textShadow: '1px 1px 2px #000000',
-    margin: 0,
-    textAlign: 'center',
-  } satisfies CSSProperties,
-
-  tutorialSubtext: {
-    color: '#d1fae5',
-    fontSize: '12px',
-    margin: 0,
-    marginTop: '4px',
-    textAlign: 'center',
-  } satisfies CSSProperties,
-
-  pauseButton: {
-    position: 'fixed',
-    top: '20px',
-    right: '20px',
-    width: '48px',
-    height: '48px',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    border: '2px solid rgba(255, 255, 255, 0.3)',
-    borderRadius: '12px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    pointerEvents: 'auto',
-    zIndex: 102,
-    touchAction: 'manipulation',
-    WebkitTapHighlightColor: 'transparent',
-  } satisfies CSSProperties,
-
-  pauseIcon: {
-    display: 'flex',
-    gap: '4px',
-  } satisfies CSSProperties,
-
-  pauseBar: {
-    width: '6px',
-    height: '20px',
-    backgroundColor: '#ffffff',
-    borderRadius: '2px',
-  } satisfies CSSProperties,
-
-  // Time Trial timer styles
-  timeTrialBanner: {
-    position: 'fixed',
-    top: '80px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    padding: '16px 32px',
-    backgroundColor: 'rgba(245, 158, 11, 0.95)',
-    borderRadius: '12px',
-    border: '3px solid #fbbf24',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
-    zIndex: 101,
-    minWidth: '200px',
-    textAlign: 'center',
-  } satisfies CSSProperties,
-
-  timeTrialBannerUrgent: {
-    position: 'fixed',
-    top: '80px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    padding: '16px 32px',
-    backgroundColor: 'rgba(239, 68, 68, 0.95)',
-    borderRadius: '12px',
-    border: '3px solid #f87171',
-    boxShadow: '0 4px 20px rgba(239, 68, 68, 0.5)',
-    zIndex: 101,
-    minWidth: '200px',
-    textAlign: 'center',
-    animation: 'pulse 0.5s ease-in-out infinite',
-  } satisfies CSSProperties,
-
-  timeTrialTimer: {
-    color: '#ffffff',
-    fontSize: '36px',
-    fontWeight: 'bold',
-    textShadow: '2px 2px 4px #000000',
-    margin: 0,
-  } satisfies CSSProperties,
-
-  timeTrialLabel: {
-    color: '#fef3c7',
-    fontSize: '12px',
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: '2px',
-    margin: 0,
-    marginBottom: '4px',
-  } satisfies CSSProperties,
-
-  timeTrialProgressContainer: {
-    width: '100%',
-    height: '8px',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: '4px',
-    overflow: 'hidden',
-    marginTop: '8px',
-  } satisfies CSSProperties,
-
-  timeTrialProgressBar: {
-    height: '100%',
-    backgroundColor: '#ffffff',
-    borderRadius: '4px',
-    transition: 'width 0.1s linear',
-  } satisfies CSSProperties,
-
-  // Power-up display styles
-  powerUpsContainer: {
-    position: 'fixed',
-    bottom: '20px',
-    left: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    pointerEvents: 'none',
-    zIndex: 100,
-  } satisfies CSSProperties,
-
-  powerUpItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 12px',
-    borderRadius: '8px',
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    backdropFilter: 'blur(4px)',
-  } satisfies CSSProperties,
-
-  powerUpIcon: {
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    color: '#ffffff',
-    textShadow: '1px 1px 2px #000000',
-  } satisfies CSSProperties,
-
-  powerUpInfo: {
-    display: 'flex',
-    flexDirection: 'column',
-  } satisfies CSSProperties,
-
-  powerUpName: {
-    color: '#ffffff',
-    fontSize: '14px',
-    fontWeight: 'bold',
-    textShadow: '1px 1px 2px #000000',
-    margin: 0,
-  } satisfies CSSProperties,
-
-  powerUpTimer: {
-    color: '#94a3b8',
-    fontSize: '12px',
-    margin: 0,
-  } satisfies CSSProperties,
-
-  powerUpTimerBar: {
-    width: '60px',
-    height: '4px',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: '2px',
-    overflow: 'hidden',
-    marginTop: '4px',
-  } satisfies CSSProperties,
-
-  powerUpTimerFill: {
-    height: '100%',
-    borderRadius: '2px',
-    transition: 'width 0.1s linear',
-  } satisfies CSSProperties,
-};
+import { useState, useEffect } from 'react';
+import { Pressable, Text, View } from 'react-native';
 
 export function HUD() {
   const score = useGameStore((state) => state.score);
@@ -332,7 +43,6 @@ export function HUD() {
       return;
     }
 
-    // Update combo timer every 50ms for smooth animation
     const interval = setInterval(() => {
       const remaining = getComboTimeRemaining(comboTimer);
       setComboTimeLeft(remaining);
@@ -342,31 +52,28 @@ export function HUD() {
       }
     }, 50);
 
-    // Set initial value
     setComboTimeLeft(getComboTimeRemaining(comboTimer));
 
     return () => clearInterval(interval);
   }, [comboTimer, combo]);
 
   // Track tutorial time remaining with periodic updates
-  const [tutorialTimeLeft, setTutorialTimeLeft] = useState(() => getTutorialTimeRemaining());
+  const [tutorialTimeLeft, setTutorialTimeLeft] = useState(() =>
+    getTutorialTimeRemaining()
+  );
 
   useEffect(() => {
-    // Only run timer if game has started and tutorial period is potentially active
     if (gameStartTime === null) {
       setTutorialTimeLeft(0);
       return;
     }
 
-    // Update immediately
     setTutorialTimeLeft(getTutorialTimeRemaining());
 
-    // Update every 100ms for smooth countdown
     const interval = setInterval(() => {
       const remaining = getTutorialTimeRemaining();
       setTutorialTimeLeft(remaining);
 
-      // Stop interval when tutorial ends
       if (remaining <= 0) {
         clearInterval(interval);
       }
@@ -377,15 +84,15 @@ export function HUD() {
 
   // Track active power-ups
   const powerUps = useGameStore((state) => state.powerUps);
-  const [activePowerUps, setActivePowerUps] = useState<Array<{ type: PowerUpType; timeRemaining: number }>>([]);
+  const [activePowerUps, setActivePowerUps] = useState<
+    Array<{ type: PowerUpType; timeRemaining: number }>
+  >([]);
 
   useEffect(() => {
-    // Update active power-ups every 100ms
     const interval = setInterval(() => {
       setActivePowerUps(getActivePowerUps());
     }, 100);
 
-    // Initial update
     setActivePowerUps(getActivePowerUps());
 
     return () => clearInterval(interval);
@@ -398,109 +105,115 @@ export function HUD() {
     useGameStore.getState().pauseGame();
   };
 
+  // Use numeric percentage for React Native compatibility
+  const comboTimerWidthPercent = comboTimeLeft * 100;
+  const timeTrialProgressWidthPercent = timeRemaining
+    ? (timeRemaining / TIME_TRIAL_DURATION_MS) * 100
+    : 0;
+
   return (
     <>
-      {/* Pause Button - Mobile-first, touch-friendly */}
-      <button
-        style={styles.pauseButton}
-        onClick={handlePause}
-        aria-label="Pause game"
+      {/* Pause Button */}
+      <Pressable
+        className="absolute top-5 right-5 w-12 h-12 bg-black/50 border-2 border-white/30 rounded-xl flex-row items-center justify-center z-[102]"
+        onPress={handlePause}
+        accessibilityLabel="Pause game"
       >
-        <div style={styles.pauseIcon}>
-          <div style={styles.pauseBar} />
-          <div style={styles.pauseBar} />
-        </div>
-      </button>
+        <View className="flex-row gap-1">
+          <View className="w-1.5 h-5 bg-white rounded-sm" />
+          <View className="w-1.5 h-5 bg-white rounded-sm" />
+        </View>
+      </Pressable>
 
-      {/* Tutorial Banner - shown during tutorial period (not in zen or time trial mode) */}
+      {/* Tutorial Banner */}
       {tutorialTimeLeft > 0 && !isZenMode && !isTimeTrialMode && (
-        <div style={styles.tutorialBanner}>
-          <p style={styles.tutorialText}>TUTORIAL - {tutorialTimeLeft}s</p>
-          <p style={styles.tutorialSubtext}>You are invincible! Learn the controls.</p>
-        </div>
+        <View className="absolute top-20 left-1/2 -translate-x-1/2 px-6 py-3 bg-emerald-500/90 rounded-lg border-2 border-emerald-400 z-[101]">
+          <Text className="text-white text-lg font-bold text-center">
+            TUTORIAL - {tutorialTimeLeft}s
+          </Text>
+          <Text className="text-emerald-100 text-xs text-center mt-1">
+            You are invincible! Learn the controls.
+          </Text>
+        </View>
       )}
 
-      {/* Time Trial Timer - prominent countdown display */}
+      {/* Time Trial Timer */}
       {isTimeTrialMode && timeRemaining !== null && (
-        <div
-          style={
+        <View
+          className={`absolute top-20 left-1/2 -translate-x-1/2 px-8 py-4 rounded-xl border-[3px] min-w-[200px] items-center z-[101] ${
             timeRemaining <= 10000
-              ? styles.timeTrialBannerUrgent
-              : styles.timeTrialBanner
-          }
+              ? 'bg-brand-danger/95 border-red-400'
+              : 'bg-amber-500/95 border-amber-400'
+          }`}
         >
-          <p style={styles.timeTrialLabel}>Time Trial</p>
-          <p style={styles.timeTrialTimer}>
+          <Text className="text-amber-100 text-xs font-bold uppercase tracking-widest mb-1">
+            Time Trial
+          </Text>
+          <Text className="text-white text-4xl font-bold">
             {Math.ceil(timeRemaining / 1000)}s
-          </p>
-          {/* Progress bar showing time remaining */}
-          <div style={styles.timeTrialProgressContainer}>
-            <div
-              style={{
-                ...styles.timeTrialProgressBar,
-                width: `${(timeRemaining / TIME_TRIAL_DURATION_MS) * 100}%`,
-                backgroundColor:
-                  timeRemaining <= 10000
-                    ? '#fef2f2' // White-ish for urgent
-                    : '#ffffff',
-              }}
+          </Text>
+          <View className="w-full h-2 bg-black/30 rounded mt-2 overflow-hidden">
+            <View
+              className="h-full bg-white rounded"
+              style={{ width: `${timeTrialProgressWidthPercent}%` as unknown as number }}
             />
-          </div>
-        </div>
+          </View>
+        </View>
       )}
 
-      <div style={styles.container}>
-        {/* Left side - Score & Distance */}
-        <div style={styles.leftPanel}>
-          <p style={styles.scoreText}>SCORE: {score}</p>
-          <p style={styles.distanceText}>DISTANCE: {Math.floor(distance)}m</p>
+      {/* Main HUD Container */}
+      <View className="absolute top-0 left-0 right-0 p-5 flex-row justify-between items-start z-[100] pointer-events-none font-mono">
+        {/* Left Panel - Score & Distance */}
+        <View className="flex-col items-start">
+          <Text className="text-white text-[28px] font-bold">SCORE: {score}</Text>
+          <Text className="text-brand-primary text-xl mt-1">
+            DISTANCE: {Math.floor(distance)}m
+          </Text>
           {isZenMode && (
-            <p style={{ ...styles.distanceText, color: '#10b981', marginTop: '8px' }}>ZEN MODE</p>
+            <Text className="text-emerald-500 text-xl mt-2">ZEN MODE</Text>
           )}
-        </div>
+        </View>
 
-        {/* Right side - Lives & Combo */}
-        <div style={styles.rightPanel}>
-          {/* Hide lives display in zen mode and time trial mode */}
-          {!isZenMode && !isTimeTrialMode && <p style={styles.livesText}>{heartsDisplay}</p>}
+        {/* Right Panel - Lives & Combo */}
+        <View className="flex-col items-end mt-10">
+          {/* Hide lives in zen/time trial modes */}
+          {!isZenMode && !isTimeTrialMode && (
+            <Text className="text-brand-danger text-[28px]">{heartsDisplay}</Text>
+          )}
 
           {/* Combo display with timer bar */}
           {combo > 0 && (
-            <div style={styles.comboContainer}>
-              <p style={styles.comboText}>COMBO x{combo}</p>
-              {/* Show multiplier when 10+ combo */}
+            <View className="flex-col items-end min-w-[120px] mt-1">
+              <Text className="text-brand-gold text-2xl font-bold">
+                COMBO x{combo}
+              </Text>
               {getComboMultiplier(combo) > 1 && (
-                <p style={styles.comboMultiplier}>
+                <Text className="text-emerald-500 text-sm font-bold mt-0.5">
                   {getComboMultiplier(combo)}x SCORE
-                </p>
+                </Text>
               )}
-              {/* Combo timer bar */}
-              <div style={styles.comboTimerContainer}>
-                <div
-                  style={{
-                    ...styles.comboTimerBar,
-                    width: `${comboTimeLeft * 100}%`,
-                    backgroundColor:
-                      comboTimeLeft < 0.3
-                        ? '#ef4444' // Red when low
-                        : comboTimeLeft < 0.6
-                          ? '#fbbf24' // Yellow when medium
-                          : UI_COLORS.combo, // Normal color
-                  }}
+              <View className="w-full h-1.5 bg-black/50 rounded mt-1 overflow-hidden">
+                <View
+                  className={`h-full rounded ${
+                    comboTimeLeft < 0.3
+                      ? 'bg-brand-danger'
+                      : comboTimeLeft < 0.6
+                        ? 'bg-amber-400'
+                        : 'bg-brand-gold'
+                  }`}
+                  style={{ width: `${comboTimerWidthPercent}%` as unknown as number }}
                 />
-              </div>
-            </div>
+              </View>
+            </View>
           )}
-        </div>
-      </div>
+        </View>
+      </View>
 
       {/* Active Power-ups Display */}
       {activePowerUps.length > 0 && (
-        <div style={styles.powerUpsContainer}>
-          {activePowerUps.map(({ type, timeRemaining }) => {
+        <View className="absolute bottom-5 left-5 flex-col gap-2 z-[100] pointer-events-none">
+          {activePowerUps.map(({ type, timeRemaining: powerUpTime }) => {
             const display = POWER_UP_DISPLAYS[type];
-            // For timed power-ups, calculate width percentage
-            // Shield shows "ACTIVE" instead of timer
             const maxDurations: Record<PowerUpType, number> = {
               shield: 0,
               magnet: 8,
@@ -509,40 +222,45 @@ export function HUD() {
               slowMotion: 5,
             };
             const maxDuration = maxDurations[type];
-            const widthPercent = maxDuration > 0 ? (timeRemaining / maxDuration) * 100 : 100;
+            const widthPercent =
+              maxDuration > 0 ? (powerUpTime / maxDuration) * 100 : 100;
 
             return (
-              <div key={type} style={styles.powerUpItem}>
-                <div
-                  style={{
-                    ...styles.powerUpIcon,
-                    backgroundColor: display.color,
-                    boxShadow: `0 0 10px ${display.color}`,
-                  }}
+              <View
+                key={type}
+                className="flex-row items-center gap-2 px-3 py-2 rounded-lg bg-black/60"
+              >
+                <View
+                  className="w-8 h-8 rounded-full items-center justify-center"
+                  style={{ backgroundColor: display.color }}
                 >
-                  {display.icon}
-                </div>
-                <div style={styles.powerUpInfo}>
-                  <p style={styles.powerUpName}>{display.name}</p>
-                  <p style={styles.powerUpTimer}>
-                    {timeRemaining === -1 ? 'ACTIVE' : `${timeRemaining}s`}
-                  </p>
-                  {timeRemaining !== -1 && (
-                    <div style={styles.powerUpTimerBar}>
-                      <div
+                  <Text className="text-white text-base font-bold">
+                    {display.icon}
+                  </Text>
+                </View>
+                <View className="flex-col">
+                  <Text className="text-white text-sm font-bold">
+                    {display.name}
+                  </Text>
+                  <Text className="text-slate-400 text-xs">
+                    {powerUpTime === -1 ? 'ACTIVE' : `${powerUpTime}s`}
+                  </Text>
+                  {powerUpTime !== -1 && (
+                    <View className="w-[60px] h-1 bg-white/20 rounded mt-1 overflow-hidden">
+                      <View
+                        className="h-full rounded"
                         style={{
-                          ...styles.powerUpTimerFill,
                           width: `${widthPercent}%`,
                           backgroundColor: display.color,
                         }}
                       />
-                    </div>
+                    </View>
                   )}
-                </div>
-              </div>
+                </View>
+              </View>
             );
           })}
-        </div>
+        </View>
       )}
     </>
   );

@@ -1,6 +1,7 @@
 /**
- * AccessibilityProvider Component
+ * AccessibilityProvider Component - Cross-platform React Native/Web
  * Applies global accessibility styles (high contrast, colorblind filters, reduced motion)
+ * Web-specific features are gated behind platform checks
  */
 
 import {
@@ -10,15 +11,23 @@ import {
 } from '@otter-river-rush/config';
 import { useGameStore } from '@otter-river-rush/state';
 import { useEffect, type ReactNode } from 'react';
+import { Platform } from 'react-native';
 
 interface AccessibilityProviderProps {
   children: ReactNode;
 }
 
 /**
- * Injects CSS styles into the document head
+ * Check if we're running on web platform
+ */
+const isWeb = Platform.OS === 'web';
+
+/**
+ * Injects CSS styles into the document head (web only)
  */
 function injectStyles(id: string, css: string): void {
+  if (!isWeb || typeof document === 'undefined') return;
+
   let styleElement = document.getElementById(id) as HTMLStyleElement | null;
   if (!styleElement) {
     styleElement = document.createElement('style');
@@ -29,9 +38,11 @@ function injectStyles(id: string, css: string): void {
 }
 
 /**
- * Removes injected CSS styles from the document head
+ * Removes injected CSS styles from the document head (web only)
  */
 function removeStyles(id: string): void {
+  if (!isWeb || typeof document === 'undefined') return;
+
   const styleElement = document.getElementById(id);
   if (styleElement) {
     styleElement.remove();
@@ -41,8 +52,10 @@ function removeStyles(id: string): void {
 export function AccessibilityProvider({ children }: AccessibilityProviderProps) {
   const accessibility = useGameStore((state) => state.accessibility);
 
-  // Apply reduced motion styles
+  // Apply reduced motion styles (web only)
   useEffect(() => {
+    if (!isWeb || typeof document === 'undefined') return;
+
     const styleId = 'accessibility-reduced-motion';
 
     if (accessibility.reducedMotion) {
@@ -58,13 +71,17 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
     }
 
     return () => {
-      document.body.classList.remove(REDUCED_MOTION_CLASS);
-      removeStyles(styleId);
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove(REDUCED_MOTION_CLASS);
+        removeStyles(styleId);
+      }
     };
   }, [accessibility.reducedMotion]);
 
-  // Apply colorblind and high contrast filters
+  // Apply colorblind and high contrast filters (web only)
   useEffect(() => {
+    if (!isWeb || typeof document === 'undefined') return;
+
     const filter = getAccessibilityFilter(
       accessibility.colorblindMode,
       accessibility.highContrast
@@ -79,12 +96,16 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
     }
 
     return () => {
-      root.style.filter = '';
+      if (typeof document !== 'undefined') {
+        document.documentElement.style.filter = '';
+      }
     };
   }, [accessibility.colorblindMode, accessibility.highContrast]);
 
-  // Apply prefers-reduced-motion media query detection
+  // Apply prefers-reduced-motion media query detection (web only)
   useEffect(() => {
+    if (!isWeb || typeof window === 'undefined') return;
+
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
@@ -109,6 +130,10 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
       mediaQuery.removeEventListener('change', handleChange);
     };
   }, [accessibility.reducedMotion]);
+
+  // On native platforms, accessibility is handled by the OS accessibility services
+  // The accessibility settings in the game store can still be used to adjust
+  // game-specific features like particle effects and animation speeds
 
   return <>{children}</>;
 }

@@ -1,0 +1,23 @@
+name: Android Preview Build
+
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+
+jobs:
+  build_preview:
+    name: Build Preview APK
+    type: build
+    params:
+      platform: android
+      profile: preview
+
+  smoke_test:
+    name: Quick Smoke Test
+    needs: [build_preview]
+    type: maestro
+    params:
+      build_id: ${{ needs.build_preview.outputs.build_id }}
+      flow_path:
+        - '.maestro/flows/smoke-test.yaml'

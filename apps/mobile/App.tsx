@@ -3,19 +3,16 @@
  *
  * This is the main entry point for the Expo mobile application.
  * Uses React Three Fiber for 3D rendering with shared game-core logic.
+ * Styled with NativeWind (Tailwind CSS).
  */
+
+import './global.css';
 
 import { useGameStore } from '@otter-river-rush/game-core/store';
 import type { GameStatus } from '@otter-river-rush/game-core/types';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import {
-  Pressable,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, SafeAreaView, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { GameCanvas } from './src/components/GameCanvas';
 import { GameHUD } from './src/components/GameHUD';
@@ -34,22 +31,28 @@ export default function App() {
         return <MainMenu />;
       case 'playing':
         return (
-          <View style={styles.gameContainer}>
+          <View className="flex-1">
             <GameCanvas />
             <GameHUD />
-            <Pressable style={styles.pauseButton} onPress={pauseGame}>
-              <Text style={styles.pauseButtonText}>II</Text>
+            <Pressable
+              className="absolute top-4 right-4 w-12 h-12 bg-black/50 rounded-xl justify-center items-center"
+              onPress={pauseGame}
+            >
+              <Text className="text-white text-xl font-bold">II</Text>
             </Pressable>
           </View>
         );
       case 'paused':
         return (
-          <View style={styles.gameContainer}>
+          <View className="flex-1">
             <GameCanvas />
-            <View style={styles.pauseOverlay}>
-              <Text style={styles.pauseTitle}>PAUSED</Text>
-              <Pressable style={styles.resumeButton} onPress={resumeGame}>
-                <Text style={styles.resumeButtonText}>RESUME</Text>
+            <View className="absolute inset-0 bg-black/70 justify-center items-center">
+              <Text className="text-white text-5xl font-bold mb-8">PAUSED</Text>
+              <Pressable
+                className="bg-brand-success px-12 py-4 rounded-lg active:opacity-80"
+                onPress={resumeGame}
+              >
+                <Text className="text-white text-2xl font-bold">RESUME</Text>
               </Pressable>
             </View>
           </View>
@@ -58,8 +61,8 @@ export default function App() {
         return <GameOverScreen />;
       case 'loading':
         return (
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Loading...</Text>
+          <View className="flex-1 justify-center items-center bg-brand-surface">
+            <Text className="text-white text-2xl">Loading...</Text>
           </View>
         );
       default:
@@ -68,70 +71,11 @@ export default function App() {
   };
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <SafeAreaView style={styles.container}>
+    <GestureHandlerRootView className="flex-1">
+      <SafeAreaView className="flex-1 bg-brand-surface">
         <StatusBar style="light" />
         {renderScreen(status)}
       </SafeAreaView>
     </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1e3a5f',
-  },
-  gameContainer: {
-    flex: 1,
-  },
-  pauseButton: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    width: 48,
-    height: 48,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pauseButtonText: {
-    color: '#ffffff',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  pauseOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pauseTitle: {
-    color: '#ffffff',
-    fontSize: 48,
-    fontWeight: 'bold',
-    marginBottom: 32,
-  },
-  resumeButton: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 48,
-    paddingVertical: 16,
-    borderRadius: 8,
-  },
-  resumeButtonText: {
-    color: '#ffffff',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1e3a5f',
-  },
-  loadingText: {
-    color: '#ffffff',
-    fontSize: 24,
-  },
-});

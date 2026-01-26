@@ -13,7 +13,7 @@
 import { shaderMaterial } from '@react-three/drei';
 import { extend, useFrame } from '@react-three/fiber';
 import type React from 'react';
-import { useRef, useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
 /**
@@ -88,6 +88,11 @@ const waterFragmentShader = /* glsl */ `
   uniform float uFlowSpeed;
   uniform float uFresnelPower;
   uniform float uOpacity;
+  
+  uniform sampler2D uNormalMap;
+  uniform sampler2D uRoughnessMap;
+  uniform bool uHasNormalMap;
+  uniform bool uHasRoughnessMap;
 
   varying vec2 vUv;
   varying vec3 vWorldPosition;
@@ -123,8 +128,29 @@ const waterFragmentShader = /* glsl */ `
     float caustic2 = smoothNoise(flowUv * 12.0 + vec2(uTime * 0.1, 0.0));
     float causticPattern = (caustic1 + caustic2) * 0.5;
 
+    // Normal mapping
+    vec3 normal = normalize(vNormal);
+    if (uHasNormalMap) {
+      // Sample normal map with flow
+      vec3 mapNormal1 = texture2D(uNormalMap, flowUv * 2.0).rgb * 2.0 - 1.0;
+      vec3 mapNormal2 = texture2D(uNormalMap, flowUv * 3.0 + vec2(0.5, 0.5)).rgb * 2.0 - 1.0;
+      // Blend normals
+      vec3 mixedNormal = normalize(mapNormal1 + mapNormal2);
+      
+      // Perturb geometric normal (simplified tangent space)
+      // Since we're on a plane, we assume tangent is roughly X and bitangent is Y
+      // Ideally we should pass vTangent from vertex shader
+      vec3 tangent = normalize(cross(normal, vec3(0.0, 0.0, 1.0)));
+      vec3 bitangent = normalize(cross(normal, tangent));
+      normal = normalize(mixedNormal.x * tangent + mixedNormal.y * bitangent + mixedNormal.z * normal);
+    } else {
+      // Procedural normal perturbation
+      float d = causticPattern * 0.1;
+      normal = normalize(normal + vec3(d, 0.0, d));
+    }
+
     // Fresnel effect - edges are brighter
-    float fresnel = pow(1.0 - max(dot(vNormal, vViewDirection), 0.0), uFresnelPower);
+    float fresnel = pow(1.0 - max(dot(normal, vViewDirection), 0.0), uFresnelPower);
 
     // Depth variation based on UV (center is deeper)
     float depthFactor = 1.0 - abs(vUv.x - 0.5) * 2.0;
@@ -139,11 +165,17 @@ const waterFragmentShader = /* glsl */ `
     // Add fresnel highlight (foam-like edges)
     vec3 fresnelColor = mix(baseColor, uFoamColor, fresnel * 0.6);
 
-    // Simple specular highlight (sun reflection)
+    // Specular highlight (sun reflection)
+    float roughness = 0.1; // Default low roughness for water
+    if (uHasRoughnessMap) {
+       roughness = texture2D(uRoughnessMap, flowUv).r;
+    }
+    
     vec3 lightDir = normalize(vec3(-1.0, 2.0, -1.0));
     vec3 halfDir = normalize(lightDir + vViewDirection);
-    float specular = pow(max(dot(vNormal, halfDir), 0.0), 32.0);
-    vec3 specularColor = vec3(1.0) * specular * 0.5;
+    float NdotH = max(dot(normal, halfDir), 0.0);
+    float specularStrength = pow(NdotH, 32.0 / (roughness + 0.01)); // Adjust ray size by roughness
+    vec3 specularColor = vec3(1.0) * specularStrength * 0.5 * (1.0 - roughness);
 
     // Final color
     vec3 finalColor = fresnelColor + specularColor;
@@ -167,6 +199,10 @@ interface WaterMaterialUniforms {
   uFlowSpeed: number;
   uFresnelPower: number;
   uOpacity: number;
+  uNormalMap: THREE.Texture | null;
+  uRoughnessMap: THREE.Texture | null;
+  uHasNormalMap: boolean;
+  uHasRoughnessMap: boolean;
 }
 
 /**
@@ -185,6 +221,10 @@ const WaterShaderMaterial = shaderMaterial(
     uFlowSpeed: 0.15,
     uFresnelPower: 2.5,
     uOpacity: 0.85,
+    uNormalMap: null,
+    uRoughnessMap: null,
+    uHasNormalMap: false,
+    uHasRoughnessMap: false,
   },
   waterVertexShader,
   waterFragmentShader
@@ -225,6 +265,10 @@ export interface WaterMaterialProps {
   fresnelPower?: number;
   /** Material opacity (default: 0.85) */
   opacity?: number;
+  /** Normal map texture */
+  normalMap?: THREE.Texture | null;
+  /** Roughness map texture */
+  roughnessMap?: THREE.Texture | null;
 }
 
 /**
@@ -251,6 +295,8 @@ export function AnimatedWaterMaterial({
   flowSpeed = 0.15,
   fresnelPower = 2.5,
   opacity = 0.85,
+  normalMap,
+  roughnessMap,
 }: WaterMaterialProps) {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
@@ -294,6 +340,10 @@ export function AnimatedWaterMaterial({
       uFlowSpeed={flowSpeed}
       uFresnelPower={fresnelPower}
       uOpacity={opacity}
+      uNormalMap={normalMap ?? null}
+      uRoughnessMap={roughnessMap ?? null}
+      uHasNormalMap={!!normalMap}
+      uHasRoughnessMap={!!roughnessMap}
       transparent
       side={THREE.DoubleSide}
       depthWrite={false}

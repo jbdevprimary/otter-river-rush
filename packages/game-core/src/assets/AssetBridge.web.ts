@@ -17,9 +17,8 @@ import {
   getPowerUpAsset,
 } from './AssetRegistry';
 
-// Use Vite's base URL for GitHub Pages subdirectory deployment
-// import.meta.env.BASE_URL is '/otter-river-rush/' in production, '/' in dev
-const BASE_URL = `${import.meta.env.BASE_URL ?? '/'}assets`;
+// For Metro web, assets are served from public/ at root
+const BASE_URL = '';
 
 /**
  * Resolve an asset definition to a full URL
