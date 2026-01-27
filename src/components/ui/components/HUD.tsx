@@ -4,7 +4,7 @@
  * Uses NativeWind styling
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import {
   getActivePowerUps,
@@ -17,6 +17,8 @@ import {
   useGameStore,
 } from '../../../game/store';
 import type { PowerUpType } from '../../../game/types';
+
+type ActivePowerUp = { type: PowerUpType; timeRemaining: number };
 
 export function HUD() {
   const score = useGameStore((state) => state.score);
@@ -81,18 +83,20 @@ export function HUD() {
   }, [gameStartTime]);
 
   // Track active power-ups
-    Array<{ type: PowerUpType; timeRemaining: number }>
-  >([]);
+  const [activePowerUps, setActivePowerUps] = useState<ActivePowerUp[]>([]);
+
+  // Wrap getActivePowerUps in a stable callback
+  const updateActivePowerUps = useCallback(() => {
+    setActivePowerUps(getActivePowerUps());
+  }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActivePowerUps(getActivePowerUps());
-    }, 100);
+    const interval = setInterval(updateActivePowerUps, 100);
 
-    setActivePowerUps(getActivePowerUps());
+    updateActivePowerUps();
 
     return () => clearInterval(interval);
-  }, [getActivePowerUps]);
+  }, [updateActivePowerUps]);
 
   // Generate hearts based on lives
   const heartsDisplay = lives > 0 ? '\u2665 '.repeat(lives).trim() : '\u2661';

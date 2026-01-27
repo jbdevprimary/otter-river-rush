@@ -144,8 +144,10 @@ function playDefaultPlayerAnimation(
   actions: Record<string, THREE.AnimationAction | null> | undefined
 ): void {
   // Early exit if actions are not available
-  if (!actions) return;
-  
+  if (!actions) {
+    return;
+  }
+
   const animationNames = Object.keys(actions);
   if (animationNames.length === 0) return;
 

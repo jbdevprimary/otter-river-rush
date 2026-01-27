@@ -261,13 +261,28 @@ Respond in this JSON format:
       console.log(`  🔨 Fixing: ${diagnostic.issue}`);
 
       try {
-        // Apply the fix (this would need to parse the fixCode and apply it)
-        // For now, log what would be done
+        // Apply the fix by executing the suggested code changes
         console.log(`     ${diagnostic.suggestedFix}`);
-        console.log(`     Code: ${diagnostic.fixCode.substring(0, 100)}...`);
 
-        // TODO: Implement actual fix application
-        // This would involve parsing the fixCode and applying it to the appropriate files
+        // The fixCode should contain either:
+        // 1. A shell command to run (if it starts with a command like 'sed', 'npm', etc.)
+        // 2. A code snippet with file path and changes
+
+        if (
+          diagnostic.fixCode.trim().startsWith('sed ') ||
+          diagnostic.fixCode.trim().startsWith('npm ') ||
+          diagnostic.fixCode.trim().startsWith('git ')
+        ) {
+          // Execute as shell command
+          console.log(`     Executing: ${diagnostic.fixCode.substring(0, 100)}...`);
+          execSync(diagnostic.fixCode, { stdio: 'inherit' });
+        } else {
+          // Log the code change for manual review
+          console.log(`     Manual code change required:`);
+          console.log(`     ${diagnostic.fixCode.substring(0, 200)}...`);
+          console.log(`     ℹ️  This fix requires manual code modification.`);
+          continue; // Skip counting this as fixed since it needs manual intervention
+        }
 
         fixedCount++;
       } catch (error) {

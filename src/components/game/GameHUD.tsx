@@ -10,8 +10,9 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useGameStore } from '../../game/store';
 
-// Constants for life display (max 3 lives)
-const LIFE_INDICES = [0, 1, 2] as const;
+// Constants for life display
+const MAX_LIVES = 3;
+const LIFE_INDICES = Array.from({ length: MAX_LIVES }, (_, index) => index);
 
 /**
  * Touch control area for lane movement
