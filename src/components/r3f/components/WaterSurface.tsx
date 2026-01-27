@@ -10,10 +10,6 @@ interface WaterSurfaceProps {
     deep: string | THREE.Color;
     foam: string | THREE.Color;
   };
-  /** Width of the river (reserved for future use) */
-  riverWidth?: number;
-  /** Length of the river (reserved for future use) */
-  riverLength?: number;
 }
 
 export function WaterSurface({ colors }: WaterSurfaceProps) {

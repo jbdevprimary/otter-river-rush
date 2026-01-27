@@ -96,6 +96,13 @@ export async function loadGLB(options: LoadGLBOptions): Promise<GLBResult> {
   });
 }
 
+/**
+ * Prepares a loaded scene by setting its name and scale
+ * @param scene - The Three.js Group from the loaded GLTF
+ * @param name - Optional name to assign to the scene
+ * @param scaling - Scale factor to apply uniformly to all axes
+ * @returns The prepared scene group
+ */
 function prepareScene(scene: THREE.Group, name: string | undefined, scaling: number): THREE.Group {
   if (name) {
     scene.name = name;
@@ -106,6 +113,12 @@ function prepareScene(scene: THREE.Group, name: string | undefined, scaling: num
   return scene;
 }
 
+/**
+ * Creates animation mixer and actions from animation clips
+ * @param scene - The Three.js Group to attach the mixer to
+ * @param animations - Array of animation clips from the GLTF
+ * @returns Object containing the mixer and array of animation actions
+ */
 function createAnimationState(
   scene: THREE.Group,
   animations: THREE.AnimationClip[]
@@ -119,6 +132,11 @@ function createAnimationState(
   return { mixer, actions };
 }
 
+/**
+ * Disposes of scene resources including geometry and materials
+ * @param scene - The Three.js Group to dispose
+ * @param mixer - Optional animation mixer to stop
+ */
 function disposeScene(scene: THREE.Group, mixer: THREE.AnimationMixer | null): void {
   mixer?.stopAllAction();
   scene.traverse((child) => {
@@ -136,6 +154,13 @@ function disposeScene(scene: THREE.Group, mixer: THREE.AnimationMixer | null): v
   });
 }
 
+/**
+ * Creates a function to play animations by name or index
+ * @param actions - Array of animation actions
+ * @param animations - Array of animation clips for name lookup
+ * @param mixer - Animation mixer to control playback
+ * @returns Function that plays the specified animation
+ */
 function createPlayAnimation(
   actions: THREE.AnimationAction[],
   animations: THREE.AnimationClip[],

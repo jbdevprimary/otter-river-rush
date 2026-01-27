@@ -96,5 +96,5 @@ esac
 
 echo ""
 echo "Remember to:"
-echo "1. Register the asset in packages/assets/src/registry.ts"
-echo "2. Update the relevant config (biome-assets.ts, etc.)"
+echo "1. Register the asset in src/game/assets/AssetRegistry.ts"
+echo "2. Update the relevant config if needed"

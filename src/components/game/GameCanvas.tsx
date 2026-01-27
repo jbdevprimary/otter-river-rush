@@ -16,6 +16,27 @@ import { useGameStore } from '../../game/store';
 import type { Entity } from '../../game/types';
 
 /**
+ * Custom hook for generating stable React keys for ECS entities
+ * Uses WeakMap to allow entities to be garbage collected when removed from ECS
+ * @param prefix - Prefix for the generated keys (e.g., 'obstacle', 'collectible')
+ * @returns Function to get a stable key for an entity
+ */
+function useEntityKeys(prefix: string): (entity: Entity) => string {
+  const keyMap = useRef(new WeakMap<Entity, string>());
+  const keyCounter = useRef(0);
+
+  const getKey = (entity: Entity): string => {
+    const existing = keyMap.current.get(entity);
+    if (existing) return existing;
+    const nextKey = `${prefix}-${keyCounter.current++}`;
+    keyMap.current.set(entity, nextKey);
+    return nextKey;
+  };
+
+  return getKey;
+}
+
+/**
  * Water plane that scrolls to simulate river flow
  */
 function Water() {
@@ -201,18 +222,7 @@ function PlayerOtter() {
  */
 function Obstacles() {
   const groupRef = useRef<Group>(null);
-  // WeakMap allows entities to be garbage collected when removed from ECS
-  // Each entity gets a stable React key that persists across re-renders
-  const keyMap = useRef(new WeakMap<Entity, string>());
-  const keyCounter = useRef(0);
-
-  const getKey = (entity: Entity): string => {
-    const existing = keyMap.current.get(entity);
-    if (existing) return existing;
-    const nextKey = `obstacle-${keyCounter.current++}`;
-    keyMap.current.set(entity, nextKey);
-    return nextKey;
-  };
+  const getKey = useEntityKeys('obstacle');
 
   // Simple obstacle representation
   return (
@@ -236,16 +246,7 @@ function Obstacles() {
  * Renders collectibles from ECS
  */
 function Collectibles() {
-  const keyMap = useRef(new WeakMap<Entity, string>());
-  const keyCounter = useRef(0);
-
-  const getKey = (entity: Entity): string => {
-    const existing = keyMap.current.get(entity);
-    if (existing) return existing;
-    const nextKey = `collectible-${keyCounter.current++}`;
-    keyMap.current.set(entity, nextKey);
-    return nextKey;
-  };
+  const getKey = useEntityKeys('collectible');
 
   return (
     <group>

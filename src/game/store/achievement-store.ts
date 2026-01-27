@@ -145,9 +145,12 @@ const createAchievementState: StateCreator<AchievementState> = (set, get) => ({
 
     // Calculate survival time (time since last damage)
     const survivalTimeSeconds = state.sessionTracking.damageTaken
-      ? Math.max(0, Math.floor(
-          (state.sessionTracking.lastDamageTime - state.sessionTracking.gameStartTime) / 1000
-        ))
+      ? Math.max(
+          0,
+          Math.floor(
+            (state.sessionTracking.lastDamageTime - state.sessionTracking.gameStartTime) / 1000
+          )
+        )
       : Math.max(0, Math.floor((now - state.sessionTracking.gameStartTime) / 1000));
 
     // Check for perfect run
