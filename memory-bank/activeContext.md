@@ -1,6 +1,6 @@
 # Active Context - Otter River Rush
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-01-27
 **Current Branch**: integration/r3f-mobile-refactor
 **Session Status**: Flat Expo Structure + Brand Integration
 
@@ -153,6 +153,7 @@ Fixed `@expo/metro-config@0.20.18` bug where optional dependency paths were unde
 ### Linting & Testing Updates
 - Applied Biome formatting/lint fixes across the codebase and refactored high-complexity sections.
 - Added Jest + ts-jest with a baseline collision unit test and reran lint/typecheck/test suites.
+- Expanded Jest config to cover spec/test patterns and support path aliases.
 
 ---
 

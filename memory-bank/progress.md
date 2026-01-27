@@ -1,6 +1,6 @@
 # Progress - Otter River Rush
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-01-27
 **Current Version**: Flat Expo + Brand Integration
 **Architecture**: Standard Expo app (NOT monorepo)
 
@@ -66,6 +66,9 @@
 - **Leaderboard.tsx**: High scores
 - **CharacterSelectScreen**: 3D carousel
 
+### ✅ Test Infrastructure (2026-01-27)
+- **Jest config**: Added alias-aware matching and spec/test pattern support.
+
 ---
 
 ## What's Left to Build
@@ -92,7 +95,7 @@
 
 ---
 
-## Current Session (2026-01-26)
+## Current Session (2026-01-27)
 
 ### Completed
 1. ✅ Flattened monorepo to standard Expo
@@ -106,6 +109,7 @@
 9. ✅ Documented landing page spec
 10. ✅ Removed Sphinx scaffolding and refreshed guides for flat Expo setup
 11. ✅ Ran Biome auto-fixes and added Jest coverage for collision utilities
+12. ✅ Expanded Jest config to support alias mapping and spec/test patterns
 
 ### Files Changed
 - Created: `assets/branding/*`, `assets/ui/*`
@@ -113,7 +117,7 @@
 - Created: `patches/@expo+metro-config+0.20.18.patch`
 - Created: `docs/LANDING_PAGE_SPEC.md`
 - Modified: `app.json`, `tailwind.config.js`, `package.json`
-- Modified: `metro.config.js`, `tokens.ts`
+- Modified: `jest.config.ts`, `metro.config.js`, `tokens.ts`
 - Deleted: `apps/`, `packages/`, `src/client/`
 
 ---
