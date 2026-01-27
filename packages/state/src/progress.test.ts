@@ -1,7 +1,7 @@
-
-import { describe, it, expect } from 'vitest';
-import { checkCharacterUnlocks, updatePlayerProgress } from './progress';
+import type { OtterCharacter } from '@otter-river-rush/config';
 import type { GameState, PlayerProgress } from './game-store';
+import { checkCharacterUnlocks, updatePlayerProgress } from './progress';
+import { describe, expect, it } from 'vitest';
 
 describe('Progress', () => {
   describe('checkCharacterUnlocks', () => {
@@ -12,7 +12,7 @@ describe('Progress', () => {
         highScore: 0,
         unlockedCharacters: ['rusty'],
         totalGems: 0,
-        gamesPlayed: 0
+        gamesPlayed: 0,
       };
       const unlocked = checkCharacterUnlocks(progress);
       expect(unlocked).toEqual(['rusty']);
@@ -25,36 +25,36 @@ describe('Progress', () => {
         highScore: 0,
         unlockedCharacters: ['rusty'],
         totalGems: 0,
-        gamesPlayed: 0
+        gamesPlayed: 0,
       };
       const unlocked = checkCharacterUnlocks(progress);
       expect(unlocked).toEqual(['rusty', 'sterling']);
     });
 
     it('should unlock Goldie if total coins is >= 5000', () => {
-        const progress: PlayerProgress = {
-            totalDistance: 0,
-            totalCoins: 5000,
-            highScore: 0,
-            unlockedCharacters: ['rusty'],
-            totalGems: 0,
-            gamesPlayed: 0
-        };
-        const unlocked = checkCharacterUnlocks(progress);
-        expect(unlocked).toEqual(['rusty', 'goldie']);
+      const progress: PlayerProgress = {
+        totalDistance: 0,
+        totalCoins: 5000,
+        highScore: 0,
+        unlockedCharacters: ['rusty'],
+        totalGems: 0,
+        gamesPlayed: 0,
+      };
+      const unlocked = checkCharacterUnlocks(progress);
+      expect(unlocked).toEqual(['rusty', 'goldie']);
     });
 
     it('should unlock Frost if high score is >= 10000', () => {
-        const progress: PlayerProgress = {
-            totalDistance: 0,
-            totalCoins: 0,
-            highScore: 10000,
-            unlockedCharacters: ['rusty'],
-            totalGems: 0,
-            gamesPlayed: 0
-        };
-        const unlocked = checkCharacterUnlocks(progress);
-        expect(unlocked).toEqual(['rusty', 'frost']);
+      const progress: PlayerProgress = {
+        totalDistance: 0,
+        totalCoins: 0,
+        highScore: 10000,
+        unlockedCharacters: ['rusty'],
+        totalGems: 0,
+        gamesPlayed: 0,
+      };
+      const unlocked = checkCharacterUnlocks(progress);
+      expect(unlocked).toEqual(['rusty', 'frost']);
     });
 
     it('should unlock multiple characters if all conditions are met', () => {
@@ -104,7 +104,7 @@ describe('Progress', () => {
         musicEnabled: false,
         volume: 0,
         selectCharacter: () => {},
-        getSelectedCharacter: () => ({}) as any,
+        getSelectedCharacter: () => ({}) as unknown as OtterCharacter,
         startGame: () => {},
         pauseGame: () => {},
         resumeGame: () => {},
