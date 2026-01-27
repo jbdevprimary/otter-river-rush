@@ -15,7 +15,7 @@ import {
   type OtterCharacter,
 } from '../game/config';
 import { useGameStore } from '../game/store';
-import { CharacterCarousel3D } from '../client/src/components/carousel';
+import { CharacterCarousel3D } from '../components/carousel';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
