@@ -75,3 +75,9 @@ export {
   useWaterfallsInRange,
   useWhirlpoolsInRange,
 } from './river-path-store';
+
+export {
+  useGraphicsStore,
+  useQualityLevel,
+  useQualitySettings,
+} from './graphics-store';

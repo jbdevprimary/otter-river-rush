@@ -89,3 +89,12 @@ export {
   seededRandom,
   type RiverWidthState,
 } from './river-width';
+
+// Graphics quality configuration
+export {
+  detectRecommendedQuality,
+  getQualitySettings,
+  QUALITY_PRESETS,
+  type GraphicsQuality,
+  type QualitySettings,
+} from './graphics-quality';
