@@ -93,7 +93,7 @@ export function HUD() {
     setActivePowerUps(getActivePowerUps());
 
     return () => clearInterval(interval);
-  }, []);
+  }, [getActivePowerUps]);
 
   // Generate hearts based on lives
   const heartsDisplay = lives > 0 ? '\u2665 '.repeat(lives).trim() : '\u2661';

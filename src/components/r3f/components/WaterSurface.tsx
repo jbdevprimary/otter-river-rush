@@ -10,14 +10,13 @@ interface WaterSurfaceProps {
     deep: string | THREE.Color;
     foam: string | THREE.Color;
   };
-  foamColor: string;
   /** Width of the river (reserved for future use) */
   riverWidth?: number;
   /** Length of the river (reserved for future use) */
   riverLength?: number;
 }
 
-export function WaterSurface({ colors, foamColor }: WaterSurfaceProps) {
+export function WaterSurface({ colors }: WaterSurfaceProps) {
   // Load textures
   const waterNormalUrl = resolveAssetUrl({ path: 'textures/water/water_normal.jpg' });
   const waterRoughnessUrl = resolveAssetUrl({ path: 'textures/water/water_roughness.jpg' });
@@ -44,7 +43,7 @@ export function WaterSurface({ colors, foamColor }: WaterSurfaceProps) {
     <AnimatedWaterMaterial
       waterColor={toHex(colors.water)}
       deepColor={toHex(colors.deep)}
-      foamColor={toHex(foamColor)}
+      foamColor={toHex(colors.foam)}
       waveHeight={0.06}
       waveFrequency={0.4}
       waveSpeed={1.2}
