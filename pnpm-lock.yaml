@@ -226,6 +226,9 @@ importers:
       '@otter-river-rush/game-core':
         specifier: workspace:*
         version: link:../game-core
+      '@otter-river-rush/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.3.11
@@ -258,9 +261,15 @@ importers:
 
   packages/core:
     dependencies:
+      '@otter-river-rush/config':
+        specifier: workspace:*
+        version: link:../config
       '@otter-river-rush/game-core':
         specifier: workspace:*
         version: link:../game-core
+      '@otter-river-rush/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
       typescript:
         specifier: ~5.9.3
@@ -324,9 +333,18 @@ importers:
 
   packages/state:
     dependencies:
+      '@otter-river-rush/config':
+        specifier: workspace:*
+        version: link:../config
+      '@otter-river-rush/core':
+        specifier: workspace:*
+        version: link:../core
       '@otter-river-rush/game-core':
         specifier: workspace:*
         version: link:../game-core
+      '@otter-river-rush/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.3.11
