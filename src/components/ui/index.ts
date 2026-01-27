@@ -3,7 +3,6 @@
  * React UI components
  */
 
-export * from './branding';
 export * from './branded';
+export * from './branding';
 export * from './components';
-

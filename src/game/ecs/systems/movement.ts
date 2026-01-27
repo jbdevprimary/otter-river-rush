@@ -21,8 +21,8 @@ export function updateMovement(deltaTime: number, speedMultiplier?: number): voi
     // Player movement speed remains constant for consistent control feel
     const entityMultiplier = entity.player ? 1 : multiplier;
 
-    entity.position.x += entity.velocity!.x * deltaTime * entityMultiplier;
-    entity.position.y += entity.velocity!.y * deltaTime * entityMultiplier;
-    entity.position.z += entity.velocity!.z * deltaTime * entityMultiplier;
+    entity.position.x += (entity.velocity?.x ?? 0) * deltaTime * entityMultiplier;
+    entity.position.y += (entity.velocity?.y ?? 0) * deltaTime * entityMultiplier;
+    entity.position.z += (entity.velocity?.z ?? 0) * deltaTime * entityMultiplier;
   }
 }

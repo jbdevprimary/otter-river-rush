@@ -9,9 +9,9 @@ import { MeshyBaseClient } from './base-client.js';
 import { MeshyBaseClient } from './base-client';
 
 export interface RiggingTaskParams {
-  input_task_id: string;  // Refine task ID
+  input_task_id: string; // Refine task ID
   height_meters?: number; // Character height (default 1.7m)
-  
+
   // Extended animation support
   custom_animations?: {
     idle?: boolean;
@@ -53,6 +53,11 @@ export interface RiggingTask {
   preceding_tasks?: number;
 }
 
+interface RiggingTaskResponse {
+  result?: string;
+  id?: string;
+}
+
 export class RiggingAPI extends MeshyBaseClient {
   constructor(apiKey: string) {
     super(apiKey, 'https://api.meshy.ai/openapi/v1'); // v1 for rigging
@@ -63,7 +68,7 @@ export class RiggingAPI extends MeshyBaseClient {
    * Returns model with basic animations (walking & running)
    */
   async createRiggingTask(params: RiggingTaskParams): Promise<RiggingTask> {
-    const data = await this.request<any>('/rigging', {
+    const data = await this.request<RiggingTaskResponse>('/rigging', {
       method: 'POST',
       body: JSON.stringify({
         input_task_id: params.input_task_id,
@@ -75,8 +80,13 @@ export class RiggingAPI extends MeshyBaseClient {
       }),
     });
 
+    const taskId = data.result ?? data.id;
+    if (!taskId) {
+      throw new Error('No task ID returned from createRiggingTask');
+    }
+
     return {
-      id: data.result || data.id,
+      id: taskId,
       status: 'PENDING',
       progress: 0,
       created_at: Date.now(),
@@ -106,7 +116,7 @@ export class RiggingAPI extends MeshyBaseClient {
         console.log(`  ⏳ Rigging ${taskId.substring(0, 12)}: ${task.progress}%`);
       }
 
-      await new Promise(resolve => setTimeout(resolve, intervalMs));
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
     }
 
     throw new Error(`Rigging task ${taskId} timed out`);
@@ -119,7 +129,7 @@ export class RiggingAPI extends MeshyBaseClient {
     const response = await fetch(`${this.baseUrl}/rigging/${taskId}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${this.apiKey}`,
       },
     });
 
@@ -140,7 +150,7 @@ export class RiggingAPI extends MeshyBaseClient {
       walking: task.result?.basic_animations?.walking_glb_url,
       running: task.result?.basic_animations?.running_glb_url,
     };
-    
+
     // Extract any additional animations from result
     if (task.result && typeof task.result === 'object') {
       for (const [key, value] of Object.entries(task.result)) {

@@ -21,17 +21,13 @@ export * from './assets';
 
 // Game Data (achievements, etc.)
 export * from './data';
-
-// Validation Schemas
-export * from './schemas';
-
-// Seeded Random utilities
-export * from './utils';
-
-// River Path System
-export * from './river';
-
 // Re-export key items from submodules
 // Note: Use granular imports to avoid namespace conflicts
-export { world, spawn, queries, resetWorld } from './ecs';
-export { useGameStore, useAchievementStore } from './store';
+export { queries, resetWorld, spawn, world } from './ecs';
+// River Path System
+export * from './river';
+// Validation Schemas
+export * from './schemas';
+export { useAchievementStore, useGameStore } from './store';
+// Seeded Random utilities
+export * from './utils';

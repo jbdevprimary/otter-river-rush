@@ -4,9 +4,9 @@
  * Uses NativeWind styling
  */
 
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { OTTER_CHARACTERS, type OtterCharacter } from '../../../game/config';
 import { useGameStore } from '../../../game/store';
-import { Pressable, ScrollView, Text, View } from 'react-native';
 
 export function CharacterSelect() {
   const { selectedCharacterId, selectCharacter, startGame, returnToMenu, progress } =
@@ -24,12 +24,8 @@ export function CharacterSelect() {
 
   return (
     <View className="absolute inset-0 bg-brand-background/95 flex-col items-center justify-center z-[200] p-5">
-      <Text className="text-white text-5xl font-bold mb-2.5">
-        SELECT YOUR OTTER
-      </Text>
-      <Text className="text-blue-300 text-xl mb-8">
-        Each otter has unique abilities!
-      </Text>
+      <Text className="text-white text-5xl font-bold mb-2.5">SELECT YOUR OTTER</Text>
+      <Text className="text-blue-300 text-xl mb-8">Each otter has unique abilities!</Text>
 
       <ScrollView
         horizontal
@@ -84,8 +80,8 @@ export function CharacterSelect() {
       </View>
 
       <Text className="text-blue-300 text-sm">
-        Total Distance: {Math.floor(progress.totalDistance)}m | Coins:{' '}
-        {progress.totalCoins} | High Score: {progress.highScore}
+        Total Distance: {Math.floor(progress.totalDistance)}m | Coins: {progress.totalCoins} | High
+        Score: {progress.highScore}
       </Text>
     </View>
   );
@@ -98,23 +94,14 @@ interface CharacterCardProps {
   onSelect: () => void;
 }
 
-function CharacterCard({
-  character,
-  isUnlocked,
-  isSelected,
-  onSelect,
-}: CharacterCardProps) {
+function CharacterCard({ character, isUnlocked, isSelected, onSelect }: CharacterCardProps) {
   const borderColor = isSelected
     ? 'border-brand-gold'
     : isUnlocked
       ? 'border-blue-500'
       : 'border-slate-700';
 
-  const bgColor = isSelected
-    ? 'bg-blue-500/40'
-    : isUnlocked
-      ? 'bg-blue-900/60'
-      : 'bg-slate-800/80';
+  const bgColor = isSelected ? 'bg-blue-500/40' : isUnlocked ? 'bg-blue-900/60' : 'bg-slate-800/80';
 
   return (
     <Pressable
@@ -125,11 +112,7 @@ function CharacterCard({
       disabled={!isUnlocked}
       accessibilityLabel={`Select ${character.name}${!isUnlocked ? ' (locked)' : ''}`}
     >
-      <Text
-        className={`text-2xl font-bold mt-2.5 ${
-          isUnlocked ? 'text-white' : 'text-slate-600'
-        }`}
-      >
+      <Text className={`text-2xl font-bold mt-2.5 ${isUnlocked ? 'text-white' : 'text-slate-600'}`}>
         {character.name}
       </Text>
       <Text
@@ -144,9 +127,7 @@ function CharacterCard({
         className={`w-[100px] h-[100px] rounded-full mt-4 items-center justify-center border-[3px]`}
         style={{
           borderColor: isUnlocked ? character.theme.primaryColor : '#333333',
-          backgroundColor: isUnlocked
-            ? character.theme.secondaryColor
-            : '#222222',
+          backgroundColor: isUnlocked ? character.theme.secondaryColor : '#222222',
         }}
       >
         <Text
@@ -175,8 +156,7 @@ interface TraitsListProps {
 }
 
 function TraitsList({ traits }: TraitsListProps) {
-  const traitsToShow: Array<{ id: string; text: string; isPositive: boolean }> =
-    [];
+  const traitsToShow: Array<{ id: string; text: string; isPositive: boolean }> = [];
 
   if (traits.scrollSpeedMod !== 1.0) {
     const isPositive = traits.scrollSpeedMod < 1;
@@ -230,9 +210,7 @@ function TraitsList({ traits }: TraitsListProps) {
       {traitsToShow.map((trait) => (
         <Text
           key={trait.id}
-          className={`text-xs ${
-            trait.isPositive ? 'text-green-400' : 'text-red-400'
-          }`}
+          className={`text-xs ${trait.isPositive ? 'text-green-400' : 'text-red-400'}`}
         >
           {trait.text}
         </Text>

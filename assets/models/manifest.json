@@ -9,8 +9,8 @@
         "taskId": "019bcc04-663b-7909-b36e-9a165d180116",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/player/otter-player/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/player/otter-player/thumbnail.png"
+          "glb": "assets/models/player/otter-player/model.glb",
+          "thumbnail": "assets/models/player/otter-player/thumbnail.png"
         },
         "generatedAt": 1768654452386
       },
@@ -20,8 +20,8 @@
         "taskId": "019bd5d4-7a33-7297-91ee-9f1e4a7bf2ff",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-player/model.glb",
-          "thumbnail": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-player/thumbnail.png"
+          "glb": "assets/models/player/otter-player/model.glb",
+          "thumbnail": "assets/models/player/otter-player/thumbnail.png"
         },
         "generatedAt": 1768819081528
       },
@@ -31,8 +31,8 @@
         "taskId": "019bd5d5-41d8-7d4f-b955-fe44fe33e5df",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-silver/model.glb",
-          "thumbnail": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-silver/thumbnail.png"
+          "glb": "assets/models/player/otter-silver/model.glb",
+          "thumbnail": "assets/models/player/otter-silver/thumbnail.png"
         },
         "generatedAt": 1768819135884
       },
@@ -42,8 +42,8 @@
         "taskId": "019bd5d6-1627-7d71-bb4a-bbe136844988",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-golden/model.glb",
-          "thumbnail": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-golden/thumbnail.png"
+          "glb": "assets/models/player/otter-golden/model.glb",
+          "thumbnail": "assets/models/player/otter-golden/thumbnail.png"
         },
         "generatedAt": 1768819196737
       },
@@ -53,8 +53,8 @@
         "taskId": "019bd5d7-03dc-7319-b0c4-850098c188f2",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-arctic/model.glb",
-          "thumbnail": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-arctic/thumbnail.png"
+          "glb": "assets/models/player/otter-arctic/model.glb",
+          "thumbnail": "assets/models/player/otter-arctic/thumbnail.png"
         },
         "generatedAt": 1768819250904
       },
@@ -206,8 +206,8 @@
         "taskId": "019bcc05-3738-7923-9262-b52605267a5d",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/rock-large/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/rock-large/thumbnail.png"
+          "glb": "assets/models/obstacle/rock-large/model.glb",
+          "thumbnail": "assets/models/obstacle/rock-large/thumbnail.png"
         },
         "generatedAt": 1768654515533
       },
@@ -217,8 +217,8 @@
         "taskId": "019bcc06-2ddc-7954-bc97-6bcb450c32d5",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/rock-medium/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/rock-medium/thumbnail.png"
+          "glb": "assets/models/obstacle/rock-medium/model.glb",
+          "thumbnail": "assets/models/obstacle/rock-medium/thumbnail.png"
         },
         "generatedAt": 1768654622441
       },
@@ -228,8 +228,8 @@
         "taskId": "019bcc07-cf7b-796f-b1c1-f729ef5c5d4b",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/rock-small/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/rock-small/thumbnail.png"
+          "glb": "assets/models/obstacle/rock-small/model.glb",
+          "thumbnail": "assets/models/obstacle/rock-small/thumbnail.png"
         },
         "generatedAt": 1768654670487
       }
@@ -241,8 +241,8 @@
         "taskId": "019bcc08-8b29-782b-90e2-a7a6e1a1480b",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/log-floating/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/log-floating/thumbnail.png"
+          "glb": "assets/models/obstacle/log-floating/model.glb",
+          "thumbnail": "assets/models/obstacle/log-floating/thumbnail.png"
         },
         "generatedAt": 1768654716160
       },
@@ -252,8 +252,8 @@
         "taskId": "019bcc09-3d96-758a-ab86-b9b9a1e0955a",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/branch-floating/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/branch-floating/thumbnail.png"
+          "glb": "assets/models/obstacle/branch-floating/model.glb",
+          "thumbnail": "assets/models/obstacle/branch-floating/thumbnail.png"
         },
         "generatedAt": 1768654752843
       }
@@ -265,9 +265,9 @@
         "taskId": "019bcc01-a251-7759-9ea5-7bf9e7c8c6e6",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/coin-gold/model.glb",
-          "fbx": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/coin-gold/model.fbx",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/coin-gold/thumbnail.png"
+          "glb": "assets/models/collectible/coin-gold/model.glb",
+          "fbx": "assets/models/collectible/coin-gold/model.fbx",
+          "thumbnail": "assets/models/collectible/coin-gold/thumbnail.png"
         },
         "generatedAt": 1768654269402
       },
@@ -277,8 +277,8 @@
         "taskId": "019bcc09-cce4-7dbd-b6e9-398e056f8db2",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/coin-gold/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/coin-gold/thumbnail.png"
+          "glb": "assets/models/collectible/coin-gold/model.glb",
+          "thumbnail": "assets/models/collectible/coin-gold/thumbnail.png"
         },
         "generatedAt": 1768654802970
       }
@@ -290,8 +290,8 @@
         "taskId": "019bcc0a-90aa-7855-b6d4-8a9db89dcb25",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/gem-blue/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/gem-blue/thumbnail.png"
+          "glb": "assets/models/collectible/gem-blue/model.glb",
+          "thumbnail": "assets/models/collectible/gem-blue/thumbnail.png"
         },
         "generatedAt": 1768654855369
       },
@@ -301,8 +301,8 @@
         "taskId": "019bcc0b-5d5d-79f6-b5f9-2d52a8283400",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/gem-green/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/gem-green/thumbnail.png"
+          "glb": "assets/models/collectible/gem-green/model.glb",
+          "thumbnail": "assets/models/collectible/gem-green/thumbnail.png"
         },
         "generatedAt": 1768654909001
       },
@@ -312,8 +312,8 @@
         "taskId": "019bcc0c-2edc-7dd2-8d91-f5221e05680d",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/gem-purple/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/gem-purple/thumbnail.png"
+          "glb": "assets/models/collectible/gem-purple/model.glb",
+          "thumbnail": "assets/models/collectible/gem-purple/thumbnail.png"
         },
         "generatedAt": 1768654966609
       }
@@ -325,8 +325,8 @@
         "taskId": "019bcc0d-0fe5-7a2b-8ab5-ba57fafccc8c",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/fish-small/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/fish-small/thumbnail.png"
+          "glb": "assets/models/collectible/fish-small/model.glb",
+          "thumbnail": "assets/models/collectible/fish-small/thumbnail.png"
         },
         "generatedAt": 1768655009718
       },
@@ -336,8 +336,8 @@
         "taskId": "019bcc0d-b84a-78b0-949f-ceda2801166b",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/fish-golden/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/fish-golden/thumbnail.png"
+          "glb": "assets/models/collectible/fish-golden/model.glb",
+          "thumbnail": "assets/models/collectible/fish-golden/thumbnail.png"
         },
         "generatedAt": 1768655057756
       }
@@ -349,8 +349,8 @@
         "taskId": "019bcc0e-73fa-78bb-899b-cc9f35acf997",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/lily-pad/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/lily-pad/thumbnail.png"
+          "glb": "assets/models/decoration/lily-pad/model.glb",
+          "thumbnail": "assets/models/decoration/lily-pad/thumbnail.png"
         },
         "generatedAt": 1768655128823
       }
@@ -362,8 +362,8 @@
         "taskId": "019bcc0f-89b0-7e55-8f7b-ffff116f342a",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/cattail/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/cattail/thumbnail.png"
+          "glb": "assets/models/decoration/cattail/model.glb",
+          "thumbnail": "assets/models/decoration/cattail/thumbnail.png"
         },
         "generatedAt": 1768655177033
       },
@@ -373,8 +373,8 @@
         "taskId": "019bcc11-24a6-7e79-97a2-f465ee089fe9",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/reed-cluster/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/reed-cluster/thumbnail.png"
+          "glb": "assets/models/decoration/reed-cluster/model.glb",
+          "thumbnail": "assets/models/decoration/reed-cluster/thumbnail.png"
         },
         "generatedAt": 1768655366495
       }
@@ -386,8 +386,8 @@
         "taskId": "019bcc10-460e-7a77-acc0-4c11fa78da10",
         "status": "SUCCEEDED",
         "files": {
-          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/duck-rubber/model.glb",
-          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/duck-rubber/thumbnail.png"
+          "glb": "assets/models/decoration/duck-rubber/model.glb",
+          "thumbnail": "assets/models/decoration/duck-rubber/thumbnail.png"
         },
         "generatedAt": 1768655234034
       }

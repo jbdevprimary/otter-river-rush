@@ -6,13 +6,35 @@
  * Includes realistic otter physics with smooth rotation and bobbing.
  */
 
-import { queries } from '../../game/ecs';
-import { updateOtterPhysics, getOtterRotation } from '../../game/ecs/systems';
-import { useGameStore } from '../../game/store';
 import { Canvas, useFrame } from '@react-three/fiber/native';
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { Group, Mesh } from 'three';
+import { queries } from '../../game/ecs';
+import { getOtterRotation, updateOtterPhysics } from '../../game/ecs/systems';
+import { useGameStore } from '../../game/store';
+import type { Entity } from '../../game/types';
+
+/**
+ * Custom hook for generating stable React keys for ECS entities
+ * Uses WeakMap to allow entities to be garbage collected when removed from ECS
+ * @param prefix - Prefix for the generated keys (e.g., 'obstacle', 'collectible')
+ * @returns Function to get a stable key for an entity
+ */
+function useEntityKeys(prefix: string): (entity: Entity) => string {
+  const keyMap = useRef(new WeakMap<Entity, string>());
+  const keyCounter = useRef(0);
+
+  const getKey = (entity: Entity): string => {
+    const existing = keyMap.current.get(entity);
+    if (existing) return existing;
+    const nextKey = `${prefix}-${keyCounter.current++}`;
+    keyMap.current.set(entity, nextKey);
+    return nextKey;
+  };
+
+  return getKey;
+}
 
 /**
  * Water plane that scrolls to simulate river flow
@@ -50,9 +72,6 @@ function PlayerOtter() {
   const groupRef = useRef<Group>(null);
   const bodyRef = useRef<Group>(null);
   const status = useGameStore((state) => state.status);
-
-  // Track base Z for bobbing offset
-  const baseZ = useRef(0);
 
   useFrame((_, delta) => {
     // Find player entity from ECS
@@ -203,19 +222,16 @@ function PlayerOtter() {
  */
 function Obstacles() {
   const groupRef = useRef<Group>(null);
+  const getKey = useEntityKeys('obstacle');
 
-  // Simple obstacle representation using array index as key
+  // Simple obstacle representation
   return (
     <group ref={groupRef}>
-      {queries.obstacles.entities.map((obstacle, index) =>
+      {queries.obstacles.entities.map((obstacle) =>
         obstacle.position ? (
           <mesh
-            key={`obstacle-${index}`}
-            position={[
-              obstacle.position.x,
-              obstacle.position.z,
-              obstacle.position.y,
-            ]}
+            key={getKey(obstacle)}
+            position={[obstacle.position.x, obstacle.position.z, obstacle.position.y]}
           >
             <boxGeometry args={[0.8, 0.8, 0.8]} />
             <meshStandardMaterial color="#666666" />
@@ -230,12 +246,14 @@ function Obstacles() {
  * Renders collectibles from ECS
  */
 function Collectibles() {
+  const getKey = useEntityKeys('collectible');
+
   return (
     <group>
-      {queries.collectibles.entities.map((collectible, index) =>
+      {queries.collectibles.entities.map((collectible) =>
         collectible.position ? (
           <mesh
-            key={`collectible-${index}`}
+            key={getKey(collectible)}
             position={[
               collectible.position.x,
               collectible.position.z + 0.3,

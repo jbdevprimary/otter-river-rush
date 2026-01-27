@@ -72,7 +72,7 @@ ctx.fillRect(0, 0, width, height);
 ### Option 1: Download Manually
 1. Visit https://ambientcg.com/
 2. Download textures listed in `ASSETS.md`
-3. Place in `/public/textures/`
+3. Place in `/assets/textures/`
 4. Implement texture loader
 
 ### Option 2: Run Script (if configured)

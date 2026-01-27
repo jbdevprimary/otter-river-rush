@@ -972,7 +972,7 @@ export function GameHUD() {
 
 ### Models Not Loading
 - Check asset URLs in `game-constants.ts`
-- Verify GLB files exist in `public/models/`
+- Verify GLB files exist in `assets/models/`
 - Check browser console for 404 errors
 - Use `useGLTF.preload()` for critical assets
 

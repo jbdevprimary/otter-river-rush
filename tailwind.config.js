@@ -1,10 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    './App.tsx',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-  ],
+  content: ['./App.tsx', './app/**/*.{ts,tsx}', './src/**/*.{ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
@@ -79,21 +75,21 @@ module.exports = {
       // Responsive breakpoints for different device form factors
       screens: {
         // Phone portrait (Pixel 8A: 412x924)
-        'phone': '320px',
+        phone: '320px',
         // Phone landscape / small tablet
         'phone-lg': '480px',
         // Tablet portrait (iPad mini: 768px)
-        'tablet': '768px',
+        tablet: '768px',
         // Tablet landscape / Pixel Tablet (1280x800)
         'tablet-lg': '1024px',
         // Foldable unfolded (Pixel Fold outer: ~840px)
-        'foldable': '840px',
+        foldable: '840px',
         // Desktop/large screens
-        'desktop': '1280px',
+        desktop: '1280px',
         // Landscape-specific (use with media query)
-        'landscape': { raw: '(orientation: landscape)' },
+        landscape: { raw: '(orientation: landscape)' },
         // Portrait-specific
-        'portrait': { raw: '(orientation: portrait)' },
+        portrait: { raw: '(orientation: portrait)' },
       },
       // Safe area spacing for notches and dynamic islands
       spacing: {

@@ -147,7 +147,9 @@ export function initAudio(config?: AudioConfig): void {
     delayTime: 3.5,
     depth: 0.7,
     wet: 0.5,
-  }).connect(musicGain).start();
+  })
+    .connect(musicGain)
+    .start();
 
   // Coin pickup synth - bright, bell-like chimes
   coinSynth = new Tone.PolySynth(Tone.Synth, {
@@ -332,12 +334,7 @@ export function playGemPickup(gemType: GemType = 'blue'): void {
 
   const notes = chords[gemType];
   notes.forEach((note, i) => {
-    gemSynth!.triggerAttackRelease(
-      note,
-      '8n',
-      now + i * 0.05,
-      (0.4 + i * 0.15) * state.sfxVolume
-    );
+    gemSynth?.triggerAttackRelease(note, '8n', now + i * 0.05, (0.4 + i * 0.15) * state.sfxVolume);
   });
 }
 
@@ -427,12 +424,7 @@ function playBonusSound(): void {
   // Triumphant ascending scale
   const notes = ['C5', 'E5', 'G5', 'C6', 'E6', 'G6', 'C7'];
   notes.forEach((note, i) => {
-    coinSynth!.triggerAttackRelease(
-      note,
-      '16n',
-      now + i * 0.04,
-      (0.3 + i * 0.1) * state.sfxVolume
-    );
+    coinSynth?.triggerAttackRelease(note, '16n', now + i * 0.04, (0.3 + i * 0.1) * state.sfxVolume);
   });
 }
 
@@ -451,7 +443,7 @@ export function playNearMiss(): void {
   // Quick ascending "whoosh" with a triumphant feel
   const notes = ['D5', 'F#5', 'A5', 'D6'];
   notes.forEach((note, i) => {
-    coinSynth!.triggerAttackRelease(
+    coinSynth?.triggerAttackRelease(
       note,
       '32n',
       now + i * 0.025,
@@ -497,7 +489,8 @@ export function playMusic(track: MusicTrack, _loop: boolean = true): void {
  * - Occasional splashy accents
  */
 function startGameplayMusic(): void {
-  if (!noiseSynth || !ambientSynth || !melodySynth || !bassSynth || !musicGain || !ambientGain) return;
+  if (!noiseSynth || !ambientSynth || !melodySynth || !bassSynth || !musicGain || !ambientGain)
+    return;
 
   // Create and store river filter for continuous water sound
   riverFilter = new Tone.AutoFilter({
@@ -533,8 +526,9 @@ function startGameplayMusic(): void {
     // Playful melody notes (play every beat with some variation)
     if (melodySynth && Math.random() > 0.3) {
       const pattern = melodyPatterns[melodyIndex % melodyPatterns.length];
-      const noteIndex = Math.floor((Tone.getTransport().position.toString().split(':')[1] as unknown as number) % 4);
-      const note = pattern[noteIndex] || melodyNotes[Math.floor(Math.random() * melodyNotes.length)];
+      const noteIndex = parseInt(Tone.getTransport().position.toString().split(':')[1], 10) % 4;
+      const note =
+        pattern[noteIndex] || melodyNotes[Math.floor(Math.random() * melodyNotes.length)];
       melodySynth.triggerAttackRelease(note, '8n', time, 0.2 * state.musicVolume);
     }
 
@@ -610,12 +604,7 @@ function startGameOverMusic(): void {
   // Sad, descending melody
   const notes = ['E5', 'D5', 'C5', 'B4', 'A4', 'G4'];
   notes.forEach((note, i) => {
-    melodySynth!.triggerAttackRelease(
-      note,
-      '4n',
-      now + i * 0.4,
-      0.25 * state.musicVolume
-    );
+    melodySynth?.triggerAttackRelease(note, '4n', now + i * 0.4, 0.25 * state.musicVolume);
   });
 
   // Low, somber chord underneath

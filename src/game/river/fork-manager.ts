@@ -10,12 +10,7 @@
  * - Branches merge back after 100-200m
  */
 
-import type {
-  BranchChoice,
-  ForkInfo,
-  RiverPathPoint,
-  RiverSegment,
-} from '../types/river-path';
+import type { BranchChoice, ForkInfo, RiverPathPoint, RiverSegment } from '../types/river-path';
 import type { SeededRNG } from '../utils/seeded-random';
 
 // ============================================================================
@@ -141,10 +136,7 @@ export function generateForkSegments(
   startWidth: number,
   baseId: string
 ): ForkGenerationResult {
-  const branchLength = rng.float(
-    FORK_GEOMETRY.minBranchLength,
-    FORK_GEOMETRY.maxBranchLength
-  );
+  const branchLength = rng.float(FORK_GEOMETRY.minBranchLength, FORK_GEOMETRY.maxBranchLength);
 
   // Determine which side is safe (random)
   const safeSide: 'left' | 'right' = rng.chance() ? 'left' : 'right';

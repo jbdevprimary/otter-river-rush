@@ -2,6 +2,8 @@
  * Game utilities
  */
 
+// Haptic feedback
+export { haptics } from './haptics';
 export {
   createSeededRNG,
   generateSeedPhrase,
@@ -10,9 +12,6 @@ export {
   initGameRNG,
   isValidSeedPhrase,
   resetGameRNG,
-  WORD_POOL,
   type SeededRNG,
+  WORD_POOL,
 } from './seeded-random';
-
-// Haptic feedback
-export { haptics } from './haptics';

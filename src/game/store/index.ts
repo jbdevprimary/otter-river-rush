@@ -4,14 +4,23 @@
  */
 
 export {
+  type AchievementNotification,
+  type AchievementProgress,
+  type AchievementState,
+  type AchievementUnlock,
+  checkSessionAchievements,
+  type SessionTracking,
+  useAchievementStore,
+} from './achievement-store';
+export {
   type AccessibilitySettings,
   BIOME_THRESHOLDS,
   BIOME_TRANSITION_DISTANCE,
+  type ColorblindMode,
   calculateCollectibleSpawnInterval,
   calculateObstacleSpawnInterval,
   calculateScrollSpeed,
   calculateSpeedMultiplier,
-  type ColorblindMode,
   type GameSpeedOption,
   type GameState,
   getActivePowerUps,
@@ -31,6 +40,12 @@ export {
   TUTORIAL_DURATION_MS,
   useGameStore,
 } from './game-store';
+// Graphics quality store
+export {
+  useGraphicsStore,
+  useQualityLevel,
+  useQualitySettings,
+} from './graphics-store';
 export {
   addScore,
   clearLeaderboard,
@@ -40,28 +55,6 @@ export {
   isHighScore,
   type LeaderboardEntry,
 } from './leaderboard';
-export {
-  checkSessionAchievements,
-  type AchievementNotification,
-  type AchievementProgress,
-  type AchievementState,
-  type AchievementUnlock,
-  type SessionTracking,
-  useAchievementStore,
-} from './achievement-store';
-export { useAchievementChecker } from './use-achievement-checker';
-
-// River width store
-export {
-  getCurrentBoundaries,
-  getCurrentLanePositions,
-  getCurrentRiverWidth,
-  type RiverWidthState,
-  type RiverWidthStore,
-  useDynamicLaneX,
-  useRiverWidthStore,
-} from './river-width-store';
-
 // River path store
 export {
   DEFAULT_CONSTRAINTS,
@@ -77,10 +70,14 @@ export {
   useWaterfallsInRange,
   useWhirlpoolsInRange,
 } from './river-path-store';
-
-// Graphics quality store
+// River width store
 export {
-  useGraphicsStore,
-  useQualityLevel,
-  useQualitySettings,
-} from './graphics-store';
+  getCurrentBoundaries,
+  getCurrentLanePositions,
+  getCurrentRiverWidth,
+  type RiverWidthState,
+  type RiverWidthStore,
+  useDynamicLaneX,
+  useRiverWidthStore,
+} from './river-width-store';
+export { useAchievementChecker } from './use-achievement-checker';

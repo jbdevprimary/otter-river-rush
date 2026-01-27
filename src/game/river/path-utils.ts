@@ -3,6 +3,7 @@
  * Bezier curve sampling and path point calculations
  */
 
+import type { Vector2D, Vector3D } from '../types/game';
 import type {
   BezierControlPoints,
   LaneIndex,
@@ -12,7 +13,6 @@ import type {
   RiverSegment,
   SlopeType,
 } from '../types/river-path';
-import type { Vector2D, Vector3D } from '../types/game';
 
 // ============================================================================
 // Constants
@@ -38,13 +38,7 @@ const EPSILON = 0.0001;
  * Cubic Bezier interpolation for a single dimension
  * P(t) = (1-t)^3 * P0 + 3(1-t)^2 * t * P1 + 3(1-t) * t^2 * P2 + t^3 * P3
  */
-export function cubicBezier(
-  t: number,
-  p0: number,
-  p1: number,
-  p2: number,
-  p3: number
-): number {
+export function cubicBezier(t: number, p0: number, p1: number, p2: number, p3: number): number {
   const t2 = t * t;
   const t3 = t2 * t;
   const mt = 1 - t;
@@ -100,18 +94,13 @@ export function cubicBezierDerivative(
   const mt = 1 - t;
   const mt2 = mt * mt;
   const t2 = t * t;
-  return (
-    3 * mt2 * (p1 - p0) + 6 * mt * t * (p2 - p1) + 3 * t2 * (p3 - p2)
-  );
+  return 3 * mt2 * (p1 - p0) + 6 * mt * t * (p2 - p1) + 3 * t2 * (p3 - p2);
 }
 
 /**
  * Calculate tangent angle in XY plane (horizontal curve direction)
  */
-export function calculateTangentAngleXY(
-  t: number,
-  controlPoints: BezierControlPoints
-): number {
+export function calculateTangentAngleXY(t: number, controlPoints: BezierControlPoints): number {
   const { p0, p1, p2, p3 } = controlPoints;
   const dx = cubicBezierDerivative(t, p0.x, p1.x, p2.x, p3.x);
   const dy = cubicBezierDerivative(t, p0.y, p1.y, p2.y, p3.y);
@@ -121,10 +110,7 @@ export function calculateTangentAngleXY(
 /**
  * Calculate tangent angle in YZ plane (vertical slope direction)
  */
-export function calculateTangentAngleYZ(
-  t: number,
-  controlPoints: BezierControlPoints
-): number {
+export function calculateTangentAngleYZ(t: number, controlPoints: BezierControlPoints): number {
   const { p0, p1, p2, p3 } = controlPoints;
   const dy = cubicBezierDerivative(t, p0.x, p1.x, p2.x, p3.x); // Y mapped to X in 2D
   const dz = cubicBezierDerivative(t, p0.y, p1.y, p2.y, p3.y); // Z mapped to Y in 2D
@@ -434,8 +420,7 @@ export function getPathPointAtDistance(
     return { point: p0, segment, segmentProgress };
   }
 
-  const t =
-    (distance - p0.distance) / (p1.distance - p0.distance);
+  const t = (distance - p0.distance) / (p1.distance - p0.distance);
   const clampedT = Math.max(0, Math.min(1, t));
 
   const point: RiverPathPoint = {
@@ -531,9 +516,7 @@ export function classifySlopeType(angleYZ: number): SlopeType {
 /**
  * Calculate river boundaries at a path point
  */
-export function getRiverBoundaries(
-  point: RiverPathPoint
-): { left: number; right: number } {
+export function getRiverBoundaries(point: RiverPathPoint): { left: number; right: number } {
   const halfWidth = point.width / 2;
   return {
     left: point.centerX - halfWidth,

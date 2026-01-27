@@ -4,13 +4,7 @@
  */
 
 import { useState } from 'react';
-import {
-  Image,
-  ImageSourcePropType,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Image, type ImageSourcePropType, Pressable, StyleSheet, View } from 'react-native';
 
 // Icon atlas asset
 const ICON_ATLAS = require('../../../../assets/ui/icon_close_ATLAS_256x1248.png');
@@ -34,17 +28,11 @@ interface CloseButtonProps {
 
 function getStateOffset(state: IconState): { y: number; height: number } {
   const stateIndex = ICON_METADATA.states.indexOf(state);
-  const y =
-    ICON_METADATA.topPad +
-    stateIndex * (ICON_METADATA.tileSize.h + ICON_METADATA.gap);
+  const y = ICON_METADATA.topPad + stateIndex * (ICON_METADATA.tileSize.h + ICON_METADATA.gap);
   return { y, height: ICON_METADATA.tileSize.h };
 }
 
-export function CloseButton({
-  onPress,
-  size = 44,
-  disabled = false,
-}: CloseButtonProps) {
+export function CloseButton({ onPress, size = 44, disabled = false }: CloseButtonProps) {
   const [isPressed, setIsPressed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 

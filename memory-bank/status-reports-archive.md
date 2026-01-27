@@ -99,7 +99,7 @@ adb install android/app/build/outputs/apk/debug/app-debug.apk
 4. **`src/components/ui/GameHUD.tsx`** - Safe area aware HUD
 5. **`src/ecs/touch-input-system.tsx`** - Haptic feedback
 6. **`src/style.css`** - CSS safe area variables
-7. **`public/manifest.webmanifest`** - PWA fullscreen config
+7. **`assets/manifest.webmanifest`** - PWA fullscreen config
 
 ### Android Build
 8. **`android/gradle.properties`** - Java 21 toolchain

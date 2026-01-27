@@ -3,7 +3,7 @@
   "name": "Golden Fish",
   "type": "prop",
   "description": "A magical golden fish - grants a speed boost when collected",
-  "price": 0.00,
+  "price": 0.0,
   "rarity": "rare",
 
   "gameplay": {

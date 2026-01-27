@@ -3,18 +3,18 @@
  * Central state management for the game
  */
 
+import { create, type StateCreator } from 'zustand';
+import { persist } from '../../lib/zustand-middleware';
 import {
   DIFFICULTY,
   GAME_CONFIG,
   getCharacter,
   getDefaultCharacter,
-  PHYSICS,
   type OtterCharacter,
+  PHYSICS,
 } from '../config';
 import { resetWorld } from '../ecs';
 import type { BiomeType, GameMode, GameStatus, PowerUpType } from '../types';
-import { create } from 'zustand';
-import { persist } from '../../lib/zustand-middleware';
 import { useAchievementStore } from './achievement-store';
 
 /**
@@ -78,7 +78,8 @@ export function calculateObstacleSpawnInterval(distance: number): number {
  */
 export function calculateCollectibleSpawnInterval(distance: number): number {
   const progress = Math.min(distance / DIFFICULTY.spawnRateMaxDistance, 1);
-  const intervalRange = DIFFICULTY.baseCollectibleSpawnInterval - DIFFICULTY.minCollectibleSpawnInterval;
+  const intervalRange =
+    DIFFICULTY.baseCollectibleSpawnInterval - DIFFICULTY.minCollectibleSpawnInterval;
   return DIFFICULTY.baseCollectibleSpawnInterval - progress * intervalRange;
 }
 
@@ -113,6 +114,27 @@ export interface PowerUpState {
   ghost: number;
   /** Slow motion end timestamp (0 = inactive) */
   slowMotion: number;
+}
+
+type TimedPowerUpKey = 'magnet' | 'ghost' | 'slowMotion' | 'speedBoost';
+
+const TIMED_POWER_UPS: TimedPowerUpKey[] = ['magnet', 'ghost', 'slowMotion', 'speedBoost'];
+
+function getExpiredPowerUpUpdates(powerUps: PowerUpState, now: number): Partial<PowerUpState> {
+  const updates: Partial<PowerUpState> = {};
+
+  for (const key of TIMED_POWER_UPS) {
+    if (powerUps[key] > 0 && now >= powerUps[key]) {
+      updates[key] = 0;
+    }
+  }
+
+  if (powerUps.multiplierEndTime > 0 && now >= powerUps.multiplierEndTime) {
+    updates.multiplier = 1;
+    updates.multiplierEndTime = 0;
+  }
+
+  return updates;
 }
 
 // Persistent player progress (saved across sessions)
@@ -257,13 +279,390 @@ const initialAccessibility: AccessibilitySettings = {
   gameSpeedMultiplier: 1,
 };
 
-export const useGameStore = create<GameState>()(
-  persist(
-    (set, get) => ({
-      // Initial state
+const createGameState: StateCreator<GameState> = (set, get) => ({
+  // Initial state
+  status: 'menu',
+  mode: 'classic',
+  selectedCharacterId: 'rusty',
+  activeTraits: null,
+  gameStartTime: null,
+  timeRemaining: null,
+  score: 0,
+  distance: 0,
+  coins: 0,
+  gems: 0,
+  combo: 0,
+  comboTimer: null,
+  lives: 3,
+  nearMissCount: 0,
+  currentBiome: 'forest',
+  biomeProgress: 0,
+  powerUps: { ...initialPowerUps },
+  soundEnabled: true,
+  musicEnabled: true,
+  volume: 0.7,
+  accessibility: { ...initialAccessibility },
+  progress: { ...initialProgress },
+
+  // Character actions
+  selectCharacter: (characterId) => {
+    const character = getCharacter(characterId);
+    if (character) {
+      set({ selectedCharacterId: characterId });
+    }
+  },
+
+  getSelectedCharacter: () => {
+    const state = get();
+    return getCharacter(state.selectedCharacterId) ?? getDefaultCharacter();
+  },
+
+  // Actions
+  startGame: (mode) => {
+    const state = get();
+    const character = getCharacter(state.selectedCharacterId) ?? getDefaultCharacter();
+
+    // Reset the ECS world to clear all entities
+    resetWorld();
+
+    // Start achievement tracking session
+    useAchievementStore.getState().startSession();
+
+    set(() => ({
+      status: 'playing',
+      mode,
+      activeTraits: character.traits,
+      gameStartTime: Date.now(), // Track when game started for tutorial
+      timeRemaining: mode === 'time_trial' ? TIME_TRIAL_DURATION_MS : null,
+      score: 0,
+      distance: 0,
+      coins: 0,
+      gems: 0,
+      combo: 0,
+      comboTimer: null,
+      lives: character.traits.startingHealth,
+      nearMissCount: 0,
+      currentBiome: 'forest',
+      biomeProgress: 0,
+      powerUps: { ...initialPowerUps },
+    }));
+  },
+
+  pauseGame: () => set({ status: 'paused' }),
+  resumeGame: () => set({ status: 'playing' }),
+
+  endGame: () =>
+    set((state) => {
+      // Update persistent progress
+      const newProgress = {
+        ...state.progress,
+        totalDistance: state.progress.totalDistance + state.distance,
+        totalCoins: state.progress.totalCoins + state.coins,
+        totalGems: state.progress.totalGems + state.gems,
+        gamesPlayed: state.progress.gamesPlayed + 1,
+        highScore: Math.max(state.score, state.progress.highScore),
+      };
+
+      // Check for character unlocks
+      const unlockedCharacters = [...newProgress.unlockedCharacters];
+
+      // Sterling unlocks at 1000m total distance
+      if (newProgress.totalDistance >= 1000 && !unlockedCharacters.includes('sterling')) {
+        unlockedCharacters.push('sterling');
+      }
+
+      // Goldie unlocks at 5000 total coins
+      if (newProgress.totalCoins >= 5000 && !unlockedCharacters.includes('goldie')) {
+        unlockedCharacters.push('goldie');
+      }
+
+      // Frost unlocks at 10000 high score
+      if (newProgress.highScore >= 10000 && !unlockedCharacters.includes('frost')) {
+        unlockedCharacters.push('frost');
+      }
+
+      newProgress.unlockedCharacters = unlockedCharacters;
+
+      // End achievement tracking session and check for achievements
+      useAchievementStore.getState().endSession({
+        distance: state.distance,
+        coins: state.coins,
+        gems: state.gems,
+        score: state.score,
+        gamesPlayed: newProgress.gamesPlayed,
+        totalCoins: newProgress.totalCoins,
+        totalGems: newProgress.totalGems,
+        totalDistance: newProgress.totalDistance,
+        charactersUnlocked: newProgress.unlockedCharacters.length,
+      });
+
+      return {
+        status: 'game_over',
+        progress: newProgress,
+        lives: 0,
+      };
+    }),
+
+  returnToMenu: () => {
+    // Reset the ECS world to clear all entities
+    resetWorld();
+
+    set({
+      status: 'menu',
+      activeTraits: null,
+      gameStartTime: null,
+      timeRemaining: null,
+      score: 0,
+      distance: 0,
+      coins: 0,
+      gems: 0,
+      combo: 0,
+      comboTimer: null,
+      lives: 3,
+      currentBiome: 'forest',
+      biomeProgress: 0,
+      powerUps: { ...initialPowerUps },
+    });
+  },
+
+  goToCharacterSelect: () => {
+    set({ status: 'character_select' });
+  },
+
+  updateScore: (points) =>
+    set((state) => ({
+      score: state.score + points,
+    })),
+
+  updateDistance: (meters) =>
+    set((state) => {
+      const newDistance = state.distance + meters;
+
+      // Update achievement tracking
+      useAchievementStore.getState().updateDistance(newDistance);
+
+      return { distance: newDistance };
+    }),
+
+  collectCoin: (value) =>
+    set((state) => {
+      // Apply character coin multiplier
+      const charMultiplier = state.activeTraits?.coinValueMod ?? 1;
+      // Apply combo multiplier (1x base, 2x at 10+ combo, 3x at 20+ combo, etc.)
+      const comboMultiplier = getComboMultiplier(state.combo);
+      const adjustedValue = Math.round(value * charMultiplier);
+      const newCoins = state.coins + adjustedValue;
+      const scoreGain = adjustedValue * 10 * comboMultiplier;
+
+      // Update achievement tracking
+      useAchievementStore.getState().updateCoins(newCoins);
+
+      return {
+        coins: newCoins,
+        score: state.score + scoreGain,
+        combo: state.combo + 1,
+        comboTimer: Date.now(), // Reset combo timer on collection
+      };
+    }),
+
+  collectGem: (value) =>
+    set((state) => {
+      // Apply character gem multiplier
+      const charMultiplier = state.activeTraits?.gemValueMod ?? 1;
+      // Apply combo multiplier (1x base, 2x at 10+ combo, 3x at 20+ combo, etc.)
+      const comboMultiplier = getComboMultiplier(state.combo);
+      const adjustedValue = Math.round(value * charMultiplier);
+      const newGems = state.gems + adjustedValue;
+      const scoreGain = adjustedValue * 50 * comboMultiplier;
+
+      // Update achievement tracking
+      useAchievementStore.getState().updateGems(newGems);
+
+      return {
+        gems: newGems,
+        score: state.score + scoreGain,
+        combo: state.combo + 1,
+        comboTimer: Date.now(), // Reset combo timer on collection
+      };
+    }),
+
+  incrementCombo: () =>
+    set((state) => {
+      const newCombo = state.combo + 1;
+
+      // Update achievement tracking
+      useAchievementStore.getState().updateCombo(newCombo);
+
+      return { combo: newCombo, comboTimer: Date.now() };
+    }),
+
+  resetCombo: () => set({ combo: 0, comboTimer: null }),
+
+  /**
+   * Check if combo has timed out and reset if needed.
+   * Should be called in the game loop.
+   */
+  checkComboTimeout: () => {
+    const state = get();
+    if (state.combo > 0 && isComboExpired(state.comboTimer)) {
+      set({ combo: 0, comboTimer: null });
+    }
+  },
+
+  loseLife: () => {
+    const state = get();
+    const newLives = state.lives - 1;
+
+    // Record damage for achievement tracking
+    useAchievementStore.getState().recordDamage();
+
+    if (newLives <= 0) {
+      get().endGame();
+    } else {
+      // Reset combo when hit
+      set({ lives: newLives, combo: 0, comboTimer: null });
+    }
+  },
+
+  activatePowerUp: (type, duration) =>
+    set((state) => {
+      const now = Date.now();
+      // Use type-specific durations from GAME_CONFIG
+      const durations: Record<PowerUpType, number> = {
+        shield: GAME_CONFIG.SHIELD_DURATION,
+        ghost: GAME_CONFIG.GHOST_DURATION,
+        magnet: GAME_CONFIG.MAGNET_DURATION,
+        multiplier: GAME_CONFIG.MULTIPLIER_DURATION,
+        slowMotion: GAME_CONFIG.SLOW_MOTION_DURATION,
+      };
+      const endTime = now + (duration ?? durations[type]);
+
+      if (type === 'shield') {
+        // Shield is a one-hit protection, not time-based
+        return {
+          powerUps: { ...state.powerUps, shield: true },
+        };
+      }
+
+      if (type === 'multiplier') {
+        // Multiplier has both a value and an end time
+        return {
+          powerUps: {
+            ...state.powerUps,
+            multiplier: GAME_CONFIG.MULTIPLIER_VALUE,
+            multiplierEndTime: endTime,
+          },
+        };
+      }
+
+      return {
+        powerUps: { ...state.powerUps, [type]: endTime },
+      };
+    }),
+
+  deactivatePowerUp: (type) =>
+    set((state) => {
+      if (type === 'shield') {
+        return {
+          powerUps: { ...state.powerUps, shield: false },
+        };
+      }
+
+      if (type === 'multiplier') {
+        return {
+          powerUps: { ...state.powerUps, multiplier: 1, multiplierEndTime: 0 },
+        };
+      }
+
+      return {
+        powerUps: { ...state.powerUps, [type]: 0 },
+      };
+    }),
+
+  /**
+   * Check for expired power-ups and deactivate them.
+   * Should be called in the game loop.
+   */
+  checkPowerUpExpiration: () => {
+    const state = get();
+    const now = Date.now();
+    const updates = getExpiredPowerUpUpdates(state.powerUps, now);
+
+    // Only update if there are changes
+    if (Object.keys(updates).length > 0) {
+      set({ powerUps: { ...state.powerUps, ...updates } });
+    }
+  },
+
+  updateSettings: (settings) => set(() => ({ ...settings })),
+
+  updateAccessibility: (settings) =>
+    set((state) => ({
+      accessibility: { ...state.accessibility, ...settings },
+    })),
+
+  addNearMissBonus: (bonus) =>
+    set((state) => ({
+      score: state.score + bonus,
+      nearMissCount: state.nearMissCount + 1,
+    })),
+
+  updateTimeRemaining: (deltaMs) => {
+    const state = get();
+    if (state.mode !== 'time_trial' || state.timeRemaining === null) return;
+
+    const newTime = state.timeRemaining - deltaMs;
+    if (newTime <= 0) {
+      // Time's up - end the game
+      set({ timeRemaining: 0 });
+      get().endGame();
+    } else {
+      set({ timeRemaining: newTime });
+    }
+  },
+
+  updateBiome: () =>
+    set((state) => {
+      const distance = state.distance;
+
+      // Determine current biome based on distance thresholds
+      let currentBiome: BiomeType = 'forest';
+      let biomeProgress = 0;
+
+      if (distance >= BIOME_THRESHOLDS.volcanic) {
+        currentBiome = 'volcanic';
+        biomeProgress = 1; // Past all transitions
+      } else if (distance >= BIOME_THRESHOLDS.tropical) {
+        currentBiome = 'tropical';
+        const progressToVolcanic =
+          (distance - BIOME_THRESHOLDS.tropical) /
+          (BIOME_THRESHOLDS.volcanic - BIOME_THRESHOLDS.tropical);
+        biomeProgress = Math.min(progressToVolcanic, 1);
+      } else if (distance >= BIOME_THRESHOLDS.arctic) {
+        currentBiome = 'arctic';
+        const progressToTropical =
+          (distance - BIOME_THRESHOLDS.arctic) /
+          (BIOME_THRESHOLDS.tropical - BIOME_THRESHOLDS.arctic);
+        biomeProgress = Math.min(progressToTropical, 1);
+      } else if (distance >= BIOME_THRESHOLDS.canyon) {
+        currentBiome = 'canyon';
+        const progressToArctic =
+          (distance - BIOME_THRESHOLDS.canyon) /
+          (BIOME_THRESHOLDS.arctic - BIOME_THRESHOLDS.canyon);
+        biomeProgress = Math.min(progressToArctic, 1);
+      } else {
+        currentBiome = 'forest';
+        const progressToCanyon = distance / BIOME_THRESHOLDS.canyon;
+        biomeProgress = Math.min(progressToCanyon, 1);
+      }
+
+      return { currentBiome, biomeProgress };
+    }),
+
+  reset: () =>
+    set({
       status: 'menu',
       mode: 'classic',
-      selectedCharacterId: 'rusty',
       activeTraits: null,
       gameStartTime: null,
       timeRemaining: null,
@@ -278,414 +677,22 @@ export const useGameStore = create<GameState>()(
       currentBiome: 'forest',
       biomeProgress: 0,
       powerUps: { ...initialPowerUps },
-      soundEnabled: true,
-      musicEnabled: true,
-      volume: 0.7,
-      accessibility: { ...initialAccessibility },
-      progress: { ...initialProgress },
-
-      // Character actions
-      selectCharacter: (characterId) => {
-        const character = getCharacter(characterId);
-        if (character) {
-          set({ selectedCharacterId: characterId });
-        }
-      },
-
-      getSelectedCharacter: () => {
-        const state = get();
-        return getCharacter(state.selectedCharacterId) ?? getDefaultCharacter();
-      },
-
-      // Actions
-      startGame: (mode) => {
-        const state = get();
-        const character = getCharacter(state.selectedCharacterId) ?? getDefaultCharacter();
-
-        // Reset the ECS world to clear all entities
-        resetWorld();
-
-        // Start achievement tracking session
-        useAchievementStore.getState().startSession();
-
-        set(() => ({
-          status: 'playing',
-          mode,
-          activeTraits: character.traits,
-          gameStartTime: Date.now(), // Track when game started for tutorial
-          timeRemaining: mode === 'time_trial' ? TIME_TRIAL_DURATION_MS : null,
-          score: 0,
-          distance: 0,
-          coins: 0,
-          gems: 0,
-          combo: 0,
-          comboTimer: null,
-          lives: character.traits.startingHealth,
-          nearMissCount: 0,
-          currentBiome: 'forest',
-          biomeProgress: 0,
-          powerUps: { ...initialPowerUps },
-        }));
-      },
-
-      pauseGame: () => set({ status: 'paused' }),
-      resumeGame: () => set({ status: 'playing' }),
-
-      endGame: () =>
-        set((state) => {
-          // Update persistent progress
-          const newProgress = {
-            ...state.progress,
-            totalDistance: state.progress.totalDistance + state.distance,
-            totalCoins: state.progress.totalCoins + state.coins,
-            totalGems: state.progress.totalGems + state.gems,
-            gamesPlayed: state.progress.gamesPlayed + 1,
-            highScore: Math.max(state.score, state.progress.highScore),
-          };
-
-          // Check for character unlocks
-          const unlockedCharacters = [...newProgress.unlockedCharacters];
-
-          // Sterling unlocks at 1000m total distance
-          if (newProgress.totalDistance >= 1000 && !unlockedCharacters.includes('sterling')) {
-            unlockedCharacters.push('sterling');
-          }
-
-          // Goldie unlocks at 5000 total coins
-          if (newProgress.totalCoins >= 5000 && !unlockedCharacters.includes('goldie')) {
-            unlockedCharacters.push('goldie');
-          }
-
-          // Frost unlocks at 10000 high score
-          if (newProgress.highScore >= 10000 && !unlockedCharacters.includes('frost')) {
-            unlockedCharacters.push('frost');
-          }
-
-          newProgress.unlockedCharacters = unlockedCharacters;
-
-          // End achievement tracking session and check for achievements
-          useAchievementStore.getState().endSession({
-            distance: state.distance,
-            coins: state.coins,
-            gems: state.gems,
-            score: state.score,
-            gamesPlayed: newProgress.gamesPlayed,
-            totalCoins: newProgress.totalCoins,
-            totalGems: newProgress.totalGems,
-            totalDistance: newProgress.totalDistance,
-            charactersUnlocked: newProgress.unlockedCharacters.length,
-          });
-
-          return {
-            status: 'game_over',
-            progress: newProgress,
-            lives: 0,
-          };
-        }),
-
-      returnToMenu: () => {
-        // Reset the ECS world to clear all entities
-        resetWorld();
-
-        set({
-          status: 'menu',
-          activeTraits: null,
-          gameStartTime: null,
-          timeRemaining: null,
-          score: 0,
-          distance: 0,
-          coins: 0,
-          gems: 0,
-          combo: 0,
-          comboTimer: null,
-          lives: 3,
-          currentBiome: 'forest',
-          biomeProgress: 0,
-          powerUps: { ...initialPowerUps },
-        });
-      },
-
-      goToCharacterSelect: () => {
-        set({ status: 'character_select' });
-      },
-
-      updateScore: (points) =>
-        set((state) => ({
-          score: state.score + points,
-        })),
-
-      updateDistance: (meters) =>
-        set((state) => {
-          const newDistance = state.distance + meters;
-
-          // Update achievement tracking
-          useAchievementStore.getState().updateDistance(newDistance);
-
-          return { distance: newDistance };
-        }),
-
-      collectCoin: (value) =>
-        set((state) => {
-          // Apply character coin multiplier
-          const charMultiplier = state.activeTraits?.coinValueMod ?? 1;
-          // Apply combo multiplier (1x base, 2x at 10+ combo, 3x at 20+ combo, etc.)
-          const comboMultiplier = getComboMultiplier(state.combo);
-          const adjustedValue = Math.round(value * charMultiplier);
-          const newCoins = state.coins + adjustedValue;
-          const scoreGain = adjustedValue * 10 * comboMultiplier;
-
-          // Update achievement tracking
-          useAchievementStore.getState().updateCoins(newCoins);
-
-          return {
-            coins: newCoins,
-            score: state.score + scoreGain,
-            combo: state.combo + 1,
-            comboTimer: Date.now(), // Reset combo timer on collection
-          };
-        }),
-
-      collectGem: (value) =>
-        set((state) => {
-          // Apply character gem multiplier
-          const charMultiplier = state.activeTraits?.gemValueMod ?? 1;
-          // Apply combo multiplier (1x base, 2x at 10+ combo, 3x at 20+ combo, etc.)
-          const comboMultiplier = getComboMultiplier(state.combo);
-          const adjustedValue = Math.round(value * charMultiplier);
-          const newGems = state.gems + adjustedValue;
-          const scoreGain = adjustedValue * 50 * comboMultiplier;
-
-          // Update achievement tracking
-          useAchievementStore.getState().updateGems(newGems);
-
-          return {
-            gems: newGems,
-            score: state.score + scoreGain,
-            combo: state.combo + 1,
-            comboTimer: Date.now(), // Reset combo timer on collection
-          };
-        }),
-
-      incrementCombo: () =>
-        set((state) => {
-          const newCombo = state.combo + 1;
-
-          // Update achievement tracking
-          useAchievementStore.getState().updateCombo(newCombo);
-
-          return { combo: newCombo, comboTimer: Date.now() };
-        }),
-
-      resetCombo: () => set({ combo: 0, comboTimer: null }),
-
-      /**
-       * Check if combo has timed out and reset if needed.
-       * Should be called in the game loop.
-       */
-      checkComboTimeout: () => {
-        const state = get();
-        if (state.combo > 0 && isComboExpired(state.comboTimer)) {
-          set({ combo: 0, comboTimer: null });
-        }
-      },
-
-      loseLife: () => {
-        const state = get();
-        const newLives = state.lives - 1;
-
-        // Record damage for achievement tracking
-        useAchievementStore.getState().recordDamage();
-
-        if (newLives <= 0) {
-          get().endGame();
-        } else {
-          // Reset combo when hit
-          set({ lives: newLives, combo: 0, comboTimer: null });
-        }
-      },
-
-      activatePowerUp: (type, duration) =>
-        set((state) => {
-          const now = Date.now();
-          // Use type-specific durations from GAME_CONFIG
-          const durations: Record<PowerUpType, number> = {
-            shield: GAME_CONFIG.SHIELD_DURATION,
-            ghost: GAME_CONFIG.GHOST_DURATION,
-            magnet: GAME_CONFIG.MAGNET_DURATION,
-            multiplier: GAME_CONFIG.MULTIPLIER_DURATION,
-            slowMotion: GAME_CONFIG.SLOW_MOTION_DURATION,
-          };
-          const endTime = now + (duration ?? durations[type]);
-
-          if (type === 'shield') {
-            // Shield is a one-hit protection, not time-based
-            return {
-              powerUps: { ...state.powerUps, shield: true },
-            };
-          }
-
-          if (type === 'multiplier') {
-            // Multiplier has both a value and an end time
-            return {
-              powerUps: { ...state.powerUps, multiplier: GAME_CONFIG.MULTIPLIER_VALUE, multiplierEndTime: endTime },
-            };
-          }
-
-          return {
-            powerUps: { ...state.powerUps, [type]: endTime },
-          };
-        }),
-
-      deactivatePowerUp: (type) =>
-        set((state) => {
-          if (type === 'shield') {
-            return {
-              powerUps: { ...state.powerUps, shield: false },
-            };
-          }
-
-          if (type === 'multiplier') {
-            return {
-              powerUps: { ...state.powerUps, multiplier: 1, multiplierEndTime: 0 },
-            };
-          }
-
-          return {
-            powerUps: { ...state.powerUps, [type]: 0 },
-          };
-        }),
-
-      /**
-       * Check for expired power-ups and deactivate them.
-       * Should be called in the game loop.
-       */
-      checkPowerUpExpiration: () => {
-        const state = get();
-        const now = Date.now();
-        const updates: Partial<PowerUpState> = {};
-
-        // Check each timed power-up
-        if (state.powerUps.magnet > 0 && now >= state.powerUps.magnet) {
-          updates.magnet = 0;
-        }
-        if (state.powerUps.ghost > 0 && now >= state.powerUps.ghost) {
-          updates.ghost = 0;
-        }
-        if (state.powerUps.slowMotion > 0 && now >= state.powerUps.slowMotion) {
-          updates.slowMotion = 0;
-        }
-        if (state.powerUps.multiplierEndTime > 0 && now >= state.powerUps.multiplierEndTime) {
-          updates.multiplier = 1;
-          updates.multiplierEndTime = 0;
-        }
-        if (state.powerUps.speedBoost > 0 && now >= state.powerUps.speedBoost) {
-          updates.speedBoost = 0;
-        }
-
-        // Only update if there are changes
-        if (Object.keys(updates).length > 0) {
-          set({ powerUps: { ...state.powerUps, ...updates } });
-        }
-      },
-
-      updateSettings: (settings) => set(() => ({ ...settings })),
-
-      updateAccessibility: (settings) =>
-        set((state) => ({
-          accessibility: { ...state.accessibility, ...settings },
-        })),
-
-      addNearMissBonus: (bonus) =>
-        set((state) => ({
-          score: state.score + bonus,
-          nearMissCount: state.nearMissCount + 1,
-        })),
-
-      updateTimeRemaining: (deltaMs) => {
-        const state = get();
-        if (state.mode !== 'time_trial' || state.timeRemaining === null) return;
-
-        const newTime = state.timeRemaining - deltaMs;
-        if (newTime <= 0) {
-          // Time's up - end the game
-          set({ timeRemaining: 0 });
-          get().endGame();
-        } else {
-          set({ timeRemaining: newTime });
-        }
-      },
-
-      updateBiome: () =>
-        set((state) => {
-          const distance = state.distance;
-
-          // Determine current biome based on distance thresholds
-          let currentBiome: BiomeType = 'forest';
-          let biomeProgress = 0;
-
-          if (distance >= BIOME_THRESHOLDS.volcanic) {
-            currentBiome = 'volcanic';
-            biomeProgress = 1; // Past all transitions
-          } else if (distance >= BIOME_THRESHOLDS.tropical) {
-            currentBiome = 'tropical';
-            const progressToVolcanic =
-              (distance - BIOME_THRESHOLDS.tropical) /
-              (BIOME_THRESHOLDS.volcanic - BIOME_THRESHOLDS.tropical);
-            biomeProgress = Math.min(progressToVolcanic, 1);
-          } else if (distance >= BIOME_THRESHOLDS.arctic) {
-            currentBiome = 'arctic';
-            const progressToTropical =
-              (distance - BIOME_THRESHOLDS.arctic) /
-              (BIOME_THRESHOLDS.tropical - BIOME_THRESHOLDS.arctic);
-            biomeProgress = Math.min(progressToTropical, 1);
-          } else if (distance >= BIOME_THRESHOLDS.canyon) {
-            currentBiome = 'canyon';
-            const progressToArctic =
-              (distance - BIOME_THRESHOLDS.canyon) /
-              (BIOME_THRESHOLDS.arctic - BIOME_THRESHOLDS.canyon);
-            biomeProgress = Math.min(progressToArctic, 1);
-          } else {
-            currentBiome = 'forest';
-            const progressToCanyon = distance / BIOME_THRESHOLDS.canyon;
-            biomeProgress = Math.min(progressToCanyon, 1);
-          }
-
-          return { currentBiome, biomeProgress };
-        }),
-
-      reset: () =>
-        set({
-          status: 'menu',
-          mode: 'classic',
-          activeTraits: null,
-          gameStartTime: null,
-          timeRemaining: null,
-          score: 0,
-          distance: 0,
-          coins: 0,
-          gems: 0,
-          combo: 0,
-          comboTimer: null,
-          lives: 3,
-          nearMissCount: 0,
-          currentBiome: 'forest',
-          biomeProgress: 0,
-          powerUps: { ...initialPowerUps },
-        }),
     }),
-    {
-      name: 'otter-river-rush-storage',
-      // Only persist certain fields
-      partialize: (state) => ({
-        selectedCharacterId: state.selectedCharacterId,
-        progress: state.progress,
-        soundEnabled: state.soundEnabled,
-        musicEnabled: state.musicEnabled,
-        volume: state.volume,
-        accessibility: state.accessibility,
-      }),
-    }
-  )
+});
+
+export const useGameStore = create<GameState>()(
+  persist(createGameState, {
+    name: 'otter-river-rush-storage',
+    // Only persist certain fields
+    partialize: (state) => ({
+      selectedCharacterId: state.selectedCharacterId,
+      progress: state.progress,
+      soundEnabled: state.soundEnabled,
+      musicEnabled: state.musicEnabled,
+      volume: state.volume,
+      accessibility: state.accessibility,
+    }),
+  })
 );
 
 /**

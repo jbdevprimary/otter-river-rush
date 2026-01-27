@@ -12,25 +12,33 @@ export const ModelAssetSchema = z.object({
   source: z.object({
     type: z.enum(['meshy', 'manual']),
     meshyTaskId: z.string().optional(),
-    rigTaskId: z.string().optional(),  // For generating more animations
+    rigTaskId: z.string().optional(), // For generating more animations
     prompt: z.string().optional(),
   }),
   files: z.object({
     glb: z.string(),
     thumbnails: z.array(z.string()).optional(),
   }),
-  variants: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-    retextureTaskId: z.string(),
-    prompt: z.string(),
-    glb: z.string(),
-  })).optional(),
-  animations: z.array(z.object({
-    name: z.string(),
-    type: z.enum(['idle', 'walk', 'run', 'jump', 'hit', 'death', 'collect']),
-    url: z.string(),
-  })).optional(),
+  variants: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        retextureTaskId: z.string(),
+        prompt: z.string(),
+        glb: z.string(),
+      })
+    )
+    .optional(),
+  animations: z
+    .array(
+      z.object({
+        name: z.string(),
+        type: z.enum(['idle', 'walk', 'run', 'jump', 'hit', 'death', 'collect']),
+        url: z.string(),
+      })
+    )
+    .optional(),
   metadata: z.object({
     polycount: z.number(),
     size: z.number(),

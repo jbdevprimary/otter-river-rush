@@ -1,16 +1,17 @@
 #!/usr/bin/env node
+
 /**
  * AI Content Generator - Uses Claude to generate game design content
  */
 
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { generateText } from 'ai';
 import { CLAUDE_SONNET_4_5 } from '../config/ai-constants';
-import { writeFileSync } from 'fs';
-import { join } from 'path';
 
 async function generateEnemyBehaviors() {
   console.log('🤖 Generating Enemy AI Behaviors with Claude...');
-  
+
   const { text } = await generateText({
     model: CLAUDE_SONNET_4_5,
     prompt: `You're a game designer for an endless runner called "Otter River Rush". Design 6 enemy types with AI behaviors using Yuka.js steering behaviors.
@@ -50,7 +51,7 @@ export const ENEMY_DEFINITIONS = [
 
 async function generateAchievements() {
   console.log('🏆 Generating Achievement Definitions with Claude...');
-  
+
   const { text } = await generateText({
     model: CLAUDE_SONNET_4_5,
     prompt: `Design 30 creative achievements for "Otter River Rush" - an endless runner game.
@@ -95,7 +96,7 @@ export const ACHIEVEMENT_DEFINITIONS = [
 
 async function generateLevelPatterns() {
   console.log('🗺️ Generating Level Patterns with Claude...');
-  
+
   const { text } = await generateText({
     model: CLAUDE_SONNET_4_5,
     prompt: `Design 15 obstacle patterns for "Otter River Rush" (3-lane endless runner).
@@ -144,7 +145,7 @@ export const LEVEL_PATTERNS = [
 
 async function generateGameTips() {
   console.log('💡 Generating Loading Tips with Claude...');
-  
+
   const { text } = await generateText({
     model: CLAUDE_SONNET_4_5,
     prompt: `Write 25 helpful, fun loading screen tips for "Otter River Rush". Mix gameplay tips with otter facts and humor.
@@ -168,9 +169,9 @@ Output as TypeScript array.`,
 // Run all generators
 async function main() {
   console.log('🚀 Starting AI Content Generation...\n');
-  
+
   // Create data directory if it doesn't exist
-  const { mkdirSync, existsSync } = await import('fs');
+  const { mkdirSync, existsSync } = await import('node:fs');
   const dataDir = join(process.cwd(), 'src', 'client', 'src', 'game', 'data');
   if (!existsSync(dataDir)) {
     mkdirSync(dataDir, { recursive: true });
@@ -182,15 +183,14 @@ async function main() {
     await generateAchievements();
     await generateLevelPatterns();
     await generateGameTips();
-    
+
     console.log('\n✨ AI Content Generation Complete!');
     console.log('📁 Files created in src/client/src/game/data/');
-    
+
     // Step 2: Cascade to model generation
     console.log('\n🎨 Cascading to 3D model generation...\n');
     const { generateEnemyModels } = await import('../generators/enemy-models');
     await generateEnemyModels();
-    
   } catch (error) {
     console.error('❌ Error:', error);
   }

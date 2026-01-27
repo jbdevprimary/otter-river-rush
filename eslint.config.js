@@ -6,7 +6,15 @@ import prettierPlugin from 'eslint-plugin-prettier';
 
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**', '*.cjs', 'scripts/**', 'electron/**', 'android/**', 'ios/**'],
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      '*.cjs',
+      'scripts/**',
+      'electron/**',
+      'android/**',
+      'ios/**',
+    ],
   },
   js.configs.recommended,
   {

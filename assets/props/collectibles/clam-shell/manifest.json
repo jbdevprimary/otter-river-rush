@@ -3,7 +3,7 @@
   "name": "Clam Shell",
   "type": "prop",
   "description": "A river clam shell - might contain treasure inside",
-  "price": 0.00,
+  "price": 0.0,
   "rarity": "uncommon",
 
   "gameplay": {

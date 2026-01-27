@@ -8,17 +8,13 @@ import type { Achievement } from '../types';
 /**
  * Achievement category for organization
  */
-export type AchievementCategory =
-  | 'distance'
-  | 'collection'
-  | 'combo'
-  | 'survival'
-  | 'mastery';
+export type AchievementCategory = 'distance' | 'collection' | 'combo' | 'survival' | 'mastery';
 
 /**
  * Extended achievement definition with tracking metadata
  */
-export interface AchievementDefinition extends Omit<Achievement, 'progress' | 'unlocked' | 'unlockedAt'> {
+export interface AchievementDefinition
+  extends Omit<Achievement, 'progress' | 'unlocked' | 'unlockedAt'> {
   category: AchievementCategory;
   /** The stat key used to track progress */
   trackingKey: AchievementTrackingKey;

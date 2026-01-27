@@ -14,10 +14,10 @@
  */
 
 import { Canvas, type RootState } from '@react-three/fiber';
-import { VISUAL } from '../../../game/config';
 import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import * as THREE from 'three';
+import { VISUAL } from '../../../game/config';
 
 export interface GameCanvasProps {
   children?: ReactNode;
@@ -42,11 +42,7 @@ export function GameCanvas({ children, onCreated }: GameCanvasProps) {
     state.scene.background = new THREE.Color(VISUAL.colors.background);
 
     // Set fog
-    state.scene.fog = new THREE.Fog(
-      VISUAL.fog.color,
-      VISUAL.fog.near,
-      VISUAL.fog.far
-    );
+    state.scene.fog = new THREE.Fog(VISUAL.fog.color, VISUAL.fog.near, VISUAL.fog.far);
 
     // Call user callback
     onCreated?.(state);
@@ -73,9 +69,7 @@ export function GameCanvas({ children, onCreated }: GameCanvasProps) {
       }}
       onCreated={handleCreated}
     >
-      <Suspense fallback={<LoadingFallback />}>
-        {children}
-      </Suspense>
+      <Suspense fallback={<LoadingFallback />}>{children}</Suspense>
     </Canvas>
   );
 }

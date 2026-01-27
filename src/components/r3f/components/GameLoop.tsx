@@ -8,8 +8,8 @@
  * - Game state checks (only runs when playing)
  */
 
-import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { useRef } from 'react';
 
 // Fixed timestep for deterministic updates (60 FPS)
 const FIXED_TIMESTEP = 1000 / 60; // 16.67ms
@@ -62,10 +62,7 @@ export function GameLoop({ isPlaying, onUpdate }: GameLoopProps) {
  * Hook version for custom game loop logic
  * Use this if you need more control over the game loop
  */
-export function useGameLoop(
-  isPlaying: boolean,
-  onUpdate: (deltaSeconds: number) => void
-) {
+export function useGameLoop(isPlaying: boolean, onUpdate: (deltaSeconds: number) => void) {
   const accumulatedTime = useRef(0);
 
   useFrame((_state, delta) => {

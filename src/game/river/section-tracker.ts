@@ -111,10 +111,7 @@ const state: SectionTrackerState = {
  * Update the current section based on game state
  * Call this in the game loop with the current segment's section type
  */
-export function updateSectionTracker(
-  sectionType: RiverSectionType,
-  distance: number
-): void {
+export function updateSectionTracker(sectionType: RiverSectionType, distance: number): void {
   if (sectionType === state.currentSection) {
     return; // No change
   }
@@ -192,9 +189,7 @@ export function getIndicatorProgress(): number {
 /**
  * Subscribe to section changes
  */
-export function onSectionChange(
-  callback: (transition: SectionTransition) => void
-): () => void {
+export function onSectionChange(callback: (transition: SectionTransition) => void): () => void {
   state.listeners.add(callback);
   return () => state.listeners.delete(callback);
 }
@@ -226,7 +221,6 @@ function triggerSectionHaptic(sectionType: RiverSectionType): void {
     case 'calm_pool':
       haptics.selection();
       break;
-    case 'normal':
     default:
       // No haptic for returning to normal
       break;

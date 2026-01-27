@@ -1,22 +1,23 @@
 #!/usr/bin/env tsx
+
 /**
  * Diagnostic QA Workflow - Automated Issue Detection & Fixing
- * 
+ *
  * This agentic workflow:
  * 1. Runs E2E tests to identify failures
- * 2. Analyzes each failure systematically  
+ * 2. Analyzes each failure systematically
  * 3. Attempts automatic fixes where possible
  * 4. Generates detailed reports on remaining issues
  * 5. Loops until all fixable issues are resolved
- * 
+ *
  * Uses Claude Sonnet 4.5 via Vercel AI SDK
  */
 
+import { execSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { generateText } from 'ai';
 import { CLAUDE_SONNET_4_5, DEFAULT_TEMPERATURE } from '../config/ai-constants';
-import { execSync } from 'child_process';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { join } from 'path';
 
 interface TestFailure {
   testName: string;
@@ -44,6 +45,38 @@ interface WorkflowState {
   diagnostics: DiagnosticResult[];
 }
 
+interface PlaywrightAttachment {
+  name?: string;
+  path?: string;
+}
+
+interface PlaywrightTestResult {
+  status?: string;
+  error?: { message?: string };
+  attachments?: PlaywrightAttachment[];
+  stdout?: string[];
+}
+
+interface PlaywrightTestCase {
+  status?: string;
+  results?: PlaywrightTestResult[];
+}
+
+interface PlaywrightSpec {
+  title?: string;
+  file?: string;
+  line?: number;
+  tests?: PlaywrightTestCase[];
+}
+
+interface PlaywrightSuite {
+  specs?: PlaywrightSpec[];
+}
+
+interface PlaywrightResults {
+  suites?: PlaywrightSuite[];
+}
+
 class DiagnosticQAWorkflow {
   private maxIterations = 5;
   private state: WorkflowState = {
@@ -51,134 +84,115 @@ class DiagnosticQAWorkflow {
     totalFailures: 0,
     fixed: 0,
     remaining: [],
-    diagnostics: []
+    diagnostics: [],
   };
 
   async run(): Promise<void> {
     console.log('🤖 Starting Diagnostic QA Workflow');
-    console.log('=' .repeat(80));
-    
+    console.log('='.repeat(80));
+
     while (this.state.iteration < this.maxIterations) {
       this.state.iteration++;
       console.log(`\n📊 Iteration ${this.state.iteration}/${this.maxIterations}`);
-      
+
       // Step 1: Run tests and collect failures
       const failures = await this.runTestsAndCollectFailures();
-      
+
       if (failures.length === 0) {
         console.log('\n✅ All tests passing! Workflow complete.');
         break;
       }
-      
+
       this.state.totalFailures = failures.length;
       console.log(`\n❌ Found ${failures.length} test failures`);
-      
+
       // Step 2: Analyze each failure with AI
       const diagnostics = await this.analyzeFailuresWithAI(failures);
       this.state.diagnostics = diagnostics;
-      
+
       // Step 3: Apply automatic fixes
       const fixedCount = await this.applyAutomaticFixes(diagnostics);
       this.state.fixed += fixedCount;
-      
+
       console.log(`\n🔧 Fixed ${fixedCount} issues automatically`);
-      
+
       // Step 4: If no fixes were applied, break to avoid infinite loop
       if (fixedCount === 0) {
         console.log('\n⚠️  No automatic fixes available. Manual intervention required.');
         break;
       }
     }
-    
+
     // Step 5: Generate final report
     await this.generateFinalReport();
   }
 
   private async runTestsAndCollectFailures(): Promise<TestFailure[]> {
     console.log('\n🧪 Running E2E tests...');
-    
+
     try {
       // Run tests with JSON reporter to get structured output
       execSync(
         'cd src/client && pnpm exec playwright test tests/e2e/game-flow.spec.ts --project=chromium --reporter=json > test-results.json',
         { stdio: 'pipe', timeout: 60000 }
       );
-      
+
       // If tests pass, return empty array
       return [];
-    } catch (error) {
+    } catch (_error) {
       // Tests failed, parse results
       const resultsPath = join(process.cwd(), 'src/client/test-results.json');
-      
+
       if (!existsSync(resultsPath)) {
         console.error('❌ Test results not found');
         return [];
       }
-      
-      const results = JSON.parse(readFileSync(resultsPath, 'utf-8'));
-      const failures: TestFailure[] = [];
-      
-      // Parse test failures
-      for (const suite of results.suites || []) {
-        for (const spec of suite.specs || []) {
-          for (const test of spec.tests || []) {
-            if (test.status === 'failed' && test.results?.[0]) {
-              const result = test.results[0];
-              failures.push({
-                testName: spec.title,
-                error: result.error?.message || 'Unknown error',
-                file: spec.file,
-                line: spec.line,
-                screenshot: result.attachments?.find((a: any) => a.name === 'screenshot')?.path,
-                logs: result.stdout || []
-              });
-            }
-          }
-        }
-      }
-      
-      return failures;
+
+      return parseTestFailures(resultsPath);
     }
   }
 
   private async analyzeFailuresWithAI(failures: TestFailure[]): Promise<DiagnosticResult[]> {
     console.log('\n🔍 Analyzing failures with Claude Sonnet 4.5...');
-    
+
     const diagnostics: DiagnosticResult[] = [];
-    
+
     // Group similar failures to avoid redundant analysis
     const uniqueErrors = this.groupSimilarFailures(failures);
-    
+
     for (const [errorPattern, instances] of uniqueErrors) {
       console.log(`\n  Analyzing: ${errorPattern} (${instances.length} occurrences)`);
-      
+
       const diagnostic = await this.analyzeFailureWithAI(instances[0], errorPattern);
       diagnostics.push(diagnostic);
     }
-    
+
     return diagnostics;
   }
 
   private groupSimilarFailures(failures: TestFailure[]): Map<string, TestFailure[]> {
     const groups = new Map<string, TestFailure[]>();
-    
+
     for (const failure of failures) {
       // Extract error pattern (remove specific values like line numbers, file paths)
       const pattern = failure.error
         .replace(/line \d+/g, 'line X')
         .replace(/\d+ms/g, 'Xms')
         .split('\n')[0]; // First line only
-      
+
       if (!groups.has(pattern)) {
         groups.set(pattern, []);
       }
-      groups.get(pattern)!.push(failure);
+      groups.get(pattern)?.push(failure);
     }
-    
+
     return groups;
   }
 
-  private async analyzeFailureWithAI(failure: TestFailure, pattern: string): Promise<DiagnosticResult> {
+  private async analyzeFailureWithAI(
+    failure: TestFailure,
+    pattern: string
+  ): Promise<DiagnosticResult> {
     const prompt = `You are a diagnostic AI analyzing E2E test failures.
 
 Test Failure:
@@ -211,82 +225,97 @@ Respond in this JSON format:
       });
 
       const result = JSON.parse(text);
-      
+
       return {
         issue: pattern,
         rootCause: result.rootCause,
         suggestedFix: result.suggestedFix,
         canAutoFix: result.canAutoFix,
         fixCode: result.fixCode,
-        priority: result.priority
+        priority: result.priority,
       };
     } catch (error) {
       console.error(`  ❌ AI analysis failed:`, error);
-      
+
       return {
         issue: pattern,
         rootCause: 'AI analysis failed',
         suggestedFix: 'Manual investigation required',
         canAutoFix: false,
-        priority: 'high'
+        priority: 'high',
       };
     }
   }
 
   private async applyAutomaticFixes(diagnostics: DiagnosticResult[]): Promise<number> {
     console.log('\n🔧 Applying automatic fixes...');
-    
+
     let fixedCount = 0;
-    
+
     for (const diagnostic of diagnostics) {
       if (!diagnostic.canAutoFix || !diagnostic.fixCode) {
         console.log(`  ⏭️  Skipping: ${diagnostic.issue} (requires manual fix)`);
         continue;
       }
-      
+
       console.log(`  🔨 Fixing: ${diagnostic.issue}`);
-      
+
       try {
-        // Apply the fix (this would need to parse the fixCode and apply it)
-        // For now, log what would be done
+        // Apply the fix by executing the suggested code changes
         console.log(`     ${diagnostic.suggestedFix}`);
-        console.log(`     Code: ${diagnostic.fixCode.substring(0, 100)}...`);
-        
-        // TODO: Implement actual fix application
-        // This would involve parsing the fixCode and applying it to the appropriate files
-        
+
+        // The fixCode should contain either:
+        // 1. A shell command to run (if it starts with a command like 'sed', 'npm', etc.)
+        // 2. A code snippet with file path and changes
+
+        if (
+          diagnostic.fixCode.trim().startsWith('sed ') ||
+          diagnostic.fixCode.trim().startsWith('npm ') ||
+          diagnostic.fixCode.trim().startsWith('git ')
+        ) {
+          // Execute as shell command
+          console.log(`     Executing: ${diagnostic.fixCode.substring(0, 100)}...`);
+          execSync(diagnostic.fixCode, { stdio: 'inherit' });
+        } else {
+          // Log the code change for manual review
+          console.log(`     Manual code change required:`);
+          console.log(`     ${diagnostic.fixCode.substring(0, 200)}...`);
+          console.log(`     ℹ️  This fix requires manual code modification.`);
+          continue; // Skip counting this as fixed since it needs manual intervention
+        }
+
         fixedCount++;
       } catch (error) {
         console.error(`  ❌ Fix failed:`, error);
       }
     }
-    
+
     return fixedCount;
   }
 
   private async generateFinalReport(): Promise<void> {
-    console.log('\n' + '='.repeat(80));
+    console.log(`\n${'='.repeat(80)}`);
     console.log('📊 FINAL DIAGNOSTIC REPORT');
     console.log('='.repeat(80));
-    
+
     console.log(`\nIterations: ${this.state.iteration}/${this.maxIterations}`);
     console.log(`Total failures encountered: ${this.state.totalFailures}`);
     console.log(`Automatically fixed: ${this.state.fixed}`);
-    console.log(`Remaining issues: ${this.state.diagnostics.filter(d => !d.canAutoFix).length}`);
-    
-    const remainingDiagnostics = this.state.diagnostics.filter(d => !d.canAutoFix);
-    
+    console.log(`Remaining issues: ${this.state.diagnostics.filter((d) => !d.canAutoFix).length}`);
+
+    const remainingDiagnostics = this.state.diagnostics.filter((d) => !d.canAutoFix);
+
     if (remainingDiagnostics.length > 0) {
       console.log('\n⚠️  Issues Requiring Manual Intervention:');
       console.log('─'.repeat(80));
-      
+
       for (const diagnostic of remainingDiagnostics) {
         console.log(`\n[${diagnostic.priority.toUpperCase()}] ${diagnostic.issue}`);
         console.log(`Root Cause: ${diagnostic.rootCause}`);
         console.log(`Suggested Fix: ${diagnostic.suggestedFix}`);
       }
     }
-    
+
     // Write report to file
     const report = {
       timestamp: new Date().toISOString(),
@@ -294,15 +323,66 @@ Respond in this JSON format:
         iterations: this.state.iteration,
         totalFailures: this.state.totalFailures,
         fixed: this.state.fixed,
-        remaining: remainingDiagnostics.length
+        remaining: remainingDiagnostics.length,
       },
-      diagnostics: this.state.diagnostics
+      diagnostics: this.state.diagnostics,
     };
-    
+
     const reportPath = join(process.cwd(), 'diagnostic-report.json');
     writeFileSync(reportPath, JSON.stringify(report, null, 2));
     console.log(`\n📄 Full report saved to: ${reportPath}`);
   }
+}
+
+function parseTestFailures(resultsPath: string): TestFailure[] {
+  const results = JSON.parse(readFileSync(resultsPath, 'utf-8')) as PlaywrightResults;
+  return collectFailures(results);
+}
+
+function collectFailures(results: PlaywrightResults): TestFailure[] {
+  const failures: TestFailure[] = [];
+  for (const suite of results.suites || []) {
+    failures.push(...collectSuiteFailures(suite));
+  }
+  return failures;
+}
+
+function collectSuiteFailures(suite: PlaywrightSuite): TestFailure[] {
+  const failures: TestFailure[] = [];
+  for (const spec of suite.specs || []) {
+    failures.push(...collectSpecFailures(spec));
+  }
+  return failures;
+}
+
+function collectSpecFailures(spec: PlaywrightSpec): TestFailure[] {
+  const failures: TestFailure[] = [];
+  for (const test of spec.tests || []) {
+    const failure = buildFailure(spec, test);
+    if (failure) {
+      failures.push(failure);
+    }
+  }
+  return failures;
+}
+
+function buildFailure(spec: PlaywrightSpec, test: PlaywrightTestCase): TestFailure | null {
+  if (test.status !== 'failed') return null;
+  const result = test.results?.[0];
+  if (!result) return null;
+
+  return {
+    testName: spec.title ?? 'Unknown test',
+    error: result.error?.message ?? 'Unknown error',
+    file: spec.file ?? 'unknown',
+    line: spec.line ?? 0,
+    screenshot: extractScreenshotPath(result.attachments),
+    logs: result.stdout ?? [],
+  };
+}
+
+function extractScreenshotPath(attachments?: PlaywrightAttachment[]): string | undefined {
+  return attachments?.find((attachment) => attachment.name === 'screenshot')?.path;
 }
 
 // Run workflow

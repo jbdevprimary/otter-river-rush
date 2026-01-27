@@ -97,7 +97,8 @@ export function calculateBankWidth(riverWidth: number): number {
   }
 
   // Linear interpolation between thresholds
-  const t = (riverWidth - BANK_WIDTH.narrowThreshold) /
+  const t =
+    (riverWidth - BANK_WIDTH.narrowThreshold) /
     (BANK_WIDTH.wideThreshold - BANK_WIDTH.narrowThreshold);
 
   return lerp(BANK_WIDTH.max, BANK_WIDTH.min, t);
@@ -173,11 +174,7 @@ export function getRiverScaling(riverWidth: number): RiverScaling {
  * @param t Interpolation factor (0-1)
  * @returns Interpolated scaling values
  */
-export function lerpScaling(
-  current: RiverScaling,
-  target: RiverScaling,
-  t: number
-): RiverScaling {
+export function lerpScaling(current: RiverScaling, target: RiverScaling, t: number): RiverScaling {
   return {
     otterScale: lerp(current.otterScale, target.otterScale, t),
     bankWidth: lerp(current.bankWidth, target.bankWidth, t),

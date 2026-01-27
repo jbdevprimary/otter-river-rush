@@ -4,7 +4,17 @@
  */
 
 import { create } from 'zustand';
-
+import {
+  createInitialGeneratorState,
+  type GeneratorState,
+  generateNextSegment,
+  updateBiome,
+} from '../river/path-generator';
+import {
+  findSegmentAtDistance,
+  getLaneWorldPosition,
+  getPathPointAtDistance,
+} from '../river/path-utils';
 import type {
   BranchChoice,
   GenerationConstraints,
@@ -18,17 +28,6 @@ import type {
   Waterfall,
   Whirlpool,
 } from '../types/river-path';
-import {
-  findSegmentAtDistance,
-  getPathPointAtDistance,
-  getLaneWorldPosition,
-} from '../river/path-utils';
-import {
-  createInitialGeneratorState,
-  generateNextSegment,
-  updateBiome,
-  type GeneratorState,
-} from '../river/path-generator';
 import { createSeededRNG, type SeededRNG } from '../utils/seeded-random';
 
 // ============================================================================
@@ -157,10 +156,7 @@ export const useRiverPathStore = create<RiverPathStore>()((set, get) => ({
   addSegment: (segment: RiverSegment) => {
     set((state) => ({
       segments: [...state.segments, segment],
-      generatedDistance: Math.max(
-        state.generatedDistance,
-        segment.startDistance + segment.length
-      ),
+      generatedDistance: Math.max(state.generatedDistance, segment.startDistance + segment.length),
     }));
   },
 
@@ -184,12 +180,8 @@ export const useRiverPathStore = create<RiverPathStore>()((set, get) => ({
     const pruneThreshold = playerDistance - PRUNE_DISTANCE;
 
     set((state) => ({
-      segments: state.segments.filter(
-        (seg) => seg.startDistance + seg.length > pruneThreshold
-      ),
-      whirlpools: state.whirlpools.filter(
-        (wp) => wp.distance > pruneThreshold
-      ),
+      segments: state.segments.filter((seg) => seg.startDistance + seg.length > pruneThreshold),
+      whirlpools: state.whirlpools.filter((wp) => wp.distance > pruneThreshold),
       waterfalls: state.waterfalls.filter(
         (wf) => wf.startDistance + wf.dropLength > pruneThreshold
       ),
@@ -306,29 +298,19 @@ export function useIsInFork(): boolean {
 /**
  * Get active whirlpools in a distance range
  */
-export function useWhirlpoolsInRange(
-  startDistance: number,
-  endDistance: number
-): Whirlpool[] {
+export function useWhirlpoolsInRange(startDistance: number, endDistance: number): Whirlpool[] {
   return useRiverPathStore((state) =>
-    state.whirlpools.filter(
-      (wp) => wp.distance >= startDistance && wp.distance <= endDistance
-    )
+    state.whirlpools.filter((wp) => wp.distance >= startDistance && wp.distance <= endDistance)
   );
 }
 
 /**
  * Get active waterfalls in a distance range
  */
-export function useWaterfallsInRange(
-  startDistance: number,
-  endDistance: number
-): Waterfall[] {
+export function useWaterfallsInRange(startDistance: number, endDistance: number): Waterfall[] {
   return useRiverPathStore((state) =>
     state.waterfalls.filter(
-      (wf) =>
-        wf.startDistance <= endDistance &&
-        wf.startDistance + wf.dropLength >= startDistance
+      (wf) => wf.startDistance <= endDistance && wf.startDistance + wf.dropLength >= startDistance
     )
   );
 }

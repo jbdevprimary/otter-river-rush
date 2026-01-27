@@ -9,19 +9,17 @@
  * - Game Z (height) -> Three.js Y
  */
 
-import { VISUAL } from '../../../game/config';
-import { queries } from '../../../game/ecs';
-import type { Entity } from '../../../game/types';
 import { useAnimations, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { Suspense, useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
+import type * as THREE from 'three';
+import { resolveAssetUrl } from '../../../game/assets';
+import { VISUAL } from '../../../game/config';
+import { queries } from '../../../game/ecs';
+import type { Entity } from '../../../game/types';
 
 // Default otter model (fallback)
-// For Metro web, assets are served from public/ at root
-// For native, assets will use require() via AssetBridge
-const BASE_URL = '';
-const DEFAULT_OTTER_MODEL = `${BASE_URL}/models/player/otter-player/model.glb`;
+const DEFAULT_OTTER_MODEL = resolveAssetUrl({ path: 'models/player/otter-player/model.glb' });
 
 /**
  * Main EntityRenderer component
@@ -142,6 +140,35 @@ interface GLBModelProps {
   modelUrl: string;
 }
 
+function playDefaultPlayerAnimation(
+  actions: Record<string, THREE.AnimationAction | null> | undefined
+): void {
+  // Early exit if actions are not available
+  if (!actions) {
+    return;
+  }
+
+  const animationNames = Object.keys(actions);
+  if (animationNames.length === 0) return;
+
+  const preferredAnims = ['swim', 'run', 'idle', 'walk'];
+  const animToPlay = preferredAnims.find((name) =>
+    animationNames.some((n) => n.toLowerCase().includes(name))
+  );
+
+  if (animToPlay) {
+    const entry = Object.entries(actions).find(([name]) => name.toLowerCase().includes(animToPlay));
+    const action = entry?.[1] ?? null;
+    if (action) {
+      action.reset().fadeIn(0.2).play();
+    }
+    return;
+  }
+
+  const fallback = actions[animationNames[0]] ?? null;
+  fallback?.reset().fadeIn(0.2).play();
+}
+
 function GLBModel({ entity, modelUrl }: GLBModelProps) {
   const groupRef = useRef<THREE.Group>(null);
 
@@ -160,38 +187,16 @@ function GLBModel({ entity, modelUrl }: GLBModelProps) {
   // Apply scale
   const scale = entity.player ? VISUAL.scales.otter : (entity.model?.scale ?? 1);
 
-  // Store reference in entity for collision detection
   useEffect(() => {
     if (groupRef.current) {
       entity.three = groupRef.current;
     }
 
-    // Start default animation for player
-    if (entity.player && actions) {
-      const animationNames = Object.keys(actions);
-      if (animationNames.length > 0) {
-        // Try to play 'swim' or 'run' or first available
-        const preferredAnims = ['swim', 'run', 'idle', 'walk'];
-        const animToPlay = preferredAnims.find((name) =>
-          animationNames.some((n) => n.toLowerCase().includes(name))
-        );
-
-        if (animToPlay) {
-          const action = Object.entries(actions).find(([name]) =>
-            name.toLowerCase().includes(animToPlay)
-          )?.[1];
-          if (action) {
-            action.reset().fadeIn(0.2).play();
-          }
-        } else if (animationNames[0]) {
-          // Fallback to first animation
-          actions[animationNames[0]]?.reset().fadeIn(0.2).play();
-        }
-      }
+    if (entity.player) {
+      playDefaultPlayerAnimation(actions);
     }
 
     return () => {
-      // Clean up entity reference
       entity.three = undefined;
     };
   }, [entity, actions]);
@@ -204,7 +209,7 @@ function GLBModel({ entity, modelUrl }: GLBModelProps) {
     groupRef.current.position.set(
       entity.position.x, // X stays X (lanes/lateral)
       entity.position.z, // Game Z -> Three.js Y (height)
-      entity.position.y  // Game Y -> Three.js Z (depth/forward)
+      entity.position.y // Game Y -> Three.js Z (depth/forward)
     );
 
     // Handle animation state changes for player

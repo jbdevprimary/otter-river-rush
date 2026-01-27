@@ -3,30 +3,6 @@
  * Dynamic curved river generation with 3D terrain
  */
 
-// Path utilities
-export * from './path-utils';
-
-// Path generator
-export * from './path-generator';
-
-// Scaling utilities
-export * from './scaling';
-
-// Terrain physics
-export * from './terrain-physics';
-
-// Fork management
-export * from './fork-manager';
-
-// Section configurations
-export * from './section-configs';
-
-// Whirlpool physics
-export * from './whirlpool-physics';
-
-// Section tracker
-export * from './section-tracker';
-
 // Re-export types for convenience
 export type {
   BezierControlPoints,
@@ -42,8 +18,8 @@ export type {
   RiverPathActions,
   RiverPathPoint,
   RiverPathState,
-  RiverSegment,
   RiverSectionType,
+  RiverSegment,
   SectionConfig,
   SegmentShape,
   ShapeWeights,
@@ -51,3 +27,20 @@ export type {
   Waterfall,
   Whirlpool,
 } from '../types/river-path';
+// Fork management
+export * from './fork-manager';
+// Path generator
+export * from './path-generator';
+// Path utilities
+export * from './path-utils';
+// Scaling utilities
+export * from './scaling';
+
+// Section configurations
+export * from './section-configs';
+// Section tracker
+export * from './section-tracker';
+// Terrain physics
+export * from './terrain-physics';
+// Whirlpool physics
+export * from './whirlpool-physics';

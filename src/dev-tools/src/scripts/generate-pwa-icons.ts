@@ -1,14 +1,15 @@
 #!/usr/bin/env node
+
 /**
  * PWA Icon Generator - Creates required PWA icons using AI
  */
 
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { openai } from '@ai-sdk/openai';
 import { experimental_generateImage as generateImage } from 'ai';
-import { writeFileSync } from 'fs';
-import { join } from 'path';
 
-const PUBLIC_DIR = join(process.cwd(), 'public');
+const ASSETS_DIR = join(process.cwd(), 'assets');
 
 interface IconConfig {
   name: string;
@@ -20,25 +21,29 @@ interface IconConfig {
 const ICON_CONFIGS: IconConfig[] = [
   {
     name: 'PWA Icon 512x512',
-    prompt: 'Otter River Rush game app icon, cute otter face mascot, bright blue water background, circular app icon design, professional mobile game icon, vibrant colors, simple clean design, centered character',
+    prompt:
+      'Otter River Rush game app icon, cute otter face mascot, bright blue water background, circular app icon design, professional mobile game icon, vibrant colors, simple clean design, centered character',
     filename: 'pwa-512x512.png',
     size: '1024x1024',
   },
   {
     name: 'PWA Icon 192x192',
-    prompt: 'Otter River Rush game app icon, cute otter face mascot, bright blue water background, circular app icon design, professional mobile game icon, vibrant colors, simple clean design, centered character',
+    prompt:
+      'Otter River Rush game app icon, cute otter face mascot, bright blue water background, circular app icon design, professional mobile game icon, vibrant colors, simple clean design, centered character',
     filename: 'pwa-192x192.png',
     size: '1024x1024',
   },
   {
     name: 'Apple Touch Icon',
-    prompt: 'Otter River Rush game app icon, cute otter face mascot, bright blue water background, rounded square app icon for iOS, professional mobile game icon, vibrant colors, simple clean design',
+    prompt:
+      'Otter River Rush game app icon, cute otter face mascot, bright blue water background, rounded square app icon for iOS, professional mobile game icon, vibrant colors, simple clean design',
     filename: 'apple-touch-icon.png',
     size: '1024x1024',
   },
   {
     name: 'Favicon',
-    prompt: 'Cute otter face icon, simple minimalist design, game mascot, bright colors, small icon suitable for browser tab, clear at small sizes',
+    prompt:
+      'Cute otter face icon, simple minimalist design, game mascot, bright colors, small icon suitable for browser tab, clear at small sizes',
     filename: 'favicon-temp.png',
     size: '1024x1024',
   },
@@ -47,7 +52,7 @@ const ICON_CONFIGS: IconConfig[] = [
 async function generateIcon(config: IconConfig): Promise<void> {
   console.log(`\n🎨 Generating: ${config.name}`);
   console.log(`   Size: ${config.size}`);
-  
+
   try {
     const result = await generateImage({
       model: openai.image('gpt-image-1'),
@@ -57,10 +62,10 @@ async function generateIcon(config: IconConfig): Promise<void> {
 
     const base64Data = result.image.base64;
     const buffer = Buffer.from(base64Data, 'base64');
-    
-    const filepath = join(PUBLIC_DIR, config.filename);
+
+    const filepath = join(ASSETS_DIR, config.filename);
     writeFileSync(filepath, buffer);
-    
+
     console.log(`   ✅ Saved: ${config.filename} (${Math.round(buffer.length / 1024)}KB)`);
   } catch (error) {
     console.error(`   ❌ Failed to generate ${config.name}:`, error);
@@ -69,7 +74,7 @@ async function generateIcon(config: IconConfig): Promise<void> {
 
 async function generateSVGMaskIcon(): Promise<void> {
   console.log('\n🎨 Generating: SVG Mask Icon');
-  
+
   // Simple SVG mask icon with otter silhouette
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <circle cx="50" cy="50" r="45" fill="currentColor"/>
@@ -82,7 +87,7 @@ async function generateSVGMaskIcon(): Promise<void> {
 
   const filepath = join(PUBLIC_DIR, 'mask-icon.svg');
   writeFileSync(filepath, svg);
-  
+
   console.log('   ✅ Saved: mask-icon.svg');
 }
 
@@ -100,7 +105,7 @@ async function main() {
   // Generate raster icons
   for (const config of ICON_CONFIGS) {
     await generateIcon(config);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
   // Generate SVG mask icon

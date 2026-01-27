@@ -10,9 +10,9 @@
  * Handles smooth interpolation during carousel rotation.
  */
 
-import type { OtterCharacter } from '../../game/config';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
+import type { OtterCharacter } from '../../game/config';
 import { CarouselLighting } from './CarouselLighting';
 import { OtterModelPreview } from './OtterModelPreview';
 import { ProceduralPedestal } from './ProceduralPedestal';
