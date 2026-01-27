@@ -65,7 +65,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build web with Expo
-        run: pnpm run build:web
+        run: |
+          node -e "const fs = require('fs'); const path = require('path'); const pkgPath = path.join(process.cwd(), 'package.json'); if (!fs.existsSync(pkgPath)) { console.error('Error: package.json not found in workspace.'); process.exit(1); } const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8')); if (!pkg.scripts || !pkg.scripts['build:web']) { console.error('Error: \"build:web\" script is not defined in package.json.'); process.exit(1); }"
+          pnpm run build:web
 
       - name: Upload web dist
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
