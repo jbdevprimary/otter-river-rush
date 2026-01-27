@@ -133,7 +133,7 @@ export function EntityRenderer() {
               result.rootMesh.position.set(
                 entity.position.x, // X stays X (lanes/lateral)
                 entity.position.z, // Game Z → Babylon Y (height)
-                entity.position.y  // Game Y → Babylon Z (depth/forward)
+                entity.position.y // Game Y → Babylon Z (depth/forward)
               );
             }
 
@@ -165,7 +165,7 @@ export function EntityRenderer() {
           glbResult.rootMesh.position.set(
             entity.position.x, // X stays X (lanes/lateral)
             entity.position.z, // Game Z → Babylon Y (height)
-            entity.position.y  // Game Y → Babylon Z (depth/forward)
+            entity.position.y // Game Y → Babylon Z (depth/forward)
           );
         }
 
