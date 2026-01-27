@@ -146,6 +146,10 @@ Fixed `@expo/metro-config@0.20.18` bug where optional dependency paths were unde
 - Added `postinstall: "patch-package"` to package.json
 - Changed `dependency.absolutePath` → `modulePath` in two locations
 
+### Documentation Updates
+- Refreshed Sphinx docs to reflect the flat Expo architecture and current setup.
+- Replaced placeholder installation/quickstart guidance with pnpm + Expo steps.
+
 ---
 
 ## Implemented Features

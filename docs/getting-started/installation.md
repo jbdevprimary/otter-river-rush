@@ -2,32 +2,29 @@
 
 ## Requirements
 
-- Python 3.9+
-- [uv](https://docs.astral.sh/uv/) (recommended) or pip
-
-## Install from PyPI
-
-```bash
-# Using uv (recommended)
-uv add PACKAGE_NAME
-
-# Using pip
-pip install PACKAGE_NAME
-```
+- Node.js 22+
+- pnpm 10+
+- Expo CLI (optional, `npx expo` works without global install)
 
 ## Install from Source
 
 ```bash
-git clone https://github.com/jbcom/PACKAGE_NAME.git
-cd PACKAGE_NAME
-uv sync
+git clone https://github.com/arcade-cabinet/otter-river-rush.git
+cd otter-river-rush
+pnpm install
 ```
 
-## Development Installation
+## Environment Variables
+
+Only required when running asset generation or EAS builds:
 
 ```bash
-# Clone and install with dev dependencies
-git clone https://github.com/jbcom/PACKAGE_NAME.git
-cd PACKAGE_NAME
-uv sync --extra dev --extra docs
+MESHY_API_KEY=msy_xxx
+EXPO_TOKEN=xxx
 ```
+
+## Platform Prerequisites
+
+- **Web**: No extra setup beyond Node + pnpm.
+- **iOS**: macOS + Xcode (for simulator or device builds).
+- **Android**: Android Studio + Java 21.

@@ -1,18 +1,10 @@
 API Reference
 =============
 
-.. TODO: Add your module documentation here
-
-.. This will auto-generate documentation from docstrings:
-.. .. automodule:: PACKAGE_NAME
-..    :members:
-..    :undoc-members:
-..    :show-inheritance:
-
-Module Index
-------------
+Otter River Rush is a TypeScript-first Expo game, so the canonical API
+documentation lives in the Markdown reference below instead of Python autodoc.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   modules
+   ../API_REFERENCE

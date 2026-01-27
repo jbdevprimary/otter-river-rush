@@ -1,18 +1,33 @@
 # Quickstart
 
-This guide will help you get started with PACKAGE_NAME.
+Get the game running locally in a few minutes.
 
-## Basic Usage
+## Start the Expo Dev Server
 
-```python
-# TODO: Add basic usage example
-from PACKAGE_NAME import example
-
-result = example.do_something()
-print(result)
+```bash
+pnpm start
 ```
+
+## Run a Platform Target
+
+```bash
+# Web (opens in browser)
+pnpm web
+
+# iOS simulator
+pnpm ios
+
+# Android emulator
+pnpm android
+```
+
+## Basic Controls
+
+- **Lane move**: Arrow keys / A-D (keyboard) or swipe left/right (touch)
+- **Jump**: Space / W / ArrowUp (keyboard) or swipe up (touch)
+- **Pause**: Esc (keyboard)
 
 ## Next Steps
 
-- Check out the [API Reference](../api/index.rst) for detailed documentation
-- See [Contributing](../development/contributing.md) to help improve this project
+- Review the [Development Guide](../DEVELOPMENT.md) for architecture and workflows.
+- Browse the [API Reference](../API_REFERENCE.md) for ECS and store APIs.

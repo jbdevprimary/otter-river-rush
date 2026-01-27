@@ -1,11 +1,12 @@
-.. PACKAGE_NAME documentation master file
-   Synced from jbcom-control-center - customize for your project
+.. Otter River Rush documentation master file
 
-=======================================
-PACKAGE_NAME Documentation
-=======================================
+========================================
+Otter River Rush Documentation
+========================================
 
-.. TODO: Add your project description here
+Otter River Rush is a unified Expo (web + iOS + Android) endless runner built
+with React Three Fiber, Miniplex ECS, and NativeWind styling. This site captures
+setup steps, development workflows, and the living product/architecture docs.
 
 .. toctree::
    :maxdepth: 2
@@ -16,20 +17,28 @@ PACKAGE_NAME Documentation
 
 .. toctree::
    :maxdepth: 2
+   :caption: Project Guides
+
+   DEVELOPMENT
+   ARCHITECTURE
+   ASSETS
+   BRAND_IDENTITY
+   TESTING
+
+.. toctree::
+   :maxdepth: 2
    :caption: API Reference
 
-   api/index
+   API_REFERENCE
 
 .. toctree::
    :maxdepth: 1
-   :caption: Development
+   :caption: Contributing
 
    development/contributing
-
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`

@@ -1,27 +1,27 @@
 # Configuration file for the Sphinx documentation builder.
-# Synced from jbcom-control-center - customize as needed
 
 import os
 import sys
 
-# Add source to path for autodoc
+# Add source to path for autodoc (unused but kept for Sphinx compatibility)
 sys.path.insert(0, os.path.abspath("../src"))
 
 # -- Project information -----------------------------------------------------
-# TODO: Update these for your project
-project = "PACKAGE_NAME"
-copyright = "2025, Jon Bogaty"
-author = "Jon Bogaty"
+project = "Otter River Rush"
+copyright = "2026, Arcade Cabinet"
+author = "Arcade Cabinet"
 
 # Try to get version from pyproject.toml or package.json
 try:
     import tomllib
+
     with open("../pyproject.toml", "rb") as f:
         data = tomllib.load(f)
         release = data.get("project", {}).get("version", "0.0.0")
 except Exception:
     try:
         import json
+
         with open("../package.json") as f:
             release = json.load(f).get("version", "0.0.0")
     except Exception:
@@ -30,7 +30,7 @@ except Exception:
 # -- General configuration ---------------------------------------------------
 
 extensions = [
-    # Python documentation
+    # Python documentation (kept for compatibility)
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
@@ -39,8 +39,6 @@ extensions = [
     "sphinx_autodoc_typehints",
     # Markdown support
     "myst_parser",
-    # Diagrams (optional - requires sphinxcontrib-mermaid)
-    # "sphinxcontrib.mermaid",
 ]
 
 templates_path = ["_templates"]
