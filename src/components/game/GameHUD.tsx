@@ -10,6 +10,9 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useGameStore } from '../../game/store';
 
+// Constants for life display (max 3 lives)
+const LIFE_INDICES = [0, 1, 2] as const;
+
 /**
  * Touch control area for lane movement
  */
@@ -75,7 +78,7 @@ function StatsDisplay() {
           <Text className="text-white text-lg font-bold">{coins}</Text>
         </View>
         <View className="flex-row">
-          {[0, 1, 2].map((lifeIndex) => (
+          {LIFE_INDICES.map((lifeIndex) => (
             <Text
               key={`life-${lifeIndex}`}
               className={`text-xl ml-1 ${

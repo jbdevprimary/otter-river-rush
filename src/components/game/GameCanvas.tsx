@@ -52,9 +52,6 @@ function PlayerOtter() {
   const bodyRef = useRef<Group>(null);
   const status = useGameStore((state) => state.status);
 
-  // Track base Z for bobbing offset
-  const _baseZ = useRef(0);
-
   useFrame((_, delta) => {
     // Find player entity from ECS
     const playerEntities = queries.player.entities;
@@ -204,6 +201,8 @@ function PlayerOtter() {
  */
 function Obstacles() {
   const groupRef = useRef<Group>(null);
+  // WeakMap allows entities to be garbage collected when removed from ECS
+  // Each entity gets a stable React key that persists across re-renders
   const keyMap = useRef(new WeakMap<Entity, string>());
   const keyCounter = useRef(0);
 
