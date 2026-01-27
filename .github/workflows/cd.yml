@@ -79,7 +79,7 @@ jobs:
 
       - name: Run Web E2E tests against deployment
         env:
-          BASE_URL: https://jbcom.github.io/otter-river-rush
+          BASE_URL: https://arcade-cabinet.github.io/otter-river-rush
         run: pnpm run test:e2e:web --reporter=html
         continue-on-error: false
 
@@ -96,7 +96,7 @@ jobs:
         run: |
           echo "## 🧪 Web Deployment E2E Tests" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Tested URL: https://jbcom.github.io/otter-river-rush" >> $GITHUB_STEP_SUMMARY
+          echo "Tested URL: https://arcade-cabinet.github.io/otter-river-rush" >> $GITHUB_STEP_SUMMARY
           if [ $? -eq 0 ]; then
             echo "✅ All rendering tests passed" >> $GITHUB_STEP_SUMMARY
           else

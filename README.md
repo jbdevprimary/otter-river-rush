@@ -10,7 +10,7 @@
 ## 🎮 Play Now
 
 **📱 Android**: [Download APK](https://github.com/arcade-cabinet/otter-river-rush/actions) → Artifacts → `app-debug-apk`  
-**🌐 Web (PWA)**: [jbcom.github.io/otter-river-rush](https://jbcom.github.io/otter-river-rush/)  
+**🌐 Web (PWA)**: [arcade-cabinet.github.io/otter-river-rush](https://arcade-cabinet.github.io/otter-river-rush/)  
 **🖥️ Desktop**: [Download from Releases](https://github.com/arcade-cabinet/otter-river-rush/releases)
 
 ---

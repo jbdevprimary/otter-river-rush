@@ -13,7 +13,7 @@ pnpm run test:e2e:web:ui
 pnpm run test:e2e:web:headed
 
 # Test against deployed site
-BASE_URL=https://jbcom.github.io/otter-river-rush pnpm run test:e2e:web
+BASE_URL=https://arcade-cabinet.github.io/otter-river-rush pnpm run test:e2e:web
 ```
 
 ## Test Files
@@ -43,6 +43,6 @@ See [docs/testing/web-e2e-tests.md](../docs/testing/web-e2e-tests.md) for compre
 
 Tests automatically run:
 - After deployment to GitHub Pages
-- Against live URL: `https://jbcom.github.io/otter-river-rush`
+- Against live URL: `https://arcade-cabinet.github.io/otter-river-rush`
 - Generates HTML reports on failure
 - Uploads artifacts for debugging

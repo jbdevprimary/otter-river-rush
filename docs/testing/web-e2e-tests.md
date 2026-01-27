@@ -123,7 +123,7 @@ BASE_URL=http://localhost:5173 pnpm run test:e2e:web
 BASE_URL=http://localhost:4173 pnpm run test:e2e:web
 
 # Test against deployed site
-BASE_URL=https://jbcom.github.io/otter-river-rush pnpm run test:e2e:web
+BASE_URL=https://arcade-cabinet.github.io/otter-river-rush pnpm run test:e2e:web
 
 # Test against staging environment
 BASE_URL=https://staging.example.com pnpm run test:e2e:web
@@ -162,7 +162,7 @@ Full rendering tests run after deployment to verify the live site:
 # .github/workflows/cd.yml
 - name: Run Web E2E tests against deployment
   env:
-    BASE_URL: https://jbcom.github.io/otter-river-rush
+    BASE_URL: https://arcade-cabinet.github.io/otter-river-rush
   run: pnpm run test:e2e:web --reporter=html
 ```
 
