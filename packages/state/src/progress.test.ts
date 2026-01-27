@@ -1,7 +1,7 @@
 import type { OtterCharacter } from '@otter-river-rush/config';
+import { describe, expect, it } from 'vitest';
 import type { GameState, PlayerProgress } from './game-store';
 import { checkCharacterUnlocks, updatePlayerProgress } from './progress';
-import { describe, expect, it } from 'vitest';
 
 describe('Progress', () => {
   describe('checkCharacterUnlocks', () => {
