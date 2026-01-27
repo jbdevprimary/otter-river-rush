@@ -84,6 +84,7 @@ services:
         value: 22.0.0
       - key: VITE_APP_VERSION
         sync: false # Set in Render Dashboard
+      # Crucial: Set base URL to root for Render deployment (overrides default /otter-river-rush/)
       - key: VITE_BASE_URL
         value: /
 
