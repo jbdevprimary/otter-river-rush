@@ -9,7 +9,7 @@
  * - Responsive layout handling
  */
 
-import type { OtterCharacter } from '../../../../../game/config';
+import type { OtterCharacter } from '../../../../game/config';
 import { Canvas } from '@react-three/fiber';
 import { Suspense, useCallback, useEffect } from 'react';
 import * as THREE from 'three';
