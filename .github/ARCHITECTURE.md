@@ -1,6 +1,6 @@
 # CI/CD Architecture Diagram
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                     OTTER RIVER RUSH CI/CD                      │
 │                  Modular, DRY, SHA-Pinned                       │

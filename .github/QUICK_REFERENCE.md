@@ -92,10 +92,10 @@ The workflow continues despite errors (`continue-on-error: true`)
 
 ## 📚 Documentation
 
-- **[Workflows README](.github/workflows/README.md)** - Detailed workflow docs
+- **[Workflows README](workflows/README.md)** - Detailed workflow docs
 - **[Migration Guide](../CI_CD_MIGRATION.md)** - Migration info & troubleshooting
-- **[SHA Pinning](.github/ACTIONS_SHA_PINNING.md)** - Action version registry
-- **[Architecture](.github/ARCHITECTURE.md)** - Visual architecture diagram
+- **[SHA Pinning](ACTIONS_SHA_PINNING.md)** - Action version registry
+- **[Architecture](ARCHITECTURE.md)** - Visual architecture diagram
 
 ## 🆘 Quick Help
 

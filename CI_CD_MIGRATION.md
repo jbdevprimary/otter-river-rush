@@ -59,8 +59,8 @@ uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 - Manual dispatch
 
 **Artifacts:**
-- `web-dist-{sha}` - Built web application (7 day retention)
-- `playwright-report-{sha}` - E2E test reports (7 day retention)
+- `web-dist-{sha}` - Built web application (7-day retention)
+- `playwright-report-{sha}` - E2E test reports (7-day retention)
 
 ### 2. CD Workflow (`cd.yml`)
 
@@ -86,8 +86,8 @@ uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 - `release_version` - Version tag for releases (optional)
 
 **Artifacts:**
-- `app-debug-apk-{sha}` - Debug APK (30 day retention)
-- `app-release-apk-{sha}` - Release APK (90 day retention)
+- `app-debug-apk-{sha}` - Debug APK (30-day retention)
+- `app-release-apk-{sha}` - Release APK (90-day retention)
 
 ### 3. Release Please Workflow (`release-please.yml`)
 
@@ -164,6 +164,7 @@ These workflows remain unchanged:
 ## Testing the New Workflows
 
 ### Test CI Workflow
+
 ```bash
 # Create a test branch
 git checkout -b test-ci-workflow
@@ -180,6 +181,7 @@ git push origin test-ci-workflow
 ```
 
 ### Test CD Workflow (Manual)
+
 ```bash
 # Go to Actions tab in GitHub
 # Select "Continuous Deployment"
@@ -191,6 +193,7 @@ git push origin test-ci-workflow
 ```
 
 ### Test Release Flow
+
 ```bash
 # Make feature commits with conventional format
 git commit -m "feat: add new feature"

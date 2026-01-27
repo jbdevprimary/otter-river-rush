@@ -43,12 +43,14 @@ Last updated: 2026-01-27
 To update an action to a newer version:
 
 1. **Check for updates:**
+
    ```bash
    # Visit the action repository on GitHub
    # Example: https://github.com/actions/checkout/releases
    ```
 
 2. **Get the latest SHA:**
+
    ```bash
    # Find the commit SHA for the latest release tag
    # Example for actions/checkout v6.0.3:
@@ -57,6 +59,7 @@ To update an action to a newer version:
    ```
 
 3. **Update workflows:**
+
    ```bash
    # Find all usages
    grep -r "actions/checkout@" .github/
