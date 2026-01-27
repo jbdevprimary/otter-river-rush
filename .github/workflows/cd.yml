@@ -36,6 +36,8 @@ jobs:
 
       - name: Build web bundle
         uses: ./.github/actions/build-web
+        env:
+          VITE_BASE_URL: /otter-river-rush/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

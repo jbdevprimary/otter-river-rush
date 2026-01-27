@@ -18,7 +18,10 @@ interface LoadedModel {
 }
 
 // Default otter model (fallback) - uses Vite's base URL for GitHub Pages
-const BASE_URL = `${import.meta.env.BASE_URL ?? '/'}assets`;
+// Handle potential double slash if BASE_URL has trailing slash
+const rawBase = import.meta.env.BASE_URL ?? '/';
+const normalizedBase = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
+const BASE_URL = `${normalizedBase}assets`;
 const DEFAULT_OTTER_MODEL = `${BASE_URL}/models/player/otter-player/model.glb`;
 
 export function EntityRenderer() {
