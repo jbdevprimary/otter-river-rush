@@ -65,13 +65,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build web with Expo
-        run: pnpm --filter @otter-river-rush/mobile expo export --platform web
+        run: pnpm run build:web
 
       - name: Upload web dist
         uses: actions/upload-artifact@v5
         with:
           name: web-dist
-          path: apps/mobile/dist/**
+          path: dist/**
           retention-days: 7
 
   # Step 3: Build Android using EAS
@@ -102,7 +102,6 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Android APK with EAS
-        working-directory: apps/mobile
         run: eas build --platform android --profile preview --non-interactive
         continue-on-error: true  # EAS requires project configuration
 

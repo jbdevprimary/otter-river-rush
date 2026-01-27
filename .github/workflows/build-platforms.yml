@@ -66,13 +66,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build web with Expo
-        run: pnpm --filter @otter-river-rush/mobile expo export --platform web
+        run: pnpm run build:web
         env:
           NODE_ENV: production
 
       - name: Report bundle size
         run: |
-          BUNDLE_SIZE=$(du -sb apps/mobile/dist | cut -f1)
+          BUNDLE_SIZE=$(du -sb dist | cut -f1)
           BUNDLE_MB=$(echo "scale=2; $BUNDLE_SIZE / 1024 / 1024" | bc)
           echo "Bundle size: ${BUNDLE_MB}MB"
           echo "### Web Build Complete (Expo)" >> $GITHUB_STEP_SUMMARY
@@ -82,7 +82,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: web-build-${{ github.sha }}
-          path: apps/mobile/dist/
+          path: dist/
           retention-days: 7
 
   # Step 2: Deploy to GitHub Pages (web)
@@ -147,7 +147,6 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Android APK with EAS
-        working-directory: apps/mobile
         run: eas build --platform android --profile preview --non-interactive
 
       - name: Upload to release (if version tag)
@@ -190,7 +189,6 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build iOS with EAS
-        working-directory: apps/mobile
         run: eas build --platform ios --profile preview --non-interactive
 
   # Summary job
