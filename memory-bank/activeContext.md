@@ -156,6 +156,15 @@ Fixed `@expo/metro-config@0.20.18` bug where optional dependency paths were unde
 - Expanded Jest config to cover spec/test patterns and support path aliases.
 - Shifted asset loading to Expo-bundled `assets/` with expo-asset URIs (no `public/`).
 
+### Code Quality Improvements (2026-01-27)
+- Removed unused `riverWidth` and `riverLength` parameters from WaterSurface component
+- Added comprehensive JSDoc comments to glb-loader helper functions
+- Extracted WeakMap entity key generation into reusable `useEntityKeys` hook
+- Made GameHUD life display more maintainable by deriving from MAX_LIVES constant
+- Updated copy-asset.sh script to reference correct asset registry path
+- Implemented fix application logic in diagnostic-qa-workflow.ts
+- Fixed metro.config.js to use `node:` protocol for Node.js built-ins
+
 ---
 
 ## Implemented Features
