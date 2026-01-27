@@ -27,10 +27,7 @@ interface FloatingTextItemComponentProps {
   onComplete: (id: string) => void;
 }
 
-function FloatingTextItemComponent({
-  item,
-  onComplete,
-}: FloatingTextItemComponentProps) {
+function FloatingTextItemComponent({ item, onComplete }: FloatingTextItemComponentProps) {
   const [opacity, setOpacity] = useState(1);
   const [translateY, setTranslateY] = useState(0);
   const [scale, setScale] = useState(1);
@@ -45,7 +42,7 @@ function FloatingTextItemComponent({
       const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
 
       // Ease out animation
-      const easeOut = 1 - Math.pow(1 - progress, 3);
+      const easeOut = 1 - (1 - progress) ** 3;
 
       setOpacity(1 - easeOut);
       setTranslateY(-50 * easeOut); // Float upward 50px
@@ -71,11 +68,7 @@ function FloatingTextItemComponent({
       style={{
         left: `${item.x}%`,
         top: `${item.y}%`,
-        transform: [
-          { translateX: -50 },
-          { translateY: translateY - 50 },
-          { scale: scale },
-        ],
+        transform: [{ translateX: -50 }, { translateY: translateY - 50 }, { scale: scale }],
         opacity,
       }}
     >
@@ -98,11 +91,7 @@ export function FloatingText({ items, onComplete }: FloatingTextProps) {
   return (
     <View className="absolute inset-0 pointer-events-none z-[200] overflow-hidden">
       {items.map((item) => (
-        <FloatingTextItemComponent
-          key={item.id}
-          item={item}
-          onComplete={onComplete}
-        />
+        <FloatingTextItemComponent key={item.id} item={item} onComplete={onComplete} />
       ))}
     </View>
   );

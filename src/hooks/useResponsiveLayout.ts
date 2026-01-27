@@ -13,7 +13,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { Dimensions, Platform, ScaledSize } from 'react-native';
+import { Dimensions, type ScaledSize } from 'react-native';
 
 export type DeviceType = 'phone' | 'tablet' | 'foldable';
 export type Orientation = 'portrait' | 'landscape';
@@ -52,7 +52,7 @@ export interface ResponsiveLayout {
 }
 
 // Screen size thresholds (in dp/points)
-const PHONE_MAX_WIDTH = 600;
+const _PHONE_MAX_WIDTH = 600;
 const TABLET_MIN_WIDTH = 768;
 const FOLDABLE_THRESHOLD = 840; // Pixel Fold unfolded width
 
@@ -65,7 +65,10 @@ function getDeviceType(width: number, height: number): DeviceType {
 
   // Foldable detection: unusual aspect ratio or known foldable dimensions
   const aspectRatio = maxDimension / minDimension;
-  if (width >= FOLDABLE_THRESHOLD || (aspectRatio > 1.3 && aspectRatio < 1.6 && minDimension > 600)) {
+  if (
+    width >= FOLDABLE_THRESHOLD ||
+    (aspectRatio > 1.3 && aspectRatio < 1.6 && minDimension > 600)
+  ) {
     return 'foldable';
   }
 

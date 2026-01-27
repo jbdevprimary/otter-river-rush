@@ -8,8 +8,8 @@
  */
 
 import * as THREE from 'three';
-import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export interface LoadGLBOptions {
   url: string;
@@ -68,90 +68,18 @@ export async function loadGLB(options: LoadGLBOptions): Promise<GLBResult> {
     loader.load(
       url,
       (gltf: GLTF) => {
-        const scene = gltf.scene;
-
-        if (name) {
-          scene.name = name;
-        }
-
-        // Apply scaling
-        if (scaling !== 1) {
-          scene.scale.setScalar(scaling);
-        }
-
+        const scene = prepareScene(gltf.scene, name, scaling);
         const animations = gltf.animations || [];
-        const mixer = animations.length > 0 ? new THREE.AnimationMixer(scene) : null;
-        const actions: THREE.AnimationAction[] = [];
-
-        // Create actions for all animations
-        if (mixer) {
-          for (const clip of animations) {
-            const action = mixer.clipAction(clip);
-            actions.push(action);
-          }
-        }
+        const { mixer, actions } = createAnimationState(scene, animations);
 
         resolve({
           scene,
           animations,
           mixer,
-          dispose: () => {
-            // Stop all animations
-            if (mixer) {
-              mixer.stopAllAction();
-            }
-            // Dispose scene and children
-            scene.traverse((child) => {
-              if ((child as THREE.Mesh).isMesh) {
-                const mesh = child as THREE.Mesh;
-                mesh.geometry?.dispose();
-                if (Array.isArray(mesh.material)) {
-                  mesh.material.forEach((mat) => mat.dispose());
-                } else {
-                  mesh.material?.dispose();
-                }
-              }
-            });
-          },
-          playAnimation: (nameOrIndex: string | number, loop = true, speed = 1.0) => {
-            if (!mixer) return null;
-
-            // Stop all current animations
-            for (const action of actions) {
-              action.stop();
-            }
-
-            let targetAction: THREE.AnimationAction | undefined;
-
-            if (typeof nameOrIndex === 'number') {
-              targetAction = actions[nameOrIndex];
-            } else {
-              // Find by name (case-insensitive partial match)
-              const searchName = nameOrIndex.toLowerCase();
-              const clipIndex = animations.findIndex((clip) =>
-                clip.name.toLowerCase().includes(searchName)
-              );
-              if (clipIndex >= 0) {
-                targetAction = actions[clipIndex];
-              }
-            }
-
-            if (targetAction) {
-              targetAction.setLoop(
-                loop ? THREE.LoopRepeat : THREE.LoopOnce,
-                loop ? Infinity : 1
-              );
-              targetAction.timeScale = speed;
-              targetAction.reset().fadeIn(0.2).play();
-              return targetAction;
-            }
-
-            return null;
-          },
+          dispose: () => disposeScene(scene, mixer),
+          playAnimation: createPlayAnimation(actions, animations, mixer),
           stopAllAnimations: () => {
-            if (mixer) {
-              mixer.stopAllAction();
-            }
+            mixer?.stopAllAction();
           },
         });
       },
@@ -166,6 +94,82 @@ export async function loadGLB(options: LoadGLBOptions): Promise<GLBResult> {
       }
     );
   });
+}
+
+function prepareScene(scene: THREE.Group, name: string | undefined, scaling: number): THREE.Group {
+  if (name) {
+    scene.name = name;
+  }
+  if (scaling !== 1) {
+    scene.scale.setScalar(scaling);
+  }
+  return scene;
+}
+
+function createAnimationState(
+  scene: THREE.Group,
+  animations: THREE.AnimationClip[]
+): { mixer: THREE.AnimationMixer | null; actions: THREE.AnimationAction[] } {
+  if (animations.length === 0) {
+    return { mixer: null, actions: [] };
+  }
+
+  const mixer = new THREE.AnimationMixer(scene);
+  const actions = animations.map((clip) => mixer.clipAction(clip));
+  return { mixer, actions };
+}
+
+function disposeScene(scene: THREE.Group, mixer: THREE.AnimationMixer | null): void {
+  mixer?.stopAllAction();
+  scene.traverse((child) => {
+    if ((child as THREE.Mesh).isMesh) {
+      const mesh = child as THREE.Mesh;
+      mesh.geometry?.dispose();
+      if (Array.isArray(mesh.material)) {
+        for (const mat of mesh.material) {
+          mat.dispose();
+        }
+      } else {
+        mesh.material?.dispose();
+      }
+    }
+  });
+}
+
+function createPlayAnimation(
+  actions: THREE.AnimationAction[],
+  animations: THREE.AnimationClip[],
+  mixer: THREE.AnimationMixer | null
+): (nameOrIndex: string | number, loop?: boolean, speed?: number) => THREE.AnimationAction | null {
+  return (nameOrIndex, loop = true, speed = 1.0) => {
+    if (!mixer) return null;
+
+    for (const action of actions) {
+      action.stop();
+    }
+
+    const targetAction = resolveAnimationAction(actions, animations, nameOrIndex);
+    if (!targetAction) return null;
+
+    targetAction.setLoop(loop ? THREE.LoopRepeat : THREE.LoopOnce, loop ? Infinity : 1);
+    targetAction.timeScale = speed;
+    targetAction.reset().fadeIn(0.2).play();
+    return targetAction;
+  };
+}
+
+function resolveAnimationAction(
+  actions: THREE.AnimationAction[],
+  animations: THREE.AnimationClip[],
+  nameOrIndex: string | number
+): THREE.AnimationAction | undefined {
+  if (typeof nameOrIndex === 'number') {
+    return actions[nameOrIndex];
+  }
+
+  const searchName = nameOrIndex.toLowerCase();
+  const clipIndex = animations.findIndex((clip) => clip.name.toLowerCase().includes(searchName));
+  return clipIndex >= 0 ? actions[clipIndex] : undefined;
 }
 
 /**
@@ -246,10 +250,7 @@ export function cloneGLBResult(original: GLBResult): GLBResult {
       }
 
       if (targetAction) {
-        targetAction.setLoop(
-          loop ? THREE.LoopRepeat : THREE.LoopOnce,
-          loop ? Infinity : 1
-        );
+        targetAction.setLoop(loop ? THREE.LoopRepeat : THREE.LoopOnce, loop ? Infinity : 1);
         targetAction.timeScale = speed;
         targetAction.reset().fadeIn(0.2).play();
         return targetAction;

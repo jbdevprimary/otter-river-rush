@@ -105,6 +105,7 @@
 8. ✅ Configured Expo splash screen
 9. ✅ Documented landing page spec
 10. ✅ Removed Sphinx scaffolding and refreshed guides for flat Expo setup
+11. ✅ Ran Biome auto-fixes and added Jest coverage for collision utilities
 
 ### Files Changed
 - Created: `assets/branding/*`, `assets/ui/*`

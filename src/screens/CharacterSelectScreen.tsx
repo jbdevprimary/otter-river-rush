@@ -8,17 +8,12 @@
  * - Swipe gesture support
  */
 
-import {
-  OTTER_CHARACTERS,
-  getCharacter,
-  isCharacterUnlocked,
-  type OtterCharacter,
-} from '../game/config';
-import { useGameStore } from '../game/store';
-import { CharacterCarousel3D } from '../components/carousel';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { CharacterCarousel3D } from '../components/carousel';
+import { isCharacterUnlocked, OTTER_CHARACTERS, type OtterCharacter } from '../game/config';
+import { useGameStore } from '../game/store';
 import { useResponsiveLayout } from '../hooks/useResponsiveLayout';
 
 /** Swipe threshold in pixels */
@@ -51,9 +46,7 @@ export function CharacterSelectScreen() {
 
   // Current character
   const currentCharacter = OTTER_CHARACTERS[carouselIndex];
-  const isCurrentUnlocked = currentCharacter
-    ? unlockedIds.includes(currentCharacter.id)
-    : false;
+  const isCurrentUnlocked = currentCharacter ? unlockedIds.includes(currentCharacter.id) : false;
 
   // Handle carousel rotation
   const handleRotate = useCallback((newIndex: number) => {
@@ -167,9 +160,9 @@ export function CharacterSelectScreen() {
 
               {/* Dots indicator */}
               <View className="flex-row gap-2">
-                {OTTER_CHARACTERS.map((_, idx) => (
+                {OTTER_CHARACTERS.map((character, idx) => (
                   <View
-                    key={idx}
+                    key={`dot-${character.id}`}
                     className={`w-3 h-3 rounded-full ${
                       idx === carouselIndex ? 'bg-brand-gold' : 'bg-white/30'
                     }`}
@@ -280,7 +273,9 @@ function TraitsList({ traits }: TraitsListProps) {
             trait.isPositive ? 'bg-green-500/30' : 'bg-red-500/30'
           }`}
         >
-          <Text className={`text-xs font-medium ${trait.isPositive ? 'text-green-400' : 'text-red-400'}`}>
+          <Text
+            className={`text-xs font-medium ${trait.isPositive ? 'text-green-400' : 'text-red-400'}`}
+          >
             {trait.text}
           </Text>
         </View>
@@ -301,9 +296,7 @@ function LockedHint({ character }: LockedHintProps) {
     <View className="items-center mt-4">
       <Text className="text-red-400 text-base font-bold">LOCKED</Text>
       {character.unlock.hint && (
-        <Text className="text-slate-400 text-sm text-center mt-2">
-          {character.unlock.hint}
-        </Text>
+        <Text className="text-slate-400 text-sm text-center mt-2">{character.unlock.hint}</Text>
       )}
     </View>
   );

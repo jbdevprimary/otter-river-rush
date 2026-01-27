@@ -5,9 +5,8 @@
  * Uses NativeWind (Tailwind) for styling with brand colors.
  */
 
-import { useGameStore } from '../game/store';
-import React from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { useGameStore } from '../game/store';
 
 export function GameOverScreen() {
   const score = useGameStore((state) => state.score);
@@ -28,30 +27,22 @@ export function GameOverScreen() {
     <View className="flex-1 bg-brand-background items-center justify-center p-6">
       {/* Game Over Title */}
       <View className="items-center mb-6">
-        <Text className="text-5xl font-bold text-brand-danger tracking-widest">
-          GAME OVER
-        </Text>
+        <Text className="text-5xl font-bold text-brand-danger tracking-widest">GAME OVER</Text>
         {isNewHighScore && (
-          <Text className="text-xl font-bold text-brand-gold mt-2">
-            NEW HIGH SCORE!
-          </Text>
+          <Text className="text-xl font-bold text-brand-gold mt-2">NEW HIGH SCORE!</Text>
         )}
       </View>
 
       {/* Score Display */}
       <View className="items-center mb-8">
         <Text className="text-base text-slate-500 tracking-widest">SCORE</Text>
-        <Text className="text-6xl font-bold text-white">
-          {score.toLocaleString()}
-        </Text>
+        <Text className="text-6xl font-bold text-white">{score.toLocaleString()}</Text>
       </View>
 
       {/* Stats Grid */}
       <View className="flex-row justify-around w-full max-w-[320px] mb-8">
         <View className="items-center bg-black/30 p-4 rounded-xl min-w-[90px]">
-          <Text className="text-2xl font-bold text-white">
-            {Math.floor(distance)}m
-          </Text>
+          <Text className="text-2xl font-bold text-white">{Math.floor(distance)}m</Text>
           <Text className="text-xs text-slate-500 mt-1">Distance</Text>
         </View>
         <View className="items-center bg-black/30 p-4 rounded-xl min-w-[90px]">
@@ -71,9 +62,7 @@ export function GameOverScreen() {
         </Text>
         <View className="flex-row justify-between mb-2">
           <Text className="text-sm text-slate-500">Games Played:</Text>
-          <Text className="text-sm font-bold text-white">
-            {progress.gamesPlayed}
-          </Text>
+          <Text className="text-sm font-bold text-white">{progress.gamesPlayed}</Text>
         </View>
         <View className="flex-row justify-between mb-2">
           <Text className="text-sm text-slate-500">Total Distance:</Text>
@@ -83,9 +72,7 @@ export function GameOverScreen() {
         </View>
         <View className="flex-row justify-between">
           <Text className="text-sm text-slate-500">Total Coins:</Text>
-          <Text className="text-sm font-bold text-white">
-            {progress.totalCoins}
-          </Text>
+          <Text className="text-sm font-bold text-white">{progress.totalCoins}</Text>
         </View>
       </View>
 
@@ -95,17 +82,13 @@ export function GameOverScreen() {
           className="bg-brand-success py-4 px-8 rounded-xl mb-3 items-center active:opacity-80"
           onPress={handlePlayAgain}
         >
-          <Text className="text-xl font-bold text-white tracking-widest">
-            PLAY AGAIN
-          </Text>
+          <Text className="text-xl font-bold text-white tracking-widest">PLAY AGAIN</Text>
         </Pressable>
         <Pressable
           className="bg-transparent py-4 px-8 rounded-xl items-center border-2 border-slate-500 active:opacity-80"
           onPress={returnToMenu}
         >
-          <Text className="text-base font-semibold text-slate-500 tracking-widest">
-            MAIN MENU
-          </Text>
+          <Text className="text-base font-semibold text-slate-500 tracking-widest">MAIN MENU</Text>
         </Pressable>
       </View>
     </View>

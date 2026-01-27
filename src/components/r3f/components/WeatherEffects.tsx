@@ -13,8 +13,8 @@
  * Accessibility: Respects reducedMotion setting
  */
 
-import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type { BiomeType } from '../../../game/types';
 
@@ -93,6 +93,105 @@ const WEATHER_CONFIGS: Record<BiomeType, WeatherConfig> = {
  */
 const MAX_PARTICLES = 500;
 
+const FALLING_RESET_Y = -10;
+
+function getParticleCount(config: WeatherConfig, intensity: number): number {
+  return Math.min(Math.round(config.particleCount * intensity), MAX_PARTICLES);
+}
+
+function createParticleBuffers(config: WeatherConfig, particleCount: number) {
+  const positions = new Float32Array(particleCount * 3);
+  const velocities = new Float32Array(particleCount * 3);
+
+  for (let i = 0; i < particleCount; i++) {
+    const i3 = i * 3;
+    const x = (Math.random() - 0.5) * config.spread.x;
+    const y = Math.random() * config.spread.y - 5;
+    const z = Math.random() * config.spread.z + 5;
+
+    positions[i3] = x;
+    positions[i3 + 1] = y;
+    positions[i3 + 2] = z;
+
+    velocities[i3] = config.speed.x + (Math.random() - 0.5) * config.turbulence;
+    velocities[i3 + 1] = config.speed.y + (Math.random() - 0.5) * config.turbulence;
+    velocities[i3 + 2] = config.speed.z + (Math.random() - 0.5) * config.turbulence;
+  }
+
+  return { positions, velocities };
+}
+
+function applyParticleTurbulence(
+  positions: Float32Array,
+  index: number,
+  config: WeatherConfig,
+  delta: number
+): void {
+  if (config.turbulence <= 0) return;
+  const i3 = index * 3;
+  const time = Date.now() * 0.001;
+  positions[i3] += Math.sin(time + index * 0.1) * config.turbulence * delta;
+  positions[i3 + 2] += Math.cos(time + index * 0.15) * config.turbulence * delta;
+}
+
+function isParticleOutOfBounds(
+  positions: Float32Array,
+  index: number,
+  config: WeatherConfig
+): boolean {
+  const i3 = index * 3;
+  const isRising = config.rising === true;
+  const y = positions[i3 + 1];
+  const x = positions[i3];
+  const z = positions[i3 + 2];
+
+  const outOfBoundsY = isRising ? y > config.spread.y : y < FALLING_RESET_Y;
+  const outOfBoundsX = Math.abs(x) > config.spread.x / 2 + 2;
+  const outOfBoundsZ = z < 0 || z > config.spread.z + 10;
+
+  return outOfBoundsY || outOfBoundsX || outOfBoundsZ;
+}
+
+function respawnParticle(
+  positions: Float32Array,
+  velocities: Float32Array,
+  index: number,
+  config: WeatherConfig
+): void {
+  const i3 = index * 3;
+  const isRising = config.rising === true;
+
+  positions[i3] = (Math.random() - 0.5) * config.spread.x;
+  positions[i3 + 1] = isRising ? -2 : config.spread.y - 5;
+  positions[i3 + 2] = Math.random() * config.spread.z + 5;
+
+  velocities[i3] = config.speed.x + (Math.random() - 0.5) * config.turbulence;
+  velocities[i3 + 1] = config.speed.y + (Math.random() - 0.5) * config.turbulence;
+  velocities[i3 + 2] = config.speed.z + (Math.random() - 0.5) * config.turbulence;
+}
+
+function updateParticles(
+  positions: Float32Array,
+  velocities: Float32Array,
+  config: WeatherConfig,
+  delta: number
+): void {
+  const particleCount = positions.length / 3;
+
+  for (let i = 0; i < particleCount; i++) {
+    const i3 = i * 3;
+    positions[i3] += velocities[i3] * delta;
+    positions[i3 + 1] += velocities[i3 + 1] * delta;
+    positions[i3 + 2] += velocities[i3 + 2] * delta;
+
+    applyParticleTurbulence(positions, i, config, delta);
+
+    if (isParticleOutOfBounds(positions, i, config)) {
+      respawnParticle(positions, velocities, i, config);
+    }
+  }
+}
+
 interface WeatherEffectsProps {
   biome: BiomeType;
   reducedMotion?: boolean;
@@ -106,103 +205,23 @@ export function WeatherEffects({
 }: WeatherEffectsProps) {
   const pointsRef = useRef<THREE.Points>(null);
   const config = WEATHER_CONFIGS[biome];
-
-  // Skip rendering if reduced motion is enabled or weather is inactive
-  if (reducedMotion || !config.active) {
-    return null;
-  }
+  const isActive = !reducedMotion && config.active && intensity > 0;
 
   // Calculate effective particle count based on intensity
-  const particleCount = Math.min(
-    Math.round(config.particleCount * intensity),
-    MAX_PARTICLES
-  );
+  const particleCount = isActive ? getParticleCount(config, intensity) : 0;
 
   // Create particle positions and velocities
   const { positions, velocities } = useMemo(() => {
-    const posArray = new Float32Array(particleCount * 3);
-    const velArray = new Float32Array(particleCount * 3);
-
-    for (let i = 0; i < particleCount; i++) {
-      const i3 = i * 3;
-
-      // Random position within spread volume
-      const x = (Math.random() - 0.5) * config.spread.x;
-      const y = Math.random() * config.spread.y - 5; // Start above and extend down
-      const z = Math.random() * config.spread.z + 5; // In front of camera
-
-      posArray[i3] = x;
-      posArray[i3 + 1] = y;
-      posArray[i3 + 2] = z;
-
-      // Base velocity with some randomization
-      velArray[i3] = config.speed.x + (Math.random() - 0.5) * config.turbulence;
-      velArray[i3 + 1] = config.speed.y + (Math.random() - 0.5) * config.turbulence;
-      velArray[i3 + 2] = config.speed.z + (Math.random() - 0.5) * config.turbulence;
-    }
-
-    return {
-      positions: posArray,
-      velocities: velArray,
-    };
-  }, [particleCount, config, biome]);
+    return createParticleBuffers(config, particleCount);
+  }, [config, particleCount]);
 
   // Animation loop for particle movement
   useFrame((_, delta) => {
-    if (!pointsRef.current) return;
+    if (!pointsRef.current || !isActive) return;
 
     const positionAttr = pointsRef.current.geometry.attributes.position;
     const posArray = positionAttr.array as Float32Array;
-
-    for (let i = 0; i < particleCount; i++) {
-      const i3 = i * 3;
-
-      // Update position based on velocity
-      posArray[i3] += velocities[i3] * delta;
-      posArray[i3 + 1] += velocities[i3 + 1] * delta;
-      posArray[i3 + 2] += velocities[i3 + 2] * delta;
-
-      // Add turbulence/waviness based on biome
-      if (config.turbulence > 0) {
-        const time = Date.now() * 0.001;
-        const turbX = Math.sin(time + i * 0.1) * config.turbulence * delta;
-        const turbZ = Math.cos(time + i * 0.15) * config.turbulence * delta;
-        posArray[i3] += turbX;
-        posArray[i3 + 2] += turbZ;
-      }
-
-      // Respawn particles that go out of bounds
-      const isRising = config.rising === true;
-      const outOfBoundsY = isRising
-        ? posArray[i3 + 1] > config.spread.y // Rising particles go upward
-        : posArray[i3 + 1] < -10; // Falling particles go down
-
-      const outOfBoundsX =
-        Math.abs(posArray[i3]) > config.spread.x / 2 + 2;
-
-      const outOfBoundsZ =
-        posArray[i3 + 2] < 0 || posArray[i3 + 2] > config.spread.z + 10;
-
-      if (outOfBoundsY || outOfBoundsX || outOfBoundsZ) {
-        // Respawn at appropriate position based on biome
-        posArray[i3] = (Math.random() - 0.5) * config.spread.x;
-
-        if (isRising) {
-          // Rising particles (volcanic embers) come from below
-          posArray[i3 + 1] = -2;
-        } else {
-          // Falling particles (rain, snow, dust) start from above
-          posArray[i3 + 1] = config.spread.y - 5;
-        }
-
-        posArray[i3 + 2] = Math.random() * config.spread.z + 5;
-
-        // Reset velocity with new randomization
-        velocities[i3] = config.speed.x + (Math.random() - 0.5) * config.turbulence;
-        velocities[i3 + 1] = config.speed.y + (Math.random() - 0.5) * config.turbulence;
-        velocities[i3 + 2] = config.speed.z + (Math.random() - 0.5) * config.turbulence;
-      }
-    }
+    updateParticles(posArray, velocities, config, delta);
 
     positionAttr.needsUpdate = true;
   });
@@ -213,6 +232,10 @@ export function WeatherEffects({
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     return geo;
   }, [positions]);
+
+  if (!isActive) {
+    return null;
+  }
 
   return (
     <points ref={pointsRef} geometry={geometry}>
@@ -238,74 +261,74 @@ interface RainStreaksProps {
   reducedMotion?: boolean;
 }
 
-export function RainStreaks({
-  intensity = 1,
-  reducedMotion = false,
-}: RainStreaksProps) {
+function createRainBuffers(lineCount: number) {
+  const positions = new Float32Array(lineCount * 6);
+  const velocities = new Float32Array(lineCount);
+
+  for (let i = 0; i < lineCount; i++) {
+    const i6 = i * 6;
+    const x = (Math.random() - 0.5) * 12;
+    const y = Math.random() * 20 - 5;
+    const z = Math.random() * 8 + 5;
+    const streakLength = 0.3 + Math.random() * 0.2;
+
+    positions[i6] = x;
+    positions[i6 + 1] = y;
+    positions[i6 + 2] = z;
+    positions[i6 + 3] = x + 0.05;
+    positions[i6 + 4] = y - streakLength;
+    positions[i6 + 5] = z;
+
+    velocities[i] = 8 + Math.random() * 4;
+  }
+
+  return { positions, velocities };
+}
+
+function respawnRainStreak(positions: Float32Array, index: number): void {
+  const i6 = index * 6;
+  const x = (Math.random() - 0.5) * 12;
+  const y = 15 + Math.random() * 5;
+  const z = Math.random() * 8 + 5;
+  const streakLength = 0.3 + Math.random() * 0.2;
+
+  positions[i6] = x;
+  positions[i6 + 1] = y;
+  positions[i6 + 2] = z;
+  positions[i6 + 3] = x + 0.05;
+  positions[i6 + 4] = y - streakLength;
+  positions[i6 + 5] = z;
+}
+
+function updateRainStreaks(positions: Float32Array, velocities: Float32Array, delta: number): void {
+  const lineCount = velocities.length;
+  for (let i = 0; i < lineCount; i++) {
+    const i6 = i * 6;
+    const fallDist = velocities[i] * delta;
+    positions[i6 + 1] -= fallDist;
+    positions[i6 + 4] -= fallDist;
+
+    if (positions[i6 + 1] < FALLING_RESET_Y) {
+      respawnRainStreak(positions, i);
+    }
+  }
+}
+
+export function RainStreaks({ intensity = 1, reducedMotion = false }: RainStreaksProps) {
   const linesRef = useRef<THREE.LineSegments>(null);
-
-  if (reducedMotion) return null;
-
-  const lineCount = Math.min(Math.round(80 * intensity), 150);
+  const isActive = !reducedMotion && intensity > 0;
+  const lineCount = isActive ? Math.min(Math.round(80 * intensity), 150) : 0;
 
   const { positions, velocities } = useMemo(() => {
-    const posArray = new Float32Array(lineCount * 6); // 2 points per line, 3 coords each
-    const velArray = new Float32Array(lineCount);
-
-    for (let i = 0; i < lineCount; i++) {
-      const i6 = i * 6;
-
-      // Start point
-      const x = (Math.random() - 0.5) * 12;
-      const y = Math.random() * 20 - 5;
-      const z = Math.random() * 8 + 5;
-
-      // Rain streak length
-      const streakLength = 0.3 + Math.random() * 0.2;
-
-      posArray[i6] = x;
-      posArray[i6 + 1] = y;
-      posArray[i6 + 2] = z;
-
-      posArray[i6 + 3] = x + 0.05; // Slight angle
-      posArray[i6 + 4] = y - streakLength;
-      posArray[i6 + 5] = z;
-
-      velArray[i] = 8 + Math.random() * 4; // Fall speed
-    }
-
-    return { positions: posArray, velocities: velArray };
+    return createRainBuffers(lineCount);
   }, [lineCount]);
 
   useFrame((_, delta) => {
-    if (!linesRef.current) return;
+    if (!linesRef.current || !isActive) return;
 
     const positionAttr = linesRef.current.geometry.attributes.position;
     const posArray = positionAttr.array as Float32Array;
-
-    for (let i = 0; i < lineCount; i++) {
-      const i6 = i * 6;
-      const fallDist = velocities[i] * delta;
-
-      // Move both points down
-      posArray[i6 + 1] -= fallDist;
-      posArray[i6 + 4] -= fallDist;
-
-      // Respawn if below screen
-      if (posArray[i6 + 1] < -10) {
-        const x = (Math.random() - 0.5) * 12;
-        const y = 15 + Math.random() * 5;
-        const z = Math.random() * 8 + 5;
-        const streakLength = 0.3 + Math.random() * 0.2;
-
-        posArray[i6] = x;
-        posArray[i6 + 1] = y;
-        posArray[i6 + 2] = z;
-        posArray[i6 + 3] = x + 0.05;
-        posArray[i6 + 4] = y - streakLength;
-        posArray[i6 + 5] = z;
-      }
-    }
+    updateRainStreaks(posArray, velocities, delta);
 
     positionAttr.needsUpdate = true;
   });
@@ -317,14 +340,13 @@ export function RainStreaks({
     return geo;
   }, [positions]);
 
+  if (!isActive) {
+    return null;
+  }
+
   return (
     <lineSegments ref={linesRef} geometry={geometry}>
-      <lineBasicMaterial
-        color="#a0c4ff"
-        transparent
-        opacity={0.4 * intensity}
-        linewidth={1}
-      />
+      <lineBasicMaterial color="#a0c4ff" transparent opacity={0.4 * intensity} linewidth={1} />
     </lineSegments>
   );
 }
@@ -351,8 +373,7 @@ export function BiomeWeather({
   }
 
   // Calculate intensity based on quality setting
-  const qualityMultiplier =
-    particleQuality === 'low' ? 0.5 : particleQuality === 'high' ? 1 : 0.75;
+  const qualityMultiplier = particleQuality === 'low' ? 0.5 : particleQuality === 'high' ? 1 : 0.75;
 
   // Fade out current biome weather as we transition, fade in next
   const currentIntensity = 1 - biomeProgress * 0.5;
@@ -361,18 +382,11 @@ export function BiomeWeather({
   return (
     <group>
       {/* Base particle weather for all biomes */}
-      <WeatherEffects
-        biome={biome}
-        intensity={effectiveIntensity}
-        reducedMotion={reducedMotion}
-      />
+      <WeatherEffects biome={biome} intensity={effectiveIntensity} reducedMotion={reducedMotion} />
 
       {/* Additional rain streaks for forest */}
       {biome === 'forest' && (
-        <RainStreaks
-          intensity={effectiveIntensity}
-          reducedMotion={reducedMotion}
-        />
+        <RainStreaks intensity={effectiveIntensity} reducedMotion={reducedMotion} />
       )}
     </group>
   );

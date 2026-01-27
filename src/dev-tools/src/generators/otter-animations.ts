@@ -4,10 +4,10 @@
  * Uses the rigged otter to apply 600+ available animations
  */
 
-import fs from 'fs-extra';
-import path from 'path';
-import fetch from 'node-fetch';
+import path from 'node:path';
 import chalk from 'chalk';
+import fs from 'fs-extra';
+import fetch from 'node-fetch';
 import ora from 'ora';
 import { MeshyAPI, OTTER_ANIMATIONS } from '../meshy/index.js';
 
@@ -18,6 +18,25 @@ const API_KEY = process.env.MESHY_API_KEY;
 if (!API_KEY) {
   console.error(chalk.red('❌ MESHY_API_KEY environment variable not set!'));
   process.exit(1);
+}
+
+const apiKey = API_KEY;
+
+interface ManifestAnimationEntry {
+  name: string;
+  url: string;
+}
+
+interface ManifestModelEntry {
+  id: string;
+  source?: {
+    rigTaskId?: string;
+  };
+  animations?: ManifestAnimationEntry[];
+}
+
+interface ModelManifest {
+  models: ManifestModelEntry[];
 }
 
 /**
@@ -44,34 +63,36 @@ async function generateAnimation(
   actionId: number
 ): Promise<string | null> {
   const outputPath = path.join(OUTPUT_DIR, `otter-rusty-${animationName}.glb`);
-  
+
   // Skip if already exists
   if (await fs.pathExists(outputPath)) {
     console.log(chalk.yellow(`  ⚠️  otter-rusty-${animationName}.glb already exists, skipping`));
     return `/models/otter-rusty-${animationName}.glb`;
   }
-  
+
   const spinner = ora(`Generating ${animationName} animation (action ${actionId})...`).start();
-  
+
   try {
     // Create animation task
     const animTask = await meshy.animations.createAnimationTask({
       rig_task_id: rigTaskId,
       action_id: actionId,
     });
-    
+
     // Poll until complete
     const completed = await meshy.animations.pollAnimationTask(animTask.id, 60, 10000);
-    
+
     // Download animation GLB
     const animGLB = completed.result?.animation_glb_url;
     if (!animGLB) {
       throw new Error('No animation GLB URL');
     }
-    
+
     await downloadGLB(animGLB, outputPath);
-    spinner.succeed(`${animationName} animation generated (${(await fs.stat(outputPath)).size / 1024 / 1024} MB)`);
-    
+    spinner.succeed(
+      `${animationName} animation generated (${(await fs.stat(outputPath)).size / 1024 / 1024} MB)`
+    );
+
     return `/models/otter-rusty-${animationName}.glb`;
   } catch (error) {
     spinner.fail(`Failed: ${(error as Error).message}`);
@@ -85,45 +106,49 @@ async function generateAnimation(
 async function main() {
   console.log(chalk.bold.cyan('\n🎬 Otter Animation Generator\n'));
   console.log(chalk.gray('Generating additional animations from Meshy Animation Library\n'));
-  
+
   // Load manifest to get rig_task_id
-  const manifest = await fs.readJson(MANIFEST_PATH);
-  const otterModel = manifest.models.find((m: any) => m.id === 'otter-rusty');
-  
+  const manifest = (await fs.readJson(MANIFEST_PATH)) as ModelManifest;
+  const otterModel = manifest.models.find((model) => model.id === 'otter-rusty');
+
   if (!otterModel) {
     console.error(chalk.red('❌ Otter model not found in manifest!'));
     console.log(chalk.yellow('Run `pnpm generate:models` first'));
     process.exit(1);
   }
-  
-  const meshy = new MeshyAPI(API_KEY!);
-  
+
+  const meshy = new MeshyAPI(apiKey);
+
   // Check if rigTaskId is saved in manifest
-  let rigTaskId = otterModel.source.rigTaskId;
-  
+  let rigTaskId = otterModel.source?.rigTaskId;
+
   if (!rigTaskId) {
     console.log(chalk.yellow('⚠️  rigTaskId not in manifest, looking up from animation URLs...\n'));
-    
+
     // Extract rigging task ID from animation URL
-    if (otterModel.animations && otterModel.animations[0]?.url) {
+    if (otterModel.animations?.[0]?.url) {
       const walkUrl = otterModel.animations[0].url;
       // URL format: https://assets.meshy.ai/.../tasks/{rig_task_id}/output/...
-      const match = walkUrl.match(/tasks\/([^\/]+)\/output/);
+      const match = walkUrl.match(/tasks\/([^/]+)\/output/);
       if (match) {
         rigTaskId = match[1];
-        console.log(chalk.green(`✅ Extracted rigging task ID from URL: ${rigTaskId.substring(0, 12)}\n`));
+        console.log(
+          chalk.green(`✅ Extracted rigging task ID from URL: ${rigTaskId.substring(0, 12)}\n`)
+        );
       }
     }
   } else {
-    console.log(chalk.green(`✅ Using rigging task ID from manifest: ${rigTaskId.substring(0, 12)}\n`));
+    console.log(
+      chalk.green(`✅ Using rigging task ID from manifest: ${rigTaskId.substring(0, 12)}\n`)
+    );
   }
-  
+
   if (!rigTaskId) {
     console.error(chalk.red('❌ Could not determine rigging task ID!'));
     console.log(chalk.yellow('Regenerate the otter model to save rigTaskId in manifest.'));
     process.exit(1);
   }
-  
+
   // Generate additional animations
   const animations = [
     { name: 'jump', actionId: OTTER_ANIMATIONS.jump, label: 'Jump' },
@@ -135,10 +160,10 @@ async function main() {
     { name: 'dodge-left', actionId: OTTER_ANIMATIONS.dodgeLeft, label: 'Dodge Left' },
     { name: 'dodge-right', actionId: OTTER_ANIMATIONS.dodgeRight, label: 'Dodge Right' },
   ];
-  
+
   const generatedUrls: Record<string, string> = {};
   let successCount = 0;
-  
+
   for (const anim of animations) {
     const url = await generateAnimation(meshy, rigTaskId, anim.name, anim.actionId);
     if (url) {
@@ -146,16 +171,17 @@ async function main() {
       successCount++;
     }
   }
-  
+
   console.log(chalk.green(`\n✅ Generated ${successCount}/${animations.length} animations!\n`));
-  console.log(chalk.gray('   Animation files saved to: ' + OUTPUT_DIR));
+  console.log(chalk.gray(`   Animation files saved to: ${OUTPUT_DIR}`));
   console.log(chalk.cyan('\n🎬 Available animations:'));
   for (const [name, url] of Object.entries(generatedUrls)) {
     console.log(chalk.gray(`   - ${name}: ${url}`));
   }
-  
+
   console.log(chalk.cyan('\n💡 Update your otter spawn in ecs/world.ts:'));
-  console.log(chalk.gray(`
+  console.log(
+    chalk.gray(`
   animation: {
     current: 'idle',
     urls: {
@@ -172,7 +198,8 @@ async function main() {
       dodgeRight: '/models/otter-rusty-dodge-right.glb',
     }
   }
-  `));
+  `)
+  );
 }
 
 main().catch((error) => {

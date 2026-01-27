@@ -35,8 +35,7 @@ export type HapticFeedbackType =
 
 /** Check if we're running on a native platform with expo-haptics */
 function isNativePlatform(): boolean {
-  return typeof navigator !== 'undefined' &&
-    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  return typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 }
 
 /** Check if web vibration API is available */
@@ -77,7 +76,7 @@ export async function initHaptics(): Promise<void> {
     try {
       // Dynamic import for expo-haptics (only on native)
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const haptics = await import('expo-haptics' as string) as ExpoHapticsLike;
+      const haptics = (await import('expo-haptics' as string)) as ExpoHapticsLike;
       expoHaptics = haptics;
     } catch {
       // expo-haptics not available
@@ -220,7 +219,7 @@ export function continuousVibration(duration: number): void {
         clearInterval(interval);
         return;
       }
-      expoHaptics!.impactAsync(expoHaptics!.ImpactFeedbackStyle.Light);
+      expoHaptics?.impactAsync(expoHaptics?.ImpactFeedbackStyle.Light);
       i++;
     }, 100);
   } else if (hasVibrationAPI()) {

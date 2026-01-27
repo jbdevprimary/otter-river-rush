@@ -3,11 +3,11 @@
  * Generates game-ready 3D models with animations and texture variants
  */
 
-import fs from 'fs-extra';
-import path from 'path';
-import crypto from 'crypto';
-import fetch from 'node-fetch';
+import crypto from 'node:crypto';
+import path from 'node:path';
 import chalk from 'chalk';
+import fs from 'fs-extra';
+import fetch from 'node-fetch';
 import ora from 'ora';
 import { MeshyAPI } from '../meshy/index.js';
 import type { ModelAsset } from '../schemas/asset-manifest.js';
@@ -21,6 +21,8 @@ if (!API_KEY) {
   console.log(chalk.yellow('Set it with: export MESHY_API_KEY=your_key_here'));
   process.exit(1);
 }
+
+const MESHY_API_KEY = API_KEY;
 
 interface ModelSpec {
   id: string;
@@ -45,7 +47,8 @@ const MODEL_SPECS: ModelSpec[] = [
     id: 'otter-rusty',
     name: 'Rusty the Otter',
     category: 'character',
-    prompt: 'cute otter character standing upright on two legs, wearing a small adventure vest, friendly expression, cartoon style, game-ready low-poly 3D model, smooth topology, T-pose for rigging',
+    prompt:
+      'cute otter character standing upright on two legs, wearing a small adventure vest, friendly expression, cartoon style, game-ready low-poly 3D model, smooth topology, T-pose for rigging',
     artStyle: 'sculpture',
     needsRigging: true,
     polycount: 8000,
@@ -54,7 +57,8 @@ const MODEL_SPECS: ModelSpec[] = [
     id: 'rock-river',
     name: 'River Rock',
     category: 'obstacle',
-    prompt: 'smooth river rock, rounded boulder, natural stone texture, game-ready low-poly 3D model, simple geometry',
+    prompt:
+      'smooth river rock, rounded boulder, natural stone texture, game-ready low-poly 3D model, simple geometry',
     artStyle: 'realistic',
     needsRigging: false,
     polycount: 2000,
@@ -80,7 +84,8 @@ const MODEL_SPECS: ModelSpec[] = [
     id: 'coin-gold',
     name: 'Gold Coin',
     category: 'collectible',
-    prompt: 'shiny gold coin with otter paw print embossed on surface, game collectible, low-poly 3D model, metallic finish, cartoon style',
+    prompt:
+      'shiny gold coin with otter paw print embossed on surface, game collectible, low-poly 3D model, metallic finish, cartoon style',
     artStyle: 'sculpture',
     needsRigging: false,
     polycount: 500,
@@ -99,7 +104,8 @@ const MODEL_SPECS: ModelSpec[] = [
     id: 'gem-red',
     name: 'Red Gem',
     category: 'collectible',
-    prompt: 'brilliant red ruby gemstone, faceted crystal, game collectible, low-poly 3D model, glowing appearance, stylized',
+    prompt:
+      'brilliant red ruby gemstone, faceted crystal, game collectible, low-poly 3D model, glowing appearance, stylized',
     artStyle: 'sculpture',
     needsRigging: false,
     polycount: 300,
@@ -131,20 +137,17 @@ async function downloadGLB(url: string, outputPath: string): Promise<number> {
 /**
  * Generate 3D model with Meshy
  */
-async function generateModel(
-  meshy: MeshyAPI,
-  spec: ModelSpec
-): Promise<ModelAsset> {
+async function generateModel(meshy: MeshyAPI, spec: ModelSpec): Promise<ModelAsset> {
   console.log(chalk.cyan(`\n🎨 Generating: ${spec.name}`));
-  
+
   const outputPath = path.join(OUTPUT_DIR, `${spec.id}.glb`);
-  
+
   // Check if already exists
   if (await fs.pathExists(outputPath)) {
     console.log(chalk.yellow(`  ⚠️  ${spec.id}.glb already exists, skipping...`));
     const stats = await fs.stat(outputPath);
     const checksum = await calculateChecksum(outputPath);
-    
+
     return {
       id: spec.id,
       name: spec.name,
@@ -171,15 +174,15 @@ async function generateModel(
   const preview = await meshy.createPreviewTask({
     text_prompt: spec.prompt,
     art_style: spec.artStyle,
-    ai_model: 'latest',  // Use Meshy 6 Preview (20 credits but best quality)
+    ai_model: 'latest', // Use Meshy 6 Preview (20 credits but best quality)
     topology: 'quad',
     target_polycount: spec.polycount,
     should_remesh: true,
   });
-  
+
   const previewTask = await meshy.pollTask(preview.id, 60, 10000);
   previewSpinner.succeed('Preview complete');
-  
+
   // Step 2: Refine
   const refineSpinner = ora('Refining model...').start();
   const refined = await meshy.createRefineTask(previewTask.id, {
@@ -188,52 +191,52 @@ async function generateModel(
   });
   const refinedTask = await meshy.pollTask(refined.id, 120, 10000);
   refineSpinner.succeed('Refine complete');
-  
+
   // Step 3: Rigging (if needed)
   let finalGLB = meshy.getGLBUrl(refinedTask);
   const animations: ModelAsset['animations'] = [];
   let rigTaskId: string | undefined;
-  
+
   if (spec.needsRigging) {
     const riggingSpinner = ora('Adding character rigging...').start();
     const rigged = await meshy.createRiggingTask(refined.id);
     const riggedTask = await meshy.pollRiggingTask(rigged.id, 120, 10000);
-    rigTaskId = rigged.id;  // Save this for generating more animations later!
-    
+    rigTaskId = rigged.id; // Save this for generating more animations later!
+
     // Get animation URLs
     const animUrls = meshy.getAnimationUrls(riggedTask);
     finalGLB = animUrls.rigged || finalGLB;
-    
+
     riggingSpinner.succeed('Rigging complete');
-    
+
     // Download animation files separately
     if (animUrls.walking) {
       const walkPath = path.join(OUTPUT_DIR, `${spec.id}-walk.glb`);
       const walkSpinner = ora('Downloading walk animation...').start();
       await downloadGLB(animUrls.walking, walkPath);
       walkSpinner.succeed('Walk animation downloaded');
-      
+
       animations.push({
         name: 'walk',
         type: 'walk',
-        url: `/models/${spec.id}-walk.glb`,  // Local path, not Meshy URL
+        url: `/models/${spec.id}-walk.glb`, // Local path, not Meshy URL
       });
     }
-    
+
     if (animUrls.running) {
       const runPath = path.join(OUTPUT_DIR, `${spec.id}-run.glb`);
       const runSpinner = ora('Downloading run animation...').start();
       await downloadGLB(animUrls.running, runPath);
       runSpinner.succeed('Run animation downloaded');
-      
+
       animations.push({
         name: 'run',
         type: 'run',
-        url: `/models/${spec.id}-run.glb`,  // Local path, not Meshy URL
+        url: `/models/${spec.id}-run.glb`, // Local path, not Meshy URL
       });
     }
   }
-  
+
   // Download GLB
   const downloadSpinner = ora('Downloading model...').start();
   if (!finalGLB) {
@@ -241,11 +244,11 @@ async function generateModel(
   }
   const size = await downloadGLB(finalGLB, outputPath);
   downloadSpinner.succeed(`Downloaded: ${(size / 1024).toFixed(2)} KB`);
-  
+
   const checksum = await calculateChecksum(outputPath);
-  
+
   console.log(chalk.green(`✅ ${spec.name} generated successfully!`));
-  
+
   return {
     id: spec.id,
     name: spec.name,
@@ -253,7 +256,7 @@ async function generateModel(
     source: {
       type: 'meshy',
       meshyTaskId: refined.id,
-      rigTaskId,  // Saved if model was rigged
+      rigTaskId, // Saved if model was rigged
       prompt: spec.prompt,
     },
     files: {
@@ -279,39 +282,44 @@ async function generateVariants(
   spec: ModelSpec
 ): Promise<void> {
   if (!spec.variants || spec.variants.length === 0) return;
-  
+
   console.log(chalk.cyan(`\n🎨 Generating variants for ${spec.name}...`));
-  
+
   const baseGLBPath = path.join(OUTPUT_DIR, `${spec.id}.glb`);
-  const baseGLBUrl = `file://${baseGLBPath}`; // Local file for retexturing
-  
+  const _baseGLBUrl = `file://${baseGLBPath}`; // Local file for retexturing
+
   for (const variant of spec.variants) {
     const variantPath = path.join(OUTPUT_DIR, `${variant.id}.glb`);
-    
+
     if (await fs.pathExists(variantPath)) {
       console.log(chalk.yellow(`  ⚠️  ${variant.id}.glb already exists, skipping...`));
       continue;
     }
-    
+
     const spinner = ora(`Creating ${variant.name}...`).start();
-    
+
     try {
       // Use input_task_id for retexturing (cheaper and correct API)
+      const baseTaskId = baseModel.source.meshyTaskId;
+      if (!baseTaskId) {
+        throw new Error('Missing base model task id for retexturing');
+      }
+
       const retextured = await meshy.createRetextureTask({
-        input_task_id: baseModel.source.meshyTaskId!,
+        input_task_id: baseTaskId,
         text_style_prompt: variant.prompt,
         enable_pbr: true,
         enable_original_uv: true,
         ai_model: 'meshy-5',
       });
-      
+
       const retexturedTask = await meshy.pollRetextureTask(retextured.id, 120, 10000);
       const variantGLB = meshy.getGLBUrl(retexturedTask);
-      
+
       if (!variantGLB) {
         throw new Error('No variant GLB URL');
       }
-      
+
       await downloadGLB(variantGLB, variantPath);
       spinner.succeed(`${variant.name} created`);
     } catch (error) {
@@ -325,49 +333,55 @@ async function generateVariants(
  */
 async function syncFromManifest(manifestPath: string): Promise<void> {
   if (!(await fs.pathExists(manifestPath))) return;
-  
+
   console.log(chalk.cyan('\n🔄 Checking manifest for missing files...\n'));
-  
-  const manifest = await fs.readJson(manifestPath);
+
+  const manifest = (await fs.readJson(manifestPath)) as ModelManifest;
   let downloaded = 0;
-  
+
   for (const model of manifest.models) {
-    // Check main model file
-    const modelPath = path.join(OUTPUT_DIR, path.basename(model.files.glb));
-    if (!(await fs.pathExists(modelPath))) {
-      console.log(chalk.yellow(`  📥 Missing: ${path.basename(modelPath)}`));
-    }
-    
-    // Check animation files
-    if (model.animations) {
-      for (const anim of model.animations) {
-        // If URL starts with http, it hasn't been downloaded yet
-        // Extract filename from URL (before query params)
-        if (anim.url.startsWith('http')) {
-          const urlPath = new URL(anim.url).pathname;
-          const animFile = path.basename(urlPath);
-          const animPath = path.join(OUTPUT_DIR, `${model.id}-${anim.name}.glb`);
-          
-          if (!(await fs.pathExists(animPath))) {
-            const spinner = ora(`Downloading ${model.id}-${anim.name}.glb...`).start();
-            try {
-              await downloadGLB(anim.url, animPath);
-              spinner.succeed(`Downloaded ${model.id}-${anim.name}.glb`);
-              downloaded++;
-            } catch (error) {
-              spinner.fail(`Failed: ${(error as Error).message}`);
-            }
-          }
-        }
-      }
-    }
+    await logMissingModel(model);
+    downloaded += await downloadMissingAnimations(model);
   }
-  
+
   if (downloaded > 0) {
     console.log(chalk.green(`\n✅ Downloaded ${downloaded} missing files from manifest\n`));
   } else {
     console.log(chalk.gray('  All files up to date\n'));
   }
+}
+
+interface ModelManifest {
+  models: ModelAsset[];
+}
+
+async function logMissingModel(model: ModelAsset): Promise<void> {
+  const modelPath = path.join(OUTPUT_DIR, path.basename(model.files.glb));
+  if (!(await fs.pathExists(modelPath))) {
+    console.log(chalk.yellow(`  📥 Missing: ${path.basename(modelPath)}`));
+  }
+}
+
+async function downloadMissingAnimations(model: ModelAsset): Promise<number> {
+  if (!model.animations) return 0;
+  let downloaded = 0;
+
+  for (const anim of model.animations) {
+    if (!anim.url.startsWith('http')) continue;
+    const animPath = path.join(OUTPUT_DIR, `${model.id}-${anim.name}.glb`);
+    if (await fs.pathExists(animPath)) continue;
+
+    const spinner = ora(`Downloading ${model.id}-${anim.name}.glb...`).start();
+    try {
+      await downloadGLB(anim.url, animPath);
+      spinner.succeed(`Downloaded ${model.id}-${anim.name}.glb`);
+      downloaded++;
+    } catch (error) {
+      spinner.fail(`Failed: ${(error as Error).message}`);
+    }
+  }
+
+  return downloaded;
 }
 
 /**
@@ -376,23 +390,23 @@ async function syncFromManifest(manifestPath: string): Promise<void> {
 async function main() {
   console.log(chalk.bold.cyan('\n🎮 Otter River Rush - 3D Model Generator\n'));
   console.log(chalk.gray('Generating game-ready 3D models with Meshy AI\n'));
-  
+
   await fs.ensureDir(OUTPUT_DIR);
-  
-  const meshy = new MeshyAPI(API_KEY!);
+
+  const meshy = new MeshyAPI(MESHY_API_KEY);
   const manifestPath = path.join(OUTPUT_DIR, 'models-manifest.json');
-  
+
   // Idempotent: Download any missing files from manifest
   await syncFromManifest(manifestPath);
-  
+
   const generatedModels: ModelAsset[] = [];
-  
+
   // Generate base models
   for (const spec of MODEL_SPECS) {
     try {
       const model = await generateModel(meshy, spec);
       generatedModels.push(model);
-      
+
       // Generate variants if applicable
       if (spec.variants) {
         await generateVariants(meshy, model, spec);
@@ -401,14 +415,18 @@ async function main() {
       console.error(chalk.red(`❌ Failed to generate ${spec.name}:`), error);
     }
   }
-  
+
   // Save manifest
-  await fs.writeJson(manifestPath, {
-    version: '1.0.0',
-    generated: new Date().toISOString(),
-    models: generatedModels,
-  }, { spaces: 2 });
-  
+  await fs.writeJson(
+    manifestPath,
+    {
+      version: '1.0.0',
+      generated: new Date().toISOString(),
+      models: generatedModels,
+    },
+    { spaces: 2 }
+  );
+
   console.log(chalk.green(`\n✅ Generation complete!`));
   console.log(chalk.gray(`   Models saved to: ${OUTPUT_DIR}`));
   console.log(chalk.gray(`   Manifest: ${manifestPath}`));

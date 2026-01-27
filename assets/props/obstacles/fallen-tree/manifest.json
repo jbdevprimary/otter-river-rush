@@ -3,7 +3,7 @@
   "name": "Fallen Tree",
   "type": "prop",
   "description": "A fallen tree trunk spanning the river - jump over or dive under",
-  "price": 0.00,
+  "price": 0.0,
   "rarity": "uncommon",
 
   "gameplay": {

@@ -4,19 +4,19 @@
  * Uses NativeWind styling
  */
 
+import { useEffect, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import {
-  useGameStore,
-  getTutorialTimeRemaining,
-  getComboTimeRemaining,
-  getComboMultiplier,
   getActivePowerUps,
+  getComboMultiplier,
+  getComboTimeRemaining,
+  getTutorialTimeRemaining,
   POWER_UP_DISPLAYS,
-  useAchievementChecker,
   TIME_TRIAL_DURATION_MS,
+  useAchievementChecker,
+  useGameStore,
 } from '../../../game/store';
 import type { PowerUpType } from '../../../game/types';
-import { useState, useEffect } from 'react';
-import { Pressable, Text, View } from 'react-native';
 
 export function HUD() {
   const score = useGameStore((state) => state.score);
@@ -58,9 +58,7 @@ export function HUD() {
   }, [comboTimer, combo]);
 
   // Track tutorial time remaining with periodic updates
-  const [tutorialTimeLeft, setTutorialTimeLeft] = useState(() =>
-    getTutorialTimeRemaining()
-  );
+  const [tutorialTimeLeft, setTutorialTimeLeft] = useState(() => getTutorialTimeRemaining());
 
   useEffect(() => {
     if (gameStartTime === null) {
@@ -83,7 +81,7 @@ export function HUD() {
   }, [gameStartTime]);
 
   // Track active power-ups
-  const powerUps = useGameStore((state) => state.powerUps);
+  const _powerUps = useGameStore((state) => state.powerUps);
   const [activePowerUps, setActivePowerUps] = useState<
     Array<{ type: PowerUpType; timeRemaining: number }>
   >([]);
@@ -96,7 +94,7 @@ export function HUD() {
     setActivePowerUps(getActivePowerUps());
 
     return () => clearInterval(interval);
-  }, [powerUps]);
+  }, []);
 
   // Generate hearts based on lives
   const heartsDisplay = lives > 0 ? '\u2665 '.repeat(lives).trim() : '\u2661';
@@ -149,9 +147,7 @@ export function HUD() {
           <Text className="text-amber-100 text-xs font-bold uppercase tracking-widest mb-1">
             Time Trial
           </Text>
-          <Text className="text-white text-4xl font-bold">
-            {Math.ceil(timeRemaining / 1000)}s
-          </Text>
+          <Text className="text-white text-4xl font-bold">{Math.ceil(timeRemaining / 1000)}s</Text>
           <View className="w-full h-2 bg-black/30 rounded mt-2 overflow-hidden">
             <View
               className="h-full bg-white rounded"
@@ -166,12 +162,8 @@ export function HUD() {
         {/* Left Panel - Score & Distance */}
         <View className="flex-col items-start">
           <Text className="text-white text-[28px] font-bold">SCORE: {score}</Text>
-          <Text className="text-brand-primary text-xl mt-1">
-            DISTANCE: {Math.floor(distance)}m
-          </Text>
-          {isZenMode && (
-            <Text className="text-emerald-500 text-xl mt-2">ZEN MODE</Text>
-          )}
+          <Text className="text-brand-primary text-xl mt-1">DISTANCE: {Math.floor(distance)}m</Text>
+          {isZenMode && <Text className="text-emerald-500 text-xl mt-2">ZEN MODE</Text>}
         </View>
 
         {/* Right Panel - Lives & Combo */}
@@ -184,9 +176,7 @@ export function HUD() {
           {/* Combo display with timer bar */}
           {combo > 0 && (
             <View className="flex-col items-end min-w-[120px] mt-1">
-              <Text className="text-brand-gold text-2xl font-bold">
-                COMBO x{combo}
-              </Text>
+              <Text className="text-brand-gold text-2xl font-bold">COMBO x{combo}</Text>
               {getComboMultiplier(combo) > 1 && (
                 <Text className="text-emerald-500 text-sm font-bold mt-0.5">
                   {getComboMultiplier(combo)}x SCORE
@@ -222,8 +212,7 @@ export function HUD() {
               slowMotion: 5,
             };
             const maxDuration = maxDurations[type];
-            const widthPercent =
-              maxDuration > 0 ? (powerUpTime / maxDuration) * 100 : 100;
+            const widthPercent = maxDuration > 0 ? (powerUpTime / maxDuration) * 100 : 100;
 
             return (
               <View
@@ -234,14 +223,10 @@ export function HUD() {
                   className="w-8 h-8 rounded-full items-center justify-center"
                   style={{ backgroundColor: display.color }}
                 >
-                  <Text className="text-white text-base font-bold">
-                    {display.icon}
-                  </Text>
+                  <Text className="text-white text-base font-bold">{display.icon}</Text>
                 </View>
                 <View className="flex-col">
-                  <Text className="text-white text-sm font-bold">
-                    {display.name}
-                  </Text>
+                  <Text className="text-white text-sm font-bold">{display.name}</Text>
                   <Text className="text-slate-400 text-xs">
                     {powerUpTime === -1 ? 'ACTIVE' : `${powerUpTime}s`}
                   </Text>

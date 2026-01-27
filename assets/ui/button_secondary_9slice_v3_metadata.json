@@ -4,20 +4,10 @@
     "w": 1024,
     "h": 256
   },
-  "states": [
-    "idle",
-    "hover",
-    "pressed",
-    "disabled"
-  ],
+  "states": ["idle", "hover", "pressed", "disabled"],
   "atlas": {
     "path": "/mnt/data/otter_ui_kit_v3/button_secondary_9slice_v3_ATLAS_1024x1408.png",
-    "tile_order": [
-      "idle",
-      "hover",
-      "pressed",
-      "disabled"
-    ],
+    "tile_order": ["idle", "hover", "pressed", "disabled"],
     "top_pad": 96,
     "gap": 64,
     "atlas_w": 1024,

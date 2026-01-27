@@ -3,7 +3,7 @@
  * Manages particle lifetime and decay
  */
 
-import { world, queries } from '../world';
+import { queries, world } from '../world';
 
 /**
  * Update particle lifetimes
@@ -11,8 +11,10 @@ import { world, queries } from '../world';
  */
 export function updateParticles(deltaMs: number): void {
   for (const particle of queries.particles) {
-    particle.particle!.lifetime -= deltaMs;
-    if (particle.particle!.lifetime <= 0) {
+    const particleState = particle.particle;
+    if (!particleState) continue;
+    particleState.lifetime -= deltaMs;
+    if (particleState.lifetime <= 0) {
       world.addComponent(particle, 'destroyed', true);
     }
   }

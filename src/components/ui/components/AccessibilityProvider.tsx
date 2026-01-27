@@ -4,14 +4,14 @@
  * Web-specific features are gated behind platform checks
  */
 
+import { type ReactNode, useEffect } from 'react';
+import { Platform } from 'react-native';
 import {
   getAccessibilityFilter,
   REDUCED_MOTION_CLASS,
   REDUCED_MOTION_STYLES,
 } from '../../../game/config';
 import { useGameStore } from '../../../game/store';
-import { useEffect, type ReactNode } from 'react';
-import { Platform } from 'react-native';
 
 interface AccessibilityProviderProps {
   children: ReactNode;
@@ -82,10 +82,7 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
   useEffect(() => {
     if (!isWeb || typeof document === 'undefined') return;
 
-    const filter = getAccessibilityFilter(
-      accessibility.colorblindMode,
-      accessibility.highContrast
-    );
+    const filter = getAccessibilityFilter(accessibility.colorblindMode, accessibility.highContrast);
 
     // Apply filter to the root element
     const root = document.documentElement;
@@ -114,9 +111,7 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
       if (e.matches && !accessibility.reducedMotion) {
         // Note: We don't auto-enable reduced motion here to respect user's explicit choice
         // But we could add a prompt or notification about the system preference
-        console.log(
-          'System prefers reduced motion. Consider enabling Reduced Motion in Settings.'
-        );
+        console.log('System prefers reduced motion. Consider enabling Reduced Motion in Settings.');
       }
     };
 

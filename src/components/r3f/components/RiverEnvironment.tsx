@@ -16,9 +16,9 @@
  * Transform: Game (x, y, z) -> Three.js (x, z, y)
  */
 
-import { useRef, useMemo } from 'react';
-import { BIOME_COLORS, VISUAL } from '../../../game/config';
+import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { BIOME_COLORS, VISUAL } from '../../../game/config';
 import { AnimatedWaterMaterial } from '../shaders';
 
 interface RiverEnvironmentProps {
@@ -82,7 +82,10 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
   return (
     <>
       {/* Lighting */}
-      <ambientLight color={VISUAL.lighting.ambient.color} intensity={VISUAL.lighting.ambient.intensity} />
+      <ambientLight
+        color={VISUAL.lighting.ambient.color}
+        intensity={VISUAL.lighting.ambient.intensity}
+      />
       <directionalLight
         position={VISUAL.lighting.directional.main.position}
         intensity={VISUAL.lighting.directional.main.intensity}
@@ -138,16 +141,17 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
       </mesh>
 
       {/* Trees along banks */}
-      {treePositions.map((pos, i) => (
-        <Tree key={`tree-${i}`} position={pos} terrainColor={colors.terrain} />
+      {treePositions.map((pos) => (
+        <Tree
+          key={`tree-${pos.x}-${pos.y}-${pos.scale}`}
+          position={pos}
+          terrainColor={colors.terrain}
+        />
       ))}
 
       {/* Distant Mountains */}
-      {mountainPositions.map((m, i) => (
-        <mesh
-          key={`mountain-${i}`}
-          position={[m.x, m.height / 2 - 2, m.y]}
-        >
+      {mountainPositions.map((m) => (
+        <mesh key={`mountain-${m.x}-${m.y}-${m.height}`} position={[m.x, m.height / 2 - 2, m.y]}>
           <coneGeometry args={[m.width / 2, m.height, 8]} />
           <meshStandardMaterial color="#475569" roughness={1} metalness={0} />
         </mesh>
@@ -157,18 +161,12 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
       {/* Game (0, 55, 10) -> Three.js (0, 10, 55) */}
       <mesh position={[0, 10, 55]} rotation={[Math.PI / 6, 0, 0]}>
         <planeGeometry args={[80, 40]} />
-        <meshBasicMaterial
-          color={colors.sky}
-          side={THREE.DoubleSide}
-        />
+        <meshBasicMaterial color={colors.sky} side={THREE.DoubleSide} />
       </mesh>
 
       {/* Lane Markers (subtle guide lines on water) */}
-      {VISUAL.lanes.positions.map((laneX, i) => (
-        <mesh
-          key={`lane-${i}`}
-          position={[laneX, 0.01, riverLength / 2 - 10]}
-        >
+      {VISUAL.lanes.positions.map((laneX) => (
+        <mesh key={`lane-${laneX}`} position={[laneX, 0.01, riverLength / 2 - 10]}>
           <boxGeometry args={[0.08, 0.02, riverLength]} />
           <meshStandardMaterial
             color="#ffffff"

@@ -6,7 +6,7 @@
  * Uses seeded RNG for deterministic, reproducible game generation
  */
 
-import { PHYSICS, VISUAL, getLaneX } from '../../config';
+import { getLaneX, PHYSICS, VISUAL } from '../../config';
 import {
   calculateCollectibleSpawnInterval,
   calculateObstacleSpawnInterval,

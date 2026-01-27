@@ -6,10 +6,9 @@
  * Use AssetBridge.native for React Native/Expo environments.
  */
 
-// Core registry (platform-agnostic)
-export * from './AssetRegistry';
-
 // Web bridge (default for Babylon.js)
 export * from './AssetBridge.web';
+// Core registry (platform-agnostic)
+export * from './AssetRegistry';
 
 // Note: For React Native, import from './AssetBridge.native' directly

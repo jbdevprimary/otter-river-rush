@@ -3,7 +3,7 @@
   "name": "Floating Log",
   "type": "prop",
   "description": "A moss-covered log floating in the river - can be jumped over",
-  "price": 0.00,
+  "price": 0.0,
   "rarity": "common",
 
   "gameplay": {

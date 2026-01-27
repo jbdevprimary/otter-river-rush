@@ -8,17 +8,16 @@
 
 import './global.css';
 
-import { useGameStore } from './game/store';
-import type { GameStatus } from './game/types';
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
 import { Pressable, SafeAreaView, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { GameCanvas } from './components/game/GameCanvas';
 import { GameHUD } from './components/game/GameHUD';
-import { MainMenu } from './screens/MainMenu';
-import { GameOverScreen } from './screens/GameOverScreen';
+import { useGameStore } from './game/store';
+import type { GameStatus } from './game/types';
 import { CharacterSelectScreen } from './screens/CharacterSelectScreen';
+import { GameOverScreen } from './screens/GameOverScreen';
+import { MainMenu } from './screens/MainMenu';
 
 export default function App() {
   const status = useGameStore((state) => state.status);

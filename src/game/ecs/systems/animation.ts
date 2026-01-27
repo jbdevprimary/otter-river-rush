@@ -12,7 +12,8 @@
  * - death: Game over animation (final state)
  */
 
-import type { GameStatus, AnimationState } from '../../types';
+import type { With } from 'miniplex';
+import type { AnimationState, Entity, GameStatus } from '../../types';
 import { queries } from '../world';
 
 /** Duration of one-shot animations in milliseconds */
@@ -77,69 +78,76 @@ export function updateAnimation(status: GameStatus): void {
   const [player] = queries.player.entities;
   if (!player || !player.animation) return;
 
+  const animatedPlayer = player as AnimatedPlayer;
   const now = Date.now();
 
   // Check if one-shot animation has completed
-  if (
-    player.animation.isOneShot &&
-    player.animation.startTime &&
-    player.animation.duration
-  ) {
-    const elapsed = now - player.animation.startTime;
-    if (elapsed >= player.animation.duration) {
-      // Return to the specified animation or default
-      const returnAnimation = player.animation.returnTo ?? DEFAULT_PLAYING_ANIMATION;
-      player.animation.previous = player.animation.current;
-      player.animation.current = returnAnimation;
-      player.animation.isOneShot = false;
-      player.animation.startTime = now;
-    }
-  }
+  resolveOneShotAnimation(animatedPlayer, now);
 
   // Don't change animation if we're in a one-shot
-  if (player.animation.isOneShot) return;
+  if (animatedPlayer.animation.isOneShot) return;
 
-  // Update animation based on game state
   if (status === 'playing') {
-    // Check if player is jumping (jump animation takes priority)
-    if (player.jump?.isJumping) {
-      if (player.animation.current !== 'jump') {
-        setAnimation('jump');
-      }
-      return;
-    }
+    handlePlayingAnimation(animatedPlayer);
+    return;
+  }
 
-    // If just landed from a jump, return to swim
-    if (player.animation.current === 'jump' && !player.jump?.isJumping) {
-      setAnimation('swim');
-      return;
-    }
+  handleNonPlayingAnimation(status, animatedPlayer);
+}
 
-    // Check for lane change (dodge animation)
-    if (player.lane !== undefined && previousLane !== undefined) {
-      if (player.lane !== previousLane) {
-        // Player changed lanes - trigger dodge
-        triggerAnimation('dodge', DEFAULT_PLAYING_ANIMATION);
-        previousLane = player.lane;
-        return;
-      }
+type AnimatedPlayer = With<Entity, 'player' | 'animation'>;
+
+function resolveOneShotAnimation(player: AnimatedPlayer, now: number): void {
+  if (!player.animation?.isOneShot || !player.animation.startTime || !player.animation.duration) {
+    return;
+  }
+
+  const elapsed = now - player.animation.startTime;
+  if (elapsed < player.animation.duration) return;
+
+  const returnAnimation = player.animation.returnTo ?? DEFAULT_PLAYING_ANIMATION;
+  player.animation.previous = player.animation.current;
+  player.animation.current = returnAnimation;
+  player.animation.isOneShot = false;
+  player.animation.startTime = now;
+}
+
+function handlePlayingAnimation(player: AnimatedPlayer): void {
+  if (player.jump?.isJumping) {
+    if (player.animation.current !== 'jump') {
+      setAnimation('jump');
     }
+    return;
+  }
+
+  if (player.animation.current === 'jump' && !player.jump?.isJumping) {
+    setAnimation('swim');
+    return;
+  }
+
+  if (player.lane !== undefined && previousLane !== undefined && player.lane !== previousLane) {
+    triggerAnimation('dodge', DEFAULT_PLAYING_ANIMATION);
     previousLane = player.lane;
+    return;
+  }
 
-    // Default playing animation is swim
-    if (player.animation.current !== 'swim') {
-      setAnimation('swim');
-    }
-  } else if (status === 'game_over') {
-    // Death animation (final state, no one-shot)
-    if (player.animation.current !== 'death') {
+  previousLane = player.lane;
+
+  if (player.animation.current !== 'swim') {
+    setAnimation('swim');
+  }
+}
+
+function handleNonPlayingAnimation(status: GameStatus, player: AnimatedPlayer): void {
+  if (status === 'game_over') {
+    if (player.animation?.current !== 'death') {
       setAnimation('death');
     }
-  } else {
-    // Menu, paused, etc - idle animation
-    if (player.animation.current !== 'idle') {
-      setAnimation('idle');
-    }
+    return;
+  }
+
+  if (player.animation?.current !== 'idle') {
+    setAnimation('idle');
   }
 }
 

@@ -3,8 +3,10 @@
  * This avoids the import.meta issue in the ESM build
  */
 
-// Force require the CJS build directly
-const middleware = require('zustand/middleware.js');
+import type * as Middleware from 'zustand/middleware';
+
+// Force require the CJS build directly with typed exports
+const middleware = require('zustand/middleware.js') as typeof Middleware;
 
 export const persist = middleware.persist;
 export const createJSONStorage = middleware.createJSONStorage;

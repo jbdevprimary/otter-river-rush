@@ -150,6 +150,10 @@ Fixed `@expo/metro-config@0.20.18` bug where optional dependency paths were unde
 - Removed Sphinx/RST scaffolding from docs (Markdown-only docs in repo).
 - Replaced placeholder installation/quickstart guidance with pnpm + Expo steps.
 
+### Linting & Testing Updates
+- Applied Biome formatting/lint fixes across the codebase and refactored high-complexity sections.
+- Added Jest + ts-jest with a baseline collision unit test and reran lint/typecheck/test suites.
+
 ---
 
 ## Implemented Features

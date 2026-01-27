@@ -5,20 +5,11 @@
  * Uses NativeWind styling
  */
 
-import { GAME_SPEED_LABELS } from '../../../game/config';
-import {
-  type ColorblindMode,
-  type GameSpeedOption,
-  useGameStore,
-} from '../../../game/store';
-import {
-  setMusicVolume,
-  setSFXVolume,
-  setMuted,
-  playClick,
-} from '../../../lib/audio';
 import { useCallback, useEffect } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
+import { GAME_SPEED_LABELS } from '../../../game/config';
+import { type ColorblindMode, type GameSpeedOption, useGameStore } from '../../../game/store';
+import { playClick, setMusicVolume, setMuted, setSFXVolume } from '../../../lib/audio';
 
 interface SettingsProps {
   isOpen: boolean;
@@ -70,9 +61,7 @@ function Toggle({
 }) {
   return (
     <Pressable
-      className={`w-16 h-11 rounded-full relative ${
-        enabled ? 'bg-brand-success' : 'bg-slate-500'
-      }`}
+      className={`w-16 h-11 rounded-full relative ${enabled ? 'bg-brand-success' : 'bg-slate-500'}`}
       onPress={onToggle}
       accessibilityLabel={label}
       accessibilityRole="switch"
@@ -184,12 +173,7 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
   }, []);
 
   const speedOptions: GameSpeedOption[] = [0.5, 0.75, 1];
-  const colorblindModes: ColorblindMode[] = [
-    'none',
-    'protanopia',
-    'deuteranopia',
-    'tritanopia',
-  ];
+  const colorblindModes: ColorblindMode[] = ['none', 'protanopia', 'deuteranopia', 'tritanopia'];
 
   // Sync audio manager with store on mount and changes
   useEffect(() => {
@@ -299,9 +283,7 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
           contentContainerStyle={{ alignItems: 'center' }}
           showsVerticalScrollIndicator={false}
         >
-          <Text className="text-white text-4xl font-bold text-center mb-6">
-            SETTINGS
-          </Text>
+          <Text className="text-white text-4xl font-bold text-center mb-6">SETTINGS</Text>
 
           {/* Music Section */}
           <View className="w-full mb-5">
@@ -363,17 +345,13 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
             <View className="flex-row items-center justify-between w-full min-h-[44px] mb-4">
               <View className="flex-col flex-1">
                 <Text className="text-white text-lg">High Contrast</Text>
-                <Text className="text-slate-500 text-xs">
-                  Increase color contrast
-                </Text>
+                <Text className="text-slate-500 text-xs">Increase color contrast</Text>
               </View>
               <Toggle
                 enabled={accessibility.highContrast}
                 onToggle={handleHighContrastToggle}
                 label={
-                  accessibility.highContrast
-                    ? 'Disable high contrast'
-                    : 'Enable high contrast'
+                  accessibility.highContrast ? 'Disable high contrast' : 'Enable high contrast'
                 }
               />
             </View>
@@ -382,9 +360,7 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
             <View className="flex-row items-center justify-between w-full min-h-[44px] mb-4">
               <View className="flex-col flex-1">
                 <Text className="text-white text-lg">Colorblind Mode</Text>
-                <Text className="text-slate-500 text-xs">
-                  Adjust colors for visibility
-                </Text>
+                <Text className="text-slate-500 text-xs">Adjust colors for visibility</Text>
               </View>
             </View>
             <View className="flex-row flex-wrap gap-2 mb-4">
@@ -400,9 +376,7 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
                 >
                   <Text
                     className={`text-sm font-bold capitalize ${
-                      accessibility.colorblindMode === mode
-                        ? 'text-white'
-                        : 'text-slate-400'
+                      accessibility.colorblindMode === mode ? 'text-white' : 'text-slate-400'
                     }`}
                   >
                     {mode === 'none' ? 'None' : mode}
@@ -415,17 +389,13 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
             <View className="flex-row items-center justify-between w-full min-h-[44px] mb-4">
               <View className="flex-col flex-1">
                 <Text className="text-white text-lg">Reduced Motion</Text>
-                <Text className="text-slate-500 text-xs">
-                  Disable particles
-                </Text>
+                <Text className="text-slate-500 text-xs">Disable particles</Text>
               </View>
               <Toggle
                 enabled={accessibility.reducedMotion}
                 onToggle={handleReducedMotionToggle}
                 label={
-                  accessibility.reducedMotion
-                    ? 'Disable reduced motion'
-                    : 'Enable reduced motion'
+                  accessibility.reducedMotion ? 'Disable reduced motion' : 'Enable reduced motion'
                 }
               />
             </View>
@@ -434,9 +404,7 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
             <View className="flex-row items-center justify-between w-full min-h-[44px] mb-4">
               <View className="flex-col flex-1">
                 <Text className="text-white text-lg">Game Speed</Text>
-                <Text className="text-slate-500 text-xs">
-                  Slow down gameplay
-                </Text>
+                <Text className="text-slate-500 text-xs">Slow down gameplay</Text>
               </View>
             </View>
             <View className="flex-row gap-2 justify-end flex-wrap">
@@ -452,9 +420,7 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
                 >
                   <Text
                     className={`text-xs font-bold ${
-                      accessibility.gameSpeedMultiplier === speed
-                        ? 'text-white'
-                        : 'text-slate-400'
+                      accessibility.gameSpeedMultiplier === speed ? 'text-white' : 'text-slate-400'
                     }`}
                   >
                     {GAME_SPEED_LABELS[speed]}
@@ -468,14 +434,10 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
             className="w-full h-14 bg-brand-primary rounded-xl items-center justify-center mt-2 active:bg-blue-400 active:scale-[1.02]"
             onPress={handleClose}
           >
-            <Text className="text-white text-xl font-bold font-mono">
-              CLOSE
-            </Text>
+            <Text className="text-white text-xl font-bold font-mono">CLOSE</Text>
           </Pressable>
 
-          <Text className="text-slate-500 text-xs text-center mt-4">
-            Press ESC to close
-          </Text>
+          <Text className="text-slate-500 text-xs text-center mt-4">Press ESC to close</Text>
         </ScrollView>
       </Pressable>
     </Pressable>

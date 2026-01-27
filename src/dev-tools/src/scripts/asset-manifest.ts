@@ -8,24 +8,24 @@ export interface QualityMetrics {
   // File metrics
   fileSize: number; // bytes
   fileSizeKB: number;
-  
+
   // Image metrics
   width: number;
   height: number;
   aspectRatio: number;
   format: string;
-  
+
   // Quality checks
   hasTransparency: boolean;
   hasWhiteBackground: boolean; // BAD - should be transparent
   isDistorted: boolean; // Aspect ratio doesn't match expected
   isUndersized: boolean; // Smaller than minimum required
   isOversized: boolean; // Unnecessarily large file
-  
+
   // Computed quality score
   qualityScore: number; // 0-100, 100 = perfect
   issues: string[];
-  
+
   // Generation metadata
   lastGenerated?: Date;
   generationMethod?: 'ai' | 'manual' | 'placeholder';
@@ -37,22 +37,22 @@ export interface AssetDefinition {
   category: 'sprite' | 'hud' | 'icon' | 'pwa' | 'ui';
   name: string;
   description: string;
-  
+
   // File location
   path: string; // relative to public/
-  
+
   // Expected specifications
   expectedSize: { width: number; height: number };
   expectedFormat: 'png' | 'ico' | 'webp' | 'jpg';
   maxFileSizeKB: number;
   requiresTransparency: boolean;
-  
+
   // Generation config
   aiPrompt?: string;
   aiModel?: 'gpt-image-1' | 'dall-e-3' | 'stable-diffusion';
   canBeGenerated: boolean;
   priority: 'critical' | 'high' | 'medium' | 'low';
-  
+
   // Current quality
   currentQuality?: QualityMetrics;
 }
@@ -74,7 +74,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 100,
     requiresTransparency: true,
-    aiPrompt: 'Cute cartoon otter character for a river game, swimming position, playful expression, simple design, vibrant colors, transparent PNG background, game sprite style, clean edges, 512x512',
+    aiPrompt:
+      'Cute cartoon otter character for a river game, swimming position, playful expression, simple design, vibrant colors, transparent PNG background, game sprite style, clean edges, 512x512',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'critical',
@@ -89,12 +90,13 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 150,
     requiresTransparency: true,
-    aiPrompt: 'Cute cartoon otter character with a glowing blue magical shield bubble around it, swimming position, protected look, vibrant colors, transparent PNG background, game sprite style, 512x512',
+    aiPrompt:
+      'Cute cartoon otter character with a glowing blue magical shield bubble around it, swimming position, protected look, vibrant colors, transparent PNG background, game sprite style, 512x512',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'high',
   },
-  
+
   // Rock obstacles
   {
     id: 'rock-1',
@@ -106,7 +108,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 80,
     requiresTransparency: true,
-    aiPrompt: 'Smooth river rock obstacle, gray stone with moss, simple geometric shape, game sprite style, transparent PNG background, top-down view, clean edges, 256x256',
+    aiPrompt:
+      'Smooth river rock obstacle, gray stone with moss, simple geometric shape, game sprite style, transparent PNG background, top-down view, clean edges, 256x256',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'critical',
@@ -121,7 +124,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 80,
     requiresTransparency: true,
-    aiPrompt: 'Jagged river rock obstacle, dark gray stone, angular shape, game sprite style, transparent PNG background, top-down view, slightly different from first rock, 256x256',
+    aiPrompt:
+      'Jagged river rock obstacle, dark gray stone, angular shape, game sprite style, transparent PNG background, top-down view, slightly different from first rock, 256x256',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'critical',
@@ -136,12 +140,13 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 80,
     requiresTransparency: true,
-    aiPrompt: 'Rounded boulder obstacle, light gray with cracks, game sprite style, transparent PNG background, top-down view, distinct shape variation, 256x256',
+    aiPrompt:
+      'Rounded boulder obstacle, light gray with cracks, game sprite style, transparent PNG background, top-down view, distinct shape variation, 256x256',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'critical',
   },
-  
+
   // Collectibles
   {
     id: 'coin',
@@ -153,7 +158,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 50,
     requiresTransparency: true,
-    aiPrompt: 'Shiny golden coin collectible, circular, gleaming effect, simple game icon style, transparent PNG background, sparkle effect, clean edges, 128x128',
+    aiPrompt:
+      'Shiny golden coin collectible, circular, gleaming effect, simple game icon style, transparent PNG background, sparkle effect, clean edges, 128x128',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'high',
@@ -168,7 +174,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 50,
     requiresTransparency: true,
-    aiPrompt: 'Beautiful blue gem diamond collectible, faceted crystal, glowing effect, game icon style, transparent PNG background, magical sparkle, 128x128',
+    aiPrompt:
+      'Beautiful blue gem diamond collectible, faceted crystal, glowing effect, game icon style, transparent PNG background, magical sparkle, 128x128',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'high',
@@ -183,12 +190,13 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 50,
     requiresTransparency: true,
-    aiPrompt: 'Beautiful red ruby gem collectible, faceted crystal, glowing effect, game icon style, transparent PNG background, valuable appearance, 128x128',
+    aiPrompt:
+      'Beautiful red ruby gem collectible, faceted crystal, glowing effect, game icon style, transparent PNG background, valuable appearance, 128x128',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'high',
   },
-  
+
   // Power-ups
   {
     id: 'powerup-shield',
@@ -200,7 +208,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 50,
     requiresTransparency: true,
-    aiPrompt: 'Blue shield icon power-up, glowing magical shield symbol, game power-up style, transparent PNG background, bright colors, circular base, 128x128',
+    aiPrompt:
+      'Blue shield icon power-up, glowing magical shield symbol, game power-up style, transparent PNG background, bright colors, circular base, 128x128',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'high',
@@ -215,7 +224,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 50,
     requiresTransparency: true,
-    aiPrompt: 'Yellow lightning bolt icon power-up, energy effect, speed boost symbol, game power-up style, transparent PNG background, dynamic appearance, 128x128',
+    aiPrompt:
+      'Yellow lightning bolt icon power-up, energy effect, speed boost symbol, game power-up style, transparent PNG background, dynamic appearance, 128x128',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'high',
@@ -230,7 +240,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 50,
     requiresTransparency: true,
-    aiPrompt: 'Green star with x2 symbol power-up icon, score multiplier indicator, game power-up style, transparent PNG background, vibrant colors, 128x128',
+    aiPrompt:
+      'Green star with x2 symbol power-up icon, score multiplier indicator, game power-up style, transparent PNG background, vibrant colors, 128x128',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'high',
@@ -245,12 +256,13 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 50,
     requiresTransparency: true,
-    aiPrompt: 'Purple horseshoe magnet icon power-up, attractive force symbol, game power-up style, transparent PNG background, magical effect, 128x128',
+    aiPrompt:
+      'Purple horseshoe magnet icon power-up, attractive force symbol, game power-up style, transparent PNG background, magical effect, 128x128',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'high',
   },
-  
+
   // VFX
   {
     id: 'splash',
@@ -262,7 +274,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 80,
     requiresTransparency: true,
-    aiPrompt: 'Water splash effect, dynamic droplets, white and blue water spray, game VFX sprite, transparent PNG background, impact effect, 256x256',
+    aiPrompt:
+      'Water splash effect, dynamic droplets, white and blue water spray, game VFX sprite, transparent PNG background, impact effect, 256x256',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'medium',
@@ -277,12 +290,13 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 80,
     requiresTransparency: true,
-    aiPrompt: 'Water ripple effect, circular wave pattern, translucent blue, game sprite overlay, transparent PNG background, subtle animation frame, 256x256',
+    aiPrompt:
+      'Water ripple effect, circular wave pattern, translucent blue, game sprite overlay, transparent PNG background, subtle animation frame, 256x256',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'medium',
   },
-  
+
   // ============================================================================
   // HUD ELEMENTS - On-screen UI
   // ============================================================================
@@ -296,7 +310,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 400,
     requiresTransparency: false,
-    aiPrompt: 'Otter River Rush game title screen, cute otter surfing on water, vibrant cartoon style, blue river background, playful logo design, game art, bright colors, professional mobile game splash screen, 1920x1080',
+    aiPrompt:
+      'Otter River Rush game title screen, cute otter surfing on water, vibrant cartoon style, blue river background, playful logo design, game art, bright colors, professional mobile game splash screen, 1920x1080',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'high',
@@ -311,7 +326,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 50,
     requiresTransparency: true,
-    aiPrompt: 'Cute red heart icon for game UI, simple clean design, slight 3D effect, game HUD element, transparent background, 128x128',
+    aiPrompt:
+      'Cute red heart icon for game UI, simple clean design, slight 3D effect, game HUD element, transparent background, 128x128',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'high',
@@ -326,7 +342,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 80,
     requiresTransparency: true,
-    aiPrompt: 'Small rounded rectangle UI panel for coin counter, wood texture, game HUD element, slightly transparent, warm brown color, 256x128',
+    aiPrompt:
+      'Small rounded rectangle UI panel for coin counter, wood texture, game HUD element, slightly transparent, warm brown color, 256x128',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'medium',
@@ -341,7 +358,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 50,
     requiresTransparency: true,
-    aiPrompt: 'Pause button icon for mobile game, two vertical bars, circular blue background, glossy effect, game UI button, 128x128',
+    aiPrompt:
+      'Pause button icon for mobile game, two vertical bars, circular blue background, glossy effect, game UI button, 128x128',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'high',
@@ -356,7 +374,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 50,
     requiresTransparency: true,
-    aiPrompt: 'Play button icon for mobile game, triangle play symbol, circular green background, glossy effect, game UI button, 128x128',
+    aiPrompt:
+      'Play button icon for mobile game, triangle play symbol, circular green background, glossy effect, game UI button, 128x128',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'high',
@@ -371,7 +390,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 50,
     requiresTransparency: true,
-    aiPrompt: 'Settings gear icon for mobile game, circular gray background, modern clean design, game UI button, 128x128',
+    aiPrompt:
+      'Settings gear icon for mobile game, circular gray background, modern clean design, game UI button, 128x128',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'high',
@@ -386,7 +406,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 80,
     requiresTransparency: true,
-    aiPrompt: 'Golden star achievement badge, shiny metallic effect, ribbon banner, game UI element, celebration icon, 256x256',
+    aiPrompt:
+      'Golden star achievement badge, shiny metallic effect, ribbon banner, game UI element, celebration icon, 256x256',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'medium',
@@ -401,12 +422,13 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 400,
     requiresTransparency: true,
-    aiPrompt: 'Level up celebration banner, colorful confetti, golden text background, game UI victory element, wide banner format, 1024x256',
+    aiPrompt:
+      'Level up celebration banner, colorful confetti, golden text background, game UI victory element, wide banner format, 1024x256',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'medium',
   },
-  
+
   // ============================================================================
   // PWA ICONS - Installation and system icons
   // ============================================================================
@@ -420,7 +442,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 150,
     requiresTransparency: false,
-    aiPrompt: 'Otter River Rush app icon, cute otter face, blue circular background, simple clean design, mobile game icon style, 512x512',
+    aiPrompt:
+      'Otter River Rush app icon, cute otter face, blue circular background, simple clean design, mobile game icon style, 512x512',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'critical',
@@ -435,7 +458,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 50,
     requiresTransparency: false,
-    aiPrompt: 'Otter River Rush app icon, cute otter face, blue circular background, simple clean design, mobile game icon style, 192x192',
+    aiPrompt:
+      'Otter River Rush app icon, cute otter face, blue circular background, simple clean design, mobile game icon style, 192x192',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'critical',
@@ -450,7 +474,8 @@ export const ASSET_MANIFEST: AssetDefinition[] = [
     expectedFormat: 'png',
     maxFileSizeKB: 50,
     requiresTransparency: false,
-    aiPrompt: 'Otter River Rush app icon, cute otter face, blue circular background, simple clean design, mobile game icon style, 180x180',
+    aiPrompt:
+      'Otter River Rush app icon, cute otter face, blue circular background, simple clean design, mobile game icon style, 180x180',
     aiModel: 'gpt-image-1',
     canBeGenerated: true,
     priority: 'critical',

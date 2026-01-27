@@ -106,47 +106,60 @@ export const QUALITY_PRESETS: Record<GraphicsQuality, QualitySettings> = {
  * Detect recommended quality based on device capabilities
  */
 export function detectRecommendedQuality(): GraphicsQuality {
-  // Check if we're in a browser environment
+  const environment = getGraphicsEnvironment();
+  if (!environment) return 'medium';
+  if (!environment.hasWebGL) return 'low';
+  return pickQuality(environment);
+}
+
+interface GraphicsEnvironment {
+  isMobile: boolean;
+  renderer: string;
+  deviceMemory: number;
+  hasWebGL: boolean;
+}
+
+function getGraphicsEnvironment(): GraphicsEnvironment | null {
   if (typeof window === 'undefined' || typeof navigator === 'undefined') {
-    return 'medium';
+    return null;
   }
 
-  // Check for mobile devices
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  // Check WebGL capabilities
   const canvas = document.createElement('canvas');
   const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
-
-  if (!gl) {
-    return 'low';
-  }
-
-  // Get renderer info
-  const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-  const renderer = debugInfo
-    ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
-    : '';
-
-  // Check for high-end GPUs
-  const isHighEnd = /NVIDIA|AMD|Radeon|GeForce|RTX|GTX|Apple M[1-3]/i.test(renderer);
-  const isMidRange = /Intel|Iris|Mali-G[7-9]/i.test(renderer);
-
-  // Check device memory if available
+  const hasWebGL = Boolean(gl);
+  const renderer = gl ? getRendererString(gl) : '';
   const deviceMemory = (navigator as { deviceMemory?: number }).deviceMemory || 4;
 
-  // Determine quality
+  return { isMobile, renderer, deviceMemory, hasWebGL };
+}
+
+function getRendererString(gl: WebGLRenderingContext | WebGL2RenderingContext): string {
+  const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+  return debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : '';
+}
+
+function pickQuality(environment: GraphicsEnvironment): GraphicsQuality {
+  const { isHighEnd, isMidRange } = getRendererTier(environment.renderer);
+  const { isMobile, deviceMemory } = environment;
+
   if (isMobile) {
     if (isHighEnd && deviceMemory >= 6) return 'high';
     if (deviceMemory >= 4) return 'medium';
     return 'low';
   }
 
-  // Desktop/laptop
   if (isHighEnd && deviceMemory >= 8) return 'ultra';
   if (isHighEnd || (isMidRange && deviceMemory >= 8)) return 'high';
   if (isMidRange && deviceMemory >= 4) return 'medium';
   return 'low';
+}
+
+function getRendererTier(renderer: string): { isHighEnd: boolean; isMidRange: boolean } {
+  return {
+    isHighEnd: /NVIDIA|AMD|Radeon|GeForce|RTX|GTX|Apple M[1-3]/i.test(renderer),
+    isMidRange: /Intel|Iris|Mali-G[7-9]/i.test(renderer),
+  };
 }
 
 /**

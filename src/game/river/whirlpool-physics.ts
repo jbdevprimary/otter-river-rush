@@ -71,15 +71,18 @@ export function calculateWhirlpoolForce(
   const leftChannelEdge = whirlpool.centerX - whirlpool.pullRadius - whirlpool.safeChannelWidth;
   const rightChannelEdge = whirlpool.centerX + whirlpool.pullRadius + whirlpool.safeChannelWidth;
 
-  const inLeftChannel = playerX < whirlpool.centerX - whirlpool.pullRadius &&
-                         playerX >= leftChannelEdge &&
-                         Math.abs(dy) < whirlpool.pullRadius * 1.5;
+  const inLeftChannel =
+    playerX < whirlpool.centerX - whirlpool.pullRadius &&
+    playerX >= leftChannelEdge &&
+    Math.abs(dy) < whirlpool.pullRadius * 1.5;
 
-  const inRightChannel = playerX > whirlpool.centerX + whirlpool.pullRadius &&
-                          playerX <= rightChannelEdge &&
-                          Math.abs(dy) < whirlpool.pullRadius * 1.5;
+  const inRightChannel =
+    playerX > whirlpool.centerX + whirlpool.pullRadius &&
+    playerX <= rightChannelEdge &&
+    Math.abs(dy) < whirlpool.pullRadius * 1.5;
 
-  const inSafeChannel = (inLeftChannel || inRightChannel) && playerX >= -halfRiver && playerX <= halfRiver;
+  const inSafeChannel =
+    (inLeftChannel || inRightChannel) && playerX >= -halfRiver && playerX <= halfRiver;
 
   // If in safe channel or outside pull radius, no force
   if (inSafeChannel || distanceToCenter > whirlpool.pullRadius) {
@@ -96,7 +99,7 @@ export function calculateWhirlpoolForce(
   // Calculate pull strength - stronger toward center
   // Uses inverse relationship: strength = baseStrength * (1 - dist/pullRadius)^2
   const normalizedDist = distanceToCenter / whirlpool.pullRadius;
-  const pullStrength = whirlpool.pullStrength * Math.pow(1 - normalizedDist, 2);
+  const pullStrength = whirlpool.pullStrength * (1 - normalizedDist) ** 2;
 
   // Calculate force direction (toward center)
   const forceX = distanceToCenter > 0.1 ? (dx / distanceToCenter) * pullStrength : 0;
@@ -188,15 +191,14 @@ export function calculateWhirlpoolDamage(
  * @param distance Distance along river
  * @param riverWidth River width for safe channel calculation
  */
-export function createWhirlpool(
-  centerX: number,
-  distance: number,
-  riverWidth: number
-): Whirlpool {
+export function createWhirlpool(centerX: number, distance: number, riverWidth: number): Whirlpool {
   // Calculate safe channel width based on river width
   // Ensure there's always room to pass on at least one side
   const maxSafeChannelWidth = (riverWidth - WHIRLPOOL_DEFAULTS.pullRadius * 2) / 2 - 0.5;
-  const safeChannelWidth = Math.max(1.5, Math.min(WHIRLPOOL_DEFAULTS.safeChannelWidth, maxSafeChannelWidth));
+  const safeChannelWidth = Math.max(
+    1.5,
+    Math.min(WHIRLPOOL_DEFAULTS.safeChannelWidth, maxSafeChannelWidth)
+  );
 
   return {
     id: `whirlpool-${distance}`,

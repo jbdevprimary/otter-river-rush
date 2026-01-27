@@ -7,14 +7,14 @@
 
 import {
   type AssetDefinition,
-  ModelAssets,
   AudioAssets,
-  TextureAssets,
-  getObstacleVariants,
   getCoinVariants,
-  getGemVariants,
   getDecorationVariants,
+  getGemVariants,
+  getObstacleVariants,
   getPowerUpAsset,
+  ModelAssets,
+  TextureAssets,
 } from './AssetRegistry';
 
 // For Metro web, assets are served from public/ at root

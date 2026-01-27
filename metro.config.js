@@ -1,6 +1,6 @@
 const { getDefaultConfig } = require('expo/metro-config');
 const { withNativeWind } = require('nativewind/metro');
-const path = require('path');
+const path = require('node:path');
 
 const projectRoot = __dirname;
 const config = getDefaultConfig(projectRoot);
@@ -53,7 +53,12 @@ config.server = {
   // Serve static files from public directory for web
   rewriteRequestUrl: (url) => {
     // Skip bundle and Metro-specific URLs
-    if (url.includes('.bundle') || url.includes('.map') || url.includes('hot') || url.includes('symbolicate')) {
+    if (
+      url.includes('.bundle') ||
+      url.includes('.map') ||
+      url.includes('hot') ||
+      url.includes('symbolicate')
+    ) {
       return url;
     }
     return url;

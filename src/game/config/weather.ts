@@ -157,10 +157,6 @@ export function getWeatherConfig(
   isMobile: boolean = false
 ): WeatherConfig {
   const config = { ...WEATHER_CONFIGS[biome] };
-  config.particleCount = getEffectiveParticleCount(
-    config.particleCount,
-    quality,
-    isMobile
-  );
+  config.particleCount = getEffectiveParticleCount(config.particleCount, quality, isMobile);
   return config;
 }

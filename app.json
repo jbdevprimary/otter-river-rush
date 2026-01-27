@@ -67,10 +67,7 @@
     "experiments": {
       "typedRoutes": true
     },
-    "assetBundlePatterns": [
-      "**/*",
-      "assets/**/*"
-    ],
+    "assetBundlePatterns": ["**/*", "assets/**/*"],
     "extra": {
       "eas": {
         "projectId": ""

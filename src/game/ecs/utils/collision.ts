@@ -28,20 +28,14 @@ export function checkCollision(
   };
 
   return (
-    aBox.minX < bBox.maxX &&
-    aBox.maxX > bBox.minX &&
-    aBox.minY < bBox.maxY &&
-    aBox.maxY > bBox.minY
+    aBox.minX < bBox.maxX && aBox.maxX > bBox.minX && aBox.minY < bBox.maxY && aBox.maxY > bBox.minY
   );
 }
 
 /**
  * Calculate distance between two entities
  */
-export function distance(
-  a: With<Entity, 'position'>,
-  b: With<Entity, 'position'>
-): number {
+export function distance(a: With<Entity, 'position'>, b: With<Entity, 'position'>): number {
   const dx = a.position.x - b.position.x;
   const dy = a.position.y - b.position.y;
   const dz = a.position.z - b.position.z;
