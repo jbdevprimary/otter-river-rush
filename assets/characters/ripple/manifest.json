@@ -1,0 +1,46 @@
+{
+  "id": "otter-ripple",
+  "name": "Ripple",
+  "type": "character",
+  "description": "A playful spotted otter, creating ripples wherever they go",
+
+  "stats": {
+    "speed": 1.1,
+    "agility": 1.1,
+    "luck": 1.1,
+    "recovery": 1.1
+  },
+
+  "unlock": {
+    "type": "distance",
+    "requirement": 5000,
+    "description": "Travel 5,000 total meters"
+  },
+
+  "textToImageTask": {
+    "prompt": "A playful cartoon spotted otter character, warm brown fur with distinctive lighter spots pattern, mischievous expression, bouncy energetic pose, ripple water effects around paws, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 12000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "warm brown fur with spotted pattern, playful water ripples"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.58
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

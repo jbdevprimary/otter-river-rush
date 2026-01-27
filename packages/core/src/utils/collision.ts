@@ -61,3 +61,73 @@ export function isWithinRadius(
   const dy = entity.position.y - y;
   return Math.sqrt(dx * dx + dy * dy) <= radius;
 }
+
+/**
+ * River boundary collision result
+ */
+export interface BoundaryCollisionResult {
+  /** Whether the entity hit a boundary */
+  hitBoundary: boolean;
+  /** Which boundary was hit */
+  side: 'left' | 'right' | 'none';
+  /** The clamped X position within boundaries */
+  clampedX: number;
+  /** How far the entity was pushed back */
+  pushback: number;
+}
+
+/**
+ * Check if an entity position is within river boundaries
+ * Returns the clamped position if outside boundaries
+ */
+export function checkRiverBoundaries(
+  entityX: number,
+  entityWidth: number,
+  boundaries: { left: number; right: number }
+): BoundaryCollisionResult {
+  const halfWidth = entityWidth / 2;
+  const entityLeft = entityX - halfWidth;
+  const entityRight = entityX + halfWidth;
+
+  if (entityLeft < boundaries.left) {
+    const clampedX = boundaries.left + halfWidth;
+    return {
+      hitBoundary: true,
+      side: 'left',
+      clampedX,
+      pushback: clampedX - entityX,
+    };
+  }
+
+  if (entityRight > boundaries.right) {
+    const clampedX = boundaries.right - halfWidth;
+    return {
+      hitBoundary: true,
+      side: 'right',
+      clampedX,
+      pushback: clampedX - entityX,
+    };
+  }
+
+  return {
+    hitBoundary: false,
+    side: 'none',
+    clampedX: entityX,
+    pushback: 0,
+  };
+}
+
+/**
+ * Clamp a position to stay within river boundaries
+ * Simpler version that just returns the clamped X value
+ */
+export function clampToRiverBoundaries(
+  x: number,
+  entityWidth: number,
+  boundaries: { left: number; right: number }
+): number {
+  const halfWidth = entityWidth / 2;
+  const minX = boundaries.left + halfWidth;
+  const maxX = boundaries.right - halfWidth;
+  return Math.max(minX, Math.min(maxX, x));
+}

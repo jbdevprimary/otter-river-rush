@@ -1,0 +1,46 @@
+{
+  "id": "otter-jade",
+  "name": "Jade",
+  "type": "character",
+  "description": "A mystical jade otter, guardian of ancient waters",
+
+  "stats": {
+    "speed": 0.9,
+    "agility": 1.0,
+    "luck": 1.2,
+    "recovery": 1.4
+  },
+
+  "unlock": {
+    "type": "gems",
+    "requirement": 500,
+    "description": "Collect 500 total gems"
+  },
+
+  "textToImageTask": {
+    "prompt": "A mystical cartoon jade otter character, translucent green jade-like fur with golden veins, wise emerald eyes, ancient Chinese dragon motifs subtly on body, zen peaceful pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 12000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "jade green translucent fur, golden vein patterns, mystical glow"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.6
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

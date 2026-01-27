@@ -7,9 +7,11 @@ export type {
   AnimationComponent,
   CollectibleComponent,
   ColliderComponent,
+  JumpComponent,
   ModelComponent,
   ParticleComponent,
   PositionComponent,
   PowerUpComponent,
+  RiverPathComponent,
   VelocityComponent,
 } from './entities';

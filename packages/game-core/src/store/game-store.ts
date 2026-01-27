@@ -13,6 +13,13 @@ import {
 } from '../config';
 import { resetWorld } from '../ecs';
 import type { BiomeType, GameMode, GameStatus, PowerUpType } from '../types';
+import {
+  generateSeedPhrase,
+  getDailyChallengeSeed,
+  getCurrentSeedPhrase,
+  initGameRNG,
+  resetGameRNG,
+} from '../utils';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -153,6 +160,33 @@ export interface AccessibilitySettings {
   gameSpeedMultiplier: GameSpeedOption;
 }
 
+/**
+ * Seed state for procedural generation
+ * Enables deterministic game runs for daily challenges and sharing
+ */
+export interface SeedState {
+  /** Current seed phrase (3 words) */
+  seedPhrase: string | null;
+  /** Whether this is a daily challenge seed */
+  isDailyChallenge: boolean;
+  /** Date of the daily challenge (YYYY-MM-DD format) */
+  dailyChallengeDate: string | null;
+}
+
+/**
+ * River width variation state for game store
+ * Simplified version for tracking width during gameplay
+ * See config/river-width.ts for full biome-based width configuration
+ */
+export interface GameRiverWidthState {
+  /** Current river width multiplier (0.8 = narrow, 1.2 = wide) */
+  currentWidth: number;
+  /** Target width for smooth transitions */
+  targetWidth: number;
+  /** Distance until next width change */
+  nextWidthChange: number;
+}
+
 export interface GameState {
   // Game status
   status: GameStatus;
@@ -171,6 +205,12 @@ export interface GameState {
   // Time Trial mode: remaining time in milliseconds (null when not in time trial)
   timeRemaining: number | null;
 
+  // Seed state for procedural generation
+  seed: SeedState;
+
+  // River width variation
+  riverWidth: GameRiverWidthState;
+
   // Player stats (current session)
   score: number;
   distance: number;
@@ -180,6 +220,9 @@ export interface GameState {
   comboTimer: number | null; // Timestamp of last collection, null if no active combo
   lives: number;
   nearMissCount: number;
+
+  // Player position (for fork detection)
+  playerX: number;
 
   // Biome tracking
   currentBiome: BiomeType;
@@ -203,8 +246,16 @@ export interface GameState {
   selectCharacter: (characterId: string) => void;
   getSelectedCharacter: () => OtterCharacter;
 
+  // Seed actions
+  setSeed: (seedPhrase: string) => void;
+  getSeedPhrase: () => string | null;
+  startDailyChallenge: () => void;
+
+  // River width actions
+  updateRiverWidth: () => void;
+
   // Actions
-  startGame: (mode: GameMode) => void;
+  startGame: (mode: GameMode, customSeed?: string) => void;
   pauseGame: () => void;
   resumeGame: () => void;
   endGame: () => void;
@@ -235,6 +286,7 @@ export interface GameState {
   updateAccessibility: (settings: Partial<AccessibilitySettings>) => void;
 
   updateBiome: () => void;
+  updatePlayerX: (x: number) => void;
 
   reset: () => void;
 }
@@ -265,6 +317,18 @@ const initialAccessibility: AccessibilitySettings = {
   gameSpeedMultiplier: 1,
 };
 
+const initialSeed: SeedState = {
+  seedPhrase: null,
+  isDailyChallenge: false,
+  dailyChallengeDate: null,
+};
+
+const initialRiverWidth: GameRiverWidthState = {
+  currentWidth: 1.0,
+  targetWidth: 1.0,
+  nextWidthChange: 100, // First width change at 100m
+};
+
 export const useGameStore = create<GameState>()(
   persist(
     (set, get) => ({
@@ -275,6 +339,8 @@ export const useGameStore = create<GameState>()(
       activeTraits: null,
       gameStartTime: null,
       timeRemaining: null,
+      seed: { ...initialSeed },
+      riverWidth: { ...initialRiverWidth },
       score: 0,
       distance: 0,
       coins: 0,
@@ -283,6 +349,7 @@ export const useGameStore = create<GameState>()(
       comboTimer: null,
       lives: 3,
       nearMissCount: 0,
+      playerX: 0,
       currentBiome: 'forest',
       biomeProgress: 0,
       powerUps: { ...initialPowerUps },
@@ -305,13 +372,104 @@ export const useGameStore = create<GameState>()(
         return getCharacter(state.selectedCharacterId) ?? getDefaultCharacter();
       },
 
+      // Seed actions
+      setSeed: (seedPhrase: string) => {
+        initGameRNG(seedPhrase);
+        set({
+          seed: {
+            seedPhrase,
+            isDailyChallenge: false,
+            dailyChallengeDate: null,
+          },
+        });
+      },
+
+      getSeedPhrase: () => {
+        return getCurrentSeedPhrase();
+      },
+
+      startDailyChallenge: () => {
+        const today = new Date();
+        const dateStr = today.toISOString().split('T')[0];
+        const dailySeed = getDailyChallengeSeed(today);
+        initGameRNG(dailySeed);
+        set({
+          seed: {
+            seedPhrase: dailySeed,
+            isDailyChallenge: true,
+            dailyChallengeDate: dateStr,
+          },
+        });
+        // Start the game in daily challenge mode
+        get().startGame('daily_challenge', dailySeed);
+      },
+
+      // River width actions
+      updateRiverWidth: () => {
+        const state = get();
+        const { distance } = state;
+        const { currentWidth, targetWidth, nextWidthChange } = state.riverWidth;
+
+        // Smoothly interpolate current width towards target
+        const newCurrentWidth = currentWidth + (targetWidth - currentWidth) * 0.02;
+
+        // Check if it's time for a new width change
+        if (distance >= nextWidthChange) {
+          // Use the game RNG for deterministic width changes
+          const rng = initGameRNG(state.seed.seedPhrase ?? undefined);
+          // Width varies between 0.85 (narrow) and 1.15 (wide)
+          const newTargetWidth = 0.85 + rng.random() * 0.3;
+          // Next change in 80-150 meters
+          const nextChange = distance + 80 + rng.random() * 70;
+
+          set({
+            riverWidth: {
+              currentWidth: newCurrentWidth,
+              targetWidth: newTargetWidth,
+              nextWidthChange: nextChange,
+            },
+          });
+        } else {
+          set({
+            riverWidth: {
+              ...state.riverWidth,
+              currentWidth: newCurrentWidth,
+            },
+          });
+        }
+      },
+
       // Actions
-      startGame: (mode) => {
+      startGame: (mode, customSeed) => {
         const state = get();
         const character = getCharacter(state.selectedCharacterId) ?? getDefaultCharacter();
 
         // Reset the ECS world to clear all entities
         resetWorld();
+
+        // Reset the RNG and initialize with appropriate seed
+        resetGameRNG();
+
+        let seedPhrase: string;
+        let isDailyChallenge = false;
+        let dailyChallengeDate: string | null = null;
+
+        if (mode === 'daily_challenge') {
+          // Daily challenge uses deterministic date-based seed
+          const today = new Date();
+          seedPhrase = customSeed ?? getDailyChallengeSeed(today);
+          isDailyChallenge = true;
+          dailyChallengeDate = today.toISOString().split('T')[0];
+        } else if (customSeed) {
+          // Custom seed provided (e.g., from shared link)
+          seedPhrase = customSeed;
+        } else {
+          // Generate a new random seed for normal play
+          seedPhrase = generateSeedPhrase();
+        }
+
+        // Initialize the RNG with the seed
+        initGameRNG(seedPhrase);
 
         // Start achievement tracking session
         getAchievementStore().then((store) => {
@@ -324,6 +482,12 @@ export const useGameStore = create<GameState>()(
           activeTraits: character.traits,
           gameStartTime: Date.now(), // Track when game started for tutorial
           timeRemaining: mode === 'time_trial' ? TIME_TRIAL_DURATION_MS : null,
+          seed: {
+            seedPhrase,
+            isDailyChallenge,
+            dailyChallengeDate,
+          },
+          riverWidth: { ...initialRiverWidth },
           score: 0,
           distance: 0,
           coins: 0,
@@ -332,6 +496,7 @@ export const useGameStore = create<GameState>()(
           comboTimer: null,
           lives: character.traits.startingHealth,
           nearMissCount: 0,
+          playerX: 0,
           currentBiome: 'forest',
           biomeProgress: 0,
           powerUps: { ...initialPowerUps },
@@ -398,12 +563,16 @@ export const useGameStore = create<GameState>()(
       returnToMenu: () => {
         // Reset the ECS world to clear all entities
         resetWorld();
+        // Reset the RNG
+        resetGameRNG();
 
         set({
           status: 'menu',
           activeTraits: null,
           gameStartTime: null,
           timeRemaining: null,
+          seed: { ...initialSeed },
+          riverWidth: { ...initialRiverWidth },
           score: 0,
           distance: 0,
           coins: 0,
@@ -411,6 +580,7 @@ export const useGameStore = create<GameState>()(
           combo: 0,
           comboTimer: null,
           lives: 3,
+          playerX: 0,
           currentBiome: 'forest',
           biomeProgress: 0,
           powerUps: { ...initialPowerUps },
@@ -637,6 +807,8 @@ export const useGameStore = create<GameState>()(
         }
       },
 
+      updatePlayerX: (x) => set({ playerX: x }),
+
       updateBiome: () =>
         set((state) => {
           const distance = state.distance;
@@ -675,13 +847,16 @@ export const useGameStore = create<GameState>()(
           return { currentBiome, biomeProgress };
         }),
 
-      reset: () =>
+      reset: () => {
+        resetGameRNG();
         set({
           status: 'menu',
           mode: 'classic',
           activeTraits: null,
           gameStartTime: null,
           timeRemaining: null,
+          seed: { ...initialSeed },
+          riverWidth: { ...initialRiverWidth },
           score: 0,
           distance: 0,
           coins: 0,
@@ -690,10 +865,12 @@ export const useGameStore = create<GameState>()(
           comboTimer: null,
           lives: 3,
           nearMissCount: 0,
+          playerX: 0,
           currentBiome: 'forest',
           biomeProgress: 0,
           powerUps: { ...initialPowerUps },
-        }),
+        });
+      },
     }),
     {
       name: 'otter-river-rush-storage',

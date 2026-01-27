@@ -1,0 +1,46 @@
+{
+  "id": "otter-glacier",
+  "name": "Glacier",
+  "type": "character",
+  "description": "A majestic arctic otter, at home in the coldest waters",
+
+  "stats": {
+    "speed": 0.9,
+    "agility": 1.1,
+    "luck": 1.0,
+    "recovery": 1.3
+  },
+
+  "unlock": {
+    "type": "biome",
+    "requirement": "arctic",
+    "description": "Complete an Arctic biome run"
+  },
+
+  "textToImageTask": {
+    "prompt": "A cute cartoon arctic otter character, pristine white fur with silver-blue highlights, ice blue eyes, fluffy thick coat, frost crystals on whiskers, elegant winter pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 12000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "pure white fur, silver-blue highlights, frost sparkle effects"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.6
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

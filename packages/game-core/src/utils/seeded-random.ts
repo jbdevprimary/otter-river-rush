@@ -187,6 +187,57 @@ export function getCurrentSeedPhrase(): string | null {
 }
 
 /**
+ * Get the current seed string (for storage/replay)
+ */
+export function getCurrentSeed(): string | null {
+  return gameRNG?.seed ?? null;
+}
+
+/**
+ * Generate a daily challenge seed based on the current date
+ * The seed is deterministic for any given date, ensuring all players
+ * get the same daily challenge
+ * @param date Optional date to generate seed for (defaults to today)
+ * @returns A seed phrase for the daily challenge
+ */
+export function getDailyChallengeSeed(date?: Date): string {
+  const d = date ?? new Date();
+  // Create a date string like "2026-01-26" for consistent daily seeds
+  const dateStr = d.toISOString().split('T')[0];
+
+  // Use the date string as a seed to pick words deterministically
+  const dateSeed = seedrandom(dateStr);
+  const words: string[] = [];
+  for (let i = 0; i < 3; i++) {
+    const index = Math.floor(dateSeed() * WORD_POOL.length);
+    words.push(WORD_POOL[index]);
+  }
+  return words.join(' ');
+}
+
+/**
+ * Check if the current game is using today's daily challenge seed
+ */
+export function isCurrentDailyChallenge(): boolean {
+  if (!gameRNG) return false;
+  return gameRNG.phrase === getDailyChallengeSeed();
+}
+
+/**
+ * Get a shareable URL-safe seed string from a phrase
+ */
+export function getSeedForSharing(phrase: string): string {
+  return encodeURIComponent(phrase.toLowerCase().trim().replace(/\s+/g, '-'));
+}
+
+/**
+ * Parse a shared seed URL parameter back to a phrase
+ */
+export function parseSeedFromUrl(urlSeed: string): string {
+  return decodeURIComponent(urlSeed).replace(/-/g, ' ');
+}
+
+/**
  * Export word pool for UI autocomplete
  */
 export { WORD_POOL };

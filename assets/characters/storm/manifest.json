@@ -1,0 +1,46 @@
+{
+  "id": "otter-storm",
+  "name": "Storm",
+  "type": "character",
+  "description": "A fierce storm otter, thriving in turbulent waters",
+
+  "stats": {
+    "speed": 1.3,
+    "agility": 0.9,
+    "luck": 0.9,
+    "recovery": 1.2
+  },
+
+  "unlock": {
+    "type": "weather",
+    "requirement": "storm",
+    "description": "Complete 5 runs during storm weather"
+  },
+
+  "textToImageTask": {
+    "prompt": "A fierce cartoon storm otter character, stormy gray fur with lightning bolt white streaks, electric blue eyes, windswept appearance, thunder cloud patterns on body, powerful stance, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 12000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "stormy gray fur, lightning white streaks, electric blue accents"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.62
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

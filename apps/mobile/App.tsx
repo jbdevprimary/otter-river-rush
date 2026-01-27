@@ -16,8 +16,9 @@ import { Pressable, SafeAreaView, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { GameCanvas } from './src/components/GameCanvas';
 import { GameHUD } from './src/components/GameHUD';
-import { MainMenu } from './src/screens/MainMenu';
+import { CharacterSelectScreen } from './src/screens/CharacterSelectScreen';
 import { GameOverScreen } from './src/screens/GameOverScreen';
+import { MainMenu } from './src/screens/MainMenu';
 
 export default function App() {
   const status = useGameStore((state) => state.status);
@@ -27,8 +28,9 @@ export default function App() {
   const renderScreen = (gameStatus: GameStatus) => {
     switch (gameStatus) {
       case 'menu':
-      case 'character_select':
         return <MainMenu />;
+      case 'character_select':
+        return <CharacterSelectScreen />;
       case 'playing':
         return (
           <View className="flex-1">

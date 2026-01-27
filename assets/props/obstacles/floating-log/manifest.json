@@ -1,0 +1,35 @@
+{
+  "id": "obstacle-floating-log",
+  "name": "Floating Log",
+  "type": "prop",
+  "description": "A moss-covered log floating in the river - can be jumped over",
+  "price": 0.00,
+  "rarity": "common",
+
+  "gameplay": {
+    "category": "obstacle",
+    "jumpable": true,
+    "damage": 1,
+    "width": 1.5,
+    "height": 0.5,
+    "collisionType": "box"
+  },
+
+  "textToImageTask": {
+    "prompt": "A waterlogged wooden log floating in water, moss and algae covered, wet bark texture, realistic forest debris, stylized low-poly game asset, top-down isometric view",
+    "generateMultiView": true,
+    "poseMode": ""
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 3000,
+    "symmetryMode": "off",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "texturePrompt": "wet bark, green moss patches, waterlogged wood"
+  },
+
+  "tasks": {}
+}

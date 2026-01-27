@@ -1,0 +1,37 @@
+{
+  "id": "collectible-golden-fish",
+  "name": "Golden Fish",
+  "type": "prop",
+  "description": "A magical golden fish - grants a speed boost when collected",
+  "price": 0.00,
+  "rarity": "rare",
+
+  "gameplay": {
+    "category": "collectible",
+    "value": 50,
+    "effect": "speed_boost",
+    "effectDuration": 5.0,
+    "spawnWeight": 0.1,
+    "magnetizable": true,
+    "width": 0.5,
+    "height": 0.3
+  },
+
+  "textToImageTask": {
+    "prompt": "A magical golden koi fish, shimmering gold scales, flowing fins, mystical sparkle, stylized cartoon game collectible, side view",
+    "generateMultiView": true,
+    "poseMode": ""
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 1500,
+    "symmetryMode": "off",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "texturePrompt": "shimmering gold scales, flowing fins, magical sparkle"
+  },
+
+  "tasks": {}
+}

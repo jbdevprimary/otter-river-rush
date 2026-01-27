@@ -1,14 +1,23 @@
 /**
  * Input System
  * Handles player input for keyboard and touch controls
+ *
+ * Supports:
+ * - Keyboard: WASD/Arrow keys for movement, Space/W/Up for jump
+ * - Touch: Swipe left/right for lanes, swipe up for jump
  */
 
 import type { Lane } from '../../types';
 import { queries } from '../world';
-import { getLaneX } from '../../config';
+import { getLaneX, JUMP_PHYSICS } from '../../config';
+import { triggerJump, initializeJumpComponent } from './jump';
+import { triggerJumpAnimation } from './animation';
+import { useGameStore, useRiverPathStore } from '../../store';
+import { calculateTotalWhirlpoolForce } from '../../river/whirlpool-physics';
 
 export interface InputState {
   targetLane: Lane;
+  /** @deprecated Use jump system instead - kept for backward compatibility */
   isJumping: boolean;
 }
 
@@ -17,6 +26,29 @@ export function createInputState(): InputState {
     targetLane: 0,
     isJumping: false,
   };
+}
+
+/**
+ * Attempt to trigger a jump via the jump system
+ * Handles initialization and animation triggering
+ */
+function attemptJump(): boolean {
+  const [player] = queries.player.entities;
+  if (!player) return false;
+
+  // Initialize jump component if not present
+  if (!player.jump) {
+    initializeJumpComponent();
+  }
+
+  // Try to trigger jump
+  if (triggerJump()) {
+    // Trigger jump animation
+    triggerJumpAnimation();
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -51,13 +83,8 @@ export function setupKeyboardInput(state: InputState): () => void {
       case 'W':
       case ' ':
         e.preventDefault();
-        if (!state.isJumping && player.velocity) {
-          state.isJumping = true;
-          player.velocity.y = 0.3; // Jump velocity
-          setTimeout(() => {
-            state.isJumping = false;
-          }, 500);
-        }
+        // Use the new jump system
+        attemptJump();
         break;
     }
   };
@@ -77,30 +104,43 @@ export function setupTouchInput(
   state: InputState,
   element: HTMLElement
 ): () => void {
-  const MIN_SWIPE_DISTANCE = 50; // Minimum swipe distance in pixels
+  const MIN_HORIZONTAL_SWIPE = 50; // Minimum horizontal swipe distance in pixels
+  const MIN_VERTICAL_SWIPE = JUMP_PHYSICS.swipeThreshold; // Minimum vertical swipe for jump
 
   let pointerStartX: number | null = null;
   let pointerStartY: number | null = null;
   let isTracking = false;
+  let swipeHandled = false; // Prevent multiple triggers per gesture
 
   const handlePointerDown = (e: PointerEvent) => {
     pointerStartX = e.clientX;
     pointerStartY = e.clientY;
     isTracking = true;
+    swipeHandled = false;
   };
 
   const handlePointerMove = (e: PointerEvent) => {
-    if (!isTracking || pointerStartX === null) return;
+    if (!isTracking || pointerStartX === null || pointerStartY === null) return;
+    if (swipeHandled) return; // Already handled this gesture
 
     const deltaX = e.clientX - pointerStartX;
-    const deltaY = e.clientY - pointerStartY!;
+    const deltaY = e.clientY - pointerStartY;
+
+    const [player] = queries.player.entities;
+    if (!player || !player.position) return;
+
+    // Check for vertical swipe (upward = negative deltaY)
+    // Prioritize vertical swipe if it's more dominant and large enough
+    if (deltaY < -MIN_VERTICAL_SWIPE && Math.abs(deltaY) > Math.abs(deltaX)) {
+      // Swipe up - trigger jump
+      attemptJump();
+      swipeHandled = true;
+      return;
+    }
 
     // Check if horizontal swipe exceeds threshold
-    // Also ensure horizontal movement is greater than vertical (intentional swipe)
-    if (Math.abs(deltaX) >= MIN_SWIPE_DISTANCE && Math.abs(deltaX) > Math.abs(deltaY)) {
-      const [player] = queries.player.entities;
-      if (!player || !player.position) return;
-
+    // Also ensure horizontal movement is greater than vertical (intentional horizontal swipe)
+    if (Math.abs(deltaX) >= MIN_HORIZONTAL_SWIPE && Math.abs(deltaX) > Math.abs(deltaY)) {
       if (deltaX < 0 && state.targetLane > -1) {
         // Swipe left
         state.targetLane = (state.targetLane - 1) as Lane;
@@ -119,12 +159,14 @@ export function setupTouchInput(
     pointerStartX = null;
     pointerStartY = null;
     isTracking = false;
+    swipeHandled = false;
   };
 
   const handlePointerCancel = () => {
     pointerStartX = null;
     pointerStartY = null;
     isTracking = false;
+    swipeHandled = false;
   };
 
   // Add pointer event listeners
@@ -152,19 +194,58 @@ export function setupTouchInput(
 
 /**
  * Update player position to target lane
+ * Also applies whirlpool pull forces
  */
 export function updatePlayerInput(state: InputState, deltaTime: number): void {
   const [player] = queries.player.entities;
   if (!player || !player.position) return;
+
+  // Get game state for whirlpool calculations
+  const gameState = useGameStore.getState();
+  const riverPathStore = useRiverPathStore.getState();
+
+  // Get current river width
+  const pathResult = riverPathStore.getPointAtDistance(gameState.distance);
+  const riverWidth = pathResult?.point.width ?? 8;
+
+  // Calculate whirlpool pull forces
+  const whirlpoolForce = calculateTotalWhirlpoolForce(
+    player.position.x,
+    gameState.distance,
+    riverPathStore.whirlpools,
+    riverWidth
+  );
+
+  // Apply whirlpool pull (resists player movement toward target lane)
+  if (whirlpoolForce.pullStrength > 0 && !whirlpoolForce.inSafeChannel) {
+    player.position.x += whirlpoolForce.forceX * deltaTime;
+
+    // Check for whirlpool damage
+    if (whirlpoolForce.inDamageZone) {
+      // Apply damage over time (accumulated, triggers life loss at threshold)
+      // For now, just log - damage system integration TBD
+      // TODO: Integrate with loseLife when accumulated damage exceeds threshold
+    }
+  }
 
   // Smoothly move to target lane
   const targetX = getLaneX(state.targetLane);
   const diff = targetX - player.position.x;
   const speed = 10; // Lane switch speed
 
+  // Reduce lane change speed when being pulled by whirlpool
+  const effectiveSpeed = speed * (1 - whirlpoolForce.pullStrength * 0.5);
+
   if (Math.abs(diff) > 0.01) {
-    player.position.x += diff * speed * deltaTime;
+    player.position.x += diff * effectiveSpeed * deltaTime;
   } else {
     player.position.x = targetX;
   }
+
+  // Clamp to river bounds
+  const halfWidth = riverWidth / 2;
+  player.position.x = Math.max(-halfWidth + 0.5, Math.min(halfWidth - 0.5, player.position.x));
+
+  // Sync player X to game store for fork detection
+  gameState.updatePlayerX(player.position.x);
 }

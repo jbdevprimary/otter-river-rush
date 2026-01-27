@@ -1,0 +1,33 @@
+appId: com.ottergames.riverrush
+name: Start Classic Game
+tags:
+  - smoke
+  - gameplay
+---
+- launchApp:
+    clearState: true
+
+# Wait for menu to load
+- assertVisible: "PLAY"
+
+# Start classic game
+- tapOn: "PLAY"
+
+# Verify gameplay HUD elements appear
+- assertVisible:
+    text: "SCORE"
+    timeout: 5000
+- assertVisible: "DISTANCE"
+
+# Verify game is running (HUD should show stats)
+- assertVisible:
+    text: "0"
+    timeout: 3000
+
+# Let game run for a moment
+- swipe:
+    direction: LEFT
+    duration: 300
+- swipe:
+    direction: RIGHT
+    duration: 300

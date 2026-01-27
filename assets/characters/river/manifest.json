@@ -1,0 +1,45 @@
+{
+  "id": "otter-river",
+  "name": "River",
+  "type": "character",
+  "description": "A classic brown river otter, the original scampering champion",
+
+  "stats": {
+    "speed": 1.0,
+    "agility": 1.0,
+    "luck": 1.0,
+    "recovery": 1.0
+  },
+
+  "unlock": {
+    "type": "default",
+    "description": "Available from start"
+  },
+
+  "textToImageTask": {
+    "prompt": "A cute cartoon river otter character, brown fur with cream-colored belly, expressive eyes, small rounded ears, webbed feet, playful pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, clean topology, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 12000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "soft brown fur texture, cream belly, cute cartoon style"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.6
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

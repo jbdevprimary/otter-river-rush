@@ -20,6 +20,7 @@
     "@otter-river-rush/types": "workspace:*",
     "@otter-river-rush/config": "workspace:*",
     "@otter-river-rush/core": "workspace:*",
+    "@otter-river-rush/state": "workspace:*",
     "@react-three/fiber": "^9.1.2",
     "@react-three/drei": "^10.0.6",
     "three": "^0.181.0",

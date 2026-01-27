@@ -12,6 +12,8 @@
   "references": [
     { "path": "../types" },
     { "path": "../config" },
-    { "path": "../core" }
+    { "path": "../core" },
+    { "path": "../game-core" },
+    { "path": "../state" }
   ]
 }

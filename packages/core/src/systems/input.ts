@@ -1,16 +1,23 @@
 /**
  * Input System
  * Handles player input for keyboard and touch controls
+ * Supports dynamic river width for lane positioning
  */
 
 import type { Lane } from '@otter-river-rush/types';
 import { queries } from '../world';
 import { getLaneX } from '@otter-river-rush/config';
+import { clampToRiverBoundaries } from '../utils/collision';
 
 export interface InputState {
   targetLane: Lane;
   isJumping: boolean;
 }
+
+/**
+ * Lane position provider type for dynamic width support
+ */
+export type LanePositionProvider = (lane: Lane) => number;
 
 export function createInputState(): InputState {
   return {
@@ -152,18 +159,43 @@ export function setupTouchInput(
 
 /**
  * Update player position to target lane
+ * Uses static lane positions (for backward compatibility)
  */
 export function updatePlayerInput(state: InputState, deltaTime: number): void {
+  updatePlayerInputDynamic(state, deltaTime, getLaneX);
+}
+
+/**
+ * Update player position to target lane with dynamic width support
+ * @param state Input state
+ * @param deltaTime Time elapsed since last frame
+ * @param getLanePosition Function to get lane X position (supports dynamic width)
+ * @param boundaries Optional river boundaries for collision clamping
+ */
+export function updatePlayerInputDynamic(
+  state: InputState,
+  deltaTime: number,
+  getLanePosition: LanePositionProvider = getLaneX,
+  boundaries?: { left: number; right: number }
+): void {
   const [player] = queries.player.entities;
   if (!player || !player.position) return;
 
   // Smoothly move to target lane
-  const targetX = getLaneX(state.targetLane);
+  const targetX = getLanePosition(state.targetLane);
   const diff = targetX - player.position.x;
   const speed = 10; // Lane switch speed
 
   if (Math.abs(diff) > 0.01) {
-    player.position.x += diff * speed * deltaTime;
+    let newX = player.position.x + diff * speed * deltaTime;
+
+    // Clamp to river boundaries if provided
+    if (boundaries) {
+      const playerWidth = player.collider?.width ?? 0.8;
+      newX = clampToRiverBoundaries(newX, playerWidth, boundaries);
+    }
+
+    player.position.x = newX;
   } else {
     player.position.x = targetX;
   }

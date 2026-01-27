@@ -1,0 +1,46 @@
+{
+  "id": "otter-coral",
+  "name": "Coral",
+  "type": "character",
+  "description": "A tropical coral reef otter, vibrant and full of life",
+
+  "stats": {
+    "speed": 1.1,
+    "agility": 1.3,
+    "luck": 1.1,
+    "recovery": 0.9
+  },
+
+  "unlock": {
+    "type": "biome",
+    "requirement": "tropical",
+    "description": "Complete a Tropical biome run"
+  },
+
+  "textToImageTask": {
+    "prompt": "A vibrant cartoon coral otter character, orange-pink gradient fur like coral reef, turquoise belly patch, tropical flower behind ear, playful beach vibe, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 12000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "coral orange-pink fur, turquoise accents, tropical vibes"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.58
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

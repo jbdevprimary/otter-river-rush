@@ -10,6 +10,7 @@ import type { Entity, GameMode, GameStatus, PowerUpType } from '../../types';
 import { checkCollision, checkNearMiss, NEAR_MISS_BONUS } from '../utils/collision';
 import { queries, spawn, world } from '../world';
 import { triggerCollectAnimation, triggerDeathAnimation, triggerHitAnimation } from './animation';
+import { haptics } from '../../utils';
 
 // Track obstacles that have already triggered a near-miss to avoid duplicates
 const nearMissedObstacles = new WeakSet<object>();
@@ -160,6 +161,9 @@ function handleObstacleHit(
   if (player.health) {
     player.health -= 1;
 
+    // Trigger haptic feedback for damage
+    haptics.error();
+
     // Trigger hit sound ("Ooph")
     handlers.onAudioTrigger?.('hit_sfx');
 
@@ -225,6 +229,9 @@ function handleCollect(
     // Activate the power-up
     useGameStore.getState().activatePowerUp(powerUp.type, powerUp.duration);
 
+    // Trigger haptic feedback for power-up
+    haptics.medium();
+
     // Notify handler
     handlers.onCollectPowerUp?.(powerUp.type);
 
@@ -254,8 +261,10 @@ function handleCollect(
   // Regular collectible (coin or gem)
   if (collectible.collectible!.type === 'coin') {
     handlers.onCollectCoin?.(collectible.collectible!.value);
+    haptics.selection(); // Light feedback for coins
   } else if (collectible.collectible!.type === 'gem') {
     handlers.onCollectGem?.(collectible.collectible!.value);
+    haptics.light(); // Slightly stronger for gems
   }
 
   // Trigger collect animation (one-shot, returns to swim)
@@ -283,6 +292,9 @@ function handleNearMiss(
   handlers: CollisionHandlers
 ): void {
   if (!obstacle.position) return;
+
+  // Trigger haptic feedback for near-miss
+  haptics.light();
 
   // Spawn celebratory particles (yellow/gold for bonus)
   for (let i = 0; i < 6; i++) {

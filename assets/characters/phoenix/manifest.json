@@ -1,0 +1,49 @@
+{
+  "id": "otter-phoenix",
+  "name": "Phoenix",
+  "type": "character",
+  "description": "A blazing fire otter, reborn from the flames with incredible power",
+  "price": 2.99,
+  "productId": "com.otterriverrush.otter.phoenix",
+  "rarity": "legendary",
+
+  "stats": {
+    "speed": 1.4,
+    "agility": 1.3,
+    "luck": 1.2,
+    "recovery": 1.5
+  },
+
+  "unlock": {
+    "type": "default",
+    "requirement": 0,
+    "description": "Purchase to unlock"
+  },
+
+  "textToImageTask": {
+    "prompt": "A majestic cartoon phoenix fire otter character, blazing orange-red fur with flame patterns, ember particles floating around body, golden fire eyes, wings of flame subtly suggested, powerful heroic pose, fire trail effects, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 14000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "blazing orange-red fur, flame patterns, ember particles, golden glow"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.65
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

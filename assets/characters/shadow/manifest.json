@@ -1,0 +1,46 @@
+{
+  "id": "otter-shadow",
+  "name": "Shadow",
+  "type": "character",
+  "description": "A mysterious dark otter, master of stealth and speed",
+
+  "stats": {
+    "speed": 1.4,
+    "agility": 1.2,
+    "luck": 0.8,
+    "recovery": 0.8
+  },
+
+  "unlock": {
+    "type": "achievement",
+    "requirement": "night_runner",
+    "description": "Complete 10 night-time runs"
+  },
+
+  "textToImageTask": {
+    "prompt": "A mysterious cartoon shadow otter character, sleek black fur with purple-blue undertones, glowing violet eyes, smoke-like wisps around body, ninja-like agile pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 12000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "sleek black fur, purple undertones, mysterious glow"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.55
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

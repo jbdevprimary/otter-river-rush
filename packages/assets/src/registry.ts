@@ -105,6 +105,12 @@ export const ModelAssets = {
       source: 'kenney' as const,
       scale: 1.0,
     },
+    // Watercraft obstacles
+    boatRowSmall: {
+      path: 'models/obstacle/boats/boat-row-small.glb',
+      source: 'kenney' as const,
+      scale: 0.6,
+    },
   },
 
   collectibles: {
@@ -229,6 +235,17 @@ export const ModelAssets = {
       path: 'models/environment/tropical/flower_redA.glb',
       source: 'kenney' as const,
       scale: 1.0,
+    },
+    // River markers
+    buoy: {
+      path: 'models/decoration/buoy.glb',
+      source: 'kenney' as const,
+      scale: 0.5,
+    },
+    buoyFlag: {
+      path: 'models/decoration/buoy-flag.glb',
+      source: 'kenney' as const,
+      scale: 0.5,
     },
   },
 } as const;

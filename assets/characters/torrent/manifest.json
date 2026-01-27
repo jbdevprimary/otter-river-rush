@@ -1,0 +1,46 @@
+{
+  "id": "otter-torrent",
+  "name": "Torrent",
+  "type": "character",
+  "description": "A powerful dark river otter, master of rapid waters",
+
+  "stats": {
+    "speed": 1.3,
+    "agility": 0.8,
+    "luck": 0.9,
+    "recovery": 1.0
+  },
+
+  "unlock": {
+    "type": "distance",
+    "requirement": 2000,
+    "description": "Travel 2,000 meters in a single run"
+  },
+
+  "textToImageTask": {
+    "prompt": "A cartoon giant river otter character, dark chocolate brown fur with lighter throat patch, muscular build, fierce but cute expression, powerful webbed paws, confident pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 12000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "dark chocolate brown fur, lighter throat, powerful build"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.65
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

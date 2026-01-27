@@ -102,16 +102,32 @@ export const spawn = {
           hit: char.modelPath,
           collect: char.modelPath,
           dodge: char.modelPath,
+          jump: char.modelPath,
           death: char.modelPath,
         },
       },
       collider: { width: 0.8, height: 1.2, depth: 4.0 }, // Extended depth to prevent tunneling
       health: char.traits.startingHealth,
       characterId: char.id,
+      // Jump component for jump mechanics
+      jump: {
+        isJumping: false,
+        verticalVelocity: 0,
+        jumpStartTime: 0,
+        groundZ: VISUAL.layers.player,
+        isLanding: false,
+      },
     });
   },
 
-  rock: (x: number, y: number, variant: number = 0) => {
+  /**
+   * Spawn obstacle rock
+   * @param x X position (or laneOffset if riverDistance provided)
+   * @param y Y position (or ignored if riverDistance provided)
+   * @param variant Obstacle variant index
+   * @param riverDistance Optional distance along river for curved path following
+   */
+  rock: (x: number, y: number, variant: number = 0, riverDistance?: number) => {
     // Use AssetRegistry for obstacle variants - single source of truth
     const obstacles = getObstacleUrlVariants();
     const selected = obstacles[variant % obstacles.length];
@@ -125,10 +141,21 @@ export const spawn = {
       },
       collider: { width: 1.2, height: 1.2, depth: 3.0 }, // Extended depth
       variant,
+      // River path component for curved river following
+      ...(riverDistance !== undefined && {
+        riverPath: { distance: riverDistance, laneOffset: x },
+      }),
     });
   },
 
-  coin: (x: number, y: number, variant: number = 0) => {
+  /**
+   * Spawn coin collectible
+   * @param x X position (or laneOffset if riverDistance provided)
+   * @param y Y position (or ignored if riverDistance provided)
+   * @param variant Coin variant index
+   * @param riverDistance Optional distance along river for curved path following
+   */
+  coin: (x: number, y: number, variant: number = 0, riverDistance?: number) => {
     // Use AssetRegistry for coin variants - single source of truth
     const coins = getCoinUrlVariants();
     const selected = coins[variant % coins.length];
@@ -141,10 +168,21 @@ export const spawn = {
         scale: selected.scale ?? getModelScale('coin'),
       },
       collider: { width: 1.5, height: 0.6, depth: 3.0 }, // Wider and deeper for easier collection
+      // River path component for curved river following
+      ...(riverDistance !== undefined && {
+        riverPath: { distance: riverDistance, laneOffset: x },
+      }),
     });
   },
 
-  gem: (x: number, y: number, variant: number = 0) => {
+  /**
+   * Spawn gem collectible
+   * @param x X position (or laneOffset if riverDistance provided)
+   * @param y Y position (or ignored if riverDistance provided)
+   * @param variant Gem variant index
+   * @param riverDistance Optional distance along river for curved path following
+   */
+  gem: (x: number, y: number, variant: number = 0, riverDistance?: number) => {
     // Use AssetRegistry for gem variants - single source of truth
     const gems = getGemUrlVariants();
     const selected = gems[variant % gems.length];
@@ -158,16 +196,21 @@ export const spawn = {
       },
       collider: { width: 0.8, height: 0.8, depth: 0.8 },
       variant,
+      // River path component for curved river following
+      ...(riverDistance !== undefined && {
+        riverPath: { distance: riverDistance, laneOffset: x },
+      }),
     });
   },
 
   /**
    * Spawn a power-up entity
-   * @param x X position
-   * @param y Y position
+   * @param x X position (or laneOffset if riverDistance provided)
+   * @param y Y position (or ignored if riverDistance provided)
    * @param type Power-up type (defaults to 'shield')
+   * @param riverDistance Optional distance along river for curved path following
    */
-  powerUp: (x: number, y: number, type: PowerUpType = 'shield') => {
+  powerUp: (x: number, y: number, type: PowerUpType = 'shield', riverDistance?: number) => {
     // Get power-up asset and duration based on type
     const asset = getPowerUpUrl(type);
     const durations: Record<PowerUpType, number> = {
@@ -188,10 +231,21 @@ export const spawn = {
         scale: asset.scale ?? getModelScale('gem') * 1.5,
       },
       collider: { width: 0.8, height: 0.8, depth: 0.8 },
+      // River path component for curved river following
+      ...(riverDistance !== undefined && {
+        riverPath: { distance: riverDistance, laneOffset: x },
+      }),
     });
   },
 
-  decoration: (x: number, y: number, variant: number = 0) => {
+  /**
+   * Spawn decoration entity
+   * @param x X position (or laneOffset if riverDistance provided)
+   * @param y Y position (or ignored if riverDistance provided)
+   * @param variant Decoration variant index
+   * @param riverDistance Optional distance along river for curved path following
+   */
+  decoration: (x: number, y: number, variant: number = 0, riverDistance?: number) => {
     // Use AssetRegistry for decoration variants - single source of truth
     const decorations = getDecorationUrlVariants();
     const selected = decorations[variant % decorations.length];
@@ -204,6 +258,10 @@ export const spawn = {
         scale: selected.scale ?? getModelScale('decoration'),
       },
       variant,
+      // River path component for curved river following
+      ...(riverDistance !== undefined && {
+        riverPath: { distance: riverDistance, laneOffset: x },
+      }),
     });
   },
 

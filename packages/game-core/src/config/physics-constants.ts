@@ -32,3 +32,26 @@ export const PHYSICS_CONFIG = {
   ENTITY_DESPAWN_Y: -10,
   PLAYER_Y_POSITION: -3,
 } as const;
+
+/**
+ * Jump Physics Constants
+ * Controls jump arc, timing, and effects
+ */
+export const JUMP_PHYSICS = {
+  /** Initial upward velocity when jumping (units per second) */
+  initialVelocity: 8,
+  /** Gravity applied during jump (units per second squared) */
+  gravity: 20,
+  /** Cooldown between jumps in milliseconds */
+  cooldownMs: 500,
+  /** Maximum jump height (for visual reference) */
+  maxHeight: 3,
+  /** Minimum swipe distance to trigger jump (pixels) */
+  swipeThreshold: 50,
+  /** Height threshold below which landing effects trigger */
+  landingThreshold: 0.1,
+  /** Number of splash particles on landing */
+  splashParticleCount: 8,
+  /** Color for splash particles */
+  splashColor: '#64b5f6',
+} as const;

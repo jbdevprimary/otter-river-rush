@@ -15,7 +15,9 @@
     "typecheck": "tsc --build --force"
   },
   "dependencies": {
-    "@otter-river-rush/game-core": "workspace:*"
+    "@otter-river-rush/game-core": "workspace:*",
+    "@otter-river-rush/types": "workspace:*",
+    "zustand": "^5.0.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.11",

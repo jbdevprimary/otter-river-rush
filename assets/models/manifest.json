@@ -1,0 +1,396 @@
+{
+  "version": "1.0.0",
+  "generatedAt": 1769467266102,
+  "assets": {
+    "otter": [
+      {
+        "id": "otter-player",
+        "prompt": "Cute stylized river otter swimming, brown fur, white belly, webbed feet, happy expression, game character, low poly style, chibi proportions, cartoon look",
+        "taskId": "019bcc04-663b-7909-b36e-9a165d180116",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/player/otter-player/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/player/otter-player/thumbnail.png"
+        },
+        "generatedAt": 1768654452386
+      },
+      {
+        "id": "otter-player",
+        "prompt": "Cute stylized river otter swimming, brown fur, white belly, webbed feet, happy expression, game character, low poly style, chibi proportions, cartoon look",
+        "taskId": "019bd5d4-7a33-7297-91ee-9f1e4a7bf2ff",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-player/model.glb",
+          "thumbnail": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-player/thumbnail.png"
+        },
+        "generatedAt": 1768819081528
+      },
+      {
+        "id": "otter-silver",
+        "prompt": "Cute stylized river otter swimming pose, sleek silver-gray fur coat, fluffy round body, small ears, whiskers, flat paddle tail, webbed feet, wise calm expression, night theme, game character, chibi proportions, low poly cartoon style",
+        "taskId": "019bd5d5-41d8-7d4f-b955-fe44fe33e5df",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-silver/model.glb",
+          "thumbnail": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-silver/thumbnail.png"
+        },
+        "generatedAt": 1768819135884
+      },
+      {
+        "id": "otter-golden",
+        "prompt": "Cute stylized river otter swimming pose, brilliant shimmering golden fur coat, fluffy round body, small ears, whiskers, flat paddle tail, webbed feet, majestic regal expression, sparkle effect, game character, chibi proportions, low poly cartoon style",
+        "taskId": "019bd5d6-1627-7d71-bb4a-bbe136844988",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-golden/model.glb",
+          "thumbnail": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-golden/thumbnail.png"
+        },
+        "generatedAt": 1768819196737
+      },
+      {
+        "id": "otter-arctic",
+        "prompt": "Cute stylized arctic river otter swimming pose, extra fluffy pure white fur, round body, small rounded ears, whiskers, flat paddle tail, webbed feet, playful friendly expression, winter theme, game character, chibi proportions, low poly cartoon style",
+        "taskId": "019bd5d7-03dc-7319-b0c4-850098c188f2",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-arctic/model.glb",
+          "thumbnail": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/apps/web/public/assets/models/player/otter-arctic/thumbnail.png"
+        },
+        "generatedAt": 1768819250904
+      },
+      {
+        "id": "otter-aurora",
+        "prompt": "A legendary cartoon aurora otter character, iridescent shifting fur with northern lights colors (green, blue, purple, pink), cosmic star patterns, ethereal glowing eyes, magical sparkle particles, celestial pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+        "taskId": "019bfc62-438d-749d-8555-66f7d5a03df8",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-aurora/model.glb"
+        },
+        "generatedAt": 1769467266100
+      },
+      {
+        "id": "otter-cascade",
+        "prompt": "A graceful cartoon waterfall otter character, light tan cream fur with cascading water-like blue streaks, flowing whiskers, elegant dancer pose, water droplets frozen in motion around body, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+        "taskId": "019bfc63-a809-7709-ac26-d90207267c83",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-cascade/model.glb"
+        },
+        "generatedAt": 1769467266100
+      },
+      {
+        "id": "otter-coral",
+        "prompt": "A vibrant cartoon coral otter character, orange-pink gradient fur like coral reef, turquoise belly patch, tropical flower behind ear, playful beach vibe, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+        "taskId": "019bfc65-3377-7ec1-961c-aa40d36764dc",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-coral/model.glb"
+        },
+        "generatedAt": 1769467266100
+      },
+      {
+        "id": "otter-crystal",
+        "prompt": "A dazzling cartoon crystal otter character, translucent crystalline body with rainbow light refraction, diamond-like faceted fur, prismatic sparkle effects, gemstone eyes, elegant crystalline pose, light rays passing through body creating rainbow effects, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+        "taskId": "019bfc66-8246-77df-8e3f-d4bfb4e6c26f",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-crystal/model.glb"
+        },
+        "generatedAt": 1769467266100
+      },
+      {
+        "id": "otter-galaxy",
+        "prompt": "A cosmic cartoon galaxy otter character, deep purple-black fur with swirling galaxy patterns, star clusters and nebula colors throughout body, cosmic glowing eyes with spiral galaxy pupils, stardust particles floating around, ethereal space pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+        "taskId": "019bfc67-f99b-7644-a340-24914be190f2",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-galaxy/model.glb"
+        },
+        "generatedAt": 1769467266100
+      },
+      {
+        "id": "otter-jade",
+        "prompt": "A mystical cartoon jade otter character, translucent green jade-like fur with golden veins, wise emerald eyes, ancient Chinese dragon motifs subtly on body, zen peaceful pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+        "taskId": "019bfc68-f971-7f25-9e69-217d169e14bb",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-jade/model.glb"
+        },
+        "generatedAt": 1769467266101
+      },
+      {
+        "id": "otter-mecha",
+        "prompt": "A futuristic cartoon mecha otter character, sleek chrome and blue metallic armor plating, glowing cyan circuit patterns, robotic eye with HUD display, jet boosters on back, mechanical joints visible, high-tech visor, confident powerful pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style meets Transformers",
+        "taskId": "019bfc6a-70a9-7725-9507-762333e91974",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-mecha/model.glb"
+        },
+        "generatedAt": 1769467266101
+      },
+      {
+        "id": "otter-phoenix",
+        "prompt": "A majestic cartoon phoenix fire otter character, blazing orange-red fur with flame patterns, ember particles floating around body, golden fire eyes, wings of flame subtly suggested, powerful heroic pose, fire trail effects, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+        "taskId": "019bfc6c-10af-789e-b0e4-0425b6603c94",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-phoenix/model.glb"
+        },
+        "generatedAt": 1769467266101
+      },
+      {
+        "id": "otter-ripple",
+        "prompt": "A playful cartoon spotted otter character, warm brown fur with distinctive lighter spots pattern, mischievous expression, bouncy energetic pose, ripple water effects around paws, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+        "taskId": "019bfc6d-73e2-77e5-9905-a76382c90fb7",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-ripple/model.glb"
+        },
+        "generatedAt": 1769467266101
+      },
+      {
+        "id": "otter-river",
+        "prompt": "A cute cartoon river otter character, brown fur with cream-colored belly, expressive eyes, small rounded ears, webbed feet, playful pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, clean topology, Pixar style",
+        "taskId": "019bfc6e-af5d-78a8-9069-e42b97231d2a",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-river/model.glb"
+        },
+        "generatedAt": 1769467266101
+      },
+      {
+        "id": "otter-shadow",
+        "prompt": "A mysterious cartoon shadow otter character, sleek black fur with purple-blue undertones, glowing violet eyes, smoke-like wisps around body, ninja-like agile pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+        "taskId": "019bfc6f-fec3-782b-aed5-ebd3217505ac",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-shadow/model.glb"
+        },
+        "generatedAt": 1769467266101
+      },
+      {
+        "id": "otter-splash",
+        "prompt": "A cute cartoon sea otter character, blue-gray sleek fur with white chest patch, large expressive eyes, streamlined body for swimming, webbed paws, playful water-loving pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+        "taskId": "019bfc71-119d-798a-b027-03f0a3900044",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-splash/model.glb"
+        },
+        "generatedAt": 1769467266102
+      },
+      {
+        "id": "otter-storm",
+        "prompt": "A fierce cartoon storm otter character, stormy gray fur with lightning bolt white streaks, electric blue eyes, windswept appearance, thunder cloud patterns on body, powerful stance, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+        "taskId": "019bfc72-88b1-7087-be82-665831320ef8",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-storm/model.glb"
+        },
+        "generatedAt": 1769467266102
+      },
+      {
+        "id": "otter-torrent",
+        "prompt": "A cartoon giant river otter character, dark chocolate brown fur with lighter throat patch, muscular build, fierce but cute expression, powerful webbed paws, confident pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+        "taskId": "019bfc74-1587-791b-8222-c95bcef77197",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/jbdevprimary/otter-river-rush/assets/models/player/otter-torrent/model.glb"
+        },
+        "generatedAt": 1769467266102
+      }
+    ],
+    "rock": [
+      {
+        "id": "rock-large",
+        "prompt": "Large gray river rock, smooth rounded boulder, moss patches, game obstacle, stylized look, low poly",
+        "taskId": "019bcc05-3738-7923-9262-b52605267a5d",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/rock-large/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/rock-large/thumbnail.png"
+        },
+        "generatedAt": 1768654515533
+      },
+      {
+        "id": "rock-medium",
+        "prompt": "Medium sized river rock, rounded stone, wet appearance, stylized game asset, low poly",
+        "taskId": "019bcc06-2ddc-7954-bc97-6bcb450c32d5",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/rock-medium/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/rock-medium/thumbnail.png"
+        },
+        "generatedAt": 1768654622441
+      },
+      {
+        "id": "rock-small",
+        "prompt": "Small river pebble rock, smooth oval stone, stylized game asset, simple design",
+        "taskId": "019bcc07-cf7b-796f-b1c1-f729ef5c5d4b",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/rock-small/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/rock-small/thumbnail.png"
+        },
+        "generatedAt": 1768654670487
+      }
+    ],
+    "log": [
+      {
+        "id": "log-floating",
+        "prompt": "Floating wooden log in river, brown bark texture, stylized, game obstacle, horizontal orientation",
+        "taskId": "019bcc08-8b29-782b-90e2-a7a6e1a1480b",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/log-floating/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/log-floating/thumbnail.png"
+        },
+        "generatedAt": 1768654716160
+      },
+      {
+        "id": "branch-floating",
+        "prompt": "Floating tree branch in water, simple stylized wood, small twigs, game asset",
+        "taskId": "019bcc09-3d96-758a-ab86-b9b9a1e0955a",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/branch-floating/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/obstacle/branch-floating/thumbnail.png"
+        },
+        "generatedAt": 1768654752843
+      }
+    ],
+    "coin": [
+      {
+        "id": "coin-gold",
+        "prompt": "Shiny gold coin, stylized, simple round coin with fish symbol, game collectible, glowing effect",
+        "taskId": "019bcc01-a251-7759-9ea5-7bf9e7c8c6e6",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/coin-gold/model.glb",
+          "fbx": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/coin-gold/model.fbx",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/coin-gold/thumbnail.png"
+        },
+        "generatedAt": 1768654269402
+      },
+      {
+        "id": "coin-gold",
+        "prompt": "Shiny gold coin, stylized, simple round coin with fish symbol, game collectible, glowing effect",
+        "taskId": "019bcc09-cce4-7dbd-b6e9-398e056f8db2",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/coin-gold/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/coin-gold/thumbnail.png"
+        },
+        "generatedAt": 1768654802970
+      }
+    ],
+    "gem": [
+      {
+        "id": "gem-blue",
+        "prompt": "Blue crystal gem, stylized diamond shape, glowing, magical, game collectible, simple facets",
+        "taskId": "019bcc0a-90aa-7855-b6d4-8a9db89dcb25",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/gem-blue/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/gem-blue/thumbnail.png"
+        },
+        "generatedAt": 1768654855369
+      },
+      {
+        "id": "gem-green",
+        "prompt": "Green emerald gem, stylized, hexagonal crystal, glowing center, game collectible",
+        "taskId": "019bcc0b-5d5d-79f6-b5f9-2d52a8283400",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/gem-green/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/gem-green/thumbnail.png"
+        },
+        "generatedAt": 1768654909001
+      },
+      {
+        "id": "gem-purple",
+        "prompt": "Purple amethyst gem, stylized crystal cluster, magical glow, game collectible",
+        "taskId": "019bcc0c-2edc-7dd2-8d91-f5221e05680d",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/gem-purple/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/gem-purple/thumbnail.png"
+        },
+        "generatedAt": 1768654966609
+      }
+    ],
+    "fish": [
+      {
+        "id": "fish-small",
+        "prompt": "Small stylized fish, orange and white colors, cute expression, game collectible, simple design",
+        "taskId": "019bcc0d-0fe5-7a2b-8ab5-ba57fafccc8c",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/fish-small/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/fish-small/thumbnail.png"
+        },
+        "generatedAt": 1768655009718
+      },
+      {
+        "id": "fish-golden",
+        "prompt": "Golden stylized fish, shiny scales, happy expression, rare game collectible, magical sparkle",
+        "taskId": "019bcc0d-b84a-78b0-949f-ceda2801166b",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/fish-golden/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/collectible/fish-golden/thumbnail.png"
+        },
+        "generatedAt": 1768655057756
+      }
+    ],
+    "lily-pad": [
+      {
+        "id": "lily-pad",
+        "prompt": "Green lily pad floating on water, stylized, round leaf with small flower, simple game decoration",
+        "taskId": "019bcc0e-73fa-78bb-899b-cc9f35acf997",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/lily-pad/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/lily-pad/thumbnail.png"
+        },
+        "generatedAt": 1768655128823
+      }
+    ],
+    "cattail": [
+      {
+        "id": "cattail",
+        "prompt": "Cattail plant, brown fuzzy top, green stem and leaves, stylized wetland plant, game decoration",
+        "taskId": "019bcc0f-89b0-7e55-8f7b-ffff116f342a",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/cattail/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/cattail/thumbnail.png"
+        },
+        "generatedAt": 1768655177033
+      },
+      {
+        "id": "reed-cluster",
+        "prompt": "Cluster of river reeds, tall green grass, stylized, swaying plants, game decoration",
+        "taskId": "019bcc11-24a6-7e79-97a2-f465ee089fe9",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/reed-cluster/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/reed-cluster/thumbnail.png"
+        },
+        "generatedAt": 1768655366495
+      }
+    ],
+    "duck": [
+      {
+        "id": "duck-rubber",
+        "prompt": "Yellow rubber duck toy, floating, stylized, orange beak, simple cute design",
+        "taskId": "019bcc10-460e-7a77-acc0-4c11fa78da10",
+        "status": "SUCCEEDED",
+        "files": {
+          "glb": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/duck-rubber/model.glb",
+          "thumbnail": "/Users/jbogaty/src/arcade-cabinet/otter-river-rush/apps/web/public/assets/models/decoration/duck-rubber/thumbnail.png"
+        },
+        "generatedAt": 1768655234034
+      }
+    ]
+  }
+}

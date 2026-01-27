@@ -34,6 +34,10 @@
       "import": "./dist/config/index.js",
       "types": "./dist/config/index.d.ts"
     },
+    "./config/river-width": {
+      "import": "./dist/config/river-width.js",
+      "types": "./dist/config/river-width.d.ts"
+    },
     "./schemas": {
       "import": "./dist/schemas/index.js",
       "types": "./dist/schemas/index.d.ts"

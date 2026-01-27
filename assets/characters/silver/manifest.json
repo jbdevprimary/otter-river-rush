@@ -1,0 +1,46 @@
+{
+  "id": "otter-silver",
+  "name": "Silver",
+  "type": "character",
+  "description": "An elegant silver otter, moonlit and mysterious",
+
+  "stats": {
+    "speed": 1.1,
+    "agility": 1.0,
+    "luck": 1.2,
+    "recovery": 1.1
+  },
+
+  "unlock": {
+    "type": "coins",
+    "requirement": 5000,
+    "description": "Collect 5,000 total coins"
+  },
+
+  "textToImageTask": {
+    "prompt": "An elegant cartoon silver otter character, lustrous silver metallic fur, soft moonlight glow, starry reflection in eyes, graceful dignified pose, moon crescent marking on forehead, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 12000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "lustrous silver metallic fur, soft moonlight glow, star reflections"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.6
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

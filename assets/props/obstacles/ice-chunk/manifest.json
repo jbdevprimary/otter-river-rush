@@ -1,0 +1,36 @@
+{
+  "id": "obstacle-ice-chunk",
+  "name": "Ice Chunk",
+  "type": "prop",
+  "description": "A floating ice chunk in arctic waters - slippery and dangerous",
+  "price": 0.00,
+  "rarity": "rare",
+
+  "gameplay": {
+    "category": "obstacle",
+    "jumpable": true,
+    "damage": 1,
+    "width": 2.5,
+    "height": 0.6,
+    "collisionType": "box",
+    "biome": "arctic"
+  },
+
+  "textToImageTask": {
+    "prompt": "A chunk of floating ice, translucent blue-white, jagged edges, partially submerged, arctic river debris, stylized low-poly game asset, isometric view",
+    "generateMultiView": true,
+    "poseMode": ""
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 2000,
+    "symmetryMode": "off",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "texturePrompt": "translucent ice, blue-white, crystalline surface"
+  },
+
+  "tasks": {}
+}

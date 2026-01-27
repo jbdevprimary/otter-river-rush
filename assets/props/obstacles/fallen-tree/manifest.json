@@ -1,0 +1,36 @@
+{
+  "id": "obstacle-fallen-tree",
+  "name": "Fallen Tree",
+  "type": "prop",
+  "description": "A fallen tree trunk spanning the river - jump over or dive under",
+  "price": 0.00,
+  "rarity": "uncommon",
+
+  "gameplay": {
+    "category": "obstacle",
+    "jumpable": true,
+    "diveable": true,
+    "damage": 1,
+    "width": 4.0,
+    "height": 0.8,
+    "collisionType": "box"
+  },
+
+  "textToImageTask": {
+    "prompt": "A fallen tree trunk crossing a river, broken branches, bark peeling, forest debris caught against it, stylized low-poly game asset, side view",
+    "generateMultiView": true,
+    "poseMode": ""
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 4000,
+    "symmetryMode": "off",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "texturePrompt": "weathered bark, broken branches, forest debris"
+  },
+
+  "tasks": {}
+}

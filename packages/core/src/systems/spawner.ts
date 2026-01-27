@@ -1,6 +1,7 @@
 /**
  * Spawner System
  * Spawns obstacles and collectibles at intervals
+ * Supports dynamic river width for lane positioning
  */
 
 import { PHYSICS, VISUAL, getLaneX } from '@otter-river-rush/config';
@@ -12,6 +13,12 @@ export interface SpawnerState {
   lastCollectibleSpawn: number;
   lastDecorationSpawn: number;
 }
+
+/**
+ * Lane position provider type
+ * Can be a static function or dynamic getter
+ */
+export type LanePositionProvider = (lane: Lane) => number;
 
 /**
  * Create spawner state
@@ -30,12 +37,16 @@ export function createSpawnerState(): SpawnerState {
  * @param now Current timestamp (milliseconds)
  * @param isPlaying Whether game is actively playing
  * @param gameMode Current game mode (defaults to 'classic')
+ * @param getLanePosition Optional custom lane position provider for dynamic width
+ * @param riverWidth Optional current river width for decoration spawning
  */
 export function updateSpawner(
   state: SpawnerState,
   now: number,
   isPlaying: boolean,
-  gameMode: GameMode = 'classic'
+  gameMode: GameMode = 'classic',
+  getLanePosition: LanePositionProvider = getLaneX,
+  riverWidth: number = 8
 ): void {
   if (!isPlaying) return;
 
@@ -43,13 +54,13 @@ export function updateSpawner(
   const win = window as typeof window & { __lastSpawnerLog?: number };
   if (!win.__lastSpawnerLog || now - win.__lastSpawnerLog > 1000) {
     win.__lastSpawnerLog = now;
-    console.log(`[Spawner] mode=${gameMode} now=${now} lastObs=${state.lastObstacleSpawn} interval=${PHYSICS.spawnInterval.obstacles * 1000} diff=${now - state.lastObstacleSpawn}`);
+    console.log(`[Spawner] mode=${gameMode} now=${now} lastObs=${state.lastObstacleSpawn} interval=${PHYSICS.spawnInterval.obstacles * 1000} diff=${now - state.lastObstacleSpawn} riverWidth=${riverWidth.toFixed(1)}`);
   }
 
   // Spawn obstacles (7 Kenney CC0 variants) - skip in zen mode
   if (gameMode !== 'zen' && now - state.lastObstacleSpawn > PHYSICS.spawnInterval.obstacles * 1000) {
     const laneIndex = Math.floor(Math.random() * 3) as Lane;
-    const lane = getLaneX(laneIndex);
+    const lane = getLanePosition(laneIndex);
     const variant = Math.floor(Math.random() * 7);
     spawn.rock(lane, VISUAL.positions.spawnY, variant);
     state.lastObstacleSpawn = now;
@@ -58,7 +69,7 @@ export function updateSpawner(
   // Spawn collectibles (Kenney CC0 coins, crystals, hearts)
   if (now - state.lastCollectibleSpawn > PHYSICS.spawnInterval.collectibles * 1000) {
     const laneIndex = Math.floor(Math.random() * 3) as Lane;
-    const lane = getLaneX(laneIndex);
+    const lane = getLanePosition(laneIndex);
     const roll = Math.random();
     if (roll > 0.9) {
       // 10% chance for power-up (heart)
@@ -77,8 +88,10 @@ export function updateSpawner(
 
   // Spawn decorations (lily pads, reeds, etc.)
   if (now - state.lastDecorationSpawn > PHYSICS.spawnInterval.decorations * 1000) {
-    // Decorations spawn at random X positions (not locked to lanes)
-    const x = (Math.random() - 0.5) * 6; // Random position across the river
+    // Decorations spawn at random X positions based on current river width
+    // Use 80% of river width to keep decorations away from edges
+    const decorationWidth = riverWidth * 0.8;
+    const x = (Math.random() - 0.5) * decorationWidth;
     const variant = Math.floor(Math.random() * 6); // 6 decoration variants
     spawn.decoration(x, VISUAL.positions.spawnY, variant);
     state.lastDecorationSpawn = now;

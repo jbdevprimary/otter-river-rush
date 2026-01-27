@@ -1,0 +1,35 @@
+{
+  "id": "collectible-river-pearl",
+  "name": "River Pearl",
+  "type": "prop",
+  "description": "A lustrous freshwater pearl - rare and valuable",
+  "price": 0.00,
+  "rarity": "epic",
+
+  "gameplay": {
+    "category": "collectible",
+    "value": 100,
+    "spawnWeight": 0.05,
+    "magnetizable": true,
+    "width": 0.3,
+    "height": 0.3
+  },
+
+  "textToImageTask": {
+    "prompt": "A beautiful lustrous freshwater pearl, iridescent pink-white surface, soft glow, stylized game collectible, centered view",
+    "generateMultiView": true,
+    "poseMode": ""
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 1000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "texturePrompt": "iridescent pearl surface, soft pink glow"
+  },
+
+  "tasks": {}
+}

@@ -10,6 +10,7 @@
  * - @otter-river-rush/game-core/assets
  * - @otter-river-rush/game-core/data
  * - @otter-river-rush/game-core/ecs
+ * - @otter-river-rush/game-core/river
  * - @otter-river-rush/game-core/store
  * - @otter-river-rush/game-core/types
  * - @otter-river-rush/game-core/config
@@ -28,7 +29,10 @@ export * from './schemas';
 // Seeded Random utilities
 export * from './utils';
 
+// River path system
+export * from './river';
+
 // Re-export key items from submodules
 // Note: Use granular imports to avoid namespace conflicts
 export { world, spawn, queries, resetWorld } from './ecs';
-export { useGameStore, useAchievementStore } from './store';
+export { useGameStore, useAchievementStore, useRiverPathStore } from './store';

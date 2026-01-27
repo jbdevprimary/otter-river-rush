@@ -1,0 +1,26 @@
+{
+  "asset": "icon_close",
+  "tile_size": {
+    "w": 256,
+    "h": 256
+  },
+  "states": [
+    "idle",
+    "hover",
+    "pressed",
+    "disabled"
+  ],
+  "atlas": {
+    "path": "/mnt/data/otter_ui_kit_v3/icon_close_ATLAS_256x1248.png",
+    "tile_order": [
+      "idle",
+      "hover",
+      "pressed",
+      "disabled"
+    ],
+    "top_pad": 64,
+    "gap": 32,
+    "atlas_w": 256,
+    "atlas_h": 1248
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "id": "otter-golden",
+  "name": "Golden",
+  "type": "character",
+  "description": "A rare golden otter, blessed with extraordinary luck",
+
+  "stats": {
+    "speed": 1.0,
+    "agility": 1.0,
+    "luck": 1.5,
+    "recovery": 1.0
+  },
+
+  "unlock": {
+    "type": "coins",
+    "requirement": 10000,
+    "description": "Collect 10,000 total coins"
+  },
+
+  "textToImageTask": {
+    "prompt": "A magical cartoon golden otter character, shimmering gold metallic fur, amber eyes with golden glow, crown-like tuft on head, regal but playful expression, treasure-hunter vibe, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 12000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "shimmering gold metallic fur, amber glow, treasure sparkles"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.6
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

@@ -1,0 +1,49 @@
+{
+  "id": "otter-galaxy",
+  "name": "Galaxy",
+  "type": "character",
+  "description": "A cosmic space otter, swimming through stardust and nebulae",
+  "price": 4.99,
+  "productId": "com.otterriverrush.otter.galaxy",
+  "rarity": "legendary",
+
+  "stats": {
+    "speed": 1.3,
+    "agility": 1.4,
+    "luck": 1.3,
+    "recovery": 1.2
+  },
+
+  "unlock": {
+    "type": "default",
+    "requirement": 0,
+    "description": "Purchase to unlock"
+  },
+
+  "textToImageTask": {
+    "prompt": "A cosmic cartoon galaxy otter character, deep purple-black fur with swirling galaxy patterns, star clusters and nebula colors throughout body, cosmic glowing eyes with spiral galaxy pupils, stardust particles floating around, ethereal space pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 14000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "deep space purple fur, galaxy swirl patterns, star clusters, nebula glow"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.62
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

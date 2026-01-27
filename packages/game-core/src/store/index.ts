@@ -27,6 +27,8 @@ export {
   POWER_UP_DISPLAYS,
   type PowerUpDisplay,
   type PowerUpState,
+  type GameRiverWidthState,
+  type SeedState,
   TIME_TRIAL_DURATION_MS,
   TUTORIAL_DURATION_MS,
   useGameStore,
@@ -50,3 +52,26 @@ export {
   useAchievementStore,
 } from './achievement-store';
 export { useAchievementChecker } from './use-achievement-checker';
+export {
+  getCurrentBoundaries,
+  getCurrentLanePositions,
+  getCurrentRiverWidth,
+  type RiverWidthState,
+  type RiverWidthStore,
+  useDynamicLaneX,
+  useRiverWidthStore,
+} from './river-width-store';
+export {
+  DEFAULT_CONSTRAINTS,
+  type RiverPathStore,
+  type RiverScalingData,
+  useFlowSpeed,
+  useIsInFork,
+  useOtterScale,
+  useRiverPathStore,
+  useRiverScaling,
+  useRiverWidth,
+  useSlopeType,
+  useWaterfallsInRange,
+  useWhirlpoolsInRange,
+} from './river-path-store';

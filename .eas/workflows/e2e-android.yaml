@@ -1,0 +1,40 @@
+name: Android E2E Tests
+
+on:
+  pull_request:
+    branches: ['main', 'develop']
+  workflow_dispatch:
+    inputs:
+      run_full_suite:
+        type: boolean
+        description: "Run full test suite (not just smoke tests)"
+        default: false
+
+jobs:
+  build_android:
+    name: Build Android APK for E2E
+    type: build
+    params:
+      platform: android
+      profile: e2e-test
+
+  maestro_smoke:
+    name: Maestro Smoke Tests
+    needs: [build_android]
+    type: maestro
+    params:
+      build_id: ${{ needs.build_android.outputs.build_id }}
+      flow_path:
+        - '.maestro/flows/smoke-test.yaml'
+        - '.maestro/flows/main-menu.yaml'
+        - '.maestro/flows/start-game.yaml'
+
+  maestro_full:
+    name: Maestro Full Suite
+    needs: [build_android, maestro_smoke]
+    if: ${{ inputs.run_full_suite == true }}
+    type: maestro
+    params:
+      build_id: ${{ needs.build_android.outputs.build_id }}
+      flow_path:
+        - '.maestro/flows/'

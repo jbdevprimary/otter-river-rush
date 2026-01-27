@@ -42,9 +42,10 @@ export interface ModelComponent {
  * - hit: Taking damage from obstacle
  * - collect: Picking up a collectible
  * - dodge: Lane change animation
+ * - jump: Jumping over obstacle
  * - death: Game over animation
  */
-export type AnimationState = 'idle' | 'swim' | 'hit' | 'collect' | 'dodge' | 'death';
+export type AnimationState = 'idle' | 'swim' | 'hit' | 'collect' | 'dodge' | 'jump' | 'death';
 
 export interface AnimationComponent {
   /** Current animation state to play */
@@ -87,6 +88,33 @@ export interface ParticleComponent {
   size: number;
 }
 
+/**
+ * Jump state component for tracking jump mechanics
+ */
+export interface JumpComponent {
+  /** Whether the entity is currently in a jump */
+  isJumping: boolean;
+  /** Current vertical velocity from jump */
+  verticalVelocity: number;
+  /** Timestamp when jump started (for cooldown tracking) */
+  jumpStartTime: number;
+  /** Base Z position (river surface level) - the ground level to return to */
+  groundZ: number;
+  /** Whether currently in the landing phase (for splash effect) */
+  isLanding: boolean;
+}
+
+/**
+ * River path component for entities that follow the curved river path
+ * Used to calculate world position from distance along river + lane offset
+ */
+export interface RiverPathComponent {
+  /** Distance along the river (in game Y units) */
+  distance: number;
+  /** Lane offset from river center (-1, 0, 1 for 3-lane, or actual world offset) */
+  laneOffset: number;
+}
+
 // Entity type
 export interface Entity {
   // Core components
@@ -95,6 +123,10 @@ export interface Entity {
   model?: ModelComponent;
   animation?: AnimationComponent;
   collider?: ColliderComponent;
+  jump?: JumpComponent;
+
+  // River path following (optional - entities with this follow curved path)
+  riverPath?: RiverPathComponent;
 
   // Entity type flags
   player?: boolean;

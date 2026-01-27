@@ -1,0 +1,46 @@
+{
+  "id": "otter-splash",
+  "name": "Splash",
+  "type": "character",
+  "description": "A sleek blue-gray sea otter, swift through the waves",
+
+  "stats": {
+    "speed": 1.2,
+    "agility": 0.9,
+    "luck": 1.0,
+    "recovery": 0.9
+  },
+
+  "unlock": {
+    "type": "score",
+    "requirement": 5000,
+    "description": "Reach 5,000 points in a single run"
+  },
+
+  "textToImageTask": {
+    "prompt": "A cute cartoon sea otter character, blue-gray sleek fur with white chest patch, large expressive eyes, streamlined body for swimming, webbed paws, playful water-loving pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 12000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "sleek blue-gray fur, white chest, water droplet sparkles"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.6
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

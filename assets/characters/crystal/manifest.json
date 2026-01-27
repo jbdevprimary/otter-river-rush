@@ -1,0 +1,49 @@
+{
+  "id": "otter-crystal",
+  "name": "Crystal",
+  "type": "character",
+  "description": "A dazzling crystal otter, refracting light in brilliant rainbows",
+  "price": 2.99,
+  "productId": "com.otterriverrush.otter.crystal",
+  "rarity": "epic",
+
+  "stats": {
+    "speed": 1.2,
+    "agility": 1.2,
+    "luck": 1.6,
+    "recovery": 1.2
+  },
+
+  "unlock": {
+    "type": "default",
+    "requirement": 0,
+    "description": "Purchase to unlock"
+  },
+
+  "textToImageTask": {
+    "prompt": "A dazzling cartoon crystal otter character, translucent crystalline body with rainbow light refraction, diamond-like faceted fur, prismatic sparkle effects, gemstone eyes, elegant crystalline pose, light rays passing through body creating rainbow effects, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 14000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "translucent crystal body, rainbow light refraction, diamond sparkle"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.6
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

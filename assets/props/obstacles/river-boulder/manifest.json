@@ -1,0 +1,35 @@
+{
+  "id": "obstacle-river-boulder",
+  "name": "River Boulder",
+  "type": "prop",
+  "description": "A large smooth river rock - must swim around, cannot jump over",
+  "price": 0.00,
+  "rarity": "common",
+
+  "gameplay": {
+    "category": "obstacle",
+    "jumpable": false,
+    "damage": 1,
+    "width": 2.0,
+    "height": 1.5,
+    "collisionType": "sphere"
+  },
+
+  "textToImageTask": {
+    "prompt": "A large smooth river rock worn by water, gray with wet sheen, partially submerged, realistic water-worn stone, stylized low-poly game asset, isometric view",
+    "generateMultiView": true,
+    "poseMode": ""
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 2500,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "texturePrompt": "smooth wet gray stone, water worn surface"
+  },
+
+  "tasks": {}
+}

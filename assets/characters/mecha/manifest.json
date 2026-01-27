@@ -1,0 +1,49 @@
+{
+  "id": "otter-mecha",
+  "name": "Mecha",
+  "type": "character",
+  "description": "A cybernetic mecha otter, enhanced with cutting-edge technology",
+  "price": 4.99,
+  "productId": "com.otterriverrush.otter.mecha",
+  "rarity": "legendary",
+
+  "stats": {
+    "speed": 1.5,
+    "agility": 1.1,
+    "luck": 1.0,
+    "recovery": 1.4
+  },
+
+  "unlock": {
+    "type": "default",
+    "requirement": 0,
+    "description": "Purchase to unlock"
+  },
+
+  "textToImageTask": {
+    "prompt": "A futuristic cartoon mecha otter character, sleek chrome and blue metallic armor plating, glowing cyan circuit patterns, robotic eye with HUD display, jet boosters on back, mechanical joints visible, high-tech visor, confident powerful pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style meets Transformers",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 14000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "chrome and blue metallic armor, glowing cyan circuits, tech details"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.65
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

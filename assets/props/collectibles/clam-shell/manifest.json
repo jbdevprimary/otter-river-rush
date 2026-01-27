@@ -1,0 +1,36 @@
+{
+  "id": "collectible-clam-shell",
+  "name": "Clam Shell",
+  "type": "prop",
+  "description": "A river clam shell - might contain treasure inside",
+  "price": 0.00,
+  "rarity": "uncommon",
+
+  "gameplay": {
+    "category": "collectible",
+    "value": 25,
+    "randomBonus": true,
+    "spawnWeight": 0.2,
+    "magnetizable": true,
+    "width": 0.4,
+    "height": 0.2
+  },
+
+  "textToImageTask": {
+    "prompt": "A freshwater clam shell, ribbed texture, slightly open revealing pearl inside, river mud residue, stylized game collectible, isometric view",
+    "generateMultiView": true,
+    "poseMode": ""
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 1200,
+    "symmetryMode": "off",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "texturePrompt": "ribbed shell texture, slight iridescence, river mud"
+  },
+
+  "tasks": {}
+}

@@ -1,0 +1,46 @@
+{
+  "id": "otter-cascade",
+  "name": "Cascade",
+  "type": "character",
+  "description": "A graceful waterfall otter, flowing with natural elegance",
+
+  "stats": {
+    "speed": 1.0,
+    "agility": 1.4,
+    "luck": 1.0,
+    "recovery": 1.0
+  },
+
+  "unlock": {
+    "type": "score",
+    "requirement": 15000,
+    "description": "Reach 15,000 points in a single run"
+  },
+
+  "textToImageTask": {
+    "prompt": "A graceful cartoon waterfall otter character, light tan cream fur with cascading water-like blue streaks, flowing whiskers, elegant dancer pose, water droplets frozen in motion around body, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 12000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "light tan fur with blue water streaks, water droplet effects"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.58
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

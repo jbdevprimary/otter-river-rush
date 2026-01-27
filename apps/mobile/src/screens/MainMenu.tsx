@@ -5,16 +5,15 @@
  */
 
 import { useGameStore } from '@otter-river-rush/game-core/store';
-import type { GameMode } from '@otter-river-rush/game-core/types';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 export function MainMenu() {
-  const startGame = useGameStore((state) => state.startGame);
+  const goToCharacterSelect = useGameStore((state) => state.goToCharacterSelect);
   const progress = useGameStore((state) => state.progress);
 
-  const handlePlay = (mode: GameMode = 'classic') => {
-    startGame(mode);
+  const handlePlay = () => {
+    goToCharacterSelect();
   };
 
   return (
@@ -48,7 +47,7 @@ export function MainMenu() {
       <View className="w-full max-w-[280px] mb-12">
         <Pressable
           className="bg-brand-success py-4 px-8 rounded-xl mb-4 items-center active:opacity-80"
-          onPress={() => handlePlay('classic')}
+          onPress={handlePlay}
         >
           <Text className="text-3xl font-bold text-white tracking-widest">
             PLAY
@@ -57,7 +56,7 @@ export function MainMenu() {
 
         <Pressable
           className="bg-transparent py-4 px-8 rounded-xl mb-4 items-center border-2 border-brand-secondary active:opacity-80"
-          onPress={() => handlePlay('time_trial')}
+          onPress={handlePlay}
         >
           <Text className="text-lg font-semibold text-brand-secondary tracking-widest">
             TIME TRIAL
@@ -66,7 +65,7 @@ export function MainMenu() {
 
         <Pressable
           className="bg-transparent py-4 px-8 rounded-xl mb-4 items-center border-2 border-brand-secondary active:opacity-80"
-          onPress={() => handlePlay('zen')}
+          onPress={handlePlay}
         >
           <Text className="text-lg font-semibold text-brand-secondary tracking-widest">
             ZEN MODE

@@ -1,0 +1,46 @@
+{
+  "id": "otter-aurora",
+  "name": "Aurora",
+  "type": "character",
+  "description": "A legendary aurora otter, painted with northern lights",
+
+  "stats": {
+    "speed": 1.2,
+    "agility": 1.2,
+    "luck": 1.3,
+    "recovery": 1.1
+  },
+
+  "unlock": {
+    "type": "legendary",
+    "requirement": "all_biomes",
+    "description": "Complete all biomes with all other otters"
+  },
+
+  "textToImageTask": {
+    "prompt": "A legendary cartoon aurora otter character, iridescent shifting fur with northern lights colors (green, blue, purple, pink), cosmic star patterns, ethereal glowing eyes, magical sparkle particles, celestial pose, stylized for mobile game, low-poly friendly design, A-pose for rigging, Pixar style",
+    "generateMultiView": true,
+    "poseMode": "a-pose"
+  },
+
+  "multiImageTo3DTask": {
+    "topology": "quad",
+    "targetPolycount": 12000,
+    "symmetryMode": "auto",
+    "shouldRemesh": true,
+    "shouldTexture": true,
+    "enablePbr": false,
+    "poseMode": "a-pose",
+    "texturePrompt": "iridescent aurora colors, cosmic star patterns, ethereal glow"
+  },
+
+  "riggingTask": {
+    "heightMeters": 0.62
+  },
+
+  "animationTask": {
+    "preset": "scamper"
+  },
+
+  "tasks": {}
+}

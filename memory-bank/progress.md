@@ -33,15 +33,17 @@
 ### ✅ Game Systems (Miniplex ECS)
 - **Movement System**: Fixed-timestep physics
 - **Collision System**: AABB detection
-- **Spawner System**: Procedural entity generation
+- **Spawner System**: Seeded procedural generation with patterns
 - **Score System**: Points, combos, multipliers
 - **Biome System**: 4 biomes with visual transitions
 - **Difficulty System**: Progressive speed scaling
 - **Animation System**: GLB clip playback
+- **Seed System**: Deterministic RNG for reproducible runs
 
 ### ✅ 3D Rendering
 - **React Three Fiber**: Declarative Three.js
-- **GLB Models**: 18 models via Meshy AI
+- **GLB Models**: 18 otter models via Meshy AI (14 new characters + 4 base)
+- **Character Models**: aurora, cascade, coral, crystal, galaxy, jade, mecha, phoenix, ripple, river, shadow, splash, storm, torrent, arctic, golden, player, silver
 - **PBR Textures**: AmbientCG/Kenney assets
 - **Animations**: 11 otter animations
 - **Biome Materials**: Forest, Mountain, Canyon, Rapids
@@ -85,7 +87,7 @@
 - [ ] Leaderboard persistence
 
 ### 🔮 Future Enhancements
-- [ ] More character skins
+- [x] More character skins (14 new otter characters generated 2026-01-26)
 - [ ] Additional biomes
 - [ ] Multiplayer features
 - [ ] Cloud save sync
@@ -191,6 +193,11 @@
   - UI component conversion
   - Integration testing
   - Cleanup and documentation
+- ✅ **14 New Otter Character Models** (2026-01-26)
+  - Generated via Meshy API text-to-3D
+  - Characters: aurora, cascade, coral, crystal, galaxy, jade, mecha, phoenix, ripple, river, shadow, splash, storm, torrent
+  - All models include GLB + thumbnail
+  - Deployed to both assets/ and apps/mobile/public/
 
 ### Upcoming
 - ⏳ Physical device testing

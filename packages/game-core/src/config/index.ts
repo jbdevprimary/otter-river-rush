@@ -41,7 +41,7 @@ export {
 } from './game-constants';
 
 // Physics constants
-export { PHYSICS_CONFIG } from './physics-constants';
+export { JUMP_PHYSICS, PHYSICS_CONFIG } from './physics-constants';
 
 // Visual constants
 export {
@@ -76,3 +76,16 @@ export {
   type ModelAsset,
   type PBRTexture,
 } from './biome-assets';
+
+// River width configuration
+export {
+  BIOME_RIVER_WIDTHS,
+  RIVER_WIDTH_CHECKPOINTS,
+  calculateLanePositions,
+  calculateRiverBoundaries,
+  calculateTargetWidth,
+  getBiomeRiverWidth,
+  interpolateWidth,
+  seededRandom,
+  type RiverWidthState,
+} from './river-width';
