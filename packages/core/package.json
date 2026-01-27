@@ -13,7 +13,9 @@
     "typecheck": "tsc --build --force"
   },
   "dependencies": {
-    "@otter-river-rush/game-core": "workspace:*"
+    "@otter-river-rush/game-core": "workspace:*",
+    "@otter-river-rush/config": "workspace:*",
+    "@otter-river-rush/types": "workspace:*"
   },
   "devDependencies": {
     "typescript": "~5.9.3"

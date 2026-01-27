@@ -1,0 +1,24 @@
+name: 'Build Web Bundle'
+description: 'Build web application bundle'
+
+outputs:
+  build-success:
+    description: 'Whether the build succeeded'
+    value: ${{ steps.build.outcome }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Build web application
+      id: build
+      run: pnpm build
+      shell: bash
+    
+    - name: Verify build output
+      run: |
+        if [ ! -d "apps/web/dist" ]; then
+          echo "Error: Build output directory not found"
+          exit 1
+        fi
+        echo "Build completed successfully"
+      shell: bash

@@ -226,8 +226,8 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
       const laneMarker = MeshBuilder.CreateBox(
         `laneMarker${i}`,
         {
-          width: 0.08,      // Thin in X
-          height: 0.02,     // Very thin in Y (height)
+          width: 0.08, // Thin in X
+          height: 0.02, // Very thin in Y (height)
           depth: riverLength, // Long in Z (depth/forward)
         },
         scene
