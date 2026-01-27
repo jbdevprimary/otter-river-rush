@@ -4,5 +4,6 @@
  */
 
 export * from './branding';
+export * from './branded';
 export * from './components';
 

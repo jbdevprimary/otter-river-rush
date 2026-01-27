@@ -1,182 +1,136 @@
 # Progress - Otter River Rush
 
 **Last Updated**: 2026-01-26
-**Current Version**: Unified Expo Migration Complete
-**Architecture**: Single Expo app for web + iOS + Android
+**Current Version**: Flat Expo + Brand Integration
+**Architecture**: Standard Expo app (NOT monorepo)
 
 ---
 
 ## What Works
 
-### ✅ Unified Expo Architecture
-- **Single Codebase**: One app targeting web, iOS, and Android
-- **Metro Bundler**: Replaces Vite for all platforms
+### ✅ Flat Expo Architecture (2026-01-26)
+- **Standard Structure**: `app/`, `src/`, `assets/` at root
+- **Metro Bundler**: Web + iOS + Android from single codebase
 - **NativeWind v4**: Tailwind CSS for React Native
 - **Expo Router**: File-based navigation
-- **EAS Build**: Cloud builds for native apps
+- **Metro Patch**: Fixed optional dependency bug
+
+### ✅ Brand Integration (2026-01-26)
+- **Brand Assets**: logo.png, splash.png, portrait.png in `assets/branding/`
+- **9-Slice Atlases**: Button and panel textures in `assets/ui/`
+- **Brand Colors**: Full palette in tailwind.config.js
+- **Splash Screen**: Configured in app.json
+- **Brand Tokens**: Color system in tokens.ts
+
+### ✅ Landing Page Components (2026-01-26)
+- **3D Character Carousel**: CharacterCarousel3D, CarouselStage, etc.
+- **9-Slice UI**: NineSliceButton, NineSlicePanel, CloseButton
+- **CharacterSelectScreen**: Full 3D carousel + 2D overlay
+- **useCarouselRotation**: Animation hook
 
 ### ✅ Core Game Mechanics
 - **Endless Runner**: Auto-scrolling river with increasing speed
 - **Lane-Based Movement**: Three-lane system with smooth transitions
+- **Jump Mechanics**: Spacebar/swipe-up with arc physics
 - **Collision Detection**: AABB with spatial grid optimization
 - **Game Loop**: Fixed timestep (60 FPS) via useFrame
-- **Input Handling**: Keyboard (WASD/Arrows), touch, pointer
-- **Game States**: Menu, Playing, Paused, GameOver
 
 ### ✅ Entities & Objects
 - **Player (Otter)**: GLB model with animations
+- **18 Character Models**: Via Meshy AI
 - **Obstacles (Rocks)**: Multiple variants with collision
 - **Collectibles**: Coins, gems, special items
 - **Power-Ups**: Shield, Magnet, Score Multiplier, Ghost Mode
-- **Object Pooling**: Efficient reuse via ECS
 
 ### ✅ Game Systems (Miniplex ECS)
 - **Movement System**: Fixed-timestep physics
 - **Collision System**: AABB detection
-- **Spawner System**: Seeded procedural generation with patterns
+- **Spawner System**: Seeded procedural generation
 - **Score System**: Points, combos, multipliers
 - **Biome System**: 4 biomes with visual transitions
-- **Difficulty System**: Progressive speed scaling
-- **Animation System**: GLB clip playback
-- **Seed System**: Deterministic RNG for reproducible runs
+- **Seed System**: 3-word deterministic RNG
+- **Dynamic River Width**: 1-5 lanes with transitions
 
 ### ✅ 3D Rendering
 - **React Three Fiber**: Declarative Three.js
-- **GLB Models**: 18 otter models via Meshy AI (14 new characters + 4 base)
-- **Character Models**: aurora, cascade, coral, crystal, galaxy, jade, mecha, phoenix, ripple, river, shadow, splash, storm, torrent, arctic, golden, player, silver
+- **GLB Models**: 18 otter characters
 - **PBR Textures**: AmbientCG/Kenney assets
 - **Animations**: 11 otter animations
 - **Biome Materials**: Forest, Mountain, Canyon, Rapids
 
 ### ✅ UI Components (NativeWind)
-- **Menu.tsx**: Main menu with play button
-- **HUD.tsx**: Score, distance, lives display
+- **Menu.tsx**: Main menu
+- **HUD.tsx**: Score, distance, lives
 - **PauseMenu.tsx**: Pause overlay
 - **Settings.tsx**: Audio and control settings
-- **Leaderboard.tsx**: High scores display
-- **CharacterSelect.tsx**: Character selection
-- **AchievementNotification.tsx**: Toast notifications
-- **MilestoneNotification.tsx**: Milestone popups
-
-### ✅ Technical Infrastructure
-- **TypeScript**: Strict mode, full type safety
-- **pnpm Workspaces**: Monorepo with 8 packages
-- **Biome**: Linting and formatting
-- **CI/CD**: GitHub Actions workflows
-- **Documentation**: Memory bank, AGENTS.md
+- **Leaderboard.tsx**: High scores
+- **CharacterSelectScreen**: 3D carousel
 
 ---
 
 ## What's Left to Build
 
-### 🔄 Testing & Polish
+### 🔄 Landing Page Polish
+- [ ] Full 9-slice atlas sprite rendering
+- [ ] SettingsModal with branded panel
+- [ ] PowerUpsGalleryModal
+- [ ] MainMenu with branded buttons throughout
+- [ ] Animated Rusty hero on landing
+- [ ] Button hover/press animations
+
+### 🔄 Gameplay Features
+- [ ] River forking/branching paths
+- [ ] Otter rotation on collision
+- [ ] Camera facing during tumble
+- [ ] Lane lean physics
+
+### 🔄 Testing & Deployment
 - [ ] Physical device testing (iOS/Android)
 - [ ] EAS Build verification
+- [ ] GitHub Pages deployment
 - [ ] Performance profiling on mobile
-- [ ] Touch control refinement
-
-### 🔄 Deployment
-- [ ] GitHub Pages deployment for Expo web
-- [ ] EAS Build profiles for production
-- [ ] App store submissions (iOS/Android)
-
-### 📝 Medium Priority
-- [ ] Audio system integration
-- [ ] Additional game modes (Time Trial, Zen)
-- [ ] Achievement UI gallery
-- [ ] Leaderboard persistence
-
-### 🔮 Future Enhancements
-- [x] More character skins (14 new otter characters generated 2026-01-26)
-- [ ] Additional biomes
-- [ ] Multiplayer features
-- [ ] Cloud save sync
 
 ---
 
-## Current Status
+## Current Session (2026-01-26)
 
-### Phase Overview
-| Phase | Status | Description |
-|-------|--------|-------------|
-| Phase 1: NativeWind Setup | ✅ Complete | NativeWind v4 configured with Tailwind 3.4 |
-| Phase 2: Asset Migration | ✅ Complete | Assets moved to `apps/mobile/public/` |
-| Phase 3: Game Logic Port | ✅ Complete | Game logic shared via packages |
-| Phase 4: UI Migration | ✅ Complete | All UI components converted to NativeWind |
-| Phase 5: Integration | ✅ Complete | Expo web server running, all systems working |
-| Phase 6: Cleanup | ✅ Complete | `apps/web/` removed, docs updated |
+### Completed
+1. ✅ Flattened monorepo to standard Expo
+2. ✅ Removed `apps/` and `packages/` directories
+3. ✅ Removed old `src/client/` Vite app
+4. ✅ Fixed Metro bundler optional dependency bug
+5. ✅ Integrated brand assets from `incoming/`
+6. ✅ Created NineSliceButton, NineSlicePanel, CloseButton
+7. ✅ Updated tailwind.config.js with brand colors
+8. ✅ Configured Expo splash screen
+9. ✅ Documented landing page spec
 
-### Metrics
-
-#### Code Quality
-- **TypeScript Errors**: 0 ✅
-- **Lint Errors**: 0 ✅
-- **Build Status**: ✅ Passing
-
-#### Bundle
-- **Web Bundle**: Expo Metro static export
-- **Native**: EAS Build ready
-
-#### Completeness
-- **Core Mechanics**: 100% ✅
-- **3D Rendering**: 100% ✅
-- **UI Components**: 100% ✅
-- **State Management**: 100% ✅
-- **Audio**: 50% 🔄 (system exists, needs integration)
-- **Testing**: 30% 🔄 (needs device testing)
-
-### Platform Support
-- ✅ **Web**: Metro bundler → GitHub Pages
-- ✅ **iOS**: EAS Build ready
-- ✅ **Android**: EAS Build ready
+### Files Changed
+- Created: `assets/branding/*`, `assets/ui/*`
+- Created: `src/components/ui/branded/*`
+- Created: `patches/@expo+metro-config+0.20.18.patch`
+- Created: `docs/LANDING_PAGE_SPEC.md`
+- Modified: `app.json`, `tailwind.config.js`, `package.json`
+- Modified: `metro.config.js`, `tokens.ts`
+- Deleted: `apps/`, `packages/`, `src/client/`
 
 ---
 
 ## Known Issues
 
 ### Minor
-1. **Audio not fully integrated**: AudioManager exists but not wired to all events
-2. **Touch controls**: May need refinement on physical devices
-3. **Performance**: Untested on low-end mobile devices
-
-### Technical Debt
-1. Some duplicate code between packages
-2. Test coverage could be improved
-3. Some TODO comments in codebase
+1. Old cruft files remain (.eslintrc, capacitor.config, etc.)
+2. Audio not fully integrated
+3. Touch controls need device testing
 
 ---
 
-## Evolution of Decisions
+## Documentation
 
-### Major Decisions
-
-#### Unified Expo Migration (2026-01-26)
-**Decision**: Consolidate `apps/web` (Vite) and `apps/mobile` (Expo) into single Expo app
-**Rationale**:
-- Single codebase reduces maintenance burden
-- Expo Metro supports web bundling
-- NativeWind enables unified styling
-- EAS Build simplifies native deployments
-
-**Outcome**: ✅ Success - All platforms from one codebase
-
-#### NativeWind over Raw CSS (2026-01-26)
-**Decision**: Use NativeWind v4 with Tailwind 3.4 (not Tailwind v4)
-**Rationale**:
-- NativeWind v4 requires Tailwind ~3.x
-- Consistent styling across web and native
-- Familiar Tailwind utility classes
-
-**Outcome**: ✅ Success - All UI components use NativeWind
-
-#### Metro over Vite for Web (2026-01-26)
-**Decision**: Use Metro bundler for web instead of Vite
-**Rationale**:
-- Single bundler for all platforms
-- Better React Native compatibility
-- Expo's recommended approach
-
-**Outcome**: ✅ Success - Web works via Expo Metro
+- `docs/LANDING_PAGE_SPEC.md` - Full landing page specification
+- `docs/BRAND_IDENTITY.md` - Brand colors, typography, voice
+- `memory-bank/activeContext.md` - Current architecture
+- `AGENTS.md` - Development instructions
 
 ---
 
@@ -185,64 +139,36 @@
 ### Completed
 - ✅ Initial R3F + Miniplex setup (2025-10)
 - ✅ Meshy 3D asset generation (2025-10)
-- ✅ PBR texture integration (2025-10)
-- ✅ Monorepo reorganization (2025-10)
-- ✅ **Unified Expo Migration** (2026-01-26)
-  - NativeWind v4 setup
-  - Asset migration
-  - UI component conversion
-  - Integration testing
-  - Cleanup and documentation
-- ✅ **14 New Otter Character Models** (2026-01-26)
-  - Generated via Meshy API text-to-3D
-  - Characters: aurora, cascade, coral, crystal, galaxy, jade, mecha, phoenix, ripple, river, shadow, splash, storm, torrent
-  - All models include GLB + thumbnail
-  - Deployed to both assets/ and apps/mobile/public/
+- ✅ Unified Expo Migration (2026-01-26)
+- ✅ 14 New Otter Characters (2026-01-26)
+- ✅ **Flat Expo + Brand Integration** (2026-01-26)
 
 ### Upcoming
+- ⏳ Full branded landing page
 - ⏳ Physical device testing
 - ⏳ EAS Build verification
 - ⏳ GitHub Pages deployment
-- ⏳ App store submissions
-
----
-
-## Next Session Goals
-
-### Immediate
-1. Test on physical iOS device
-2. Test on physical Android device
-3. Verify EAS Build works
-4. Deploy web to GitHub Pages
-
-### Short-term
-1. Wire up audio system
-2. Add more game polish
-3. Performance optimization
-4. Improve test coverage
 
 ---
 
 ## Success Indicators
 
 ### Ready for Launch When:
+- [ ] Branded landing page complete
 - [ ] Physical device testing complete
-- [ ] EAS Build working for iOS and Android
+- [ ] EAS Build working
 - [ ] Web deployed to GitHub Pages
 - [ ] Audio fully integrated
-- [ ] Performance verified on mobile
 - [ ] No critical bugs
-- [ ] App store submissions ready
 
-### Current Readiness: ~85%
-- ✅ Architecture solid
+### Current Readiness: ~80%
+- ✅ Architecture solid (flat Expo)
 - ✅ Core mechanics complete
 - ✅ 3D rendering working
-- ✅ UI components complete
-- ✅ Build system ready
+- ✅ Brand assets integrated
+- 🔄 Landing page needs polish
 - 🔄 Testing needed
 - 🔄 Deployment pending
-- 🔄 Audio integration pending
 
 ---
 

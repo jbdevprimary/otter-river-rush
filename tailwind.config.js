@@ -9,17 +9,71 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'brand-primary': '#3b82f6',
-        'brand-secondary': '#6366f1',
-        'brand-background': '#0f172a',
-        'brand-surface': '#1e293b',
-        'brand-gold': '#ffd700',
-        'brand-danger': '#ef4444',
-        'brand-success': '#22c55e',
-        'brand-warning': '#f59e0b',
+        // Rusty's Colors
+        'otter-brown': '#8B5A3C',
+        'otter-cream': '#F4E4C1',
+        'otter-dark': '#5C3A29',
+        'otter-nose': '#2C1810',
+
+        // Water Colors
+        'river-blue': '#4A9ECD',
+        'river-light': '#7FCCF7',
+        'river-dark': '#2E6B8F',
+        'water-foam': '#FFFFFF',
+
+        // Nature Colors
+        'forest-green': '#4A7C59',
+        'forest-dark': '#2F5940',
+        'mountain-gray': '#8B9DAF',
+        'canyon-orange': '#D97E4A',
+        'rapids-purple': '#6B5B95',
+
+        // Collectibles
+        'coin-gold': '#FFD700',
+        'gem-blue': '#4169E1',
+        'gem-red': '#DC143C',
+        'gem-green': '#32CD32',
+
+        // UI/Feedback
+        'success-green': '#4CAF50',
+        'warning-yellow': '#FFC107',
+        'danger-red': '#F44336',
+        'info-blue': '#2196F3',
+
+        // Biome: Forest
+        'bg-forest-sky': '#87CEEB',
+        'bg-forest-tree': '#4A7C59',
+        'bg-forest-dark': '#2F5940',
+
+        // Biome: Mountain
+        'bg-mountain-sky': '#B0C4DE',
+        'bg-mountain-rock': '#6B7C8C',
+        'bg-mountain-snow': '#F0F8FF',
+
+        // Biome: Canyon
+        'bg-canyon-sky': '#FFB347',
+        'bg-canyon-rock': '#CD853F',
+        'bg-canyon-shadow': '#8B4513',
+
+        // Biome: Rapids
+        'bg-rapids-sky': '#483D8B',
+        'bg-rapids-water': '#6B5B95',
+        'bg-rapids-foam': '#FFFFFF',
+
+        // Legacy aliases (backward compat)
+        'brand-primary': '#4A9ECD',
+        'brand-secondary': '#8B5A3C',
+        'brand-background': '#1e3a5f',
+        'brand-surface': '#2E6B8F',
+        'brand-gold': '#FFD700',
+        'brand-danger': '#F44336',
+        'brand-success': '#4CAF50',
+        'brand-warning': '#FFC107',
       },
       fontFamily: {
-        sans: ['System', 'sans-serif'],
+        display: ['Fredoka One', 'Nunito', 'sans-serif'],
+        sans: ['Nunito', 'Open Sans', 'sans-serif'],
+        score: ['Bebas Neue', 'Impact', 'sans-serif'],
         mono: ['Courier', 'monospace'],
       },
       // Responsive breakpoints for different device form factors

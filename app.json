@@ -4,19 +4,24 @@
     "slug": "otter-river-rush",
     "version": "1.0.0",
     "orientation": "default",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/branding/logo.png",
     "scheme": "otterriverrush",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
+      "image": "./assets/branding/splash.png",
+      "resizeMode": "cover",
       "backgroundColor": "#1e3a5f"
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ottergames.riverrush",
       "requireFullScreen": false,
+      "splash": {
+        "image": "./assets/branding/splash.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#1e3a5f"
+      },
       "infoPlist": {
         "UISupportedInterfaceOrientations": [
           "UIInterfaceOrientationPortrait",
@@ -33,7 +38,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/branding/logo.png",
+        "backgroundColor": "#1e3a5f"
+      },
+      "splash": {
+        "image": "./assets/branding/splash.png",
+        "resizeMode": "cover",
         "backgroundColor": "#1e3a5f"
       },
       "package": "com.ottergames.riverrush",
