@@ -271,9 +271,9 @@ function handleCollect(
 
   // Regular collectible (coin or gem)
   if (collectible.collectible?.type === 'coin') {
-    handlers.onCollectCoin?.(collectible.collectible?.value);
+    handlers.onCollectCoin?.(collectible.collectible.value ?? 0);
   } else if (collectible.collectible?.type === 'gem') {
-    handlers.onCollectGem?.(collectible.collectible?.value);
+    handlers.onCollectGem?.(collectible.collectible.value ?? 0);
   }
 
   // Trigger collect animation (one-shot, returns to swim)
