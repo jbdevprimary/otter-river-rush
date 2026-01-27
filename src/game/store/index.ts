@@ -50,3 +50,37 @@ export {
   useAchievementStore,
 } from './achievement-store';
 export { useAchievementChecker } from './use-achievement-checker';
+
+// River width store
+export {
+  getCurrentBoundaries,
+  getCurrentLanePositions,
+  getCurrentRiverWidth,
+  type RiverWidthState,
+  type RiverWidthStore,
+  useDynamicLaneX,
+  useRiverWidthStore,
+} from './river-width-store';
+
+// River path store
+export {
+  DEFAULT_CONSTRAINTS,
+  type RiverPathStore,
+  type RiverScalingData,
+  useFlowSpeed,
+  useIsInFork,
+  useOtterScale,
+  useRiverPathStore,
+  useRiverScaling,
+  useRiverWidth,
+  useSlopeType,
+  useWaterfallsInRange,
+  useWhirlpoolsInRange,
+} from './river-path-store';
+
+// Graphics quality store
+export {
+  useGraphicsStore,
+  useQualityLevel,
+  useQualitySettings,
+} from './graphics-store';

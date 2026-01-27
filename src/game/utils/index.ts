@@ -13,3 +13,6 @@ export {
   WORD_POOL,
   type SeededRNG,
 } from './seeded-random';
+
+// Haptic feedback
+export { haptics } from './haptics';

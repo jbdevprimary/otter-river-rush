@@ -28,6 +28,9 @@ export * from './schemas';
 // Seeded Random utilities
 export * from './utils';
 
+// River Path System
+export * from './river';
+
 // Re-export key items from submodules
 // Note: Use granular imports to avoid namespace conflicts
 export { world, spawn, queries, resetWorld } from './ecs';

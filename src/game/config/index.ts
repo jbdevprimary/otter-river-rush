@@ -76,3 +76,25 @@ export {
   type ModelAsset,
   type PBRTexture,
 } from './biome-assets';
+
+// River width configuration
+export {
+  BIOME_RIVER_WIDTHS,
+  RIVER_WIDTH_CHECKPOINTS,
+  calculateLanePositions,
+  calculateRiverBoundaries,
+  calculateTargetWidth,
+  getBiomeRiverWidth,
+  interpolateWidth,
+  seededRandom,
+  type RiverWidthState,
+} from './river-width';
+
+// Graphics quality configuration
+export {
+  detectRecommendedQuality,
+  getQualitySettings,
+  QUALITY_PRESETS,
+  type GraphicsQuality,
+  type QualitySettings,
+} from './graphics-quality';

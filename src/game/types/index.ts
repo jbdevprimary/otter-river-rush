@@ -74,3 +74,28 @@ export type {
   Vector3D,
   VisualEffect,
 } from './game';
+
+// River path types
+export type {
+  BezierControlPoints,
+  BezierControlPoints3D,
+  BranchChoice,
+  DynamicScaling,
+  ElevationShape,
+  ForkInfo,
+  GenerationConstraints,
+  LaneIndex,
+  LaneWorldPosition,
+  PathQueryResult,
+  RiverPathActions,
+  RiverPathPoint,
+  RiverPathState,
+  RiverSegment,
+  RiverSectionType,
+  SectionConfig,
+  SegmentShape,
+  ShapeWeights,
+  SlopeType,
+  Waterfall,
+  Whirlpool,
+} from './river-path';
