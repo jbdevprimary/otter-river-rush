@@ -5,10 +5,7 @@ name: Continuous Integration
 # All deployment workflows depend on this CI workflow passing successfully
 
 on:
-  push:
-    branches: [main, develop]
   pull_request:
-    branches: [main, develop]
   workflow_dispatch:
 
 permissions:
