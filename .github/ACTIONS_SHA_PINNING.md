@@ -27,7 +27,6 @@ Last updated: 2026-01-27
 | actions/upload-artifact | v5.0.0 | `330a01c` | `330a01c490aca151604b8cf639adc76d48f6c5d4` |
 | actions/upload-pages-artifact | v4.0.0 | `7b1f4a7` | `7b1f4a764d45c48632c6b24a0339c27f5614fb0b` |
 | android-actions/setup-android | v3.2.2 | `9fc6c4e` | `9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407` |
-| anthropics/claude-code-action | v1.0.36 | `136c1f5` | `136c1f58ffb54fa28b9552a0a2f351194c11509f` |
 | astral-sh/setup-uv | v7.2.0 | `61cb8a9` | `61cb8a9741eeb8a550a1b8544337180c0fc8476b` |
 | browser-actions/setup-chrome | v2.1.0 | `2dbff04` | `2dbff04819ebbfd5c974947148805a825b8a07fd` |
 | codecov/codecov-action | v5.5.2 | `0561704` | `0561704f0f02c16a585d4c7555e57fa2e44cf909` |

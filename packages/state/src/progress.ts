@@ -1,4 +1,3 @@
-
 import type { GameState, PlayerProgress } from './game-store';
 
 /**

@@ -58,16 +58,16 @@ describe('Progress', () => {
     });
 
     it('should unlock multiple characters if all conditions are met', () => {
-        const progress: PlayerProgress = {
-            totalDistance: 1000,
-            totalCoins: 5000,
-            highScore: 10000,
-            unlockedCharacters: ['rusty'],
-            totalGems: 0,
-            gamesPlayed: 0
-        };
-        const unlocked = checkCharacterUnlocks(progress);
-        expect(unlocked).toEqual(['rusty', 'sterling', 'goldie', 'frost']);
+      const progress: PlayerProgress = {
+        totalDistance: 1000,
+        totalCoins: 5000,
+        highScore: 10000,
+        unlockedCharacters: ['rusty'],
+        totalGems: 0,
+        gamesPlayed: 0,
+      };
+      const unlocked = checkCharacterUnlocks(progress);
+      expect(unlocked).toEqual(['rusty', 'sterling', 'goldie', 'frost']);
     });
   });
 
@@ -93,18 +93,18 @@ describe('Progress', () => {
         combo: 0,
         lives: 3,
         powerUps: {
-            shield: false,
-            speedBoost: 0,
-            multiplier: 1,
-            magnet: 0,
-            ghost: 0,
-            slowMotion: 0,
+          shield: false,
+          speedBoost: 0,
+          multiplier: 1,
+          magnet: 0,
+          ghost: 0,
+          slowMotion: 0,
         },
         soundEnabled: false,
         musicEnabled: false,
         volume: 0,
         selectCharacter: () => {},
-        getSelectedCharacter: () => ({} as any),
+        getSelectedCharacter: () => ({}) as any,
         startGame: () => {},
         pauseGame: () => {},
         resumeGame: () => {},

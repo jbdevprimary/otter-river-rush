@@ -128,26 +128,6 @@ All workflows use **SHA-pinned actions** for security and reproducibility.
 
 ---
 
-### `claude-code.yml` - AI Code Review 🤖
-
-**Purpose:** Automated code review with Claude AI
-
-**Triggers:**
-- `@claude` mentions in comments (interactive mode)
-- Pull request opened/synchronized (automatic review)
-
-**Modes:**
-1. **Interactive** - Responds to @claude mentions
-   - Only trusted users (OWNER, MEMBER, COLLABORATOR)
-   - Can use Bash and GitHub CLI tools
-2. **Automatic** - Reviews all PRs
-   - Provides constructive feedback
-   - Line-specific comments via `gh pr review`
-
-**Requires:** `ANTHROPIC_API_KEY` secret
-
----
-
 ## 🧩 Composite Actions
 
 Reusable actions in `.github/actions/`:
