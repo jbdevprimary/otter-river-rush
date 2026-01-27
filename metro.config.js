@@ -26,13 +26,8 @@ const exclusionList = require('metro-config/src/defaults/exclusionList');
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const rootPath = escapeRegex(projectRoot);
 config.resolver.blockList = exclusionList([
-  // Exclude Vite-based client app
-  new RegExp(`${rootPath}/src/client/.*`),
   // Exclude dev-tools which uses import.meta
   new RegExp(`${rootPath}/src/dev-tools/.*`),
-  // Exclude old monorepo directories
-  new RegExp(`${rootPath}/apps/.*`),
-  new RegExp(`${rootPath}/packages/.*`),
 ]);
 
 // 2. Add support for additional file extensions
