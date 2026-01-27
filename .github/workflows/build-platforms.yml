@@ -65,6 +65,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify build:web script exists
+        run: |
+          node -e "const fs = require('fs'); const path = require('path'); const pkgPath = path.join(process.cwd(), 'package.json'); if (!fs.existsSync(pkgPath)) { console.error('package.json not found at ' + pkgPath); process.exit(1); } const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8')); if (!pkg.scripts || !pkg.scripts['build:web']) { console.error('package.json is missing a \"build:web\" script. Please define it under \"scripts\" before running this workflow.'); process.exit(1); }"
       - name: Build web with Expo
         run: pnpm run build:web
         env:
