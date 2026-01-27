@@ -143,7 +143,7 @@ export function RiverEnvironment({ biome = 'forest' }: RiverEnvironmentProps) {
       {/* Trees along banks */}
       {treePositions.map((pos) => (
         <Tree
-          key={`tree-${pos.x}-${pos.y}-${pos.scale}`}
+          key={`tree-${pos.x}-${pos.y}`}
           position={pos}
           terrainColor={colors.terrain}
         />
