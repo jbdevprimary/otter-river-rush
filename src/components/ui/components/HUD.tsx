@@ -81,7 +81,6 @@ export function HUD() {
   }, [gameStartTime]);
 
   // Track active power-ups
-  const [activePowerUps, setActivePowerUps] = useState<
     Array<{ type: PowerUpType; timeRemaining: number }>
   >([]);
 
