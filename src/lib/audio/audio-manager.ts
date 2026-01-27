@@ -526,9 +526,8 @@ function startGameplayMusic(): void {
     // Playful melody notes (play every beat with some variation)
     if (melodySynth && Math.random() > 0.3) {
       const pattern = melodyPatterns[melodyIndex % melodyPatterns.length];
-      const noteIndex = Math.floor(
-        (Tone.getTransport().position.toString().split(':')[1] as unknown as number) % 4
-      );
+      const noteIndex =
+        parseInt(Tone.getTransport().position.toString().split(':')[1], 10) % 4;
       const note =
         pattern[noteIndex] || melodyNotes[Math.floor(Math.random() * melodyNotes.length)];
       melodySynth.triggerAttackRelease(note, '8n', time, 0.2 * state.musicVolume);
