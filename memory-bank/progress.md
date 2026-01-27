@@ -104,7 +104,7 @@
 7. ✅ Updated tailwind.config.js with brand colors
 8. ✅ Configured Expo splash screen
 9. ✅ Documented landing page spec
-10. ✅ Updated Sphinx docs and development guides for flat Expo setup
+10. ✅ Removed Sphinx scaffolding and refreshed guides for flat Expo setup
 
 ### Files Changed
 - Created: `assets/branding/*`, `assets/ui/*`

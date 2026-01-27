@@ -4,6 +4,9 @@ Welcome to the comprehensive documentation for Otter River Rush, a TypeScript-ba
 
 ## 📚 Documentation Structure
 
+> Note: Documentation in this repository is maintained as Markdown only. We do
+> not publish or build Sphinx/RST artifacts as part of the repo workflow.
+
 ### Architecture & Design
 Foundational documents describing the system architecture and design decisions:
 - [Architecture Overview](./architecture/README.md) - System architecture and technical decisions
