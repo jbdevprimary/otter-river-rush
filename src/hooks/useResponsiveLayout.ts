@@ -52,7 +52,6 @@ export interface ResponsiveLayout {
 }
 
 // Screen size thresholds (in dp/points)
-const _PHONE_MAX_WIDTH = 600;
 const TABLET_MIN_WIDTH = 768;
 const FOLDABLE_THRESHOLD = 840; // Pixel Fold unfolded width
 
