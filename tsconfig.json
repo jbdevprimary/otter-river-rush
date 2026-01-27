@@ -27,7 +27,6 @@
     "dist",
     "src/dev-tools",
     "src/client",
-    "public",
     "scripts",
     "playwright.config.ts"
   ]

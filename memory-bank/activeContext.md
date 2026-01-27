@@ -1,6 +1,6 @@
 # Active Context - Otter River Rush
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-01-27
 **Current Branch**: integration/r3f-mobile-refactor
 **Session Status**: Flat Expo Structure + Brand Integration
 
@@ -29,7 +29,7 @@ otter-river-rush/
 ├── assets/                  # Static assets
 │   ├── branding/            # logo.png, splash.png, portrait.png
 │   └── ui/                  # 9-slice button/panel atlases
-├── public/                  # Web static assets (models, textures)
+├── assets/                  # Bundled assets (models, textures, audio)
 └── memory-bank/             # AI agent context
 ```
 
@@ -145,6 +145,25 @@ Fixed `@expo/metro-config@0.20.18` bug where optional dependency paths were unde
 - Created `patches/@expo+metro-config+0.20.18.patch`
 - Added `postinstall: "patch-package"` to package.json
 - Changed `dependency.absolutePath` → `modulePath` in two locations
+
+### Documentation Updates
+- Removed Sphinx/RST scaffolding from docs (Markdown-only docs in repo).
+- Replaced placeholder installation/quickstart guidance with pnpm + Expo steps.
+
+### Linting & Testing Updates
+- Applied Biome formatting/lint fixes across the codebase and refactored high-complexity sections.
+- Added Jest + ts-jest with a baseline collision unit test and reran lint/typecheck/test suites.
+- Expanded Jest config to cover spec/test patterns and support path aliases.
+- Shifted asset loading to Expo-bundled `assets/` with expo-asset URIs (no `public/`).
+
+### Code Quality Improvements (2026-01-27)
+- Removed unused `riverWidth` and `riverLength` parameters from WaterSurface component
+- Added comprehensive JSDoc comments to glb-loader helper functions
+- Extracted WeakMap entity key generation into reusable `useEntityKeys` hook
+- Made GameHUD life display more maintainable by deriving from MAX_LIVES constant
+- Updated copy-asset.sh script to reference correct asset registry path
+- Implemented fix application logic in diagnostic-qa-workflow.ts
+- Fixed metro.config.js to use `node:` protocol for Node.js built-ins
 
 ---
 

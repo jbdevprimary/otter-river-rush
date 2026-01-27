@@ -4,7 +4,7 @@
  */
 
 import { VISUAL } from '../../config';
-import { world, queries } from '../world';
+import { queries, world } from '../world';
 
 /**
  * Clean up destroyed, collected, and off-screen entities

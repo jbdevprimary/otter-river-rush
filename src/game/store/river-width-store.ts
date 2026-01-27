@@ -6,11 +6,11 @@
 import { create } from 'zustand';
 import {
   BIOME_RIVER_WIDTHS,
-  RIVER_WIDTH_CHECKPOINTS,
-  calculateTargetWidth,
   calculateLanePositions,
   calculateRiverBoundaries,
+  calculateTargetWidth,
   interpolateWidth,
+  RIVER_WIDTH_CHECKPOINTS,
 } from '../config';
 
 /**
@@ -102,7 +102,8 @@ export const useRiverWidthStore = create<RiverWidthStore>((set, get) => ({
     const checkpoint = RIVER_WIDTH_CHECKPOINTS;
 
     // Check if we've reached a new checkpoint
-    const currentCheckpoint = Math.floor(distance / checkpoint.changeInterval) * checkpoint.changeInterval;
+    const currentCheckpoint =
+      Math.floor(distance / checkpoint.changeInterval) * checkpoint.changeInterval;
 
     if (currentCheckpoint > state.lastCheckpointDistance) {
       // Calculate new target width
@@ -127,11 +128,7 @@ export const useRiverWidthStore = create<RiverWidthStore>((set, get) => ({
       const newProgress = Math.min(1, state.transitionProgress + progressIncrement);
 
       // Calculate interpolated width
-      const newWidth = interpolateWidth(
-        state.currentWidth,
-        state.targetWidth,
-        newProgress
-      );
+      const newWidth = interpolateWidth(state.currentWidth, state.targetWidth, newProgress);
 
       // Update lane positions and boundaries
       const newLanePositions = calculateLanePositions(newWidth);

@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useRef } from 'react';
-import { useAchievementStore, checkSessionAchievements } from './achievement-store';
+import { checkSessionAchievements, useAchievementStore } from './achievement-store';
 import { useGameStore } from './game-store';
 
 /**

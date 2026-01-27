@@ -5,15 +5,14 @@
  * Uses NativeWind (Tailwind) for styling with brand colors.
  */
 
-import { useGameStore } from '../../game/store';
-import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useGameStore } from '../../game/store';
+
+// Constants for life display
+const MAX_LIVES = 3;
+const LIFE_INDICES = Array.from({ length: MAX_LIVES }, (_, index) => index);
 
 /**
  * Touch control area for lane movement
@@ -44,10 +43,7 @@ function TouchControls() {
 
   return (
     <GestureDetector gesture={swipeGesture}>
-      <Animated.View
-        style={animatedStyle}
-        className="flex-1 justify-center items-center"
-      >
+      <Animated.View style={animatedStyle} className="flex-1 justify-center items-center">
         <View className="opacity-30">
           <Text className="text-white text-sm">SWIPE TO MOVE</Text>
         </View>
@@ -70,15 +66,11 @@ function StatsDisplay() {
       <View className="flex-row justify-between mb-2">
         <View className="flex-row items-center">
           <Text className="text-slate-400 text-xs mr-2">SCORE</Text>
-          <Text className="text-white text-lg font-bold">
-            {score.toLocaleString()}
-          </Text>
+          <Text className="text-white text-lg font-bold">{score.toLocaleString()}</Text>
         </View>
         <View className="flex-row items-center">
           <Text className="text-slate-400 text-xs mr-2">DISTANCE</Text>
-          <Text className="text-white text-lg font-bold">
-            {Math.floor(distance)}m
-          </Text>
+          <Text className="text-white text-lg font-bold">{Math.floor(distance)}m</Text>
         </View>
       </View>
       <View className="flex-row justify-between">
@@ -87,14 +79,14 @@ function StatsDisplay() {
           <Text className="text-white text-lg font-bold">{coins}</Text>
         </View>
         <View className="flex-row">
-          {Array.from({ length: 3 }).map((_, i) => (
+          {LIFE_INDICES.map((lifeIndex) => (
             <Text
-              key={i}
+              key={`life-${lifeIndex}`}
               className={`text-xl ml-1 ${
-                i < lives ? 'text-brand-danger' : 'text-brand-danger/30'
+                lifeIndex < lives ? 'text-brand-danger' : 'text-brand-danger/30'
               }`}
             >
-              {i < lives ? 'O' : 'X'}
+              {lifeIndex < lives ? 'O' : 'X'}
             </Text>
           ))}
         </View>

@@ -1,13 +1,14 @@
 #!/usr/bin/env node
+
 /**
  * Icon Post-Processor - Resizes and converts generated icons to proper formats
  */
 
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import sharp from 'sharp';
-import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'fs';
-import { join } from 'path';
 
-const PUBLIC_DIR = join(process.cwd(), 'public');
+const ASSETS_DIR = join(process.cwd(), 'assets');
 
 // Image optimization quality settings
 const IMAGE_QUALITY_TIERS = [
@@ -65,8 +66,8 @@ const ICON_TASKS: IconTask[] = [
 ];
 
 async function resizeIcon(task: IconTask): Promise<void> {
-  const sourcePath = join(PUBLIC_DIR, task.source);
-  const outputPath = join(PUBLIC_DIR, task.output);
+  const sourcePath = join(ASSETS_DIR, task.source);
+  const outputPath = join(ASSETS_DIR, task.output);
 
   if (!existsSync(sourcePath)) {
     console.log(`   ⚠️  Source not found: ${task.source}`);
@@ -98,12 +99,12 @@ async function resizeIcon(task: IconTask): Promise<void> {
 async function createFaviconICO(): Promise<void> {
   console.log('\n🎨 Creating favicon.ico...');
 
-  const sizes = [16, 32, 48];
-  const tempFiles: string[] = [];
+  const _sizes = [16, 32, 48];
+  const _tempFiles: string[] = [];
 
   try {
     // Check if we have the favicon source
-    const faviconSource = join(PUBLIC_DIR, 'favicon-temp.png');
+    const faviconSource = join(ASSETS_DIR, 'favicon-temp.png');
     if (!existsSync(faviconSource)) {
       console.log('   ⚠️  favicon-temp.png not found, skipping ICO creation');
       return;
@@ -111,8 +112,8 @@ async function createFaviconICO(): Promise<void> {
 
     // ICO format is complex, so we'll use a simpler approach:
     // Just use the 32x32 PNG as favicon.ico (modern browsers support PNG favicons)
-    const favicon32 = join(PUBLIC_DIR, 'favicon-32.png');
-    const faviconOutput = join(PUBLIC_DIR, 'favicon.ico');
+    const favicon32 = join(ASSETS_DIR, 'favicon-32.png');
+    const faviconOutput = join(ASSETS_DIR, 'favicon.ico');
 
     if (existsSync(favicon32)) {
       // Copy 32x32 as .ico (browsers will accept it)
@@ -121,14 +122,12 @@ async function createFaviconICO(): Promise<void> {
       console.log(`   ✅ favicon.ico created (${Math.round(buffer.length / 1024)}KB)`);
 
       // Clean up temp files
-      ['favicon-16.png', 'favicon-32.png', 'favicon-48.png', 'favicon-temp.png'].forEach(
-        file => {
-          const path = join(PUBLIC_DIR, file);
-          if (existsSync(path)) {
-            unlinkSync(path);
-          }
+      ['favicon-16.png', 'favicon-32.png', 'favicon-48.png', 'favicon-temp.png'].forEach((file) => {
+        const path = join(ASSETS_DIR, file);
+        if (existsSync(path)) {
+          unlinkSync(path);
         }
-      );
+      });
       console.log('   🧹 Cleaned up temporary files');
     }
   } catch (error) {
@@ -180,7 +179,7 @@ async function optimizeExistingImages(): Promise<void> {
   ];
 
   for (const imagePath of imagesToOptimize) {
-    const fullPath = join(PUBLIC_DIR, imagePath);
+    const fullPath = join(ASSETS_DIR, imagePath);
     if (!existsSync(fullPath)) {
       continue;
     }

@@ -5,4 +5,8 @@
  * - AnimatedWaterMaterial: Flowing water with waves, ripples, and fresnel
  */
 
-export { AnimatedWaterMaterial, WaterShaderMaterial, type WaterMaterialProps } from './WaterMaterial';
+export {
+  AnimatedWaterMaterial,
+  type WaterMaterialProps,
+  WaterShaderMaterial,
+} from './WaterMaterial';

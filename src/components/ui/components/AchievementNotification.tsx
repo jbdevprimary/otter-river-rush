@@ -4,17 +4,14 @@
  * Uses NativeWind styling
  */
 
-import { useAchievementStore } from '../../../game/store';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { useAchievementStore } from '../../../game/store';
 
 /**
  * Rarity-based color configurations
  */
-const RARITY_COLORS: Record<
-  string,
-  { bg: string; border: string; text: string }
-> = {
+const RARITY_COLORS: Record<string, { bg: string; border: string; text: string }> = {
   common: {
     bg: 'bg-slate-600/95',
     border: 'border-slate-500',
@@ -126,9 +123,7 @@ function NotificationItem({
           <Text className={`text-[10px] uppercase tracking-wider opacity-80 ${colors.text}`}>
             Achievement Unlocked!
           </Text>
-          <View
-            className={`px-1.5 py-0.5 rounded ${rarityBadgeColors[rarity]}`}
-          >
+          <View className={`px-1.5 py-0.5 rounded ${rarityBadgeColors[rarity]}`}>
             <Text
               className={`text-[9px] uppercase tracking-tight font-bold ${
                 rarity === 'legendary' ? 'text-slate-900' : 'text-white'
@@ -138,10 +133,7 @@ function NotificationItem({
             </Text>
           </View>
         </View>
-        <Text
-          className={`text-base font-bold ${colors.text}`}
-          numberOfLines={1}
-        >
+        <Text className={`text-base font-bold ${colors.text}`} numberOfLines={1}>
           {name}
         </Text>
         <Text className={`text-xs opacity-90 ${colors.text}`} numberOfLines={1}>
@@ -157,12 +149,8 @@ function NotificationItem({
  * Renders all pending achievement notifications
  */
 export function AchievementNotification() {
-  const pendingNotifications = useAchievementStore(
-    (state) => state.pendingNotifications
-  );
-  const dismissNotification = useAchievementStore(
-    (state) => state.dismissNotification
-  );
+  const pendingNotifications = useAchievementStore((state) => state.pendingNotifications);
+  const dismissNotification = useAchievementStore((state) => state.dismissNotification);
 
   if (pendingNotifications.length === 0) {
     return null;

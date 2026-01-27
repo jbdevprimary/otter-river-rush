@@ -23,8 +23,8 @@ export default defineConfig({
     // WebGL-specific settings
     launchOptions: {
       args: [
-        '--use-gl=angle',           // Use ANGLE for consistent WebGL rendering
-        '--use-angle=swiftshader',  // Software rendering for CI headless
+        '--use-gl=angle', // Use ANGLE for consistent WebGL rendering
+        '--use-angle=swiftshader', // Software rendering for CI headless
         '--enable-webgl',
         '--enable-webgl2',
         '--ignore-gpu-blocklist',
@@ -42,9 +42,9 @@ export default defineConfig({
   // Visual testing specific settings for WebGL
   expect: {
     toHaveScreenshot: {
-      maxDiffPixels: 500,        // Higher tolerance for WebGL variance
-      maxDiffPixelRatio: 0.02,   // 2% pixel difference allowed
-      threshold: 0.3,            // Color difference threshold
+      maxDiffPixels: 500, // Higher tolerance for WebGL variance
+      maxDiffPixelRatio: 0.02, // 2% pixel difference allowed
+      threshold: 0.3, // Color difference threshold
       animations: 'disabled',
     },
     toMatchSnapshot: {
@@ -77,11 +77,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         video: 'on',
         launchOptions: {
-          args: [
-            '--use-gl=angle',
-            '--use-angle=swiftshader',
-            '--enable-webgl',
-          ],
+          args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-webgl'],
         },
       },
       testMatch: '**/ai-playthrough.spec.ts',

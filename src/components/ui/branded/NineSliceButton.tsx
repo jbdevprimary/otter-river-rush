@@ -4,14 +4,7 @@
  */
 
 import { useState } from 'react';
-import {
-  Image,
-  ImageSourcePropType,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Image, type ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native';
 
 // Button atlas assets
 const BUTTON_ATLASES = {
@@ -58,10 +51,7 @@ interface NineSliceButtonProps {
   className?: string;
 }
 
-function getStateOffset(
-  variant: ButtonVariant,
-  state: ButtonState
-): { y: number; height: number } {
+function getStateOffset(variant: ButtonVariant, state: ButtonState): { y: number; height: number } {
   const meta = BUTTON_METADATA[variant];
   const stateIndex = meta.states.indexOf(state);
   const y = meta.topPad + stateIndex * (meta.tileSize.h + meta.gap);
@@ -122,11 +112,7 @@ export function NineSliceButton({
 
       {/* Button content */}
       <View style={styles.content}>
-        {typeof children === 'string' ? (
-          <Text style={styles.text}>{children}</Text>
-        ) : (
-          children
-        )}
+        {typeof children === 'string' ? <Text style={styles.text}>{children}</Text> : children}
       </View>
     </Pressable>
   );

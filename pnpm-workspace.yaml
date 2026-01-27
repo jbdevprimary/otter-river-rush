@@ -1,0 +1,4 @@
+# pnpm workspace configuration
+# Even though this is a flat Expo structure (not a monorepo),
+# we can still use pnpm for dependency management
+packages: []

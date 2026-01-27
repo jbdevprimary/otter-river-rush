@@ -1,6 +1,6 @@
 # Tech Context - Otter River Rush
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-01-27
 **Architecture**: Unified Expo (web + iOS + Android)
 
 ---
@@ -61,10 +61,10 @@
 ## Build Configuration
 
 ### Expo Configuration
-- `apps/mobile/app.json` - Expo app config
-- `apps/mobile/eas.json` - EAS Build profiles
-- `apps/mobile/metro.config.js` - Metro + NativeWind config
-- `apps/mobile/tailwind.config.js` - Tailwind theme
+- `app.json` - Expo app config
+- `eas.json` - EAS Build profiles
+- `metro.config.js` - Metro + NativeWind config
+- `tailwind.config.js` - Tailwind theme
 
 ### Key app.json Settings
 ```json
@@ -147,7 +147,7 @@ pnpm --filter @otter-river-rush/content-gen gen:all
 ### Platform-Specific
 - **Web**: Metro bundler with static export
 - **iOS/Android**: Native builds via EAS
-- **Assets**: Served from `apps/mobile/public/` on web
+- **Assets**: Served from `assets/` via Expo asset bundling
 
 ---
 
@@ -231,16 +231,16 @@ EXPO_TOKEN=xxx         # EAS Build token
 ## Asset Pipeline
 
 ### Static Assets
-Located in `apps/mobile/public/`:
+Located in `assets/`:
 ```
-public/
+assets/
 ├── models/          # GLB 3D models
 ├── textures/        # PBR texture sets
 └── audio/           # Sound effects and music
 ```
 
 ### Asset Loading
-- **Web**: HTTP requests to `/models/...`, `/textures/...`
+- **Web**: Bundled via `expo-asset` and resolved to URIs
 - **Native**: Bundled via `expo-asset`
 
 ### Meshy AI Generation

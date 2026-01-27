@@ -13,14 +13,14 @@ export const LEVEL_PATTERNS = [
       { time: 4000, lane: 0, type: 'log' },
       { time: 5000, lane: 2, type: 'rock' },
       { time: 6000, lane: 1, type: 'branch' },
-      { time: 7000, lane: 0, type: 'rock' }
+      { time: 7000, lane: 0, type: 'rock' },
     ],
     recommendedBiome: 'peaceful_stream',
     enemySpawnRules: {
       enabled: false,
       frequency: 0,
-      types: []
-    }
+      types: [],
+    },
   },
 
   {
@@ -45,14 +45,14 @@ export const LEVEL_PATTERNS = [
       { time: 7200, lane: 0, type: 'rock' },
       { time: 7200, lane: 1, type: 'rock' },
       { time: 8400, lane: 1, type: 'rock' },
-      { time: 8400, lane: 2, type: 'rock' }
+      { time: 8400, lane: 2, type: 'rock' },
     ],
     recommendedBiome: 'wild_rapids',
     enemySpawnRules: {
       enabled: true,
       frequency: 3000,
-      types: ['fish_enemy']
-    }
+      types: ['fish_enemy'],
+    },
   },
 
   {
@@ -79,14 +79,14 @@ export const LEVEL_PATTERNS = [
       { time: 9000, lane: 1, type: 'boulder' },
       { time: 9600, lane: 0, type: 'boulder' },
       { time: 10200, lane: 2, type: 'boulder' },
-      { time: 10800, lane: 1, type: 'rock' }
+      { time: 10800, lane: 1, type: 'rock' },
     ],
     recommendedBiome: 'mountain_stream',
     enemySpawnRules: {
       enabled: true,
       frequency: 4000,
-      types: ['bear_enemy', 'hawk_enemy']
-    }
+      types: ['bear_enemy', 'hawk_enemy'],
+    },
   },
 
   {
@@ -98,14 +98,14 @@ export const LEVEL_PATTERNS = [
     obstacles: [
       { time: 1500, lane: 1, type: 'branch' },
       { time: 3000, lane: 0, type: 'log' },
-      { time: 4500, lane: 2, type: 'branch' }
+      { time: 4500, lane: 2, type: 'branch' },
     ],
     recommendedBiome: 'peaceful_stream',
     enemySpawnRules: {
       enabled: true,
       frequency: 8000,
-      types: ['friendly_fish']
-    }
+      types: ['friendly_fish'],
+    },
   },
 
   {
@@ -124,14 +124,14 @@ export const LEVEL_PATTERNS = [
       { time: 3000, lane: 0, type: 'rock' },
       { time: 3000, lane: 1, type: 'rock' },
       { time: 4000, lane: 0, type: 'boulder' },
-      { time: 4000, lane: 1, type: 'boulder' }
+      { time: 4000, lane: 1, type: 'boulder' },
     ],
     recommendedBiome: 'narrow_canyon',
     enemySpawnRules: {
       enabled: true,
       frequency: 2500,
-      types: ['fish_enemy']
-    }
+      types: ['fish_enemy'],
+    },
   },
 
   {
@@ -152,14 +152,14 @@ export const LEVEL_PATTERNS = [
       { time: 6000, lane: 1, type: 'rock' },
       { time: 6750, lane: 2, type: 'rock' },
       { time: 7500, lane: 1, type: 'rock' },
-      { time: 8250, lane: 0, type: 'rock' }
+      { time: 8250, lane: 0, type: 'rock' },
     ],
     recommendedBiome: 'whirlpool_zone',
     enemySpawnRules: {
       enabled: true,
       frequency: 3000,
-      types: ['whirlpool_enemy']
-    }
+      types: ['whirlpool_enemy'],
+    },
   },
 
   {
@@ -182,14 +182,14 @@ export const LEVEL_PATTERNS = [
       { time: 8800, lane: 1, type: 'boulder' },
       { time: 9200, lane: 2, type: 'rock' },
       { time: 10100, lane: 0, type: 'log' },
-      { time: 10300, lane: 1, type: 'branch' }
+      { time: 10300, lane: 1, type: 'branch' },
     ],
     recommendedBiome: 'wild_rapids',
     enemySpawnRules: {
       enabled: true,
       frequency: 2800,
-      types: ['fish_enemy', 'bird_enemy']
-    }
+      types: ['fish_enemy', 'bird_enemy'],
+    },
   },
 
   {
@@ -218,14 +218,14 @@ export const LEVEL_PATTERNS = [
       { time: 6400, lane: 0, type: 'rock' },
       { time: 6800, lane: 2, type: 'rock' },
       { time: 7200, lane: 1, type: 'rock' },
-      { time: 7600, lane: 0, type: 'rock' }
+      { time: 7600, lane: 0, type: 'rock' },
     ],
     recommendedBiome: 'extreme_rapids',
     enemySpawnRules: {
       enabled: true,
       frequency: 2000,
-      types: ['speed_fish']
-    }
+      types: ['speed_fish'],
+    },
   },
 
   {
@@ -247,14 +247,14 @@ export const LEVEL_PATTERNS = [
       { time: 7200, lane: 1, type: 'log' },
       { time: 8000, lane: 2, type: 'boulder' },
       { time: 8800, lane: 1, type: 'rock' },
-      { time: 9600, lane: 0, type: 'log' }
+      { time: 9600, lane: 0, type: 'log' },
     ],
     recommendedBiome: 'forest_stream',
     enemySpawnRules: {
       enabled: true,
       frequency: 4000,
-      types: ['forest_critter']
-    }
+      types: ['forest_critter'],
+    },
   },
 
   {
@@ -273,14 +273,14 @@ export const LEVEL_PATTERNS = [
       { time: 3600, lane: 1, type: 'rock' },
       { time: 3600, lane: 2, type: 'rock' },
       { time: 4800, lane: 1, type: 'boulder' },
-      { time: 4800, lane: 2, type: 'boulder' }
+      { time: 4800, lane: 2, type: 'boulder' },
     ],
     recommendedBiome: 'narrow_canyon',
     enemySpawnRules: {
       enabled: true,
       frequency: 3000,
-      types: ['canyon_bat']
-    }
+      types: ['canyon_bat'],
+    },
   },
 
   {
@@ -305,14 +305,14 @@ export const LEVEL_PATTERNS = [
       { time: 8000, lane: 1, type: 'rock' },
       { time: 8500, lane: 0, type: 'rock' },
       { time: 9000, lane: 1, type: 'rock' },
-      { time: 9500, lane: 2, type: 'rock' }
+      { time: 9500, lane: 2, type: 'rock' },
     ],
     recommendedBiome: 'whirlpool_zone',
     enemySpawnRules: {
       enabled: true,
       frequency: 2500,
-      types: ['whirlpool_enemy', 'dizzy_fish']
-    }
+      types: ['whirlpool_enemy', 'dizzy_fish'],
+    },
   },
 
   {
@@ -334,14 +334,14 @@ export const LEVEL_PATTERNS = [
       { time: 8700, lane: 1, type: 'branch' },
       { time: 9800, lane: 0, type: 'rock' },
       { time: 10200, lane: 2, type: 'log' },
-      { time: 11400, lane: 1, type: 'rock' }
+      { time: 11400, lane: 1, type: 'rock' },
     ],
     recommendedBiome: 'wild_rapids',
     enemySpawnRules: {
       enabled: true,
       frequency: 3500,
-      types: ['random_fish', 'surprise_enemy']
-    }
+      types: ['random_fish', 'surprise_enemy'],
+    },
   },
 
   {
@@ -370,14 +370,14 @@ export const LEVEL_PATTERNS = [
       { time: 4800, lane: 1, type: 'rock' },
       { time: 5100, lane: 2, type: 'rock' },
       { time: 5400, lane: 0, type: 'boulder' },
-      { time: 5700, lane: 1, type: 'rock' }
+      { time: 5700, lane: 1, type: 'rock' },
     ],
     recommendedBiome: 'extreme_rapids',
     enemySpawnRules: {
       enabled: true,
       frequency: 1500,
-      types: ['lightning_eel', 'storm_bird']
-    }
+      types: ['lightning_eel', 'storm_bird'],
+    },
   },
 
   {
@@ -400,14 +400,14 @@ export const LEVEL_PATTERNS = [
       { time: 5600, lane: 0, type: 'rock' },
       { time: 5600, lane: 2, type: 'rock' },
       { time: 6800, lane: 0, type: 'boulder' },
-      { time: 6800, lane: 2, type: 'boulder' }
+      { time: 6800, lane: 2, type: 'boulder' },
     ],
     recommendedBiome: 'mountain_stream',
     enemySpawnRules: {
       enabled: true,
       frequency: 4000,
-      types: ['mountain_eagle']
-    }
+      types: ['mountain_eagle'],
+    },
   },
 
   {
@@ -419,15 +419,15 @@ export const LEVEL_PATTERNS = [
     obstacles: [
       { time: 2000, lane: 0, type: 'branch' },
       { time: 5000, lane: 2, type: 'log' },
-      { time: 8000, lane: 1, type: 'branch' }
+      { time: 8000, lane: 1, type: 'branch' },
     ],
     recommendedBiome: 'peaceful_stream',
     enemySpawnRules: {
       enabled: true,
       frequency: 12000,
-      types: ['friendly_fish', 'butterfly']
-    }
-  }
+      types: ['friendly_fish', 'butterfly'],
+    },
+  },
 ];
 
-export type ObstaclePattern = typeof LEVEL_PATTERNS[0];
+export type ObstaclePattern = (typeof LEVEL_PATTERNS)[0];

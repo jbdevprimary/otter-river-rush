@@ -1,6 +1,6 @@
 # Progress - Otter River Rush
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-01-27
 **Current Version**: Flat Expo + Brand Integration
 **Architecture**: Standard Expo app (NOT monorepo)
 
@@ -66,6 +66,12 @@
 - **Leaderboard.tsx**: High scores
 - **CharacterSelectScreen**: 3D carousel
 
+### ✅ Test Infrastructure (2026-01-27)
+- **Jest config**: Added alias-aware matching and spec/test pattern support.
+
+### ✅ Asset Bundling (2026-01-27)
+- **Assets**: Consolidated runtime assets under `assets/` and resolved via `expo-asset`.
+
 ---
 
 ## What's Left to Build
@@ -92,7 +98,7 @@
 
 ---
 
-## Current Session (2026-01-26)
+## Current Session (2026-01-27)
 
 ### Completed
 1. ✅ Flattened monorepo to standard Expo
@@ -104,6 +110,18 @@
 7. ✅ Updated tailwind.config.js with brand colors
 8. ✅ Configured Expo splash screen
 9. ✅ Documented landing page spec
+10. ✅ Removed Sphinx scaffolding and refreshed guides for flat Expo setup
+11. ✅ Ran Biome auto-fixes and added Jest coverage for collision utilities
+12. ✅ Expanded Jest config to support alias mapping and spec/test patterns
+13. ✅ Consolidated runtime assets under `assets/` with expo-asset resolution
+14. ✅ Addressed all PR review feedback:
+    - Removed unused WaterSurface parameters
+    - Added JSDoc to glb-loader helper functions
+    - Extracted entity key generation into useEntityKeys hook
+    - Made GameHUD life display derive from MAX_LIVES
+    - Fixed asset registry path references in scripts
+    - Filled in TODO in diagnostic workflow
+    - Applied linter fixes and formatting
 
 ### Files Changed
 - Created: `assets/branding/*`, `assets/ui/*`
@@ -111,7 +129,13 @@
 - Created: `patches/@expo+metro-config+0.20.18.patch`
 - Created: `docs/LANDING_PAGE_SPEC.md`
 - Modified: `app.json`, `tailwind.config.js`, `package.json`
-- Modified: `metro.config.js`, `tokens.ts`
+- Modified: `jest.config.ts`, `metro.config.js`, `tokens.ts`
+- Modified: asset pipeline scripts and documentation to remove `public/`
+- Modified: `src/components/game/GameCanvas.tsx`, `src/components/game/GameHUD.tsx`
+- Modified: `src/components/r3f/components/WaterSurface.tsx`, `src/components/r3f/loaders/glb-loader.ts`
+- Modified: `src/components/r3f/components/EntityRenderer.tsx`
+- Modified: `src/dev-tools/src/workflows/diagnostic-qa-workflow.ts`
+- Modified: `scripts/copy-asset.sh`
 - Deleted: `apps/`, `packages/`, `src/client/`
 
 ---

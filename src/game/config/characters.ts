@@ -7,9 +7,7 @@
  * - Special abilities
  */
 
-// For Metro web, assets are served from public/ at root
-// On native, will be overridden by AssetBridge
-const BASE_URL = '';
+import { resolveAssetUrl } from '@/game/assets';
 
 export interface OtterCharacter {
   id: string;
@@ -57,8 +55,8 @@ export const OTTER_CHARACTERS: OtterCharacter[] = [
     description:
       'A cheerful brown otter who loves splashing through rivers. Reliable and steady, Rusty is perfect for beginners.',
     personality: 'Friendly, determined, always optimistic',
-    modelPath: `${BASE_URL}/models/player/otter-player/model.glb`,
-    thumbnailPath: `${BASE_URL}/models/player/otter-player/thumbnail.png`,
+    modelPath: resolveAssetUrl({ path: 'models/player/otter-player/model.glb' }),
+    thumbnailPath: resolveAssetUrl({ path: 'models/player/otter-player/thumbnail.png' }),
 
     theme: {
       primaryColor: '#8B4513', // Saddle brown
@@ -88,8 +86,8 @@ export const OTTER_CHARACTERS: OtterCharacter[] = [
     description:
       'A sleek silver otter who moves like moonlight on water. Quick reflexes make dodging a breeze.',
     personality: 'Wise, calm, mysterious night owl',
-    modelPath: `${BASE_URL}/models/player/otter-silver/model.glb`,
-    thumbnailPath: `${BASE_URL}/models/player/otter-silver/thumbnail.png`,
+    modelPath: resolveAssetUrl({ path: 'models/player/otter-silver/model.glb' }),
+    thumbnailPath: resolveAssetUrl({ path: 'models/player/otter-silver/thumbnail.png' }),
 
     theme: {
       primaryColor: '#708090', // Slate gray
@@ -121,8 +119,8 @@ export const OTTER_CHARACTERS: OtterCharacter[] = [
     description:
       'A magnificent golden otter with a nose for treasure. Everything Goldie touches turns to riches!',
     personality: 'Regal, lucky, loves shiny things',
-    modelPath: `${BASE_URL}/models/player/otter-golden/model.glb`,
-    thumbnailPath: `${BASE_URL}/models/player/otter-golden/thumbnail.png`,
+    modelPath: resolveAssetUrl({ path: 'models/player/otter-golden/model.glb' }),
+    thumbnailPath: resolveAssetUrl({ path: 'models/player/otter-golden/thumbnail.png' }),
 
     theme: {
       primaryColor: '#DAA520', // Goldenrod
@@ -154,8 +152,8 @@ export const OTTER_CHARACTERS: OtterCharacter[] = [
     description:
       'A fluffy white otter from the frozen north. Frost thrives on speed and challenge!',
     personality: 'Playful, adventurous, loves a challenge',
-    modelPath: `${BASE_URL}/models/player/otter-arctic/model.glb`,
-    thumbnailPath: `${BASE_URL}/models/player/otter-arctic/thumbnail.png`,
+    modelPath: resolveAssetUrl({ path: 'models/player/otter-arctic/model.glb' }),
+    thumbnailPath: resolveAssetUrl({ path: 'models/player/otter-arctic/thumbnail.png' }),
 
     theme: {
       primaryColor: '#F0F8FF', // Alice blue

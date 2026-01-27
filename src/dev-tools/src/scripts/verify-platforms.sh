@@ -53,7 +53,7 @@ echo ""
 # Web
 echo "🌐 Web Platform:"
 check_dir "dist"
-check_dir "public"
+check_dir "assets"
 if [ -f "dist/index.html" ]; then
     echo -e "${GREEN}✓${NC} Production build exists"
 else

@@ -4,9 +4,9 @@
  * Uses NativeWind styling
  */
 
-import { useGameStore } from '../../../game/store';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
+import { useGameStore } from '../../../game/store';
 
 /**
  * Distance milestones to celebrate (in meters)
@@ -144,10 +144,7 @@ export function MilestoneNotification() {
     const currentDistance = Math.floor(distance);
 
     for (const milestone of MILESTONES) {
-      if (
-        currentDistance >= milestone &&
-        !shownMilestonesRef.current.has(milestone)
-      ) {
+      if (currentDistance >= milestone && !shownMilestonesRef.current.has(milestone)) {
         // Mark as shown and trigger notification
         shownMilestonesRef.current.add(milestone);
         setActiveMilestone(milestone);
@@ -168,11 +165,7 @@ export function MilestoneNotification() {
 
   return (
     <View className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[400] pointer-events-none flex-col items-center gap-2">
-      <MilestoneItem
-        key={activeMilestone}
-        distance={activeMilestone}
-        onDismiss={handleDismiss}
-      />
+      <MilestoneItem key={activeMilestone} distance={activeMilestone} onDismiss={handleDismiss} />
     </View>
   );
 }

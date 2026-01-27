@@ -3,10 +3,10 @@
  * Main menu and game over screens using NativeWind styling
  */
 
-import { addScore, isHighScore, useGameStore } from '../../../game/store';
-import type { GameMode } from '../../../game/types';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
+import { addScore, isHighScore, useGameStore } from '../../../game/store';
+import type { GameMode } from '../../../game/types';
 import { Leaderboard } from './Leaderboard';
 import { Settings } from './Settings';
 
@@ -73,13 +73,8 @@ function MainMenu() {
         <Text className="text-white text-5xl font-bold text-center leading-tight mb-5">
           {'OTTER\nRIVER\nRUSH'}
         </Text>
-        <Text className="text-brand-primary text-lg mb-5">
-          A 3-lane river adventure!
-        </Text>
-        <Text
-          className="text-lg mb-5"
-          style={{ color: selectedChar.theme.accentColor }}
-        >
+        <Text className="text-brand-primary text-lg mb-5">A 3-lane river adventure!</Text>
+        <Text className="text-lg mb-5" style={{ color: selectedChar.theme.accentColor }}>
           Playing as: {selectedChar.name}
         </Text>
 
@@ -93,17 +88,13 @@ function MainMenu() {
               className={getModeButtonClasses('classic')}
               onPress={() => setSelectedMode('classic')}
             >
-              <Text className={getModeButtonTextClasses('classic')}>
-                CLASSIC
-              </Text>
+              <Text className={getModeButtonTextClasses('classic')}>CLASSIC</Text>
             </Pressable>
             <Pressable
               className={getModeButtonClasses('time_trial')}
               onPress={() => setSelectedMode('time_trial')}
             >
-              <Text className={getModeButtonTextClasses('time_trial')}>
-                TIME TRIAL
-              </Text>
+              <Text className={getModeButtonTextClasses('time_trial')}>TIME TRIAL</Text>
             </Pressable>
             <Pressable
               className={getModeButtonClasses('zen')}
@@ -125,27 +116,21 @@ function MainMenu() {
           className="w-full max-w-[280px] h-[60px] bg-brand-primary rounded-xl items-center justify-center mt-4 active:bg-blue-400 active:scale-105"
           onPress={handlePlay}
         >
-          <Text className="text-white text-2xl font-bold font-mono">
-            PLAY GAME
-          </Text>
+          <Text className="text-white text-2xl font-bold font-mono">PLAY GAME</Text>
         </Pressable>
 
         <Pressable
           className="w-full max-w-[280px] h-[60px] bg-indigo-500 rounded-xl items-center justify-center mt-4 active:bg-indigo-400 active:scale-105"
           onPress={handleSelectOtter}
         >
-          <Text className="text-white text-2xl font-bold font-mono">
-            SELECT OTTER
-          </Text>
+          <Text className="text-white text-2xl font-bold font-mono">SELECT OTTER</Text>
         </Pressable>
 
         <Pressable
           className="w-full max-w-[280px] h-[60px] bg-slate-700 border-2 border-slate-600 rounded-xl items-center justify-center mt-4 active:bg-slate-600 active:scale-105"
           onPress={handleOpenSettings}
         >
-          <Text className="text-white text-2xl font-bold font-mono">
-            SETTINGS
-          </Text>
+          <Text className="text-white text-2xl font-bold font-mono">SETTINGS</Text>
         </Pressable>
 
         <Text className="text-slate-400 text-base text-center mt-8 leading-6">
@@ -196,13 +181,9 @@ function GameOverMenu({ finalScore }: GameOverMenuProps) {
         className="w-[90%] max-w-[400px] max-h-[90vh] p-5"
         contentContainerStyle={{ alignItems: 'center' }}
       >
-        <Text className="text-brand-danger text-5xl font-bold mb-5">
-          GAME OVER
-        </Text>
+        <Text className="text-brand-danger text-5xl font-bold mb-5">GAME OVER</Text>
         <Text className="text-slate-400 text-xl mt-5">FINAL SCORE</Text>
-        <Text className="text-brand-gold text-6xl font-bold mb-8">
-          {finalScore}
-        </Text>
+        <Text className="text-brand-gold text-6xl font-bold mb-8">{finalScore}</Text>
 
         {highlightRank !== null && (
           <Text className="text-brand-success text-lg font-bold mb-2.5">
@@ -214,18 +195,14 @@ function GameOverMenu({ finalScore }: GameOverMenuProps) {
           className="w-full max-w-[280px] h-[60px] bg-brand-primary rounded-xl items-center justify-center mt-4 active:bg-blue-400 active:scale-105"
           onPress={handlePlayAgain}
         >
-          <Text className="text-white text-2xl font-bold font-mono">
-            PLAY AGAIN
-          </Text>
+          <Text className="text-white text-2xl font-bold font-mono">PLAY AGAIN</Text>
         </Pressable>
 
         <Pressable
           className="w-full max-w-[280px] h-[60px] bg-slate-600 rounded-xl items-center justify-center mt-4 active:bg-slate-500 active:scale-105"
           onPress={handleMainMenu}
         >
-          <Text className="text-white text-2xl font-bold font-mono">
-            MAIN MENU
-          </Text>
+          <Text className="text-white text-2xl font-bold font-mono">MAIN MENU</Text>
         </Pressable>
 
         {/* Leaderboard Display */}

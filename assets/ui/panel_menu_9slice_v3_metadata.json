@@ -4,16 +4,10 @@
     "w": 1024,
     "h": 512
   },
-  "states": [
-    "idle",
-    "disabled"
-  ],
+  "states": ["idle", "disabled"],
   "atlas": {
     "path": "/mnt/data/otter_ui_kit_v3/panel_menu_9slice_v3_ATLAS_1024x1248.png",
-    "tile_order": [
-      "idle",
-      "disabled"
-    ],
+    "tile_order": ["idle", "disabled"],
     "top_pad": 64,
     "gap": 96,
     "atlas_w": 1024,

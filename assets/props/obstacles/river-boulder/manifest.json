@@ -3,7 +3,7 @@
   "name": "River Boulder",
   "type": "prop",
   "description": "A large smooth river rock - must swim around, cannot jump over",
-  "price": 0.00,
+  "price": 0.0,
   "rarity": "common",
 
   "gameplay": {

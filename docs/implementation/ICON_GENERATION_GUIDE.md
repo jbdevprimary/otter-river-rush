@@ -21,7 +21,7 @@ The game uses custom AI-generated icons to create a unique brand identity, repla
 npm run generate-ui-icons
 ```
 
-This creates high-resolution (1024x1024) PNG icons in `public/icons/`:
+This creates high-resolution (1024x1024) PNG icons in `assets/icons/`:
 
 **Game Mode Icons:**
 - `mode-rapid-rush.png` - Replaces 🏃

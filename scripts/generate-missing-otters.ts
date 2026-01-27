@@ -1,4 +1,5 @@
 #!/usr/bin/env npx tsx
+
 /**
  * Generate Missing Otter Character 3D Models
  *
@@ -8,8 +9,8 @@
  * Usage: npx tsx scripts/generate-missing-otters.ts
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import * as dotenv from 'dotenv';
 
 // Load environment variables
@@ -20,9 +21,20 @@ const BASE_URL = 'https://api.meshy.ai/openapi/v2';
 
 // Characters to generate (skip golden, silver, glacier as they map to existing)
 const CHARACTERS_TO_GENERATE = [
-  'aurora', 'cascade', 'coral', 'crystal', 'galaxy',
-  'jade', 'mecha', 'phoenix', 'ripple', 'river',
-  'shadow', 'splash', 'storm', 'torrent'
+  'aurora',
+  'cascade',
+  'coral',
+  'crystal',
+  'galaxy',
+  'jade',
+  'mecha',
+  'phoenix',
+  'ripple',
+  'river',
+  'shadow',
+  'splash',
+  'storm',
+  'torrent',
 ];
 
 // Paths
@@ -79,22 +91,24 @@ async function meshyRequest<T>(
       const response = await fetch(`${BASE_URL}${endpoint}`, {
         ...options,
         headers: {
-          'Authorization': `Bearer ${MESHY_API_KEY}`,
+          Authorization: `Bearer ${MESHY_API_KEY}`,
           'Content-Type': 'application/json',
           ...options.headers,
         },
       });
 
       if (response.ok) {
-        return await response.json() as T;
+        return (await response.json()) as T;
       }
 
       const errorText = await response.text();
 
       // Handle rate limits and server errors with retry
       if (response.status === 429 || response.status >= 500) {
-        const delayMs = Math.min(1000 * Math.pow(2, attempt), 60000);
-        console.log(`  Rate limited or server error (${response.status}), waiting ${delayMs / 1000}s...`);
+        const delayMs = Math.min(1000 * 2 ** attempt, 60000);
+        console.log(
+          `  Rate limited or server error (${response.status}), waiting ${delayMs / 1000}s...`
+        );
         await sleep(delayMs);
         continue;
       }
@@ -103,7 +117,7 @@ async function meshyRequest<T>(
     } catch (error) {
       if (attempt === maxRetries - 1) throw error;
 
-      const retryDelayMs = Math.min(1000 * Math.pow(2, attempt), 60000);
+      const retryDelayMs = Math.min(1000 * 2 ** attempt, 60000);
       console.log(`  Request failed, retrying in ${retryDelayMs / 1000}s...`);
       await sleep(retryDelayMs);
     }
@@ -164,7 +178,7 @@ async function pollTask(taskId: string, maxRetries = 120, intervalMs = 5000): Pr
     await sleep(intervalMs);
   }
 
-  throw new Error(`Task ${taskId} timed out after ${maxRetries * intervalMs / 1000}s`);
+  throw new Error(`Task ${taskId} timed out after ${(maxRetries * intervalMs) / 1000}s`);
 }
 
 /**
@@ -192,7 +206,7 @@ async function downloadFile(url: string, outputPath: string): Promise<void> {
  * Sleep utility
  */
 function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -221,10 +235,16 @@ function hasExistingModel(characterName: string): boolean {
  * Update the models manifest with new assets
  */
 function updateManifest(results: GenerationResult[]): void {
-  let manifest: any = { version: '1.0.0', generatedAt: Date.now(), assets: { otter: [] } };
+  const defaultManifest: OtterManifest = {
+    version: '1.0.0',
+    generatedAt: Date.now(),
+    assets: { otter: [] },
+  };
+  let manifest = defaultManifest;
 
   if (fs.existsSync(MANIFEST_PATH)) {
-    manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf-8'));
+    const parsed = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf-8')) as Partial<OtterManifest>;
+    manifest = normalizeManifest(parsed, defaultManifest);
   }
 
   // Add new otter entries
@@ -251,6 +271,33 @@ function updateManifest(results: GenerationResult[]): void {
   console.log(`\nUpdated manifest at ${MANIFEST_PATH}`);
 }
 
+interface OtterManifestEntry {
+  id: string;
+  prompt: string;
+  taskId?: string;
+  status: 'PENDING' | 'IN_PROGRESS' | 'SUCCEEDED' | 'FAILED';
+  files: { glb: string };
+  generatedAt: number;
+}
+
+interface OtterManifest {
+  version: string;
+  generatedAt: number;
+  assets: {
+    otter: OtterManifestEntry[];
+  };
+}
+
+function normalizeManifest(parsed: Partial<OtterManifest>, fallback: OtterManifest): OtterManifest {
+  return {
+    version: parsed.version ?? fallback.version,
+    generatedAt: parsed.generatedAt ?? fallback.generatedAt,
+    assets: {
+      otter: Array.isArray(parsed.assets?.otter) ? parsed.assets.otter : [],
+    },
+  };
+}
+
 /**
  * Generate a single character model
  */
@@ -261,7 +308,11 @@ async function generateCharacter(characterName: string): Promise<GenerationResul
     // Check if already exists
     if (hasExistingModel(characterName)) {
       console.log(`  Model already exists, skipping`);
-      return { character: characterName, success: true, glbPath: path.join(MODELS_OUTPUT_DIR, `otter-${characterName}`, 'model.glb') };
+      return {
+        character: characterName,
+        success: true,
+        glbPath: path.join(MODELS_OUTPUT_DIR, `otter-${characterName}`, 'model.glb'),
+      };
     }
 
     // Read manifest
@@ -308,9 +359,8 @@ async function generateCharacter(characterName: string): Promise<GenerationResul
       character: characterName,
       success: true,
       taskId,
-      glbPath: outputPath
+      glbPath: outputPath,
     };
-
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`  FAILED: ${errorMessage}`);
@@ -351,8 +401,8 @@ async function main() {
   console.log('                  SUMMARY');
   console.log('=================================================');
 
-  const successful = results.filter(r => r.success);
-  const failed = results.filter(r => !r.success);
+  const successful = results.filter((r) => r.success);
+  const failed = results.filter((r) => !r.success);
 
   console.log(`\nSuccessful: ${successful.length}/${results.length}`);
   for (const r of successful) {
@@ -367,7 +417,7 @@ async function main() {
   }
 
   // Update manifest with successful generations
-  const newGenerations = successful.filter(r => r.taskId);
+  const newGenerations = successful.filter((r) => r.taskId);
   if (newGenerations.length > 0) {
     updateManifest(newGenerations);
   }

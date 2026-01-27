@@ -9,13 +9,13 @@
  * - Responsive layout handling
  */
 
-import type { OtterCharacter } from '../../game/config';
 import { Canvas } from '@react-three/fiber';
 import { Suspense, useCallback, useEffect } from 'react';
 import * as THREE from 'three';
-import { useCarouselRotation } from './useCarouselRotation';
+import type { OtterCharacter } from '../../game/config';
 import { CarouselAnimationController } from './CarouselAnimationController';
 import { CarouselStage } from './CarouselStage';
+import { useCarouselRotation } from './useCarouselRotation';
 
 export interface CharacterCarousel3DProps {
   /** Array of all otter characters */

@@ -1,13 +1,13 @@
 # Asset Management - Otter River Rush
 
-**Last Updated**: 2026-01-26
-**Status**: Assets currently in `apps/mobile/public/` - NEEDS MIGRATION to `~/assets`
+**Last Updated**: 2026-01-27
+**Status**: Assets live in `assets/` and are tracked with Git LFS (source libraries optional in `~/assets`)
 
 ---
 
 ## Table of Contents
 
-- [Current Problem](#current-problem)
+- [Current Setup](#current-setup)
 - [Available Assets in ~/assets](#available-assets-in-assets)
 - [Required Assets for Game](#required-assets-for-game)
 - [Asset Sources](#asset-sources)
@@ -15,28 +15,26 @@
 
 ---
 
-## Current Problem
+## Current Setup
 
-### Current (WRONG) Setup
-Assets are copied into `apps/mobile/public/`:
+### Bundled Assets
+Assets are bundled in `assets/` for Expo:
 ```
-apps/mobile/public/
+assets/
 ├── models/          # GLB files (duplicated)
 ├── textures/        # PBR textures (duplicated)
 └── audio/           # Sound effects (duplicated)
 ```
 
-### Why This Is Wrong
-1. **Duplication**: Assets stored in two places (git repo + `~/assets`)
-2. **Git bloat**: Binary assets bloating repository size
-3. **Out of sync**: Local copies may be outdated vs `~/assets` library
-4. **Not using library**: Defeats purpose of centralized `~/assets` collection
+### Why This Matters
+1. **Git LFS required**: Binary assets stay manageable when tracked via LFS.
+2. **Single source of truth**: `assets/` is the runtime source for Expo builds.
+3. **Optional source library**: `~/assets` remains a local upstream for sourcing or regeneration.
 
-### Correct Approach
-- **Source**: All assets from `~/assets` library
-- **Generate**: Missing assets via Meshy AI
-- **Build time**: Symlink or copy assets during build
-- **Runtime**: Load assets from appropriate paths
+### Recommended Workflow
+- **Source**: Pull from `~/assets` as needed for new content.
+- **Generate**: Create missing assets via Meshy AI.
+- **Commit**: Store runtime assets in `assets/` under LFS tracking.
 
 ---
 
@@ -240,12 +238,12 @@ For audio (music, adaptive sounds):
 
 ### Step 1: Audit Current Assets
 ```bash
-# List what's currently in public/
-tree apps/mobile/public/
+# List what's currently in assets/
+tree assets/
 ```
 
 ### Step 2: Map to ~/assets Sources
-For each asset in `public/`, determine:
+For each asset in `assets/`, determine:
 - Is it in `~/assets`? → Use that
 - Can it be generated? → Use Meshy
 - Is it procedural? → Generate at runtime
@@ -269,8 +267,8 @@ const texture = useTexture(
 
 **Option A: Symlink** (Development)
 ```bash
-# Link ~/assets into public/ during dev
-ln -s ~/assets apps/mobile/public/assets
+# Link ~/assets into assets/ during dev
+ln -s ~/assets assets/assets
 ```
 
 **Option B: Copy** (Production Build)
@@ -293,10 +291,10 @@ export function resolveAsset(path: string): string {
 
 ### Step 5: Remove Duplicates
 ```bash
-# After migration, remove public/ copies
-rm -rf apps/mobile/public/models
-rm -rf apps/mobile/public/textures
-rm -rf apps/mobile/public/audio
+# After migration, remove assets/ copies
+rm -rf assets/models
+rm -rf assets/textures
+rm -rf assets/audio
 ```
 
 ### Step 6: Update Documentation
@@ -308,7 +306,7 @@ rm -rf apps/mobile/public/audio
 
 ## Asset Inventory
 
-### Current Status (apps/mobile/public/)
+### Current Status (assets/)
 
 **Models**:
 - [ ] Player: otter-player/model.glb

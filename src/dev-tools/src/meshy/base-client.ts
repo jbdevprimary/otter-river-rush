@@ -1,15 +1,15 @@
 /**
  * Meshy Base Client
- * 
+ *
  * Shared authentication, rate limiting, error handling, and retries.
  * All Meshy APIs extend this base class.
- * 
+ *
  * Per Meshy API docs:
  * - Rate Limits: https://docs.meshy.ai/en/api/rate-limits
  * - Error Codes: https://docs.meshy.ai/en/api/errors
  */
 
-import fetch, { RequestInit, Response } from 'node-fetch';
+import fetch, { type RequestInit, type Response } from 'node-fetch';
 
 /**
  * Meshy rate limits per tier
@@ -36,7 +36,7 @@ export class MeshyError extends Error {
   constructor(
     message: string,
     public statusCode: number,
-    public responseBody?: any
+    public responseBody?: unknown
   ) {
     super(message);
     this.name = 'MeshyError';
@@ -44,7 +44,7 @@ export class MeshyError extends Error {
 }
 
 export class MeshyRateLimitError extends MeshyError {
-  constructor(message: string, responseBody?: any) {
+  constructor(message: string, responseBody?: unknown) {
     super(message, 429, responseBody);
     this.name = 'MeshyRateLimitError';
   }
@@ -89,11 +89,11 @@ export abstract class MeshyBaseClient {
   protected apiKey: string;
   protected baseUrl: string;
   protected retryConfig: RetryConfig;
-  
+
   // Rate limiting
   private requestTimes: number[] = [];
   private readonly rateLimitWindow = 1000; // 1 second
-  
+
   constructor(
     apiKey: string,
     baseUrl: string = 'https://api.meshy.ai/openapi/v2',
@@ -102,93 +102,96 @@ export abstract class MeshyBaseClient {
     if (!apiKey) {
       throw new Error('Meshy API key is required');
     }
-    
+
     this.apiKey = apiKey;
     this.baseUrl = baseUrl;
     this.retryConfig = { ...DEFAULT_RETRY_CONFIG, ...retryConfig };
   }
-  
+
   /**
    * Make authenticated request with retry logic
    */
-  protected async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+  protected async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     // Rate limiting check
     await this.checkRateLimit();
-    
+
     const url = `${this.baseUrl}${endpoint}`;
     const headers = {
-      'Authorization': `Bearer ${this.apiKey}`,
+      Authorization: `Bearer ${this.apiKey}`,
       'Content-Type': 'application/json',
       ...options.headers,
     };
-    
+
     let lastError: Error | null = null;
-    
+
     for (let attempt = 0; attempt <= this.retryConfig.maxRetries; attempt++) {
       try {
         const response = await fetch(url, {
           ...options,
           headers,
         });
-        
+
         // Handle errors
         if (!response.ok) {
           await this.handleErrorResponse(response, attempt);
         }
-        
+
         // Success - record request time for rate limiting
         this.requestTimes.push(Date.now());
-        
-        return await response.json() as T;
+
+        return (await response.json()) as T;
       } catch (error) {
         lastError = error as Error;
-        
+
         // Check if we should retry
         if (attempt < this.retryConfig.maxRetries) {
           const delay = this.calculateBackoff(attempt);
-          console.warn(`Retry attempt ${attempt + 1}/${this.retryConfig.maxRetries} after ${delay}ms`);
+          console.warn(
+            `Retry attempt ${attempt + 1}/${this.retryConfig.maxRetries} after ${delay}ms`
+          );
           await this.sleep(delay);
         }
       }
     }
-    
+
     throw lastError || new Error('Request failed after retries');
   }
-  
+
   /**
    * Handle error responses per Meshy docs
    */
   private async handleErrorResponse(response: Response, attempt: number): Promise<never> {
     const body = await response.text();
-    let errorData: any;
-    
+    let errorData: Record<string, unknown>;
+
     try {
-      errorData = JSON.parse(body);
+      errorData = JSON.parse(body) as Record<string, unknown>;
     } catch {
       errorData = { message: body };
     }
-    
-    const message = errorData.message || `HTTP ${response.status}`;
-    
+
+    const message = (errorData.message as string | undefined) ?? `HTTP ${response.status}`;
+
     switch (response.status) {
       case 400:
         throw new MeshyError(`Bad Request: ${message}`, 400, errorData);
-      
+
       case 401:
         throw new MeshyAuthError(`Unauthorized: ${message}`);
-      
+
       case 402:
         throw new MeshyPaymentError(`Payment Required: ${message}`);
-      
+
       case 403:
-        throw new MeshyError(`Forbidden: ${message}. Check CORS if calling from browser.`, 403, errorData);
-      
+        throw new MeshyError(
+          `Forbidden: ${message}. Check CORS if calling from browser.`,
+          403,
+          errorData
+        );
+
       case 404:
         throw new MeshyError(`Not Found: ${message}`, 404, errorData);
-      
+
       case 429:
         // Rate limit - check if we should retry
         if (attempt < this.retryConfig.maxRetries) {
@@ -196,7 +199,7 @@ export abstract class MeshyBaseClient {
           throw new MeshyRateLimitError(message, errorData);
         }
         throw new MeshyRateLimitError(`Rate Limit Exceeded: ${message}`, errorData);
-      
+
       case 500:
       case 502:
       case 503:
@@ -206,67 +209,64 @@ export abstract class MeshyBaseClient {
           throw new MeshyError(`Server Error: ${message}`, response.status, errorData);
         }
         throw new MeshyError(`Server Error (final): ${message}`, response.status, errorData);
-      
+
       default:
         throw new MeshyError(`Unexpected error: ${message}`, response.status, errorData);
     }
   }
-  
+
   /**
    * Check rate limit before making request
    */
   private async checkRateLimit(): Promise<void> {
     const now = Date.now();
-    
+
     // Remove requests outside the window
-    this.requestTimes = this.requestTimes.filter(
-      time => now - time < this.rateLimitWindow
-    );
-    
+    this.requestTimes = this.requestTimes.filter((time) => now - time < this.rateLimitWindow);
+
     // Check if we're at limit (assume Pro tier: 20 req/s)
     const requestsInWindow = this.requestTimes.length;
     if (requestsInWindow >= RATE_LIMITS.pro.requestsPerSecond) {
       const oldestRequest = this.requestTimes[0];
       const waitTime = this.rateLimitWindow - (now - oldestRequest);
-      
+
       if (waitTime > 0) {
         console.warn(`Rate limit approaching, waiting ${waitTime}ms...`);
         await this.sleep(waitTime + 100); // Add buffer
       }
     }
   }
-  
+
   /**
    * Calculate exponential backoff with jitter
    */
   private calculateBackoff(attempt: number): number {
-    const exponential = this.retryConfig.baseDelay * Math.pow(2, attempt);
+    const exponential = this.retryConfig.baseDelay * 2 ** attempt;
     const jitter = Math.random() * 0.3 * exponential; // ±30% jitter
     const delay = Math.min(exponential + jitter, this.retryConfig.maxDelay);
     return Math.floor(delay);
   }
-  
+
   /**
    * Sleep utility
    */
   protected sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
-  
+
   /**
    * Download file from URL (common across all APIs)
    */
   protected async downloadFile(url: string, outputPath: string): Promise<void> {
     const response = await fetch(url);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to download from ${url}: ${response.status}`);
     }
-    
+
     const buffer = await response.buffer();
     const fs = await import('fs-extra');
-    await fs.ensureDir(require('path').dirname(outputPath));
+    await fs.ensureDir(require('node:path').dirname(outputPath));
     await fs.writeFile(outputPath, buffer);
   }
 }
-

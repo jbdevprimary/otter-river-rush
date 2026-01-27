@@ -11,7 +11,15 @@ import {
   getObstacleUrlVariants,
   getPowerUpUrl,
 } from '../assets';
-import { GAME_CONFIG, PHYSICS, VISUAL, getDefaultCharacter, getLaneX, getModelScale, type OtterCharacter } from '../config';
+import {
+  GAME_CONFIG,
+  getDefaultCharacter,
+  getLaneX,
+  getModelScale,
+  type OtterCharacter,
+  PHYSICS,
+  VISUAL,
+} from '../config';
 import type { Entity, PowerUpType } from '../types';
 
 /**
@@ -25,19 +33,15 @@ export const world = new World<Entity>();
  */
 export const queries = {
   // Player
-  player: world.with('player', 'position', 'model'),
+  player: world.with('player', 'position', 'model', 'collider'),
 
   // Obstacles
   obstacles: world.with('obstacle', 'position', 'collider'),
 
   // Collectibles
   collectibles: world.with('collectible', 'position'),
-  coins: world
-    .with('collectible', 'position')
-    .where((e) => e.collectible?.type === 'coin'),
-  gems: world
-    .with('collectible', 'position')
-    .where((e) => e.collectible?.type === 'gem'),
+  coins: world.with('collectible', 'position').where((e) => e.collectible?.type === 'coin'),
+  gems: world.with('collectible', 'position').where((e) => e.collectible?.type === 'gem'),
 
   // Power-ups
   powerUps: world.with('powerUp', 'position'),

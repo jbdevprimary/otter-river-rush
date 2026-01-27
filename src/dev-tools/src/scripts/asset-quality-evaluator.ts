@@ -1,22 +1,21 @@
 #!/usr/bin/env node
+
 /**
  * Asset Quality Evaluator - Analyzes asset quality and detects issues
  */
 
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import sharp from 'sharp';
-import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
 import type { AssetDefinition, QualityMetrics } from './asset-manifest.js';
 
-const PUBLIC_DIR = join(process.cwd(), 'public');
+const ASSETS_DIR = join(process.cwd(), 'assets');
 
 /**
  * Detect if an image has a white background instead of transparency
  */
 async function detectWhiteBackground(buffer: Buffer): Promise<boolean> {
-  const { data, info } = await sharp(buffer)
-    .raw()
-    .toBuffer({ resolveWithObject: true });
+  const { data, info } = await sharp(buffer).raw().toBuffer({ resolveWithObject: true });
 
   if (!info.channels || info.channels < 4) {
     return false; // No alpha channel
@@ -67,32 +66,135 @@ async function hasTransparency(buffer: Buffer): Promise<boolean> {
   return stats.channels.length > 3 && stats.channels[3].min < 255;
 }
 
+function buildMissingQuality(): QualityMetrics {
+  return {
+    fileSize: 0,
+    fileSizeKB: 0,
+    width: 0,
+    height: 0,
+    aspectRatio: 0,
+    format: 'missing',
+    hasTransparency: false,
+    hasWhiteBackground: false,
+    isDistorted: false,
+    isUndersized: false,
+    isOversized: false,
+    qualityScore: 0,
+    issues: ['File does not exist'],
+    needsRegeneration: true,
+  };
+}
+
+function buildErrorQuality(error: unknown): QualityMetrics {
+  const message = error instanceof Error ? error.message : String(error);
+  return {
+    fileSize: 0,
+    fileSizeKB: 0,
+    width: 0,
+    height: 0,
+    aspectRatio: 0,
+    format: 'error',
+    hasTransparency: false,
+    hasWhiteBackground: false,
+    isDistorted: false,
+    isUndersized: false,
+    isOversized: false,
+    qualityScore: 0,
+    issues: [`Error reading file: ${message}`],
+    needsRegeneration: true,
+  };
+}
+
+interface AssetChecks {
+  hasTransparency: boolean;
+  hasWhiteBackground: boolean;
+  isDistorted: boolean;
+  isUndersized: boolean;
+  isOversized: boolean;
+  expectedAspectRatio: number;
+}
+
+function computeChecks(
+  asset: AssetDefinition,
+  width: number,
+  height: number,
+  fileSizeKB: number,
+  hasTransparencyCheck: boolean,
+  hasWhiteBackgroundCheck: boolean
+): AssetChecks {
+  const expectedAspectRatio = asset.expectedSize.width / asset.expectedSize.height;
+  const aspectRatio = width / height;
+  const aspectRatioTolerance = 0.05;
+  return {
+    hasTransparency: hasTransparencyCheck,
+    hasWhiteBackground: hasWhiteBackgroundCheck,
+    isDistorted: Math.abs(aspectRatio - expectedAspectRatio) > aspectRatioTolerance,
+    isUndersized:
+      width < asset.expectedSize.width * 0.8 || height < asset.expectedSize.height * 0.8,
+    isOversized: fileSizeKB > asset.maxFileSizeKB,
+    expectedAspectRatio,
+  };
+}
+
+function collectIssues(
+  asset: AssetDefinition,
+  format: string,
+  width: number,
+  height: number,
+  fileSizeKB: number,
+  checks: AssetChecks,
+  aspectRatio: number
+): string[] {
+  const issues: string[] = [];
+  if (format !== asset.expectedFormat) {
+    issues.push(`Wrong format: ${format} (expected ${asset.expectedFormat})`);
+  }
+  if (asset.requiresTransparency && !checks.hasTransparency) {
+    issues.push('Missing transparency (should have transparent background)');
+  }
+  if (asset.requiresTransparency && checks.hasWhiteBackground) {
+    issues.push('Has white background instead of transparency');
+  }
+  if (checks.isDistorted) {
+    issues.push(
+      `Distorted aspect ratio: ${aspectRatio.toFixed(2)} (expected ${checks.expectedAspectRatio.toFixed(2)})`
+    );
+  }
+  if (checks.isUndersized) {
+    issues.push(
+      `Undersized: ${width}x${height} (expected ${asset.expectedSize.width}x${asset.expectedSize.height})`
+    );
+  }
+  if (checks.isOversized) {
+    issues.push(`File too large: ${fileSizeKB}KB (max ${asset.maxFileSizeKB}KB)`);
+  }
+  return issues;
+}
+
+function calculateQualityScore(
+  asset: AssetDefinition,
+  format: string,
+  checks: AssetChecks
+): number {
+  let qualityScore = 100;
+  if (format !== asset.expectedFormat) qualityScore -= 20;
+  if (asset.requiresTransparency && !checks.hasTransparency) qualityScore -= 30;
+  if (checks.hasWhiteBackground) qualityScore -= 25;
+  if (checks.isDistorted) qualityScore -= 15;
+  if (checks.isUndersized) qualityScore -= 20;
+  if (checks.isOversized) qualityScore -= 10;
+  return Math.max(0, qualityScore);
+}
+
 /**
  * Evaluate quality of a single asset
  */
-export async function evaluateAssetQuality(
-  asset: AssetDefinition
-): Promise<QualityMetrics> {
-  const fullPath = join(PUBLIC_DIR, asset.path);
+export async function evaluateAssetQuality(asset: AssetDefinition): Promise<QualityMetrics> {
+  const fullPath = join(ASSETS_DIR, asset.path);
 
   // Check if file exists
   if (!existsSync(fullPath)) {
-    return {
-      fileSize: 0,
-      fileSizeKB: 0,
-      width: 0,
-      height: 0,
-      aspectRatio: 0,
-      format: 'missing',
-      hasTransparency: false,
-      hasWhiteBackground: false,
-      isDistorted: false,
-      isUndersized: false,
-      isOversized: false,
-      qualityScore: 0,
-      issues: ['File does not exist'],
-      needsRegeneration: true,
-    };
+    return buildMissingQuality();
   }
 
   try {
@@ -112,53 +214,20 @@ export async function evaluateAssetQuality(
     const hasTransparencyCheck = await hasTransparency(buffer);
     const hasWhiteBackgroundCheck = await detectWhiteBackground(buffer);
 
-    // Calculate expected aspect ratio
-    const expectedAspectRatio = asset.expectedSize.width / asset.expectedSize.height;
-    const aspectRatioTolerance = 0.05; // 5% tolerance
-    const isDistorted = Math.abs(aspectRatio - expectedAspectRatio) > aspectRatioTolerance;
-
-    // Check size constraints
-    const isUndersized = width < asset.expectedSize.width * 0.8 || 
-                         height < asset.expectedSize.height * 0.8;
-    const isOversized = fileSizeKB > asset.maxFileSizeKB;
-
-    // Collect issues
-    const issues: string[] = [];
-    if (format !== asset.expectedFormat) {
-      issues.push(`Wrong format: ${format} (expected ${asset.expectedFormat})`);
-    }
-    if (asset.requiresTransparency && !hasTransparencyCheck) {
-      issues.push('Missing transparency (should have transparent background)');
-    }
-    if (asset.requiresTransparency && hasWhiteBackgroundCheck) {
-      issues.push('Has white background instead of transparency');
-    }
-    if (isDistorted) {
-      issues.push(`Distorted aspect ratio: ${aspectRatio.toFixed(2)} (expected ${expectedAspectRatio.toFixed(2)})`);
-    }
-    if (isUndersized) {
-      issues.push(`Undersized: ${width}x${height} (expected ${asset.expectedSize.width}x${asset.expectedSize.height})`);
-    }
-    if (isOversized) {
-      issues.push(`File too large: ${fileSizeKB}KB (max ${asset.maxFileSizeKB}KB)`);
-    }
-
-    // Calculate quality score (0-100)
-    let qualityScore = 100;
-    
-    // Deduct points for each issue
-    if (format !== asset.expectedFormat) qualityScore -= 20;
-    if (asset.requiresTransparency && !hasTransparencyCheck) qualityScore -= 30;
-    if (hasWhiteBackgroundCheck) qualityScore -= 25;
-    if (isDistorted) qualityScore -= 15;
-    if (isUndersized) qualityScore -= 20;
-    if (isOversized) qualityScore -= 10;
-
-    qualityScore = Math.max(0, qualityScore);
+    const checks = computeChecks(
+      asset,
+      width,
+      height,
+      fileSizeKB,
+      hasTransparencyCheck,
+      hasWhiteBackgroundCheck
+    );
+    const issues = collectIssues(asset, format, width, height, fileSizeKB, checks, aspectRatio);
+    const qualityScore = calculateQualityScore(asset, format, checks);
 
     // Determine if regeneration is needed
-    const needsRegeneration = qualityScore < 70 || 
-                              (asset.requiresTransparency && hasWhiteBackgroundCheck);
+    const needsRegeneration =
+      qualityScore < 70 || (asset.requiresTransparency && checks.hasWhiteBackground);
 
     return {
       fileSize,
@@ -167,32 +236,17 @@ export async function evaluateAssetQuality(
       height,
       aspectRatio,
       format,
-      hasTransparency: hasTransparencyCheck,
-      hasWhiteBackground: hasWhiteBackgroundCheck,
-      isDistorted,
-      isUndersized,
-      isOversized,
+      hasTransparency: checks.hasTransparency,
+      hasWhiteBackground: checks.hasWhiteBackground,
+      isDistorted: checks.isDistorted,
+      isUndersized: checks.isUndersized,
+      isOversized: checks.isOversized,
       qualityScore,
       issues,
       needsRegeneration,
     };
   } catch (error) {
-    return {
-      fileSize: 0,
-      fileSizeKB: 0,
-      width: 0,
-      height: 0,
-      aspectRatio: 0,
-      format: 'error',
-      hasTransparency: false,
-      hasWhiteBackground: false,
-      isDistorted: false,
-      isUndersized: false,
-      isOversized: false,
-      qualityScore: 0,
-      issues: [`Error reading file: ${error}`],
-      needsRegeneration: true,
-    };
+    return buildErrorQuality(error);
   }
 }
 
@@ -208,30 +262,33 @@ export async function evaluateAllAssets(
     console.log(`\n📊 Evaluating: ${asset.name}`);
     const quality = await evaluateAssetQuality(asset);
     results.set(asset.id, quality);
-
-    // Display results
-    const scoreEmoji = quality.qualityScore >= 90 ? '✅' : 
-                       quality.qualityScore >= 70 ? '⚠️' : '❌';
-    console.log(`   ${scoreEmoji} Quality Score: ${quality.qualityScore}/100`);
-    console.log(`   📐 Size: ${quality.width}x${quality.height} (${quality.fileSizeKB}KB)`);
-    console.log(`   🎨 Format: ${quality.format}`);
-    console.log(`   🔍 Transparency: ${quality.hasTransparency ? 'Yes' : 'No'}`);
-    
-    if (quality.hasWhiteBackground) {
-      console.log(`   🚨 WHITE BACKGROUND DETECTED (should be transparent)`);
-    }
-    
-    if (quality.issues.length > 0) {
-      console.log(`   ⚠️  Issues:`);
-      quality.issues.forEach(issue => console.log(`      - ${issue}`));
-    }
-    
-    if (quality.needsRegeneration) {
-      console.log(`   🔄 NEEDS REGENERATION`);
-    }
+    printQualityResult(quality);
   }
 
   return results;
+}
+
+function printQualityResult(quality: QualityMetrics): void {
+  const scoreEmoji = quality.qualityScore >= 90 ? '✅' : quality.qualityScore >= 70 ? '⚠️' : '❌';
+  console.log(`   ${scoreEmoji} Quality Score: ${quality.qualityScore}/100`);
+  console.log(`   📐 Size: ${quality.width}x${quality.height} (${quality.fileSizeKB}KB)`);
+  console.log(`   🎨 Format: ${quality.format}`);
+  console.log(`   🔍 Transparency: ${quality.hasTransparency ? 'Yes' : 'No'}`);
+
+  if (quality.hasWhiteBackground) {
+    console.log(`   🚨 WHITE BACKGROUND DETECTED (should be transparent)`);
+  }
+
+  if (quality.issues.length > 0) {
+    console.log(`   ⚠️  Issues:`);
+    for (const issue of quality.issues) {
+      console.log(`      - ${issue}`);
+    }
+  }
+
+  if (quality.needsRegeneration) {
+    console.log(`   🔄 NEEDS REGENERATION`);
+  }
 }
 
 /**
@@ -241,15 +298,19 @@ export function generateQualityReport(
   manifest: AssetDefinition[],
   qualityResults: Map<string, QualityMetrics>
 ): void {
-  console.log('\n\n' + '='.repeat(80));
+  console.log(`\n\n${'='.repeat(80)}`);
   console.log('🎨 ASSET QUALITY REPORT');
   console.log('='.repeat(80));
 
   const totalAssets = manifest.length;
-  const perfect = Array.from(qualityResults.values()).filter(q => q.qualityScore === 100).length;
-  const good = Array.from(qualityResults.values()).filter(q => q.qualityScore >= 70 && q.qualityScore < 100).length;
-  const poor = Array.from(qualityResults.values()).filter(q => q.qualityScore < 70).length;
-  const needRegeneration = Array.from(qualityResults.values()).filter(q => q.needsRegeneration).length;
+  const perfect = Array.from(qualityResults.values()).filter((q) => q.qualityScore === 100).length;
+  const good = Array.from(qualityResults.values()).filter(
+    (q) => q.qualityScore >= 70 && q.qualityScore < 100
+  ).length;
+  const poor = Array.from(qualityResults.values()).filter((q) => q.qualityScore < 70).length;
+  const needRegeneration = Array.from(qualityResults.values()).filter(
+    (q) => q.needsRegeneration
+  ).length;
 
   console.log(`\n📊 Overall Statistics:`);
   console.log(`   Total Assets: ${totalAssets}`);
@@ -259,59 +320,63 @@ export function generateQualityReport(
   console.log(`   🔄 Need Regeneration: ${needRegeneration}`);
 
   // Average quality score
-  const avgScore = Array.from(qualityResults.values())
-    .reduce((sum, q) => sum + q.qualityScore, 0) / totalAssets;
+  const avgScore =
+    Array.from(qualityResults.values()).reduce((sum, q) => sum + q.qualityScore, 0) / totalAssets;
   console.log(`   📈 Average Quality Score: ${avgScore.toFixed(1)}/100`);
 
   // Assets by category
   console.log(`\n📁 By Category:`);
   const categories = ['sprite', 'hud', 'icon', 'pwa', 'ui'] as const;
   for (const category of categories) {
-    const categoryAssets = manifest.filter(a => a.category === category);
-    const categoryScore = categoryAssets.reduce((sum, asset) => {
-      const quality = qualityResults.get(asset.id);
-      return sum + (quality?.qualityScore || 0);
-    }, 0) / categoryAssets.length;
-    
-    console.log(`   ${category.padEnd(8)}: ${categoryScore.toFixed(1)}/100 (${categoryAssets.length} assets)`);
+    const categoryAssets = manifest.filter((a) => a.category === category);
+    const categoryScore =
+      categoryAssets.reduce((sum, asset) => {
+        const quality = qualityResults.get(asset.id);
+        return sum + (quality?.qualityScore || 0);
+      }, 0) / categoryAssets.length;
+
+    console.log(
+      `   ${category.padEnd(8)}: ${categoryScore.toFixed(1)}/100 (${categoryAssets.length} assets)`
+    );
   }
 
   // Critical issues
-  const whiteBackgrounds = Array.from(qualityResults.entries())
-    .filter(([_, q]) => q.hasWhiteBackground);
-  const missingTransparency = Array.from(qualityResults.entries())
-    .filter(([id, q]) => {
-      const asset = manifest.find(a => a.id === id);
-      return asset?.requiresTransparency && !q.hasTransparency;
-    });
+  const whiteBackgrounds = Array.from(qualityResults.entries()).filter(
+    ([_, q]) => q.hasWhiteBackground
+  );
+  const missingTransparency = Array.from(qualityResults.entries()).filter(([id, q]) => {
+    const asset = manifest.find((a) => a.id === id);
+    return asset?.requiresTransparency && !q.hasTransparency;
+  });
 
   if (whiteBackgrounds.length > 0) {
     console.log(`\n🚨 CRITICAL: ${whiteBackgrounds.length} assets with WHITE BACKGROUNDS:`);
     whiteBackgrounds.forEach(([id, _]) => {
-      const asset = manifest.find(a => a.id === id);
+      const asset = manifest.find((a) => a.id === id);
       console.log(`   - ${asset?.name} (${asset?.path})`);
     });
   }
 
   if (missingTransparency.length > 0) {
     console.log(`\n⚠️  ${missingTransparency.length} assets missing required transparency:`);
-    missingTransparency.forEach(([id, _]) => {
-      const asset = manifest.find(a => a.id === id);
+    for (const [id] of missingTransparency) {
+      const asset = manifest.find((a) => a.id === id);
       console.log(`   - ${asset?.name} (${asset?.path})`);
-    });
+    }
   }
 
   // Assets needing regeneration
   if (needRegeneration > 0) {
     console.log(`\n🔄 ${needRegeneration} assets recommended for regeneration:`);
-    Array.from(qualityResults.entries())
-      .filter(([_, q]) => q.needsRegeneration)
-      .forEach(([id, q]) => {
-        const asset = manifest.find(a => a.id === id);
-        console.log(`   - ${asset?.name} (Score: ${q.qualityScore}/100)`);
-        q.issues.forEach(issue => console.log(`     • ${issue}`));
-      });
+    for (const [id, q] of qualityResults.entries()) {
+      if (!q.needsRegeneration) continue;
+      const asset = manifest.find((a) => a.id === id);
+      console.log(`   - ${asset?.name} (Score: ${q.qualityScore}/100)`);
+      for (const issue of q.issues) {
+        console.log(`     • ${issue}`);
+      }
+    }
   }
 
-  console.log('\n' + '='.repeat(80));
+  console.log(`\n${'='.repeat(80)}`);
 }

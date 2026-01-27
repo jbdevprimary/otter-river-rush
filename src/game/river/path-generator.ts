@@ -10,15 +10,13 @@ import type {
   ForkInfo,
   GenerationConstraints,
   RiverPathPoint,
-  RiverSegment,
   RiverSectionType,
+  RiverSegment,
   SegmentShape,
   ShapeWeights,
   Whirlpool,
 } from '../types/river-path';
 import type { SeededRNG } from '../utils/seeded-random';
-import { createWhirlpool } from './whirlpool-physics';
-
 import {
   generateLeftCurveControlPoints,
   generateRightCurveControlPoints,
@@ -29,6 +27,7 @@ import {
   sampleBezierPath,
   sampleStraightPath,
 } from './path-utils';
+import { createWhirlpool } from './whirlpool-physics';
 
 // ============================================================================
 // Constants
@@ -39,8 +38,8 @@ export const DEFAULT_SHAPE_WEIGHTS: ShapeWeights = {
   straight: 0.35,
   curve_left: 0.15,
   curve_right: 0.15,
-  s_curve_left: 0.10,
-  s_curve_right: 0.10,
+  s_curve_left: 0.1,
+  s_curve_right: 0.1,
   fork: 0.15,
 };
 
@@ -55,9 +54,9 @@ const SECTION_PROBABILITIES: Record<BiomeType, Partial<Record<RiverSectionType, 
 
 /** Elevation shape probabilities */
 const ELEVATION_WEIGHTS: Record<ElevationShape, number> = {
-  flat: 0.50,
+  flat: 0.5,
   gentle_incline: 0.15,
-  gentle_decline: 0.20,
+  gentle_decline: 0.2,
   steep_slope: 0.08,
   waterfall: 0.05,
   rapids_drop: 0.02,
@@ -276,11 +275,7 @@ function pickShape(
   return 'straight';
 }
 
-function pickSectionType(
-  rng: SeededRNG,
-  biome: BiomeType,
-  currentWidth: number
-): RiverSectionType {
+function pickSectionType(rng: SeededRNG, biome: BiomeType, currentWidth: number): RiverSectionType {
   const probs = SECTION_PROBABILITIES[biome];
 
   // Whirlpool requires minimum width
@@ -417,9 +412,6 @@ function createSegment(
         mergeSegmentId: `${id}-merge`,
       };
       break;
-
-    case 'merge':
-    case 'straight':
     default:
       // No curve control points needed
       break;
@@ -534,11 +526,14 @@ function calculateElevation(
       const totalDrop = rng.float(1, 3);
       return {
         exitZ: startZ - totalDrop,
-        elevationControlPoints: generateSlopeControlPoints(startDistance, startZ, length, totalDrop),
+        elevationControlPoints: generateSlopeControlPoints(
+          startDistance,
+          startZ,
+          length,
+          totalDrop
+        ),
       };
     }
-
-    case 'flat':
     default:
       return { exitZ: startZ, elevationControlPoints: undefined };
   }

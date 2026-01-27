@@ -3,7 +3,7 @@
   "name": "Ice Chunk",
   "type": "prop",
   "description": "A floating ice chunk in arctic waters - slippery and dangerous",
-  "price": 0.00,
+  "price": 0.0,
   "rarity": "rare",
 
   "gameplay": {

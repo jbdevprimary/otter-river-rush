@@ -234,7 +234,8 @@ const WaterShaderMaterial = shaderMaterial(
 extend({ WaterShaderMaterial });
 
 // Type for the shader material props in JSX
-type WaterShaderMaterialProps = React.JSX.IntrinsicElements['shaderMaterial'] & Partial<WaterMaterialUniforms>;
+type WaterShaderMaterialProps = React.JSX.IntrinsicElements['shaderMaterial'] &
+  Partial<WaterMaterialUniforms>;
 
 // Add type declaration for R3F JSX
 declare module '@react-three/fiber' {

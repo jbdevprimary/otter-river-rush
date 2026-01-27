@@ -3,13 +3,7 @@
  * Uses pre-rendered panel atlas from assets/ui/
  */
 
-import {
-  Image,
-  ImageSourcePropType,
-  StyleSheet,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { Image, type ImageSourcePropType, StyleSheet, View, type ViewStyle } from 'react-native';
 
 // Panel atlas asset
 const PANEL_ATLAS = require('../../../../assets/ui/panel_menu_9slice_v3_ATLAS_1024x1248.png');
@@ -41,9 +35,7 @@ interface NineSlicePanelProps {
 
 function getStateOffset(state: PanelState): { y: number; height: number } {
   const stateIndex = PANEL_METADATA.states.indexOf(state);
-  const y =
-    PANEL_METADATA.topPad +
-    stateIndex * (PANEL_METADATA.tileSize.h + PANEL_METADATA.gap);
+  const y = PANEL_METADATA.topPad + stateIndex * (PANEL_METADATA.tileSize.h + PANEL_METADATA.gap);
   return { y, height: PANEL_METADATA.tileSize.h };
 }
 

@@ -7,12 +7,12 @@
  * - Touch: Swipe left/right for lanes, swipe up for jump
  */
 
-import type { Lane } from '../../types';
-import { queries } from '../world';
 import { getLaneX, JUMP_PHYSICS } from '../../config';
-import { setTargetLane, initializeOtterPhysics } from './otter-physics';
-import { canJump, triggerJump, initializeJumpComponent } from './jump';
+import type { Entity, Lane } from '../../types';
+import { queries } from '../world';
 import { triggerJumpAnimation } from './animation';
+import { initializeJumpComponent, triggerJump } from './jump';
+import { initializeOtterPhysics, setTargetLane } from './otter-physics';
 
 export interface InputState {
   targetLane: Lane;
@@ -108,10 +108,7 @@ export function setupKeyboardInput(state: InputState): () => void {
  * Setup touch/swipe input handlers
  * Uses pointer events for compatibility with both touch and mouse
  */
-export function setupTouchInput(
-  state: InputState,
-  element: HTMLElement
-): () => void {
+export function setupTouchInput(state: InputState, element: HTMLElement): () => void {
   const MIN_HORIZONTAL_SWIPE = 50; // Minimum horizontal swipe distance in pixels
   const MIN_VERTICAL_SWIPE = JUMP_PHYSICS.swipeThreshold; // Minimum vertical swipe for jump
 
@@ -128,48 +125,57 @@ export function setupTouchInput(
   };
 
   const handlePointerMove = (e: PointerEvent) => {
-    if (!isTracking || pointerStartX === null || pointerStartY === null) return;
-    if (swipeHandled) return; // Already handled this gesture
+    if (!isTracking || pointerStartX === null || pointerStartY === null || swipeHandled) return;
 
     const deltaX = e.clientX - pointerStartX;
     const deltaY = e.clientY - pointerStartY;
-
-    const [player] = queries.player.entities;
+    const player = queries.player.entities[0];
     if (!player || !player.position) return;
 
-    // Initialize otter physics if not present
-    if (!player.otterPhysics) {
-      initializeOtterPhysics(player);
-    }
+    ensureOtterPhysics(player);
 
-    // Check for vertical swipe (upward = negative deltaY)
-    // Prioritize vertical swipe if it's more dominant and large enough
-    if (deltaY < -MIN_VERTICAL_SWIPE && Math.abs(deltaY) > Math.abs(deltaX)) {
-      // Swipe up - trigger jump
-      attemptJump();
+    if (tryHandleVerticalSwipe(deltaX, deltaY)) {
       swipeHandled = true;
       return;
     }
 
-    // Check if horizontal swipe exceeds threshold
-    // Also ensure horizontal movement is greater than vertical (intentional horizontal swipe)
-    if (Math.abs(deltaX) >= MIN_HORIZONTAL_SWIPE && Math.abs(deltaX) > Math.abs(deltaY)) {
-      if (deltaX < 0 && state.targetLane > -1) {
-        // Swipe left
-        state.targetLane = (state.targetLane - 1) as Lane;
-        // Use momentum-based lane change
-        setTargetLane(player, state.targetLane);
-      } else if (deltaX > 0 && state.targetLane < 1) {
-        // Swipe right
-        state.targetLane = (state.targetLane + 1) as Lane;
-        // Use momentum-based lane change
-        setTargetLane(player, state.targetLane);
-      }
-
-      // Reset tracking to require a new swipe for next lane change
+    if (tryHandleHorizontalSwipe(deltaX, deltaY, player)) {
       pointerStartX = e.clientX;
       pointerStartY = e.clientY;
     }
+  };
+
+  const ensureOtterPhysics = (player: Entity) => {
+    if (!player.otterPhysics) {
+      initializeOtterPhysics(player);
+    }
+  };
+
+  const tryHandleVerticalSwipe = (deltaX: number, deltaY: number): boolean => {
+    const isVertical = deltaY < -MIN_VERTICAL_SWIPE && Math.abs(deltaY) > Math.abs(deltaX);
+    if (!isVertical) return false;
+    attemptJump();
+    return true;
+  };
+
+  const tryHandleHorizontalSwipe = (deltaX: number, deltaY: number, player: Entity): boolean => {
+    const isHorizontal =
+      Math.abs(deltaX) >= MIN_HORIZONTAL_SWIPE && Math.abs(deltaX) > Math.abs(deltaY);
+    if (!isHorizontal) return false;
+
+    if (deltaX < 0 && state.targetLane > -1) {
+      state.targetLane = (state.targetLane - 1) as Lane;
+      setTargetLane(player, state.targetLane);
+      return true;
+    }
+
+    if (deltaX > 0 && state.targetLane < 1) {
+      state.targetLane = (state.targetLane + 1) as Lane;
+      setTargetLane(player, state.targetLane);
+      return true;
+    }
+
+    return false;
   };
 
   const handlePointerUp = () => {

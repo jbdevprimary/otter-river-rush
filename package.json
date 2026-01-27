@@ -13,6 +13,7 @@
   "engines": {
     "node": ">=22.0.0"
   },
+  "packageManager": "pnpm@10.0.0",
   "scripts": {
     "postinstall": "patch-package",
     "start": "expo start",
@@ -25,6 +26,8 @@
     "check": "biome check --write .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
+    "test:playwright": "playwright test",
+    "test:maestro": "maestro test .maestro/flows",
     "generate:models": "tsx src/dev-tools/generators/meshy-models.ts",
     "generate:animations": "tsx src/dev-tools/generators/otter-animations.ts"
   },
@@ -62,16 +65,19 @@
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
-    "@biomejs/biome": "^2.3.11",
+    "@biomejs/biome": "^2.3.13",
     "@playwright/test": "^1.56.1",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.9.2",
     "@types/react": "~19.0.10",
     "@types/three": "^0.166.0",
     "autoprefixer": "^10.4.22",
     "babel-plugin-transform-import-meta": "^2.3.3",
+    "jest": "^30.2.0",
     "patch-package": "^8.0.1",
     "postcss": "^8.5.6",
     "tailwindcss": "3.4.17",
+    "ts-jest": "^29.4.6",
     "tsx": "^4.20.6",
     "typescript": "~5.8.3"
   }

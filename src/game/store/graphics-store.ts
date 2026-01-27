@@ -8,10 +8,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import {
-  type GraphicsQuality,
-  type QualitySettings,
-  getQualitySettings,
   detectRecommendedQuality,
+  type GraphicsQuality,
+  getQualitySettings,
+  type QualitySettings,
 } from '../config/graphics-quality';
 
 interface GraphicsState {

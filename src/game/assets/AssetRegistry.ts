@@ -415,6 +415,8 @@ export function getDecorationVariants(): AssetDefinition[] {
 /**
  * Get power-up asset by type
  */
-export function getPowerUpAsset(type: 'shield' | 'magnet' | 'ghost' | 'multiplier' | 'slowMotion'): AssetDefinition {
+export function getPowerUpAsset(
+  type: 'shield' | 'magnet' | 'ghost' | 'multiplier' | 'slowMotion'
+): AssetDefinition {
   return ModelAssets.powerUps[type];
 }

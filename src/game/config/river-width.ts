@@ -9,12 +9,15 @@ import type { BiomeType } from '../types';
  * River width configuration per biome
  * Each biome has its own width characteristics
  */
-export const BIOME_RIVER_WIDTHS: Record<BiomeType, {
-  baseWidth: number;     // Base river width in world units
-  minWidth: number;      // Minimum width (for narrow sections)
-  maxWidth: number;      // Maximum width (for wide sections)
-  variationScale: number; // How much random variation (0-1)
-}> = {
+export const BIOME_RIVER_WIDTHS: Record<
+  BiomeType,
+  {
+    baseWidth: number; // Base river width in world units
+    minWidth: number; // Minimum width (for narrow sections)
+    maxWidth: number; // Maximum width (for wide sections)
+    variationScale: number; // How much random variation (0-1)
+  }
+> = {
   forest: {
     baseWidth: 8,
     minWidth: 6,
@@ -90,9 +93,9 @@ export function calculateLanePositions(riverWidth: number): [number, number, num
   const laneSpacing = riverWidth / 4;
 
   return [
-    -laneSpacing,  // Left lane
-    0,              // Center lane
-    laneSpacing,    // Right lane
+    -laneSpacing, // Left lane
+    0, // Center lane
+    laneSpacing, // Right lane
   ];
 }
 
@@ -158,7 +161,7 @@ export function calculateTargetWidth(
   const random = seededRandom(seed);
 
   // Determine if this should be a narrow section
-  const canBeNarrow = (distance - lastNarrowDistance) >= checkpoint.minNarrowGap;
+  const canBeNarrow = distance - lastNarrowDistance >= checkpoint.minNarrowGap;
   const shouldChange = random < checkpoint.changeProbability;
 
   if (shouldChange && canBeNarrow) {

@@ -99,26 +99,11 @@ pnpm test          # Run tests
 
 ```
 otter-river-rush/
-├── apps/
-│   └── mobile/                 # Unified Expo app
-│       ├── app/                # Expo Router screens
-│       ├── assets/             # Native assets
-│       ├── public/             # Web static assets
-│       │   ├── models/         # GLB 3D models
-│       │   ├── textures/       # PBR textures
-│       │   └── audio/          # Sound effects
-│       └── src/
-├── packages/
-│   ├── game-core/              # Shared game logic
-│   ├── rendering/              # R3F components
-│   ├── ui/                     # NativeWind UI
-│   ├── config/                 # Game constants
-│   ├── state/                  # Zustand stores
-│   ├── audio/                  # Audio system
-│   ├── types/                  # TypeScript types
-│   └── content-gen/            # Meshy AI pipeline
-├── memory-bank/                # AI agent context
-└── docs/                       # Documentation
+├── app/                     # Expo Router screens
+├── src/                     # Game source (UI + R3F + ECS)
+├── assets/                  # Bundled assets (models, textures, audio)
+├── memory-bank/             # AI agent context
+└── docs/                    # Documentation
 ```
 
 ---
@@ -155,13 +140,11 @@ otter-river-rush/
 ### Web
 ```bash
 pnpm build:web
-# Output: apps/mobile/dist/
+# Output: dist/
 ```
 
 ### Native (EAS Build)
 ```bash
-cd apps/mobile
-
 # iOS
 eas build --platform ios --profile preview
 

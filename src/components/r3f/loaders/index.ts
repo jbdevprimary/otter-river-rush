@@ -5,4 +5,10 @@
  * These utilities are for imperative loading outside of React components
  */
 
-export { type GLBResult, type LoadGLBOptions, loadGLB, preloadGLBs, cloneGLBResult } from './glb-loader';
+export {
+  cloneGLBResult,
+  type GLBResult,
+  type LoadGLBOptions,
+  loadGLB,
+  preloadGLBs,
+} from './glb-loader';

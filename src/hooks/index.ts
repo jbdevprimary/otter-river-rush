@@ -3,10 +3,10 @@
  */
 
 export {
-  useResponsiveLayout,
-  useFoldableState,
   type DeviceType,
   type Orientation,
-  type ScreenBreakpoints,
   type ResponsiveLayout,
+  type ScreenBreakpoints,
+  useFoldableState,
+  useResponsiveLayout,
 } from './useResponsiveLayout';

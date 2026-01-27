@@ -12,7 +12,7 @@
 set -e
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PUBLIC_DIR="$PROJECT_ROOT/apps/mobile/public"
+ASSETS_DIR="$PROJECT_ROOT/assets"
 
 CATEGORY="$1"
 SOURCE="$2"
@@ -48,15 +48,15 @@ BASENAME=$(basename "$SOURCE")
 
 case "$CATEGORY" in
     model)
-        DEST_DIR="$PUBLIC_DIR/models"
+        DEST_DIR="$ASSETS_DIR/models"
         echo "Copying model to $DEST_DIR..."
         cp "$SOURCE" "$DEST_DIR/"
-        echo "Done! Add to packages/assets/src/registry.ts:"
+        echo "Done! Add to src/game/assets/AssetRegistry.ts:"
         echo "  path: 'models/$BASENAME',"
         ;;
     texture)
         if [ -d "$SOURCE" ]; then
-            DEST_DIR="$PUBLIC_DIR/textures/pbr/$(basename "$SOURCE" | tr '[:upper:]' '[:lower:]' | sed 's/[0-9]*$//')"
+            DEST_DIR="$ASSETS_DIR/textures/pbr/$(basename "$SOURCE" | tr '[:upper:]' '[:lower:]' | sed 's/[0-9]*$//')"
             mkdir -p "$DEST_DIR"
             cp -r "$SOURCE" "$DEST_DIR/"
             echo "Copied texture set to $DEST_DIR/$(basename "$SOURCE")"
@@ -67,21 +67,21 @@ case "$CATEGORY" in
         ;;
     audio)
         if [[ "$SOURCE" == *interface* ]] || [[ "$SOURCE" == *click* ]] || [[ "$SOURCE" == *confirm* ]]; then
-            DEST_DIR="$PUBLIC_DIR/audio/sfx"
+            DEST_DIR="$ASSETS_DIR/audio/sfx"
         elif [[ "$SOURCE" == *music* ]] || [[ "$SOURCE" == *loop* ]]; then
-            DEST_DIR="$PUBLIC_DIR/audio/music"
+            DEST_DIR="$ASSETS_DIR/audio/music"
         elif [[ "$SOURCE" == *impact* ]]; then
-            DEST_DIR="$PUBLIC_DIR/audio/sfx"
+            DEST_DIR="$ASSETS_DIR/audio/sfx"
         else
-            DEST_DIR="$PUBLIC_DIR/audio/sfx"
+            DEST_DIR="$ASSETS_DIR/audio/sfx"
         fi
         echo "Copying audio to $DEST_DIR..."
         cp "$SOURCE" "$DEST_DIR/"
-        echo "Done! Add to packages/assets/src/registry.ts:"
+        echo "Done! Add to src/game/assets/AssetRegistry.ts:"
         echo "  path: 'audio/sfx/$BASENAME',"
         ;;
     ui)
-        DEST_DIR="$PUBLIC_DIR/ui"
+        DEST_DIR="$ASSETS_DIR/ui"
         mkdir -p "$DEST_DIR"
         echo "Copying UI asset to $DEST_DIR..."
         cp "$SOURCE" "$DEST_DIR/"
@@ -96,5 +96,5 @@ esac
 
 echo ""
 echo "Remember to:"
-echo "1. Register the asset in packages/assets/src/registry.ts"
-echo "2. Update the relevant config (biome-assets.ts, etc.)"
+echo "1. Register the asset in src/game/assets/AssetRegistry.ts"
+echo "2. Update the relevant config if needed"

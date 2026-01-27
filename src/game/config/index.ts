@@ -14,7 +14,20 @@ export {
   REDUCED_MOTION_CLASS,
   REDUCED_MOTION_STYLES,
 } from './accessibility';
-
+// Biome assets
+export {
+  BIOME_ASSETS,
+  type BiomeAssets,
+  getAllModelPaths,
+  getAllTexturePaths,
+  getBiomeAssets,
+  getRandomDecoration,
+  getRandomPlant,
+  getRandomRock,
+  getRandomTree,
+  type ModelAsset,
+  type PBRTexture,
+} from './biome-assets';
 // Character definitions
 export {
   getCharacter,
@@ -23,7 +36,6 @@ export {
   OTTER_CHARACTERS,
   type OtterCharacter,
 } from './characters';
-
 // Colors
 export {
   BIOME_COLORS,
@@ -32,17 +44,34 @@ export {
   PARTICLE_COLORS,
   UI_COLORS,
 } from './colors';
-
 // Game constants
 export {
   DIFFICULTY_PRESETS,
   GAME_CONFIG,
   GAME_MODES,
 } from './game-constants';
-
+// Graphics quality configuration
+export {
+  detectRecommendedQuality,
+  type GraphicsQuality,
+  getQualitySettings,
+  QUALITY_PRESETS,
+  type QualitySettings,
+} from './graphics-quality';
 // Physics constants
 export { JUMP_PHYSICS, OTTER_PHYSICS, PHYSICS_CONFIG } from './physics-constants';
-
+// River width configuration
+export {
+  BIOME_RIVER_WIDTHS,
+  calculateLanePositions,
+  calculateRiverBoundaries,
+  calculateTargetWidth,
+  getBiomeRiverWidth,
+  interpolateWidth,
+  RIVER_WIDTH_CHECKPOINTS,
+  type RiverWidthState,
+  seededRandom,
+} from './river-width';
 // Visual constants
 export {
   DIFFICULTY,
@@ -52,49 +81,11 @@ export {
   PHYSICS,
   VISUAL,
 } from './visual-constants';
-
 // Weather constants
 export {
-  WEATHER_CONFIGS,
-  WEATHER_PERFORMANCE,
   getEffectiveParticleCount,
   getWeatherConfig,
+  WEATHER_CONFIGS,
+  WEATHER_PERFORMANCE,
   type WeatherConfig,
 } from './weather';
-
-// Biome assets
-export {
-  BIOME_ASSETS,
-  getAllModelPaths,
-  getAllTexturePaths,
-  getBiomeAssets,
-  getRandomDecoration,
-  getRandomPlant,
-  getRandomRock,
-  getRandomTree,
-  type BiomeAssets,
-  type ModelAsset,
-  type PBRTexture,
-} from './biome-assets';
-
-// River width configuration
-export {
-  BIOME_RIVER_WIDTHS,
-  RIVER_WIDTH_CHECKPOINTS,
-  calculateLanePositions,
-  calculateRiverBoundaries,
-  calculateTargetWidth,
-  getBiomeRiverWidth,
-  interpolateWidth,
-  seededRandom,
-  type RiverWidthState,
-} from './river-width';
-
-// Graphics quality configuration
-export {
-  detectRecommendedQuality,
-  getQualitySettings,
-  QUALITY_PRESETS,
-  type GraphicsQuality,
-  type QualitySettings,
-} from './graphics-quality';
