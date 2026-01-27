@@ -31,7 +31,7 @@ This will generate:
 ### What Gets Generated
 
 ```
-src/client/public/models/
+assets/models/
 ├── otter-rusty.glb           # Main character (rigged, animated)
 ├── rock-river.glb            # Base rock obstacle
 ├── rock-mossy.glb            # Variant 1: Mossy

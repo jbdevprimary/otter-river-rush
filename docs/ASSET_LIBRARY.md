@@ -36,26 +36,26 @@ assets/lib/
 
 | Category | Source | Location | Usage |
 |----------|--------|----------|-------|
-| Player Otters | Meshy AI | `public/models/player/` | 4 otter variants |
-| Coins | Kenney | `public/models/collectible/coins/` | Gold, Silver, Bronze |
-| Gems | Kenney | `public/models/collectible/gems/` | Crystal, Heart |
-| Trees | Kenney Nature | `public/models/environment/forest/` | 5 tree types |
-| Rocks | Kenney Nature | `public/models/environment/*/` | Per-biome rocks |
-| Plants | Kenney Nature | `public/models/environment/*/` | Grass, flowers |
-| Decorations | Kenney/Quaternius | `public/models/decoration/` | Lily pads, bushes |
+| Player Otters | Meshy AI | `assets/models/player/` | 4 otter variants |
+| Coins | Kenney | `assets/models/collectible/coins/` | Gold, Silver, Bronze |
+| Gems | Kenney | `assets/models/collectible/gems/` | Crystal, Heart |
+| Trees | Kenney Nature | `assets/models/environment/forest/` | 5 tree types |
+| Rocks | Kenney Nature | `assets/models/environment/*/` | Per-biome rocks |
+| Plants | Kenney Nature | `assets/models/environment/*/` | Grass, flowers |
+| Decorations | Kenney/Quaternius | `assets/models/decoration/` | Lily pads, bushes |
 
 ### PBR Textures (In Use)
 
 | Category | Source | Location | Biome |
 |----------|--------|----------|-------|
-| Grass001, Grass004 | AmbientCG | `public/textures/pbr/grass/` | Forest, Tropical |
-| Rock001, Rock005, Rock020 | AmbientCG | `public/textures/pbr/rock/` | Canyon, Volcanic |
-| Ground037, Ground054 | AmbientCG | `public/textures/pbr/ground/` | Riverbanks |
-| Gravel022, Gravel030 | AmbientCG | `public/textures/pbr/gravel/` | Canyon |
-| Ice001, Ice002 | AmbientCG | `public/textures/pbr/ice/` | Arctic |
-| Lava001, Lava004 | AmbientCG | `public/textures/pbr/lava/` | Volcanic |
-| Snow001, Snow006 | AmbientCG | `public/textures/pbr/snow/` | Arctic |
-| Bark005, Bark010 | AmbientCG | `public/textures/pbr/bark/` | Tree trunks |
+| Grass001, Grass004 | AmbientCG | `assets/textures/pbr/grass/` | Forest, Tropical |
+| Rock001, Rock005, Rock020 | AmbientCG | `assets/textures/pbr/rock/` | Canyon, Volcanic |
+| Ground037, Ground054 | AmbientCG | `assets/textures/pbr/ground/` | Riverbanks |
+| Gravel022, Gravel030 | AmbientCG | `assets/textures/pbr/gravel/` | Canyon |
+| Ice001, Ice002 | AmbientCG | `assets/textures/pbr/ice/` | Arctic |
+| Lava001, Lava004 | AmbientCG | `assets/textures/pbr/lava/` | Volcanic |
+| Snow001, Snow006 | AmbientCG | `assets/textures/pbr/snow/` | Arctic |
+| Bark005, Bark010 | AmbientCG | `assets/textures/pbr/bark/` | Tree trunks |
 
 ### Audio (Currently Procedural)
 
@@ -63,9 +63,9 @@ The game uses **Tone.js** for procedural audio synthesis. Physical audio files e
 
 | Type | Source | Location |
 |------|--------|----------|
-| Music Loops | Kenney | `public/audio/music/` |
-| UI Sounds | Kenney | `public/audio/sfx/` |
-| Ambient | Kenney | `public/audio/ambient/` |
+| Music Loops | Kenney | `assets/audio/music/` |
+| UI Sounds | Kenney | `assets/audio/sfx/` |
+| Ambient | Kenney | `assets/audio/ambient/` |
 
 ---
 
@@ -216,13 +216,13 @@ assets/lib/ambientcg-1k/Water*/
 
 ### Adding a New 3D Model
 
-1. **Copy to public folder**:
+1. **Copy to assets folder**:
    ```bash
    cp assets/lib/kenney-watercraft/boat-row-small.glb \
-      apps/mobile/public/models/obstacle/boat/
+      assets/models/obstacle/boat/
    ```
 
-2. **Register in Asset Registry** (`packages/assets/src/registry.ts`):
+2. **Register in Asset Registry** (`src/game/assets/AssetRegistry.ts`):
    ```typescript
    obstacles: {
      boatSmall: {
@@ -239,11 +239,11 @@ assets/lib/ambientcg-1k/Water*/
 
 1. **Copy texture set** (all maps):
    ```bash
-   mkdir -p apps/mobile/public/textures/pbr/sand/Sand001
+   mkdir -p assets/textures/pbr/sand/Sand001
    cp assets/lib/ambientcg-1k/Sand001/*_Color.jpg \
-      apps/mobile/public/textures/pbr/sand/Sand001/
+      assets/textures/pbr/sand/Sand001/
    cp assets/lib/ambientcg-1k/Sand001/*_NormalGL.jpg \
-      apps/mobile/public/textures/pbr/sand/Sand001/
+      assets/textures/pbr/sand/Sand001/
    # etc.
    ```
 
@@ -253,9 +253,9 @@ assets/lib/ambientcg-1k/Water*/
 
 1. **Copy PNG assets**:
    ```bash
-   mkdir -p apps/mobile/public/ui/panels
+   mkdir -p assets/ui/panels
    cp "assets/lib/kenney-ui-fantasy-borders/PNG/Default/Panel/"* \
-      apps/mobile/public/ui/panels/
+      assets/ui/panels/
    ```
 
 2. **Use in NativeWind components** with `Image` or as 9-slice backgrounds.

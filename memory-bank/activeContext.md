@@ -29,7 +29,7 @@ otter-river-rush/
 ├── assets/                  # Static assets
 │   ├── branding/            # logo.png, splash.png, portrait.png
 │   └── ui/                  # 9-slice button/panel atlases
-├── public/                  # Web static assets (models, textures)
+├── assets/                  # Bundled assets (models, textures, audio)
 └── memory-bank/             # AI agent context
 ```
 
@@ -154,6 +154,7 @@ Fixed `@expo/metro-config@0.20.18` bug where optional dependency paths were unde
 - Applied Biome formatting/lint fixes across the codebase and refactored high-complexity sections.
 - Added Jest + ts-jest with a baseline collision unit test and reran lint/typecheck/test suites.
 - Expanded Jest config to cover spec/test patterns and support path aliases.
+- Shifted asset loading to Expo-bundled `assets/` with expo-asset URIs (no `public/`).
 
 ---
 

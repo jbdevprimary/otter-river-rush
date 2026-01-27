@@ -6,7 +6,7 @@
 import { existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-const TEXTURES_DIR = join(process.cwd(), 'public', 'textures');
+const TEXTURES_DIR = join(process.cwd(), 'assets', 'textures');
 
 if (!existsSync(TEXTURES_DIR)) {
   mkdirSync(TEXTURES_DIR, { recursive: true });
@@ -74,7 +74,7 @@ async function main() {
     console.log(`  - Visit: https://ambientcg.com/view?id=${config.ambientcgId}`);
     console.log(`  - Download: ${config.resolution}-JPG`);
     console.log(`  - Extract and rename Color.jpg to: ${config.filename}`);
-    console.log(`  - Place in: public/textures/\n`);
+    console.log(`  - Place in: assets/textures/\n`);
   }
 
   console.log('💡 Quick Command to get started:');

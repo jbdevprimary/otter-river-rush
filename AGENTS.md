@@ -133,7 +133,7 @@ otter-river-rush/
 │   └── mobile/                 # Unified Expo app (web + iOS + Android)
 │       ├── app/                # Expo Router screens
 │       ├── assets/             # All game assets (models, textures, audio)
-│       ├── public/             # Static assets for web
+│       ├── assets/             # Bundled assets (models, textures, audio)
 │       ├── src/
 │       │   ├── components/     # R3F rendering components
 │       │   ├── screens/        # UI screens

@@ -8,7 +8,7 @@ The asset processing system runs **BEFORE commit/push** as part of the generatio
 
 ### 1. Asset Generation
 - AI generates sprites/icons using OpenAI DALL-E or similar
-- Raw assets are saved to `public/` directories
+- Raw assets are saved to `assets/` directories
 - Assets may have quality issues (wrong size, white backgrounds, etc.)
 
 ### 2. Asset Processing (PRE-COMMIT) ⚠️

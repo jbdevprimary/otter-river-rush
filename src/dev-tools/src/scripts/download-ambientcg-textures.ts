@@ -20,7 +20,7 @@ const TEXTURES_TO_DOWNLOAD = [
   // Water002 doesn't exist on AmbientCG - using custom River component instead
 ];
 
-const OUTPUT_DIR = join(process.cwd(), 'src/client/public/textures');
+const OUTPUT_DIR = join(process.cwd(), 'assets/textures');
 
 async function downloadFile(url: string, outputPath: string): Promise<void> {
   const response = await fetch(url);

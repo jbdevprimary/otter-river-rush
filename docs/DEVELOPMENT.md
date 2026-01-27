@@ -1,6 +1,6 @@
 # Development Guide - Otter River Rush
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-01-27
 **Status**: ✅ Flat Expo Architecture (Web + iOS + Android)
 
 ---
@@ -21,7 +21,7 @@
 ## Current State
 
 ### What Works
-- ✅ Flat Expo structure (`app/`, `src/`, `assets/`, `public/`)
+- ✅ Flat Expo structure (`app/`, `src/`, `assets/`)
 - ✅ React Three Fiber rendering + Miniplex ECS game logic
 - ✅ NativeWind UI components + branded 9-slice assets
 - ✅ Expo Router navigation
@@ -46,7 +46,6 @@ otter-river-rush/
 │   ├── hooks/           # Custom hooks
 │   └── lib/             # Utilities (audio, helpers)
 ├── assets/              # App-bundled assets (branding, 9-slice UI)
-├── public/              # Web static assets (models, textures)
 ├── docs/                # Documentation
 └── memory-bank/         # AI agent context
 ```
@@ -85,12 +84,11 @@ EXPO_TOKEN=xxx
 
 ### Asset Locations
 
-- **`assets/`**: Bundled app assets (logos, splash, 9-slice UI atlases)
-- **`public/`**: Web-only static assets (GLB models, PBR textures, audio)
+- **`assets/`**: Bundled app assets (logos, splash, models, textures, audio)
 
 ### Loading Guidance
 
-- **R3F models**: load from `/models/...` on web via `public/`.
+- **R3F models**: load via `expo-asset` (bundled URIs).
 - **Branding/UI**: load from `assets/` via `require()` or `expo-asset`.
 
 ### Model Generation
@@ -125,6 +123,8 @@ pnpm generate:animations
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm test:playwright
+pnpm test:maestro
 ```
 
 ### Playwright (Web E2E)

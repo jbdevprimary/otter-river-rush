@@ -9,7 +9,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { TextTo3DAPI } from '../meshy/text_to_3d';
 
-const OUTPUT_DIR = join(process.cwd(), 'src/client/public/models');
+const OUTPUT_DIR = join(process.cwd(), 'assets/models');
 
 async function generateEnemyModels() {
   console.log('🎨 Generating enemy 3D models with Meshy AI...\n');

@@ -13,7 +13,7 @@ import { MeshyAPI } from '../meshy/index.js';
 import type { ModelAsset } from '../schemas/asset-manifest.js';
 
 // When run from dev-tools workspace, go up to root then to client
-const OUTPUT_DIR = path.resolve(process.cwd(), '../../src/client/public/models');
+const OUTPUT_DIR = path.resolve(process.cwd(), 'assets/models');
 const API_KEY = process.env.MESHY_API_KEY;
 
 if (!API_KEY) {

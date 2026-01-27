@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { openai } from '@ai-sdk/openai';
 import { experimental_generateImage as generateImage } from 'ai';
 
-const PUBLIC_DIR = join(process.cwd(), 'public');
+const ASSETS_DIR = join(process.cwd(), 'assets');
 
 interface IconConfig {
   name: string;
@@ -63,7 +63,7 @@ async function generateIcon(config: IconConfig): Promise<void> {
     const base64Data = result.image.base64;
     const buffer = Buffer.from(base64Data, 'base64');
 
-    const filepath = join(PUBLIC_DIR, config.filename);
+    const filepath = join(ASSETS_DIR, config.filename);
     writeFileSync(filepath, buffer);
 
     console.log(`   ✅ Saved: ${config.filename} (${Math.round(buffer.length / 1024)}KB)`);

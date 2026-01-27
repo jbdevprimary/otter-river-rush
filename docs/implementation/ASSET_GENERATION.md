@@ -7,7 +7,7 @@ This document provides a complete overview of all game assets, their generation 
 
 ### ✅ Generated Assets
 
-#### Game Sprites (`/public/sprites/`)
+#### Game Sprites (`/assets/sprites/`)
 All game sprites have been generated using OpenAI's GPT-Image-1 model:
 - ✅ `otter.png` - Main character (1.5 MB)
 - ✅ `otter-shield.png` - Shielded otter (1.4 MB)
@@ -23,7 +23,7 @@ All game sprites have been generated using OpenAI's GPT-Image-1 model:
 
 **Total:** 16 sprites, ~21 MB
 
-#### HUD Elements (`/public/hud/`)
+#### HUD Elements (`/assets/hud/`)
 All HUD elements have been generated:
 - ✅ `splash-screen.png` - Title screen (2.7 MB) ⚠️ Large
 - ✅ `heart-icon.png` - Life indicator (1.5 MB)
@@ -36,7 +36,7 @@ All HUD elements have been generated:
 
 **Total:** 8 HUD elements, ~15 MB
 
-#### PWA Icons (`/public/`)
+#### PWA Icons (`/assets/`)
 All PWA icons have been created using placeholder generation:
 - ✅ `pwa-192x192.png` - PWA icon 192x192 (1.5 MB)
 - ✅ `pwa-512x512.png` - PWA icon 512x512 (1.5 MB)
@@ -76,7 +76,7 @@ npm run generate-sprites
 ```
 Generates all 16 game sprites using OpenAI's GPT-Image-1 model.
 - Requires: `OPENAI_API_KEY` environment variable
-- Output: `/public/sprites/*.png`
+- Output: `/assets/sprites/*.png`
 - Time: ~2 minutes (with rate limiting)
 
 #### 2. Generate HUD Elements
@@ -85,7 +85,7 @@ npm run generate-hud
 ```
 Generates all 8 HUD elements.
 - Requires: `OPENAI_API_KEY` environment variable
-- Output: `/public/hud/*.png`
+- Output: `/assets/hud/*.png`
 - Time: ~90 seconds
 
 #### 3. Generate PWA Icons (AI)
@@ -94,7 +94,7 @@ npm run generate-pwa-icons
 ```
 Generates PWA icons using AI.
 - Requires: `OPENAI_API_KEY` environment variable
-- Output: `/public/*.{png,svg,ico}`
+- Output: `/assets/*.{png,svg,ico}`
 - Time: ~60 seconds
 
 #### 4. Create Placeholder Icons (Fast)
@@ -177,7 +177,7 @@ workbox: {
 ## File Structure
 
 ```
-public/
+assets/
 ├── sprites/              # Game sprites (16 files, ~21 MB)
 │   ├── otter.png
 │   ├── otter-shield.png
@@ -254,7 +254,7 @@ precache  39 entries (40137.40 KiB)
 - Or exclude large files from precaching
 
 ### PWA Icons Not Displaying
-- Verify files exist in `/public/` directory
+- Verify files exist in `/assets/` directory
 - Check manifest.webmanifest references correct paths
 - Clear browser cache and reinstall PWA
 

@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { openai } from '@ai-sdk/openai';
 import { experimental_generateImage as generateImage } from 'ai';
 
-const ICONS_DIR = join(process.cwd(), 'public', 'icons');
+const ICONS_DIR = join(process.cwd(), 'assets', 'icons');
 const MANIFEST_PATH = join(ICONS_DIR, 'manifest.json');
 
 interface IconConfig {

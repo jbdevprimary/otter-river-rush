@@ -47,22 +47,4 @@ config.resolver.assetExts = [
   'wav',
 ];
 
-// 3. Configure server for web static assets
-config.server = {
-  ...config.server,
-  // Serve static files from public directory for web
-  rewriteRequestUrl: (url) => {
-    // Skip bundle and Metro-specific URLs
-    if (
-      url.includes('.bundle') ||
-      url.includes('.map') ||
-      url.includes('hot') ||
-      url.includes('symbolicate')
-    ) {
-      return url;
-    }
-    return url;
-  },
-};
-
 module.exports = withNativeWind(config, { input: './global.css' });

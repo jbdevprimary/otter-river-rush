@@ -20,7 +20,7 @@ import sharp from 'sharp';
 import type { AssetDefinition } from './asset-manifest.js';
 import type { QualityMetrics } from './asset-quality-evaluator.js';
 
-const PUBLIC_DIR = join(process.cwd(), 'public');
+const ASSETS_DIR = join(process.cwd(), 'assets');
 
 export interface ProcessingOptions {
   forceResize?: boolean;
@@ -146,7 +146,7 @@ export async function processAsset(
   asset: AssetDefinition,
   options: ProcessingOptions = {}
 ): Promise<boolean> {
-  const sourcePath = join(PUBLIC_DIR, asset.path);
+  const sourcePath = join(ASSETS_DIR, asset.path);
 
   // Check if source exists
   if (!existsSync(sourcePath)) {

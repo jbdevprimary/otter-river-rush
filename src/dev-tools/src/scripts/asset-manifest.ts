@@ -39,7 +39,7 @@ export interface AssetDefinition {
   description: string;
 
   // File location
-  path: string; // relative to public/
+  path: string; // relative to assets/
 
   // Expected specifications
   expectedSize: { width: number; height: number };

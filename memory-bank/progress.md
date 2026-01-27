@@ -69,6 +69,9 @@
 ### ✅ Test Infrastructure (2026-01-27)
 - **Jest config**: Added alias-aware matching and spec/test pattern support.
 
+### ✅ Asset Bundling (2026-01-27)
+- **Assets**: Consolidated runtime assets under `assets/` and resolved via `expo-asset`.
+
 ---
 
 ## What's Left to Build
@@ -110,6 +113,7 @@
 10. ✅ Removed Sphinx scaffolding and refreshed guides for flat Expo setup
 11. ✅ Ran Biome auto-fixes and added Jest coverage for collision utilities
 12. ✅ Expanded Jest config to support alias mapping and spec/test patterns
+13. ✅ Consolidated runtime assets under `assets/` with expo-asset resolution
 
 ### Files Changed
 - Created: `assets/branding/*`, `assets/ui/*`
@@ -118,6 +122,7 @@
 - Created: `docs/LANDING_PAGE_SPEC.md`
 - Modified: `app.json`, `tailwind.config.js`, `package.json`
 - Modified: `jest.config.ts`, `metro.config.js`, `tokens.ts`
+- Modified: asset pipeline scripts and documentation to remove `public/`
 - Deleted: `apps/`, `packages/`, `src/client/`
 
 ---

@@ -26,6 +26,8 @@
     "check": "biome check --write .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
+    "test:playwright": "playwright test",
+    "test:maestro": "maestro test .maestro/flows",
     "generate:models": "tsx src/dev-tools/generators/meshy-models.ts",
     "generate:animations": "tsx src/dev-tools/generators/otter-animations.ts"
   },

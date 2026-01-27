@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import sharp from 'sharp';
 import type { AssetDefinition, QualityMetrics } from './asset-manifest.js';
 
-const PUBLIC_DIR = join(process.cwd(), 'public');
+const ASSETS_DIR = join(process.cwd(), 'assets');
 
 /**
  * Detect if an image has a white background instead of transparency
@@ -190,7 +190,7 @@ function calculateQualityScore(
  * Evaluate quality of a single asset
  */
 export async function evaluateAssetQuality(asset: AssetDefinition): Promise<QualityMetrics> {
-  const fullPath = join(PUBLIC_DIR, asset.path);
+  const fullPath = join(ASSETS_DIR, asset.path);
 
   // Check if file exists
   if (!existsSync(fullPath)) {

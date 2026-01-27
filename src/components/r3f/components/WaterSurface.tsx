@@ -1,10 +1,8 @@
 import { useTexture } from '@react-three/drei';
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { resolveAssetUrl } from '@/game/assets';
 import { AnimatedWaterMaterial } from '../shaders/WaterMaterial';
-
-// For Metro web, assets are served from public/ at root
-const BASE_URL = '';
 
 interface WaterSurfaceProps {
   colors: {
@@ -13,19 +11,17 @@ interface WaterSurfaceProps {
     foam: string | THREE.Color;
   };
   foamColor: string;
-  baseUrl?: string;
   /** Width of the river (reserved for future use) */
   riverWidth?: number;
   /** Length of the river (reserved for future use) */
   riverLength?: number;
 }
 
-export function WaterSurface({ colors, foamColor, baseUrl = BASE_URL }: WaterSurfaceProps) {
+export function WaterSurface({ colors, foamColor }: WaterSurfaceProps) {
   // Load textures
-  const [normalMap, roughnessMap] = useTexture([
-    `${baseUrl}/textures/water/water_normal.jpg`,
-    `${baseUrl}/textures/water/water_roughness.jpg`,
-  ]);
+  const waterNormalUrl = resolveAssetUrl({ path: 'textures/water/water_normal.jpg' });
+  const waterRoughnessUrl = resolveAssetUrl({ path: 'textures/water/water_roughness.jpg' });
+  const [normalMap, roughnessMap] = useTexture([waterNormalUrl, waterRoughnessUrl]);
 
   // Configure textures
   useMemo(() => {

@@ -11,7 +11,7 @@ import fetch from 'node-fetch';
 import ora from 'ora';
 import { MeshyAPI, OTTER_ANIMATIONS } from '../meshy/index.js';
 
-const OUTPUT_DIR = path.resolve(process.cwd(), '../../src/client/public/models');
+const OUTPUT_DIR = path.resolve(process.cwd(), 'assets/models');
 const MANIFEST_PATH = path.join(OUTPUT_DIR, 'models-manifest.json');
 const API_KEY = process.env.MESHY_API_KEY;
 

@@ -13,15 +13,13 @@ import { useAnimations, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import type * as THREE from 'three';
+import { resolveAssetUrl } from '../../../game/assets';
 import { VISUAL } from '../../../game/config';
 import { queries } from '../../../game/ecs';
 import type { Entity } from '../../../game/types';
 
 // Default otter model (fallback)
-// For Metro web, assets are served from public/ at root
-// For native, assets will use require() via AssetBridge
-const BASE_URL = '';
-const DEFAULT_OTTER_MODEL = `${BASE_URL}/models/player/otter-player/model.glb`;
+const DEFAULT_OTTER_MODEL = resolveAssetUrl({ path: 'models/player/otter-player/model.glb' });
 
 /**
  * Main EntityRenderer component

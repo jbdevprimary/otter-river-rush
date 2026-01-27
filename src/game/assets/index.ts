@@ -2,13 +2,12 @@
  * Asset Management Module
  *
  * Single source of truth for all game assets.
- * Use AssetBridge.web for web/Babylon.js environments.
- * Use AssetBridge.native for React Native/Expo environments.
+ * Use AssetBridge for Expo environments (web + native).
  */
 
-// Web bridge (default for Babylon.js)
-export * from './AssetBridge.web';
+// Expo asset bridge (platform aware via expo-asset)
+export * from './AssetBridge';
 // Core registry (platform-agnostic)
 export * from './AssetRegistry';
 
-// Note: For React Native, import from './AssetBridge.native' directly
+// Note: For explicit platform imports, use './AssetBridge.native' or './AssetBridge.web'
