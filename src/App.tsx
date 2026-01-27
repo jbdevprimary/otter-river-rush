@@ -18,6 +18,7 @@ import { GameCanvas } from './components/game/GameCanvas';
 import { GameHUD } from './components/game/GameHUD';
 import { MainMenu } from './screens/MainMenu';
 import { GameOverScreen } from './screens/GameOverScreen';
+import { CharacterSelectScreen } from './screens/CharacterSelectScreen';
 
 export default function App() {
   const status = useGameStore((state) => state.status);
@@ -27,8 +28,9 @@ export default function App() {
   const renderScreen = (gameStatus: GameStatus) => {
     switch (gameStatus) {
       case 'menu':
-      case 'character_select':
         return <MainMenu />;
+      case 'character_select':
+        return <CharacterSelectScreen />;
       case 'playing':
         return (
           <View className="flex-1">
